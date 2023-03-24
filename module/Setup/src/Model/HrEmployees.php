@@ -116,6 +116,8 @@ class HrEmployees extends Model {
     public $gratuityDate;
     public $permanentDate;
     public $disabledFlag;
+	public $taxBase;
+    public $ssfNo;
 
     
     const TABLE_NAME = "HRIS_EMPLOYEES";
@@ -229,6 +231,8 @@ class HrEmployees extends Model {
     const PERMANENT_DATE = "PERMANENT_DATE";
     const GRATUITY_DATE = "GRATUITY_DATE";
     const DISABLED_FLAG = "DISABLED_FLAG";
+	const TAX_BASE = "TAX_BASE";
+    const SSF_NO="SSF_NO";
 
     
     public $mappings = [
@@ -341,7 +345,9 @@ class HrEmployees extends Model {
         'bankId' => self::BANK_ID,
         'permanentDate' => self::PERMANENT_DATE,
         'gratuityDate' => self::GRATUITY_DATE,
-        'disabledFlag' => self::DISABLED_FLAG
+        'disabledFlag' => self::DISABLED_FLAG,
+		'taxBase' => self::TAX_BASE,
+        'ssfNo'=>self::SSF_NO,
     ];
 
 }

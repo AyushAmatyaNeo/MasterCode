@@ -130,16 +130,20 @@
                         <td><b>{{EMPLOYEE_CODE}}</b></td>
                         <td></td>
                         <td></td>
-                        <td><b>Assessment Choice</b></td>
-                        <td><b>{{MARITAL_STATUS_DESC}}</b></td>
+                        <td><b>Maritual Status</b></td>
+                        <td><b>{{MARITAL_STATUS}}</b></td>
+                        
                     </tr>
                     <tr>
                         <td><b>PAN No</b></td>
                         <td><b>{{ID_PAN_NO}}</b></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
+                        <td><b>Assessment Choice</b></td>
+                        <td><b>{{ASSESSMENT_CHOICE}}</b></td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">&nbsp;</td>
                     </tr>
                     <tr>
                         <td colspan="2"><b>Incomes</b></td>
@@ -152,7 +156,7 @@
                         <td>{{TOTAL_INCOME_VAL}}</td>
                         <td><b>Total Exemption</b></td>
                         <td>{{`+document.sumOfExemption['TEMPLATE_NAME']+`}}</td>
-                        <td><b>Tax Deu</b></td>
+                        <td><b>Tax Due</b></td>
                         <td>{{`+document.sumOfOtherTax['TEMPLATE_NAME']+`}}</td>
                     </tr>
         ` + sencondLoop + `
@@ -185,7 +189,7 @@
 
                         });
 
-                        response.data.employees[index]['TOTAL_INCOME_VAL'] = tempTotal;
+                        response.data.employees[index]['TOTAL_INCOME_VAL'] = parseFloat(tempTotal).toFixed(2);
 
                     });
 //                    

@@ -30,6 +30,7 @@ class VarianceSetupController extends HrisController {
     'A'=>'Allowance', // for Allowance
     'G'=>'Gross', // for Gross
     'Y'=>'Tax Yearly', // for Gross
+    'N'=>'Annual Salary', // for annual salary sheet
     ];
     
     
@@ -92,7 +93,9 @@ class VarianceSetupController extends HrisController {
             'vHeadsList' => $this->vHeadsList,
             'form' => $this->form,
             'customRenderer' => Helper::renderCustomView(),
-            'payHeads' => EntityHelper::getTableList($this->adapter, Rules::TABLE_NAME, [Rules::PAY_ID, Rules::PAY_EDESC], [Rules::STATUS => "E"])
+            'payHeads' => EntityHelper::getTableList($this->adapter, Rules::TABLE_NAME, [Rules::PAY_ID, Rules::PAY_EDESC], [Rules::STATUS => "E"]),
+			'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ];
     }
 
@@ -132,7 +135,9 @@ class VarianceSetupController extends HrisController {
             'form' => $this->form,
             'customRenderer' => Helper::renderCustomView(),
             'details' => $details,
-            'payHeads' => EntityHelper::getTableList($this->adapter, Rules::TABLE_NAME, [Rules::PAY_ID, Rules::PAY_EDESC], [Rules::STATUS => "E"])
+            'payHeads' => EntityHelper::getTableList($this->adapter, Rules::TABLE_NAME, [Rules::PAY_ID, Rules::PAY_EDESC], [Rules::STATUS => "E"]),
+			'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ];
     }
 

@@ -85,7 +85,7 @@ class HrEmployeesFormTabThree extends Model {
     public $idThumbId;
 
     /**
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Type("Zend\Form\Element\Text")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Pan No"})
@@ -93,6 +93,16 @@ class HrEmployeesFormTabThree extends Model {
      * @Annotation\Attributes({ "id":"idPanNo", "class":"form-control" })
      */
     public $idPanNo;
+
+    /**
+     * @Annotation\Required(true)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"SSF No"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"50"}})
+     * @Annotation\Attributes({ "id":"ssfNo", "class":"form-control" })
+     */
+    public $ssfNo;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
@@ -123,7 +133,7 @@ class HrEmployeesFormTabThree extends Model {
     public $idRetirementNo;
 
     /**
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Type("Zend\Form\Element\Text")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Citizenship No"})
@@ -205,6 +215,7 @@ class HrEmployeesFormTabThree extends Model {
         'idDrivingLicenseType' => 'ID_DRIVING_LICENCE_TYPE',
         'idDrivingLicenseExpiry' => 'ID_DRIVING_LICENCE_EXPIRY',
         'idThumbId' => 'ID_THUMB_ID',
+        'ssfNo' => 'SSF_NO',
         'idPanNo' => 'ID_PAN_NO',
         'idAccCode' => 'ID_ACC_CODE',
         'idAccountId' => 'ID_ACCOUNT_NO',

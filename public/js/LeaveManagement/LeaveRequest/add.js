@@ -202,10 +202,12 @@
             calculateAvailableDays($startDate.val(), $endDate.val(), $halfDay.val(), $employee.val(), $leave.val());
             App.blockUI({target: "#hris-page-content", message: "Calculating Leave Days"});
             var startDateValue = $startDate.val();
+			var endDateValue = $endDate.val();
             app.pullDataById(document.wsPullLeaveDetail, {
                 'leaveId': $this.val(),
                 'employeeId': $employee.val(),
-                'startDate': (startDateValue == '') ? null : startDateValue
+                'startDate': (startDateValue == '') ? null : startDateValue,
+				'endDate': (endDateValue == '') ? null : endDateValue
             }).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 var leaveDetail = success.data;

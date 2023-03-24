@@ -8,44 +8,60 @@ use Application\Repository\HrisRepository;
 class PenaltyRepo extends HrisRepository {
 
     public function monthWiseReport($data) {
-        $companyCondition = "";
-        $branchCondition = "";
-        $departmentCondition = "";
-        $designationCondition = "";
-        $positionCondition = "";
-        $serviceTypeCondition = "";
-        $serviceEventTypeConditon = "";
-        $employeeCondition = "";
-        $employeeTypeCondition = "";
+//        $companyCondition = "";
+//        $branchCondition = "";
+//        $departmentCondition = "";
+//        $designationCondition = "";
+//        $positionCondition = "";
+//        $serviceTypeCondition = "";
+//        $serviceEventTypeConditon = "";
+//        $employeeCondition = "";
+//        $employeeTypeCondition = "";
 
-        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
-            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
-        }
-        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
-            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
-        }
-        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
-            $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
-        }
-        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
-            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
-        }
-        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
-            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
-        }
-        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
-            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
-        }
-        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
-            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
-        }
-        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
-            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
-        }
-        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
-            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
-        }
-        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
+//        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
+//            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
+//        }
+//        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
+//            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
+//        }
+//        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
+//            $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
+//        }
+//        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
+//            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
+//        }
+//        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
+//            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
+//        }
+//        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
+//            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
+//        }
+//        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
+//            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
+//        }
+//        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
+//            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
+//        }
+//        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
+//            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
+//        }
+
+//        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
+
+        $employeeId = $data['employeeId'];
+        $companyId = $data['companyId'];
+        $branchId = $data['branchId'];
+        $departmentId = $data['departmentId'];
+        $designationId = $data['designationId'];
+        $positionId = $data['positionId'];
+        $serviceTypeId = $data['serviceTypeId'];
+        $serviceEventTypeId = $data['serviceEventTypeId'];
+        $employeeTypeId = $data['employeeTypeId'];
+
+        $boundedParams = [];
+        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, null);
+        $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+
         $sql = <<<EOT
                 SELECT C.COMPANY_NAME,
                   D.DEPARTMENT_NAME,
@@ -72,10 +88,10 @@ class PenaltyRepo extends HrisRepository {
                   ) M
                 WHERE A.OVERALL_STATUS IN ('LA','BA')
                 AND (A.ATTENDANCE_DT BETWEEN M.FROM_DATE AND M.TO_DATE )
-                {$condition}
+                {$searchCondition['sql']}
 EOT;
 
-        return $this->rawQuery($sql);
+        return $this->rawQuery($sql, $boundedParams);
     }
 
     public function penaltyDetail($employeeId, $attendanceDt, $type) {

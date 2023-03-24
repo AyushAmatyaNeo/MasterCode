@@ -6,10 +6,14 @@ $this->headLink()
 $this->headScript()
         ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
         ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
-$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-value-modified.js'));
+$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-value-modified.js?1'));
 ?>
 <script>
     window.data =<?php echo $data; ?>;
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.getAcl = <?php echo json_encode($acl); ?>;
+    document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

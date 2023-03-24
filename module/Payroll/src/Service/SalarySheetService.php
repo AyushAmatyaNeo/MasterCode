@@ -95,10 +95,10 @@ class SalarySheetService {
     }
 
     public function newSalarySheet($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId) {
-//        $sheetNo = $this->findSalarySheetNo($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId);
-//        if ($sheetNo != null) {
-//            return $sheetNo;
-//        }
+        $sheetNo = $this->findSalarySheetNo($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId);
+        if ($sheetNo != null) {
+            return $sheetNo;
+        }
 
         $salarySheetModal = new SalarySheetModel();
         $salarySheetModal->sheetNo = ((int) Helper::getMaxId($this->adapter, SalarySheetModel::TABLE_NAME, SalarySheetModel::SHEET_NO)) + 1;
@@ -126,15 +126,15 @@ class SalarySheetService {
         $sql = "select employee_id,full_name from hris_employees where 
             status='E' and 
             group_id={$groupId} 
-            and company_id={$companyId}
+          
             and employee_id in (select EMPLOYEE_ID from HRIS_PAYROLL_EMP_LIST)";
         $statement = $this->adapter->query($sql);
         $iterator = $statement->execute();
         return iterator_to_array($iterator, false);
     }
     
-    public function viewSalarySheetByGroupSheet($monthId,$groupId, $sheetNo,$salaryTypeId) {
-        return Helper::extractDbData($this->salarySheetDetailRepo->fetchSalarySheetByGroupSheet($monthId,$groupId, $sheetNo,$salaryTypeId));
+    public function viewSalarySheetByGroupSheet($monthId,$groupId, $sheetNo,$salaryTypeId,$companyId) {
+        return Helper::extractDbData($this->salarySheetDetailRepo->fetchSalarySheetByGroupSheet($monthId,$groupId, $sheetNo,$salaryTypeId,$companyId));
     }
 
 }

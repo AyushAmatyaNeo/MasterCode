@@ -219,7 +219,7 @@ class AttendanceStatusRepository extends HrisRepository {
         $toDateCondition = "";
 
         if ($attendanceRequestStatusId != -1) {
-            $statusCondition = "AND AR.STATUS = ':attendanceRequestStatusId'";
+            $statusCondition = "AND AR.STATUS = :attendanceRequestStatusId";
             $boundedParams['attendanceRequestStatusId'] = $attendanceRequestStatusId;
         }
 

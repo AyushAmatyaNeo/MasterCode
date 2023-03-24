@@ -72,6 +72,7 @@ $idDrivingLicenseType = $formThree->get('idDrivingLicenseType');
 $idDrivingLicenseExpiry = $formThree->get('idDrivingLicenseExpiry');
 $idThumbId = $formThree->get('idThumbId');
 $idPanNo = $formThree->get('idPanNo');
+$ssfNo = $formThree->get('ssfNo');
 $idAccountId = $formThree->get('idAccountId');
 $idRetirementNo = $formThree->get('idRetirementNo');
 $idCitizenshipNo = $formThree->get('idCitizenshipNo');
@@ -900,7 +901,19 @@ if ($this->messages) {
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($ssfNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($ssfNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php
+                                print $employeeData[\Setup\Model\HrEmployees::SSF_NO];
+                                ;
+                                ?></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

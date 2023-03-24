@@ -44,6 +44,7 @@ class ExcelUploadController extends HrisController {
                     'salaryTypes' => $salaryTypes,
                     'months' => $months,
                     'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
                     'maxFiscalYearId' => $maxFiscalYear['MAX_FISCAL_YEAR_ID'],
         ]);
     }
@@ -119,15 +120,39 @@ class ExcelUploadController extends HrisController {
             $excelData = $_POST['data'];
             $basedOn = $_POST['basedOn'];
             foreach ($excelData as $data) {
-                if($basedOn == 2){ $data['A'] = EntityHelper::getEmployeeIdFromCode($this->adapter, $data['A']); }
                 if($data['A'] == null || $data['A'] == ''){ continue; }
-                $this->repository->updateEmployeeSalary($data['A'], $data['C']);
+                $this->repository->updateEmployeeSalary($data['A'], $data['C'], $basedOn);
             }
             return new JsonModel(['success' => true, 'error' => '']);
         }
         return $this->stickFlashMessagesTo([
             'searchValues' => EntityHelper::getSearchData($this->adapter),
             'acl' => $this->acl
+        ]);
+    }
+
+    public function employeeAttributesAction(){
+         $attributes = [
+            // "EMPLOYEE_CODE" => "Employee Code",
+            "SENIORITY_LEVEL" => "Seniority Level",
+            "SALARY" => "Salary"
+        ];
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            $excelData = $_POST['data'];
+            $basedOn = $_POST['basedOn'];
+            $col = $_POST['attribute'];
+            foreach ($excelData as $data) {
+                if($data['A'] == null || $data['A'] == ''){ continue; }
+                $this->repository->updateAttribute($data['A'], $col, $data['C'], $basedOn);
+            }
+            return new JsonModel(['success' => true, 'error' => '']);
+        }
+        return $this->stickFlashMessagesTo([
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
+            'attributes' => $attributes
         ]);
     }
 }

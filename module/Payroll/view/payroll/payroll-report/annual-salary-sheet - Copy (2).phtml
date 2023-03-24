@@ -1,0 +1,299 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.min.js'))
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/search.js'))
+        ->appendFile($this->basePath('js/Payroll/payrollReport/annualSalarySheet.js'));
+?>
+
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<script>
+    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.nonDefaultList =<?php echo json_encode($nonDefaultList); ?>;
+    document.groupVariables =<?php echo json_encode($groupVariables); ?>;
+    document.getFiscalYearMonthLink = '<?php echo $this->url('payrollReport', ['action' => 'getFiscalYearMonth']); ?>';
+    document.pullAnnualSalarySheetLink = '<?= $this->url("payrollReport", ["action" => "pullAnnualSalarySheet"]) ?>';
+    document.salaryType =<?php echo json_encode($salaryType); ?>;
+    document.preference =<?php echo json_encode($preference) ?>;
+	document.pullAnnualLink = '<?php echo $this->url('payrollReport', ['action' => 'pullAnnual']); ?>';
+    document.data =<?php echo $data; ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+</script>
+
+
+<div>
+    <div class="row">
+        <div class="col-sm-12 ">
+            <div class="portlet light bg-inverse">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-paper-plane font-green-haze"></i>
+                        <span class="caption-subject bold font-green-haze uppercase"> Filter Employees</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label>Company</label>
+                            <select class="form-control" name="company" id="companyId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Branch</label>
+                            <select multiple class="form-control" name="branchId" id="branchId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Department</label>
+                            <select multiple class="form-control" name="department" id="departmentId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Designation</label>
+                            <select multiple class="form-control" name="designation" id="designationId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Position</label>
+                            <select multiple class="form-control" name="position" id="positionId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Service Type</label>
+                            <select multiple class="form-control" name="serviceType" id="serviceTypeId">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <div class="col-sm-2">
+                            <label>Service Event Type</label>
+                            <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Employee Type</label>
+                            <select multiple class="form-control" name="employeeType" id="employeeTypeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Gender</label>
+                            <select multiple class="form-control" name="gender" id="genderId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Functional Type</label>
+                            <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Employee</label>
+                            <select multiple class="form-control" name="employee" id="employeeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Group</label>
+                            <select class="form-control" name="groupId" id="groupId">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row margin-top-10">
+                        <div class="col-sm-2">
+                            <label>Year</label>
+                            <select id="fiscalYearId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Month</label>
+                            <select multiple id="monthId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2" hidden>
+                            <label>Variables</label>
+                            <select multiple class="form-control reset-field" name="otVariable" id="otVariable">
+                            </select>
+                        </div>
+                        <div class="col-sm-2" hidden>
+                            <label>Extra Fields</label>
+                            <select multiple class="form-control reset-field" name="extraFields" id="extraFields">
+                            </select>
+                        </div>
+                        <div class="col-sm-2" hidden>
+                            <label>Report Type</label>
+                            <select class="form-control reset-field" name="reportType" id="reportType">
+                                <option value="GS">Group Sheet</option>
+                                <option value="GD">Group Detail</option>
+                                <!--<option value="S">Summary</option>-->
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Salary Type</label>
+                            <select multiple class="form-control reset-field" name="salaryType" id="salaryTypeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Order By</label>
+                            <select class="form-control " id="orderBy">
+                                <option value="E">Employee Name</option>
+                                <option value="S">Seniority</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row margin-top-10">
+                        <div class="col-sm-2" hidden>
+                            <label>Group Variables</label>
+                            <select class="form-control reset-field" name="groupVariable" id="groupVariable">
+                            </select>
+                        </div>
+                        
+<!--                        <div class="col-sm-2">
+                            <label>Table</label>
+                            <select class="form-control " id="tableType">
+                                <option value="N">Normal</option>
+                                <option value="P">Print</option>
+                            </select>
+                        </div>-->
+						<div class="col-sm-2" hidden>
+                            <label>Sheet No</label>
+                            <select class="form-control " id="sheetNo">
+
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row margin-top-10">
+                        <div class="col-sm-4 col-sm-offset-8">
+                            <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                                Reset
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                            <button  id="searchEmployeesBtn" class="btn btn-default btn-sm pull-right">
+                                Search
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                        
+                        
+                </div>
+            </div>
+
+            <div class="portlet light bg-inverse">
+                <div class="portlet-title">
+                    <div class="tools">
+                        <a href="" class="fullscreen" data-original-title="" title=""> </a>
+                    </div>
+
+                    <div class="actions">
+                        <div class="btn-group">
+                            <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-copy"></i> Tools
+                                <i class="fa fa-angle-down "></i>
+                            </a>
+                            <ul class="dropdown-menu pull-right">
+                                <li >
+                                    <a href="javascript:;" id="excelExport">
+                                        <i class="fa fa-file-excel-o" ></i>
+                                        Export to Excel
+                                    </a>
+                                </li>
+                                <li >
+                                    <a href="javascript:;" id="pdfExport">
+                                        <i class="fa fa-file-pdf-o" ></i> 
+                                        Export to PDF 
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="portlet-body">
+                    <div id="table">
+                    </div>
+
+                </div>
+                
+                <!--<div id="editor" style="overflow-x:auto;" >-->
+                
+                <style>
+/*		.style1 {
+			border-collapse: collapse;
+		}
+		.style1 th {
+			background-color: #DDDDDD;
+			white-space: nowrap;
+		}
+		.style1 .d {
+			white-space: nowrap;
+		}
+		.style1 .n {
+			padding-left: 20px;
+			text-align: right;
+		}*/
+
+.freeze {
+    position: sticky;
+    left: 0px;
+    background-color: #ffffff;
+}
+.table-condensed>thead>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>th, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>th, .table-condensed>tfoot>tr>td {
+    padding: 0px;
+}
+
+th {
+ background: white;
+  position: sticky;
+  top: 0; /* Don't forget this, required for the stickiness */
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+
+}
+
+
+
+	</style>
+        
+        </br>
+        <button id="printGroupSheet">PDF</button>
+        <button id="hideAllZero">Hide Zero Values</button>
+        <button id="unhideAllZero">Unhide Zero Values</button>
+        Break Up<input type="number" id="printBreakUp" value="40" style="width:55px;"/>
+        Font<input type="number" id="printFontSize"value="11" style="width:40px;"/>
+        Pixel<input type="number" id="printPixel" value="1330" style="width:60px;"/>
+        Footer Margin<input type="number" id="printFooterMargin" value="200" style="width:60px;"/>
+        </br>
+
+        <div id="printEditor" style="overflow-x:auto; overflow-y:auto; height: 500px;">
+            
+            
+            
+            
+            
+
+        </div>
+        
+        
+        
+        <div id="finalPrint">
+            
+        </div>
+               
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>

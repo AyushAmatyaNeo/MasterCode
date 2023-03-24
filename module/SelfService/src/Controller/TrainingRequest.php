@@ -70,6 +70,7 @@ class TrainingRequest extends HrisController {
                 }
                 return $this->redirect()->toRoute("trainingRequest");
             }
+			print_r ($trainings['trainingList']);die();
         }
         $this->prepareForm();
         $trainings = $this->getTrainingList($this->employeeId);

@@ -141,6 +141,14 @@ class CompanyController extends HrisController {
         $equalCrAccCode = $this->form->get('equalCrAccCode');
         $advanceDrAccCode = $this->form->get('advanceDrAccCode');
         $advanceCrAccCode = $this->form->get('advanceCrAccCode');
+        $formCodeFac = $this->form->get('formCodeFac');
+        $drAccCodeFac = $this->form->get('drAccCodeFac');
+        $crAccCodeFac = $this->form->get('crAccCodeFac');
+        $excessCrAccCodeFac = $this->form->get('excessCrAccCodeFac');
+        $lessDrAccCodeFac = $this->form->get('lessDrAccCodeFac');
+        $equalCrAccCodeFac = $this->form->get('equalCrAccCodeFac');
+        $advanceDrAccCodeFac = $this->form->get('advanceDrAccCodeFac');
+        $advanceCrAccCodeFac = $this->form->get('advanceCrAccCodeFac');
         
         $companyCode=($companyCode!=null)?$companyCode:$this->storageData['company_detail']['COMPANY_CODE'];
         $formCodeList = $this->synergyRepo->getFormList($companyCode);
@@ -154,6 +162,19 @@ class CompanyController extends HrisController {
         $equalCrAccCode->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
         $advanceDrAccCode->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
         $advanceCrAccCode->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $formCode->setValueOptions($this->listValueToKV($formCodeList, "FORM_CODE", "FORM_EDESC"));
+        
+        $formCodeFac->setValueOptions($this->listValueToKV($formCodeList, "FORM_CODE", "FORM_EDESC"));
+
+        $drAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $crAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $excessCrAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $lessDrAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $equalCrAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $advanceDrAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $advanceCrAccCodeFac->setValueOptions($this->listValueToKV($accCodeList, "ACC_CODE", "ACC_EDESC"));
+        $formCodeFac->setValueOptions($this->listValueToKV($formCodeList, "FORM_CODE", "FORM_EDESC"));
+
     }
 
     public function deleteAction() {

@@ -1,0 +1,66 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/jquery-validation/js/jquery.validate.min.js'))
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('js/setup/travel-category/edit.js'));
+
+?>
+
+<script>
+    document.editTravelCategoryLink = '<?= $this->url("travelCategory", ["action" => "edit",'id' => $id]) ?>';
+</script>
+
+<style>
+    .error{
+        color: red;
+    }
+</style>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\travelCategory')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Update
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+            <form action="" id="travelCategoryForm" method="POST">
+                <div class=" row">
+                <div class="col-sm-4">
+                      <div class="form-group">
+                        <label for="associateName">Level No</label>
+                        <input name="positionId"  id="positionId" class="form-control" type="number" value="<?php echo $detail[0]['LEVEL_NO']; ?>" required>
+                      </div>              
+                    </div>
+
+                    <div class="col-sm-4">
+                    <div class="form-group">
+                        <label for="associateName">Advance Amount</label>
+                        <input type="number" id="advanceAmount" value="<?php echo $detail[0]['ADVANCE_AMOUNT'];?>" name="advanceAmount" class="form-control" autocomplete="off" required>                                
+                    </div>              
+                    </div>
+                    <div class="col-sm-4">
+                     <div class="form-group">
+                     <label for="associateName">Daily Allowance</label>
+                        <input type="number" id="dailyAllowance" value="<?php echo $detail[0]['DAILY_ALLOWANCE_AMOUNT'];?>" name="dailyAllowance" class="form-control" autocomplete="off" required>
+                    </div>
+                </div>
+
+                <input type="submit" name="submit" id="submit" class="btn btn-success" value="Submit" autocomplete="off" style="margin-top:3rem ;">                
+                  
+                </div>
+                </form>
+          </div>
+        </div>
+    </div>
+</div>

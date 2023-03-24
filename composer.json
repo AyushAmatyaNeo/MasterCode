@@ -73,7 +73,8 @@
             "PayrollApi\\": "module/PayrollApi/src/",
             "Cafeteria\\": "module/Cafeteria/src/",
             "KioskApi\\": "module/KioskApi/src/",
-            "Cron\\":"module/Cron/src/"
+            "Cron\\":"module/Cron/src/",
+			"PrintLayout\\":"module/PrintLayout/src/"
         }
     },
     "autoload-dev": {

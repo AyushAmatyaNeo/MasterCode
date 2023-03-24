@@ -144,6 +144,7 @@ class AttendanceDetailRepository implements RepositoryInterface {
                   INITCAP(TO_CHAR(A.OUT_TIME, 'HH:MI AM'))         AS OUT_TIME,
                   A.IN_REMARKS                                     AS IN_REMARKS,
                   A.OUT_REMARKS                                    AS OUT_REMARKS,
+				  MIN_TO_HOUR(A.OT_MINUTES)						   AS OT_HOUR, 
                   MIN_TO_HOUR(A.TOTAL_HOUR)                        AS TOTAL_HOUR,
                   A.LEAVE_ID                                       AS LEAVE_ID,
                   A.HOLIDAY_ID                                     AS HOLIDAY_ID,
@@ -744,6 +745,7 @@ class AttendanceDetailRepository implements RepositoryInterface {
                   HRIS_MANUAL_ATTENDANCE({$employeeId},{$attendanceDt},'{$action}', {$shiftId}, {$in_time}, {$out_time});
                 END;";
         }
+		
         $statement = $this->adapter->query($sql);
         $statement->execute();
     }

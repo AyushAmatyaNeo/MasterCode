@@ -55,7 +55,7 @@ class LeaveRepository extends HrisRepository {
                 LEFT JOIN HRIS_LEAVE_MASTER_SETUP LMS
                 ON (LA.LEAVE_ID     =LMS.LEAVE_ID)
                 WHERE LA.EMPLOYEE_ID=:employeeId AND LMS.STATUS ='E' AND LMS.IS_MONTHLY = 'N' ORDER BY LMS.LEAVE_ENAME ASC)";
-        
+        //echo $sql; die;
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         

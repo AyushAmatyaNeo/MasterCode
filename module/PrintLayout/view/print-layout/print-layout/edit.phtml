@@ -1,0 +1,99 @@
+<?php
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/bootstrap-summernote/summernote.min.js'))
+        ->appendFile($this->basePath('js/PrintLayout/edit.js'));
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/bootstrap-summernote/summernote.css'))
+        ->appendStylesheet($this->basePath('css/print-layout.css'));
+?>
+
+<?php
+if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } 
+?>
+
+
+<script>
+    document.menu =<?php
+$menu = ["id" => "menuNotification", "subMenu" => ["id" => "subMenuEmail"]];
+echo json_encode($menu);
+?>;
+</script>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box blue">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-eercast"></i>Print Layout
+                </div>
+                <div class="tools">
+                <a href="javascript:;" class="collapse"> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+            <form method="POST"  class="form" role="form" action="<?= $this->url('printlayout', ['action' => 'edit','id'=>$id]) ?>">
+                    <div class=" row margin-top-30">
+                        <div class="col-sm-8">
+                            <label>Subject</label>
+                            <input type="text" class="form-control" name="subject" id="subject" value="<?php echo $data['SUBJECT'] ?>"/>
+                        </div>
+                        <div class="col-sm-4">
+                            <label>Print Report Code</label>
+                            <input type="text" class="form-control" name="prCode" id="prCode" value="<?php echo $data['PR_CODE'] ?>"/>
+                        </div>
+                    </div>   
+                    <!-- <div class="row margin-top-30"> -->
+                        <!-- <div class="col-sm-12"> -->
+                            <div class="form-group">
+                                <label class="control-label">Body</label>
+                                <div class="summernote">
+                                </div>
+                                <input name="body" type="hidden" value="<?= isset($data['BODY']) ? rawurlencode($data['BODY']) : '' ?>">
+                            </div>  
+                        <!-- </div> -->
+                    <!-- </div> -->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <!-- <div class="row"> -->
+                                <div class="col-sm-4">
+                                    <!-- <label class="control-label">CC</label> -->
+                                    <div class="form-group">
+                                        <label>CC</label>
+                                        <textarea name="cc" class="form-control" id="cc" style="resize:none; height: 50px !important;"><?php echo $data['CC'] ?></textarea>
+                                    </div>
+                                </div>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                    <div class="row margin-top-30">
+                        <div class="col-sm-12">
+                            <label class="control-label">Variables</label>
+                        </div>
+                        <div class="col-sm-12">
+                            <?php foreach ($variables as $variable): ?>
+                                <?php foreach ($variable as $k => $v): ?>
+                                    <!-- <div class="row"> -->
+                                    <div class="col-sm-2">
+                                        <a class="btn btn-block variables" index="<?= $k ?>" data="<?= $v ?>" style="font-size: 0.9rem; margin: 5px;"><?= $v ?></a>
+                                    </div>
+                                    <!-- </sdiv> -->
+                                    <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div> 
+                    <div class="row margin-top-30">
+                        <div class="col-sm-12">
+                            <button id="edit" class="btn default btn-sm">
+                                Edit
+                                <i class="fa fa-pencil-square-o"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

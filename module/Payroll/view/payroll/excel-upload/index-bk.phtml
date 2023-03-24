@@ -1,0 +1,118 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('assets/global/plugins/js-xlsx-master/dist/xlsx.full.min.js'))
+        ->appendFile($this->basePath('js/Payroll/excel-upload/index.js'));
+?>
+
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<script>
+    document.updateFlatValuesLink = '<?php echo $this->url("excelUpload", ["action" => "updateFlatValues"]); ?>';
+    document.updateMonthlyValuesLink = '<?php echo $this->url("excelUpload", ["action" => "updateMonthlyValues"]); ?>';
+    document.updatePayValuesLink = '<?php echo $this->url("excelUpload", ["action" => "updatePayValues"]); ?>';
+    document.flatValues =<?php echo json_encode($flatValues); ?>;
+    document.payValues =<?php echo json_encode($payValues); ?>;
+    document.salaryTypes =<?php echo json_encode($salaryTypes); ?>;
+    document.monthlyValues =<?php echo json_encode($monthlyValues); ?>;
+    document.fiscalYears =<?php echo json_encode($fiscalYears); ?>;
+    document.months =<?php echo json_encode($months); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.maxFiscalYearId =<?php echo $maxFiscalYearId; ?>;
+</script>
+
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\flatValue')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div>
+    <div class="row">
+        <div class="col-sm-12 ">
+            <div class="portlet light bg-inverse">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-paper-plane font-green-haze"></i>
+                        <span class="caption-subject bold font-green-haze uppercase"> Import From Excel</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <label>Browse File:
+                            <input type="file" name="excelImport" id="excelImport">
+                            </label>
+                        </div>
+                        <div class="col-sm-2">
+                            <label style="width: 100%">Effect On
+                            <select id="payHeads" class="form-control" multiple="multiple" name="payHeads"></select>
+                            </label>
+                        </div>
+                        <div class="col-sm-2">
+                            <label style="width: 100%">Fiscal Year
+                            <select id="fiscalYearId" class="form-control" name="fiscalYearId"></select>
+                            </label>
+                        </div>
+                        
+                        <div class="col-sm-2">
+                            <div class="row">
+                                <span>Value Type:</span>
+                                <div class="col-sm-12">
+                                    <label>Flat Value</label>
+                                    <input type="radio" name="valueType" checked="checked" id="flatValue">
+                                </div>
+                                <div class="col-sm-12">
+                                    <label>Monthly Value</label>
+                                    <input type="radio" name="valueType" id="monthlyValue">
+                                </div>
+                                <div class="col-sm-12">
+                                    <label>Pay Value Modified</label>
+                                    <input type="radio" name="valueType" id="payValueModified">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="row">
+                                <span>Based On:</span>
+                                <div class="col-sm-12">
+                                    <label>Employee Id</label>
+                                    <input type="radio" name="basedOn" checked="checked" id="employeeIdBased">
+                                </div>
+                                <div class="col-sm-12">
+                                    <label>Official Code</label>
+                                    <input type="radio" name="basedOn" id="employeeCodeBased">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 months">
+                            <label style="width: 100%">Months
+                            <select id="monthId" class="form-control" name="monthId"></select>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <input type="button" name="submit" id="submit" value="Submit" class="btn btn-primary">
+                        </div>
+                        
+                        <div class="col-sm-2 salary-types">
+                            <label style="width: 100%">Salary Types
+                                <select id="salaryTypeId" class="form-control" name="salaryTypeId"></select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="table"></div>
+
+
+

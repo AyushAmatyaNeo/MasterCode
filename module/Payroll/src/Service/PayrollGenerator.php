@@ -57,7 +57,10 @@ class PayrollGenerator {
         "IS_DISABLE_PERSON",
         "PREVIOUS_MONTH_DAYS",
         "BRANCH_ALLOWANCE_REBATE",
-        "IS_REMOTE_BRANCH"
+        "IS_REMOTE_BRANCH",
+		"AGE",
+		"SALARY_DAYS",
+		"OT_WORKED_HOURS"
     ];
     const SYSTEM_RULE = [
         "TOTAL_ANNUAL_AMOUNT",
@@ -130,6 +133,14 @@ class PayrollGenerator {
         $previousSumValList[$prevSumDtl['PAY_EDESC']]=$prevSumDtl['VALUE'];
         }
         // for previous sum data end
+		
+		// for previous MAX data start
+        $maxPayValData=$this->ruleRepo->fetchMaxPayVal($employeeId, $monthId) ;
+        $maxPayValList=[];
+        foreach($maxPayValData as $maxPayDtl){
+        $maxPayValList[$maxPayDtl['PAY_EDESC']]=$maxPayDtl['VALUE'];
+        }
+        // for previous MAX data end
         
         
         foreach ($payList as $ruleDetail) {
@@ -255,6 +266,28 @@ class PayrollGenerator {
             }
             // for prevous sum val calulation end
             
+			// for max pay val calulation start
+            $maxPayValCheck = strpos($formula, "MS:");
+            if ($maxPayValCheck ) {
+                while ($maxPayValCheck) {
+                        $startPos = strpos($formula, '[MS:');
+                        $endPos = strpos($formula, ' ', $startPos);
+                        if (!$endPos) {
+                            $endPos = strpos($formula, ']', $startPos) + 1;
+                        }
+                        $length = abs($endPos - $startPos);
+                        $variable = substr($formula, $startPos, $length);
+                        $key = $maxPayValList[$variable];
+                        if ($key || $key>=0) {
+                            $formula = str_replace($variable, is_string($key) ? "'{$key}'" : $key, $formula);
+                            $maxPayValCheck = strpos($formula, "MS:");
+                        } else {
+                            $maxPayValCheck = false;
+                        }
+                    }
+                
+            }
+            // for max pay val calulation end
             
 
             $systemValCheck = strpos($formula, "S:");

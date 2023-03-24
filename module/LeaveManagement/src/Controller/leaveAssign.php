@@ -80,6 +80,7 @@ class leaveAssign extends HrisController {
             $leaveMonthDataSql="SELECT * FROM HRIS_LEAVE_MONTH_CODE 
                     WHERE LEAVE_YEAR_ID=( SELECT Max(LEAVE_YEAR_ID) from HRIS_LEAVE_YEARS ) ORDER BY LEAVE_YEAR_MONTH_NO";
             $leaveMonthData= EntityHelper::rawQueryResult($this->adapter, $leaveMonthDataSql);
+			//echo count($list); die;
             return new JsonModel([
                 "success" => "true",
                 "data" => $list,

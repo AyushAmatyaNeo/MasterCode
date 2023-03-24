@@ -40,6 +40,7 @@ class Birthday extends AbstractActionController {
         }
 
         $empDetails = $this->repository->getBirthdayEmpDet($id);
+		//print_r($empDetails);die;
         $wishEmpDetail = $this->repository->getBirthdayEmpDet($this->employeeId);
         $request = $this->getRequest();
 
@@ -78,7 +79,6 @@ class Birthday extends AbstractActionController {
         if ($messagePosted['C'] > 0) {
             $showMessageField = false;
         }
-
         return Helper::addFlashMessagesToArray($this, [
                     'brithdayEmpDtl' => $empDetails,
                     'wishEmpDetail' => $wishEmpDetail,

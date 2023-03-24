@@ -24,6 +24,8 @@ $this->headScript()
     document.pullVarianceListLink = '<?= $this->url("payrollReport", ["action" => "pullVarianceList"]) ?>';
     document.preference =<?php echo json_encode($preference) ?>;
     document.month = null; document.fiscalYear = null;
+	document.acl =<?php echo json_encode($acl); ?>;
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
 </script>
 
 <script type="x/kendo-template" id="page-template">

@@ -13,6 +13,7 @@ use Application\Model\Model;
 use Application\Repository\RepositoryInterface;
 use Zend\Authentication\AuthenticationService;
 use Application\Helper\Helper;
+use Setup\Model\TravelExpenseClass;
 
 class TravelExpenseDtlRepository implements RepositoryInterface {
 
@@ -65,10 +66,14 @@ class TravelExpenseDtlRepository implements RepositoryInterface {
             new Expression("TR.LOCAL_CONVEYENCE AS LOCAL_CONVEYENCE"),
             new Expression("TR.MISC_EXPENSES AS MISC_EXPENSES"),
             new Expression("TR.TOTAL_AMOUNT AS TOTAL_AMOUNT"),
+          //  new Expression("HTEC.CATEGORY_NAME AS CATEGORY"),
             new Expression("TR.REMARKS AS REMARKS"),
+            
                 ], false);
         $select->from(['TR' => TravelExpenseDetail::TABLE_NAME])
-                ->join(['T' => TravelRequest::TABLE_NAME], "T." . TravelRequest::TRAVEL_ID . "=TR." . TravelExpenseDetail::TRAVEL_ID, [TravelRequest::TRAVEL_CODE]);
+                ->join(['T' => TravelRequest::TABLE_NAME], "T." . TravelRequest::TRAVEL_ID . "=TR." . TravelExpenseDetail::TRAVEL_ID, [TravelRequest::TRAVEL_CODE])
+               ->join(['HTEC' => TravelExpenseClass::TABLE_NAME], "HTEC." . TravelExpenseClass::ID . "=TR." . TravelExpenseDetail::CATEGORY_ID,[TravelExpenseClass::CATEGORY_NAME]);
+                
 
         $select->where([
             "TR.TRAVEL_ID" => $travelId,
@@ -77,7 +82,9 @@ class TravelExpenseDtlRepository implements RepositoryInterface {
 
         $select->order("TR.ID");
         $statement = $sql->prepareStatementForSqlObject($select);
+       
         $result = $statement->execute();
+      // echo '<pre>'; print_r($result);die;
         return $result;
     }
 

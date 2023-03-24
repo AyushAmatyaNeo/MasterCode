@@ -270,8 +270,8 @@ FROM (SELECT *
     LEFT JOIN HRIS_BRANCHES BR ON (E.BRANCH_ID = BR.BRANCH_ID)
     LEFT JOIN HRIS_PROVINCES BP on (BP.PROVINCE_ID=BR.PROVINCE_ID)
 ";
-//        print_r($sql);
-//        die();
+        //print_r($sql);
+    //    die();
         return $this->rawQuery($sql, $boundedParameter);
     }
 

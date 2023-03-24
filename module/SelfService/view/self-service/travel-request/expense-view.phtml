@@ -207,6 +207,8 @@ print $this->form()->openTag($form);
                                 <th rowspan="3">Daily Allowance</th>
                                 <th rowspan="3">Local Conveyence</th>
                                 <th rowspan="3">Misc. Expenses</th>
+								<th rowspan="3">Category</th>
+                     
                                 <th rowspan="3">Total</th>
                                 <th rowspan="3">Remarks</th>
                             </tr>
@@ -261,6 +263,11 @@ print $this->form()->openTag($form);
                                     <td>
                                         <input type="number" value="<?= $expenseDtlRow['MISC_EXPENSES']; ?>"  readonly="readonly" style="width: 60px;" step="0.01" min="0"/>
                                     </td>
+									
+									<td>
+                                        <input type="text" value="<?= $expenseDtlRow['CATEGORY_NAME']; ?>" readonly="readonly" size="11"/>
+                                    </td>
+									
                                     <td>
                                         <input type="number" value="<?= $expenseDtlRow['TOTAL_AMOUNT']; ?>"  id="total"  readonly="readonly" name="total" style="width: 72px;" step="0.01" min="0"/>
                                     </td>
@@ -375,6 +382,8 @@ print $this->form()->closeTag();
                     <th rowspan="3">Daily Allowance</th>
                     <th rowspan="3">Local Conveyence</th>
                     <th rowspan="3">Misc. Expenses</th>
+					<th rowspan="3">Category</th>
+                  
                     <th rowspan="3">Total</th>
                     <th rowspan="3" class="lastColumn">Remarks</th>
                 </tr>
@@ -439,6 +448,11 @@ print $this->form()->closeTag();
                         <td>
                             <?= $expenseDtlRow['MISC_EXPENSES']; ?>
                         </td>
+						
+						  <td>
+                            <?= $expenseDtlRow['CATEGORY_NAME']; ?>
+                        </td>
+						
                         <td>
                             <?= $expenseDtlRow['TOTAL_AMOUNT']; ?>
                         </td>
@@ -459,6 +473,7 @@ print $this->form()->closeTag();
                     <td><?= $allowance; ?></td>
                     <td><?= $localConveyence; ?></td>
                     <td><?= $miscExpense; ?></td>
+					 <td><?= $category; ?></td>
                     <td><?= $totalAmount; ?></td>
                     <td class="lastColumn"></td>
                 </tr>

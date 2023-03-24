@@ -278,6 +278,7 @@ class AttendanceByHr extends HrisController {
         try {
             $request = $this->getRequest();
             $postedData = $request->getPost();
+			//print_r($postedData);die;
             $inTime = "TO_DATE('{$postedData['in_time']}', 'HH:MI AM')";
             $outTime = "TO_DATE('{$postedData['out_time']}', 'HH:MI AM')";
             //return new JsonModel(['success' => true, 'data' => $postedData, 'error' => '']);

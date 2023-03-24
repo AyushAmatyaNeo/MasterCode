@@ -281,6 +281,12 @@ class LeaveStatusRepository extends HrisRepository {
             $toDateCondition = "AND LA.END_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
             $boundedParameter['toDate'] = $toDate;
         }
+		
+		 if($fromDate && $toDate){
+            $fromDateCondition="";
+            $toDateCondition="AND ( ( LA.START_DATE BETWEEN TO_DATE (:fromDate,'DD-MM-YYYY') AND TO_DATE(:toDate,'DD-MM-YYYY') )
+                                OR  ( LA.END_DATE   BETWEEN TO_DATE (:fromDate,'DD-MM-YYYY') AND TO_DATE(:toDate,'DD-MM-YYYY') ) )";
+        }
 
         $sql = "SELECT 
                 FUNT.FUNCTIONAL_TYPE_EDESC                                        AS FUNCTIONAL_TYPE_EDESC,

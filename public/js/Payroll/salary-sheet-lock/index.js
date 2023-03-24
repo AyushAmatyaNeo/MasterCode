@@ -15,6 +15,7 @@
         var payrollProcess = null;
         var selectedSalarySheetList = [];
         var selectedMonth = {};
+        var $warningTable = $("#dialog-modal");
 
         var $fiscalYear = $('#fiscalYearId');
         var $month = $('#monthId');
@@ -32,8 +33,22 @@
         var $bulkApproveDiv = $('#bulkApproveDiv');
         var $bulkNotApproveDiv = $('#bulkNotApproveDiv');
         var $bulkLockDiv = $('#bulkLockDiv');
+        var $bulkGenerateVoucherDiv = $('#bulkGenerateVoucherDiv');
         var $bulkUnlockDiv = $('#bulkUnlockDiv');
         var $bulkActionDiv = $('#bulkActionDiv');
+
+        var $pleaseWaitOptions = $('#please-wait-options');
+        var loadingLogoLink = data['loading-icon'];
+        var $cancelBtn = $('#cancelBtn');
+        var loadingHtml = '<div class="sk-spinner sk-spinner-wandering-cubes"><div class="sk-cube1"></div><div class="sk-cube2"></div></div>';
+        var loading_screen = null;
+        var updateLoadingHtml = function () {
+            loading_screen.updateOptions({
+                logo: loadingLogoLink,
+                backgroundColor: '#2f9e1e',
+                loadingHtml: "<p class='loading-message' style='color:white !important;'>" + "Generating Voucher" + "</p>" + loadingHtml
+            });
+        };
 
         app.populateSelect($salaryTypeId, data['salaryType'], 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
         
@@ -41,6 +56,13 @@
             var onDataLoad = function (data) {
                 companyList = data['company'];
                 app.populateSelect($companyId, data['company'], 'COMPANY_ID', 'COMPANY_NAME', 'Select Company');
+                var acl = document.getAcl;
+                if(acl['CONTROL'] == 'C'){
+                    $companyId.val(acl['CONTROL_VALUES'][0]['VAL']);
+                    document.getElementById("companyId").setAttribute("disabled", "disabled");
+                }else{
+                    console.log('Role is not company wise');
+                }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -51,10 +73,128 @@
             });
         })($companyId, getSearchDataLink);
 
+        
+
+        // (function ($groupId, link) {
+        //     var onDataLoad = function (data) {
+        //         groupList = data;
+        //         app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+        //         var acl = document.getAcl;
+        //         console.log(acl);
+        //         if(acl['CONTROL'] == 'C'){
+        //             var companyWiseGroup = document.getCompanyWiseGroup;
+        //             if(companyWiseGroup[0]['GROUP_ID']){
+        //                 $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+        //             }                    
+        //             document.getElementById("groupId").setAttribute("disabled", "disabled");
+        //         }else{
+        //             console.log('Role is not company wise');
+        //         }
+        //     };
+        //     app.serverRequest(link, {}).then(function (response) {
+        //         if (response.success) {
+        //             onDataLoad(response.data);
+        //         }
+        //     }, function (error) {
+
+        //     });
+        // })($groupId, getGroupListLink);
+
         (function ($groupId, link) {
             var onDataLoad = function (data) {
                 groupList = data;
                 app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+				var acl = document.getAcl;
+                console.log(acl);
+                if(acl['CONTROL'] == 'C'){
+					var groupListControl = [];
+					
+                    var companyWiseGroup = document.getCompanyWiseGroup;
+                    if(companyWiseGroup[0]['GROUP_ID']){
+                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+                    }     
+
+					var totarrLength = (companyWiseGroup.length) - 1;
+					if(totarrLength == 0) 
+					{
+						document.getElementById("groupId").setAttribute("disabled", "disabled");
+					}
+					
+					if(totarrLength == 0) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 1) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 2) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 3) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+
+                    if(totarrLength == 4) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 5) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID ) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+                    
+					if(totarrLength == 6) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					//console.log(groupListControl);
+					
+					app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+					
+					//FOR selecting the group
+					if(companyWiseGroup[0]['GROUP_ID']){
+                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+                    } 
+                    //document.getElementById("groupId").setAttribute("disabled", "disabled");
+                }else{
+                    console.log('Role is not company wise');
+                }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -125,11 +265,18 @@
             {field: "MONTH_EDESC", title: "Month", width: 100},
             {field: "SALARY_TYPE_NAME", title: "Salary Type", width: 100},
             {field: "GROUP_NAME", title: "Group", width: 100},
-            {field: "LOCKED", title: "Locked", width: 100},
             {field: "APPROVED", title: "Approved", width: 100},
+            {field: "LOCKED", title: "Locked", width: 100},
         ], null, {id: "SHEET_NO", atLast: false, fn: function (selected) {
                 if (selected) {
                     $bulkActionDiv.show();
+                    var approved_locked = getTableValues();
+                    console.log(approved_locked);
+                    if(approved_locked.includes('N',0) || approved_locked.length > 1){
+                        $bulkGenerateVoucherDiv.hide();
+                    }else{
+                        $bulkGenerateVoucherDiv.show();
+                    }                    
                 } else {
                     $bulkActionDiv.hide();
                 }
@@ -204,8 +351,21 @@
             return selectedValues;
         }
 
+        function getTableValues(){
+            var list = grid.getSelected();
+            var selectedValues = [];
+            for (var i in list) {
+                selectedValues.push(list[i].APPROVED);
+                // selectedValues.push(list[i].LOCKED);
+            }
+            return selectedValues;
+        }
+        
+
         $bulkApproveDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
+            // console.log(selectedValues);
+
             app.serverRequest(document.bulkActionLink, {data : selectedValues, action : 'A'}).then(function (success) {
                 $viewBtn.trigger('click');
                 app.showMessage('Sheets Approved', 'success');
@@ -238,6 +398,59 @@
                 app.showMessage('Sheets Unlocked', 'success');
             }, function (failure) {
 
+            });
+        });
+        $bulkGenerateVoucherDiv.bind("click", function () {
+            var selectedValues = getSelectedSheets();
+            
+            
+            loading_screen = pleaseWait({
+                logo: loadingLogoLink,
+                backgroundColor: '#2f9e1e',
+                loadingHtml: "<p class='loading-message' style='color:white !important;'>" + "Generating Voucher" + "</p>" + loadingHtml
+            });
+            
+            // var counter = 0;
+            // counter++;
+            // $pleaseWaitOptions.show();
+            // if (counter>2){
+            //     loading_screen.finish();
+            //     $pleaseWaitOptions.hide();
+            // }
+            app.serverRequest(document.generateVoucherLink, {data : selectedValues}).then(function (success) {
+                $viewBtn.trigger('click');
+                updateLoadingHtml();
+                if(success.success){
+                    loading_screen.finish();
+                    $pleaseWaitOptions.hide();
+                }
+                app.showMessage('Voucher Generated.', 'success');
+                if(success.unmapped.length > 0){
+                    var html = '<h3 align="center">Unmapped Employees</h3><table class="table table-striped header-fixed"><tr><th>Employee ID</th><th>Employee Name</th><th>Account Code</th><th>Account Name</th></tr>';
+                    for(var i in success.unmapped){
+                        html+="<tr><td>"+success.unmapped[i].EMPLOYEE_ID+"</td><td>"+success.unmapped[i].FULL_NAME+"</td><td>"+success.unmapped[i].ACC_CODE+"</td><td>"+success.unmapped[i].ACC_NAME+"</td></tr>";
+                    }
+                    html+="</table>";
+                    $( ".modal-body" ).append(html);
+                    $( "#modal-toggle" ).click();
+
+                }
+            }, function (failure) {
+
+            });
+            
+        });
+        $pleaseWaitOptions.hide();
+        $cancelBtn.on('click', function () {
+            loading_screen.finish();
+            $pleaseWaitOptions.hide();
+        });
+        
+        $(document).on('click', '#excelExport', function(){    
+            $("#unmapped-table").table2excel({
+                exclude: ".noExl",
+                name: "Unmapped Employees",
+                filename: "Unmapped Employees.xls" 
             });
         });
     });

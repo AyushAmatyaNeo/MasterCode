@@ -1,0 +1,128 @@
+<?php
+$this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.js'));
+
+?>
+<script>
+    document.getFiscalYearMonthLink = '<?php echo $this->url('payroll', ['action' => 'getFiscalYearMonth']); ?>';
+	document.salaryType =<?php echo $salaryType; ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\payroll')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="portlet box yellow">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-money"></i>Payslip
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li >
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o" ></i> 
+                            Export to Excel 
+                        </a>
+                    </li>
+                    <li >
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i> 
+                            Export to PDF 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="portlet-body">
+        <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
+        <div class="row">
+            <div class="col-sm-2">
+                <select id="fiscalYearId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <select id="monthId">
+                </select>
+            </div>
+			<div class="col-sm-2">
+                <!--<label>Salary Type</label>-->
+                <select class="form-control" name="salaryType" id="salaryTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2 col-sm-offset-6">
+                <button id="printBtn" class="btn btn-outline pull-right">Print</button>
+                <button id="viewBtn" class="btn btn-info pull-right">View</button>
+            </div>
+        </div>
+        <div id="paySlipView" class="margin-top-10">
+            <table class="table table-bordered" id="employee-detail">
+                <tr><td colspan="4"><h3><b><span id="yearMonthDetails"></span></b></h3>  </td> </tr>
+                <tr>
+                    <td>Employee Id</td>
+                    <td key="EMPLOYEE_ID"></td>
+                    <td>Employee Name</td>
+                    <td key="FULL_NAME"></td>
+                </tr>
+                <tr>
+                    <td>Marital Status</td>
+                    <td key="MARITAL_STATUS_DESC"></td>
+                    <td>Department</td>
+                    <td key="DEPARTMENT_NAME"></td>
+                </tr>
+                <tr>
+                    <td>Present Days</td>
+                    <td key="PRESENT"></td>
+                    <td>Absent Days</td>
+                    <td key="ABSENT"></td>
+                </tr>
+                <tr>
+                    <td>Salary</td>
+                    <td key="SALARY"></td>
+                    <td>A/c No</td>
+                    <td key="ACCOUNT_NO"></td>
+                </tr>
+                
+                <tr>
+                    <td>CIT No</td>
+                    <td key="ID_RETIREMENT_NO"></td>
+                    <td>Date of Join</td>
+                    <td key="JOIN_DATE"></td>
+                    
+                </tr>
+                <tr>
+                    <td>PF No</td>
+                    <td key="ID_PROVIDENT_FUND_NO"></td>
+                    <td>PAN No</td>
+                    <td key="ID_PAN_NO"></td>
+                    
+                </tr>
+                <tr>
+                    <td>Paid Leave</td>
+                    <td key="PAID_LEAVE"></td>
+                    <td>Unpaid Leave</td>
+                    <td key="UNPAID_LEAVE"></td>
+                    
+                </tr>
+                <tr>
+                    <td>Position Name</td>
+                    <td key="POSITION_NAME"></td>
+                    <td>Designation Name</td>
+                    <td key="DESIGNATION_TITLE"></td>
+                </tr>
+            </table>
+            <table class="table table-bordered">
+                <thead>
+                <th colspan="2" style="font-size: 14px"><b>Addition</b></th>
+                <th colspan="2" style="font-size: 14px"><b>Deduction</b></th>
+                </thead>
+                <tbody id="paySlipBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

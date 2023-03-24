@@ -474,7 +474,7 @@ GROUP BY
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
-        $sql = "SELECT SERVICE_TYPE_ID AS SERVICE_TYPE_ID
+        $sql = "SELECT NVL(SERVICE_TYPE_ID,-1) AS SERVICE_TYPE_ID
             FROM HRIS_SALARY_SHEET_EMP_DETAIL
             WHERE SHEET_NO= :sheetNo AND EMPLOYEE_ID=:employeeId";
         $resultList = $this->rawQuery($sql, $boundedParameter);
@@ -558,6 +558,48 @@ FROM HRIS_MONTH_CODE  where MONTH_ID=(:monthId-1)";
             throw new Exception('No Report Found.');
         }
         return $resultList[0]['IS_REMOTE'];
+    }
+
+    public function getAge($employeeId){
+        $boundedParameter = [];
+        $boundedParameter['employeeId'] = $employeeId;
+        $sql = "SELECT 
+                TO_CHAR(BIRTH_DATE, 'yyyy-MON-dd')           AS BIRTH_DATE,
+                TRUNC(months_between(sysdate,BIRTH_DATE)/12) AS AGE
+                FROM HRIS_EMPLOYEES 
+                WHERE EMPLOYEE_ID=:employeeId";
+        $resultList = $this->rawQuery($sql, $boundedParameter);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['AGE'];
+    }
+	
+	public function getSalaryDays($employeeId, $monthId){
+		$boundedParameter = [];
+        $boundedParameter['employeeId'] = $employeeId;
+        $sql = "select count(*) as SALARY_DAYS from hris_attendance_detail where employee_id = $employeeId
+and attendance_dt between (select from_date from hris_month_code where month_id = $monthId)
+and (select to_date from hris_month_code where month_id = $monthId)
+and overall_status not in ('AB')";
+//print_r($sql);die;
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['SALARY_DAYS'];
+	}
+
+    public function getMonthlyOTHours($employeeId,$sheetNo,$monthId)
+    {
+        $sql="select nvl(overtime_hour,0) as OT_WORKED_HOURS from Hris_Salary_Sheet_Emp_Detail where employee_id=$employeeId and 
+        month_id=$monthId and sheet_no=$sheetNo
+        ";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['OT_WORKED_HOURS'];
     }
     
 }

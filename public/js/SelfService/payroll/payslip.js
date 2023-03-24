@@ -11,6 +11,8 @@
         var $paySlipBody = $('#paySlipBody');
         var $excelExport = $('#excelExport');
         var $pdfExport = $('#pdfExport');
+		var $salaryTypeId = $('#salaryTypeId');
+        app.populateSelect($salaryTypeId, document.salaryType, 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
 
         var employeeList = null;
         app.setFiscalMonth($year, $month, function (yearList, monthList, currentMonth) {
@@ -52,19 +54,19 @@
             for (var i = 0; i < maxRows; i++) {
                 var $row = $(`<tr>
                                 <td>${(typeof additionData[i] !== 'undefined') ? additionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof additionData[i] !== 'undefined') ? additionData[i]['VAL'] : ''}</td>
+                                <td>${(typeof additionData[i] !== 'undefined') ? parseFloat(additionData[i]['VAL']).toFixed(2) : ''}</td>
                                 <td>${(typeof deductionData[i] !== 'undefined') ? deductionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof deductionData[i] !== 'undefined') ? deductionData[i]['VAL'] : ''}</td>
+                                <td>${(typeof deductionData[i] !== 'undefined') ? parseFloat(deductionData[i]['VAL']).toFixed(2) : ''}</td>
                                 </tr>`);
                 $paySlipBody.append($row);
             }
             $paySlipBody.append($(`<tr>
-                                <td>Total Addition:</td>
-                                <td>${add}</td>
-                                <td>Total Deduction:</td>
-                                <td>${sub}</td>
-                                </tr> <td>Net Salary:</td>
-                                 <td>${net}</td>`));
+                                <td><b>Total Addition:</b></td>
+                                <td><b>${add}</b></td>
+                                <td><b>Total Deduction:</b></td>
+                                <td><b>${sub}</b></td>
+                                </tr></tr> <td><b>Net Salary:</b></td>
+                                 <td><b>${net}</b></td>`));
 
         };
         var showEmpDetail = function ($data) {
@@ -81,9 +83,11 @@
             
             var monthId = $month.val();
             var employeeId = $employeeId.val();
+			var salaryTypeId =$salaryTypeId.val();
             app.serverRequest('', {
                 monthId: monthId,
                 employeeId: employeeId,
+				salaryTypeId: salaryTypeId
             }).then(function (response) {
                 showPaySlip(response.data['pay-detail']);
                 showEmpDetail(response.data['emp-detail']);

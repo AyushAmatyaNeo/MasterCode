@@ -59,7 +59,9 @@ class MonthlyValue extends HrisController {
         }
         return [
             'form' => $this->form,
-            'customRenderer' => Helper::renderCustomView()
+            'customRenderer' => Helper::renderCustomView(),
+			'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ];
     }
 
@@ -112,6 +114,7 @@ class MonthlyValue extends HrisController {
                     'fiscalYears' => $fiscalYears,
                     'months' => $months,
                     'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
@@ -162,6 +165,8 @@ class MonthlyValue extends HrisController {
                     'months' => $months,
                     'monthlyValues' => $monthlyValues,
                     'positions' => $positions,
+					'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 

@@ -82,7 +82,7 @@ FROM HRIS_ATTENDANCE_DETAIL ad
               ) LATE_ATTEN_TBL
             ON (EMPLOYEE_TBL.EMPLOYEE_ID = LATE_ATTEN_TBL.EMPLOYEE_ID)
           ";
-                
+            //echo $sql; die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute()->current();
         return $result;
@@ -267,6 +267,25 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                           ELSE ETN.TITLE
                         END)
                       END)  
+                      WHEN ATN.OVERALL_STATUS ='EC'
+                    THEN (CASE 
+                    WHEN EMS.SHOW_AS_EVENT = 'Y' 
+                        THEN 'On Event and Conference ('
+                        || (CASE
+                          WHEN ATN.EVENT_TYPE = 'A'
+                          THEN EMS.EVENT_NAME
+                          ELSE EEN.TITLE
+                            END)
+                        ||')'
+                    ELSE
+                    'On Event and Conference ('
+                       || (CASE
+                          WHEN ATN.EVENT_TYPE = 'R'
+                          THEN  EEN.TITLE
+                          ELSE EMS.EVENT_NAME
+                        END)
+                        ||')'
+                      END)
                     WHEN ATN.OVERALL_STATUS ='WD'
                     THEN 'Work On Dayoff'
                     WHEN ATN.OVERALL_STATUS ='WH'
@@ -310,10 +329,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 ON (ETN.REQUEST_ID=ATN.TRAINING_ID AND ATN.TRAINING_TYPE ='R')
                 LEFT JOIN HRIS_EMPLOYEE_TRAVEL_REQUEST ETR
                 ON ETR.TRAVEL_ID = ATN.TRAVEL_ID
+                LEFT JOIN HRIS_EVENT_MASTER_SETUP EMS
+                ON (EMS.EVENT_ID = ATN.EVENT_ID AND ATN.EVENT_TYPE='A')
+                LEFT JOIN HRIS_EMPLOYEE_EVENT_REQUEST EEN
+                ON (EEN.REQUEST_ID=ATN.EVENT_ID AND ATN.EVENT_TYPE ='R')
                 WHERE 1          = 1
                 AND (ATN.ATTENDANCE_DT BETWEEN TO_DATE('{$startDate}','YYYY-MM-DD') AND TO_DATE('{$endDate}','YYYY-MM-DD') )
                 AND ATN.EMPLOYEE_ID = {$employeeId}
                 ORDER BY ATN.ATTENDANCE_DT ASC";
+                // echo('<pre>');print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
 

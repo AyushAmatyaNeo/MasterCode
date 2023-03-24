@@ -38,10 +38,10 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
     }
 
     public function filterRecords($branchId, $departmentId, $designationId, $positionId, $employeeType, $serviceTypeId, $companyId = null, $genderId = null, $serviceEventTypeId = null) {
-        $condition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeType, null, $genderId);
-
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
+        $condition = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeType, null, $genderId);
+	
+       // $boundedParameter = [];
+       // $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
 
         $sql = "SELECT E.EMPLOYEE_ID                                                AS EMPLOYEE_ID,
               E.COMPANY_ID                                                      AS COMPANY_ID,
@@ -199,10 +199,10 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
             LEFT JOIN HRIS_FUNCTIONAL_LEVELS FUNL
             ON E.FUNCTIONAL_LEVEL_ID=FUNL.FUNCTIONAL_LEVEL_ID
             WHERE E.STATUS          ='E'
-            {$condition['sql']}
+            {$condition}
             ORDER BY E.FIRST_NAME ASC";
         
-        return $this->rawQuery($sql, $boundedParameter);
+        return $this->rawQuery($sql);
         // $statement = $this->adapter->query($sql);
         // $result = $statement->execute();
 

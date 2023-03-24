@@ -38,6 +38,12 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
     public function edit(Model $model, $id) {
         $temp = $model->getArrayCopyForDB();
         $this->tableGateway->update($temp, [TravelRequest::TRAVEL_ID => $id]);
+         IF ($model->status == 'AP') {
+              $sql="BEGIN 
+              HRIS_REATTENDANCE('$temp[FROM_DATE]',$temp[EMPLOYEE_ID],'$temp[TO_DATE]');
+                 END; ";
+                EntityHelper::rawQueryResult($this->adapter, $sql);
+              }
         IF ($model->status == 'AP') {
           $boundedParameter = [];
           $boundedParameter['id'] = $id;
@@ -50,7 +56,6 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
                 return $e->getMessage();
             }
         }
-
         $link = $model->status == 'AP' ? 'Y' : 'N';
         if ($link == 'Y') {
           $boundedParameter = [];
@@ -65,6 +70,7 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
                 return $e->getMessage();
             }
         }
+       
     }
 
     public function fetchAll() {
@@ -351,6 +357,7 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
 
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
+        // echo '<pre>';print_r($boundedParameter);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 }

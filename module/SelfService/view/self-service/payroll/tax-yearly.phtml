@@ -20,8 +20,8 @@ $this->headScript()
 
 <script>
     document.searchValues =<?php echo json_encode($searchValues); ?>;
-    document.getFiscalYearMonthLink = '<?php echo $this->url('payrollReport', ['action' => 'getFiscalYearMonth']); ?>';
-    document.pulltaxYearlyLink = '<?= $this->url("payrollReport", ["action" => "pulltaxYearly"]) ?>';
+    document.getFiscalYearMonthLink = '<?php echo $this->url('payroll', ['action' => 'getFiscalYearMonth']); ?>';
+    document.pulltaxYearlyLink = '<?= $this->url("payroll", ["action" => "pulltaxYearly"]) ?>';
     document.salaryType =<?php echo json_encode($salaryType); ?>;
     document.preference =<?php echo json_encode($preference) ?>;
     document.incomes =<?php echo json_encode($incomes); ?>;

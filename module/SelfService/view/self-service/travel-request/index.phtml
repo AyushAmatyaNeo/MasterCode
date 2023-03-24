@@ -18,6 +18,7 @@ $this->headScript()
     document.editLink = '<?= $this->url("travelRequest", ["action" => "edit"]) ?>';
     document.deleteLink = '<?= $this->url("travelRequest", ["action" => "delete"]) ?>';
     document.expenseAddLink = '<?= $this->url("travelRequest", ["action" => "expenseAdd"]) ?>';
+	document.printLink = '<?= $this->url("travelApprove", ["action" => "print"]) ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

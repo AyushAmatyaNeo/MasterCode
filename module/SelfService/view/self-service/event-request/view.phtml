@@ -1,0 +1,145 @@
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\eventRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="portlet light bg-inverse">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="icon-equalizer font-red-sunglo"></i>
+            <span class="caption-subject font-red-sunglo bold uppercase">Event Request Detail</span>
+        </div>
+        <div class="tools">
+            <a href="" class="collapse" data-original-title="" title=""> </a>
+            <a href="#portlet-config" data-toggle="modal" class="config" data-original-title="" title=""> </a>
+            <a href="" class="reload" data-original-title="" title=""> </a>
+            <a href="" class="remove" data-original-title="" title=""> </a>
+        </div>
+    </div>
+    <div class="portlet-body form">
+        <form class="form-horizontal" role="form">
+            <div class="form-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Employee:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['FULL_NAME']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Recommender:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $recommender; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Approver:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $approver; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Event Name:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['TITLE']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Event Type:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $detail['TRAINING_TYPE_DETAIL']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Description:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $detail['DESCRIPTION']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Start Date:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['START_DATE_AD']; ?> | <?php echo $detail['START_DATE_BS']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">End Date:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['END_DATE_AD']; ?> | <?php echo $detail['END_DATE_BS']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Duration:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $detail['DURATION']; ?> days</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Status:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['STATUS_DETAIL']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Requested Date:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['REQUESTED_DATE_AD']; ?> | <?php echo $detail['REQUESTED_DATE_BS']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Remarks:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"> <?php echo $detail['REMARKS']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Recommender Remarks:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['RECOMMENDED_REMARKS']; ?> </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3">Approver Remarks:</label>
+                            <div class="col-md-9">
+                                <p class="form-control-static"><?php echo $detail['APPROVED_REMARKS']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

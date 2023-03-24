@@ -12,6 +12,7 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/travel-request/a
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'travelRequest-form');
 
+$travelCategory=$form->get('travelCategory');
 $fromDate = $form->get('fromDate');
 $toDate = $form->get('toDate');
 $destination = $form->get('destination');
@@ -35,6 +36,8 @@ $form->prepare();
 ?>
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.addTravelCategoryLink = '<?= $this->url("travelRequest", ["action" => "travelCategory"]) ?>';
+
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -143,7 +146,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <div class="col-sm-4">
                     <div class="form-group">
                         <?php print $this->formLabel($destination); ?>
-                        <span class="required" aria-required="true">*</span>
+                        <!-- <span class="required" aria-required="true">*</span> -->
                         <?php print $this->formElement($destination); ?>
                         <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
                     </div>               
@@ -157,6 +160,20 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         <?php print $this->formElementErrors()->render($purpose, ['class' => 'help-block']); ?>
                     </div>
                 </div>
+
+                <div class="col-sm-4">
+                        <div class="form-group required <?= empty($travelCategory->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($travelCategory); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                            <input required class="form-control" name="travelCategory" id="travelCategory"  style="cursor: pointer;" readonly value="<?php echo $travelCategoryList?>">
+                                <!-- <?php foreach ($travelCategoryList as $key=>$value){?>
+                                    <option style="cursor: pointer;" value="<?php echo $key; ?>"><?php echo $value;?></option>
+                                <?php } ?> -->
+                        </div>
+                        <?php print $this->formElementErrors()->render($travelCategory, ['class' => 'help-block error']); ?>
+                </div>
+
 
                 <div class="col-sm-4">
                     <div class="form-group">
@@ -176,7 +193,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         </div>
                         <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
                 </div>
-
+               
             </div>
 
             <div class=" row">

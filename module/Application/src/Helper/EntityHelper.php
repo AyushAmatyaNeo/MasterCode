@@ -81,9 +81,9 @@ class EntityHelper {
     }
 
     public static function getTableKVListWithSortOption(AdapterInterface $adapter, $tableName, $key, array $values, $where = null, $orderBy = null, $orderAs = null, $concatWith = null, $emptyColumn = false, $initCap = false, $employeeId = null) {
-        if($employeeId !== null){
-            $where = self::applyRoleControl($adapter, $employeeId, $where);
-        }
+        //if($employeeId !== null){
+        //    $where = self::applyRoleControl($adapter, $employeeId, $where);
+       // }
         return self::getTableKVList($adapter, $tableName, $key, $values, $where, $concatWith, $emptyColumn, $orderBy, $orderAs, $initCap);
     }
 
@@ -217,7 +217,70 @@ class EntityHelper {
 //                    HrEmployees::EMPLOYEE_TYPE,
 //                    HrEmployees::GROUP_ID,
                         ], $employeeWhere,"","FULL_NAME_SCIENTIFIC ASC");
+        // print_r($employeeList);die;
+        $searchValues = [
+            'company' => $companyList,
+            'branch' => $branchList,
+            'department' => $departmentList,
+            'designation' => $designationList,
+            'position' => $positionList,
+            'serviceType' => $serviceTypeList,
+            'serviceEventType' => $serviceEventTypeList,
+            'gender' => $genderList,
+            'employeeType' => [['EMPLOYEE_TYPE_KEY' => 'R', 'EMPLOYEE_TYPE_VALUE' => 'Employee'], ['EMPLOYEE_TYPE_KEY' => 'C', 'EMPLOYEE_TYPE_VALUE' => 'Worker']],
+            'employee' => $employeeList,
+            'location' => $locationList,
+            'functionalType' => $functionalTypeList,
+        ];
+        /* end of search values */
 
+        return $searchValues;
+    }
+
+    public static function getSearchDataCompanyWise($adapter, $getDisabled = false, $companyId) {
+     
+        $employeeWhere = (!$getDisabled) ? [HrEmployees::STATUS => "E"] : ["status='E' and company_id = $companyId"];
+        $companyList = self::getTableList($adapter, Company::TABLE_NAME, [Company::COMPANY_ID, Company::COMPANY_NAME], [Company::STATUS => "E"]);
+        $branchList = self::getTableList($adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"],"","BRANCH_NAME ASC");
+        $departmentList = self::getTableList($adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"],"","DEPARTMENT_NAME ASC");
+        $designationList = self::getTableList($adapter, Designation::TABLE_NAME, [Designation::DESIGNATION_ID, Designation::DESIGNATION_TITLE, Designation::COMPANY_ID], [Designation::STATUS => 'E'],"","DESIGNATION_TITLE ASC");
+        $positionList = self::getTableList($adapter, Position::TABLE_NAME, [Position::POSITION_ID, Position::POSITION_NAME, Position::COMPANY_ID], [Position::STATUS => "E"],"","POSITION_NAME ASC");
+        $serviceTypeList = self::getTableList($adapter, ServiceType::TABLE_NAME, [ServiceType::SERVICE_TYPE_ID, ServiceType::SERVICE_TYPE_NAME], [ServiceType::STATUS => "E"],"","SERVICE_TYPE_NAME ASC");
+        $serviceEventTypeList = self::getTableList($adapter, ServiceEventType::TABLE_NAME, [ServiceEventType::SERVICE_EVENT_TYPE_ID, ServiceEventType::SERVICE_EVENT_TYPE_NAME], [ServiceEventType::STATUS => "E"],"","SERVICE_EVENT_TYPE_NAME ASC");
+        $genderList = self::getTableList($adapter, Gender::TABLE_NAME, [Gender::GENDER_ID, Gender::GENDER_NAME], [Gender::STATUS => "E"]);
+        $locationList = self::getTableList($adapter, Location::TABLE_NAME, [Location::LOCATION_ID, Location::LOCATION_EDESC], [Location::STATUS => "E"]);
+        $functionalTypeList = self::getTableList($adapter, FunctionalTypes::TABLE_NAME, [FunctionalTypes::FUNCTIONAL_TYPE_ID, FunctionalTypes::FUNCTIONAL_TYPE_EDESC], [FunctionalTypes::STATUS=> "E"],"","FUNCTIONAL_TYPE_EDESC ASC");
+        $employeeList = self::getTableList($adapter, HrEmployees::TABLE_NAME, [
+                    new Expression(HrEmployees::EMPLOYEE_ID." AS ".HrEmployees::EMPLOYEE_ID),
+                    new Expression(HrEmployees::EMPLOYEE_CODE." AS ".HrEmployees::EMPLOYEE_CODE),
+                    new Expression("EMPLOYEE_CODE||'-'||FULL_NAME AS FULL_NAME"),
+                    new Expression(HrEmployees::FULL_NAME." AS FULL_NAME_SCIENTIFIC"),
+                    new Expression(HrEmployees::COMPANY_ID." AS ".HrEmployees::COMPANY_ID),
+                    new Expression(HrEmployees::BRANCH_ID." AS ".HrEmployees::BRANCH_ID),
+                    new Expression(HrEmployees::DEPARTMENT_ID." AS ".HrEmployees::DEPARTMENT_ID),
+                    new Expression(HrEmployees::DESIGNATION_ID." AS ".HrEmployees::DESIGNATION_ID),
+                    new Expression(HrEmployees::POSITION_ID." AS ".HrEmployees::POSITION_ID),
+                    new Expression(HrEmployees::SERVICE_TYPE_ID." AS ".HrEmployees::SERVICE_TYPE_ID),
+                    new Expression(HrEmployees::SERVICE_EVENT_TYPE_ID." AS ".HrEmployees::SERVICE_EVENT_TYPE_ID),
+                    new Expression(HrEmployees::GENDER_ID." AS ".HrEmployees::GENDER_ID),
+                    new Expression(HrEmployees::EMPLOYEE_TYPE." AS ".HrEmployees::EMPLOYEE_TYPE),
+                    new Expression(HrEmployees::GROUP_ID." AS ".HrEmployees::GROUP_ID),
+                    new Expression(HrEmployees::FUNCTIONAL_TYPE_ID." AS ".HrEmployees::FUNCTIONAL_TYPE_ID),
+//                    HrEmployees::EMPLOYEE_ID,
+//                    HrEmployees::EMPLOYEE_CODE,
+//                    HrEmployees::FULL_NAME,
+//                    HrEmployees::COMPANY_ID,
+//                    HrEmployees::BRANCH_ID,
+//                    HrEmployees::DEPARTMENT_ID,
+//                    HrEmployees::DESIGNATION_ID,
+//                    HrEmployees::POSITION_ID,
+//                    HrEmployees::SERVICE_TYPE_ID,
+//                    HrEmployees::SERVICE_EVENT_TYPE_ID,
+//                    HrEmployees::GENDER_ID,
+//                    HrEmployees::EMPLOYEE_TYPE,
+//                    HrEmployees::GROUP_ID,
+                        ], $employeeWhere,"","FULL_NAME_SCIENTIFIC ASC");
+                      
         $searchValues = [
             'company' => $companyList,
             'branch' => $branchList,
@@ -605,6 +668,85 @@ class EntityHelper {
         }
         return $conditon;
     }
+	
+	public static function getSearchConditonBoundedPayroll($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId = null, $locationId = null, $functionalTypeId = null) {
+        $conditon = "";
+        $allParameters=[];
+        if ($companyId != null && $companyId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($companyId, "E.COMPANY_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($branchId != null && $branchId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($branchId, "E.BRANCH_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($departmentId != null && $departmentId != -1) {
+            $parentQuery = "(SELECT DEPARTMENT_ID FROM
+                         HRIS_DEPARTMENTS 
+                        START WITH PARENT_DEPARTMENT in (INVALUES)
+                        CONNECT BY PARENT_DEPARTMENT= PRIOR DEPARTMENT_ID
+                        UNION 
+                        SELECT DEPARTMENT_ID FROM HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN (INVALUES)
+                        UNION
+                        SELECT  TO_NUMBER(TRIM(REGEXP_SUBSTR(EXCEPTIONAL,'[^,]+', 1, LEVEL) )) DEPARTMENT_ID
+  FROM (SELECT EXCEPTIONAL  FROM  HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN  (INVALUES))
+   CONNECT BY  REGEXP_SUBSTR(EXCEPTIONAL, '[^,]+', 1, LEVEL) IS NOT NULL
+                        )";
+            $employeeConditon = self::conditionBuilderBounded($departmentId, "E.DEPARTMENT_ID", "AND", false, $parentQuery);
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($positionId != null && $positionId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($positionId, "E.POSITION_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($designationId != null && $designationId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($designationId, "E.DESIGNATION_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($serviceTypeId != null && $serviceTypeId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($serviceTypeId, "E.SERVICE_TYPE_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        } 
+        if ($serviceEventTypeId != null && $serviceEventTypeId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($serviceEventTypeId, "E.SERVICE_EVENT_TYPE_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($employeeTypeId != null && $employeeTypeId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($employeeTypeId, "E.EMPLOYEE_TYPE", "AND", true);
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($employeeId != null && $employeeId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($employeeId, "E.EMPLOYEE_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($genderId != null && $genderId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($genderId, "E.GENDER_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($locationId != null && $locationId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($locationId, "E.LOCATION_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        if ($functionalTypeId != null && $functionalTypeId != -1) {
+            $employeeConditon = self::conditionBuilderBounded($functionalTypeId, "E.FUNCTIONAL_TYPE_ID", "AND");
+            $conditon .=$employeeConditon['sql'];
+            $allParameters=array_merge($allParameters,$employeeConditon['parameter']);
+        }
+        $boundedconditon['sql']=$conditon;
+        $boundedconditon['parameter']=$allParameters;
+        return $boundedconditon;
+    }
 
     public static function applyRoleControl($adapter, $employeeId, $where){
         $sql = "SELECT CONTROL FROM HRIS_ROLES WHERE ROLE_ID = (SELECT ROLE_ID FROM HRIS_USERS WHERE EMPLOYEE_ID = $employeeId)";
@@ -708,5 +850,96 @@ class EntityHelper {
 
     public static function getBranchFromProvince($adapter) {
         return self::getTableKVList($adapter,'HRIS_BRANCHES','BRANCH_ID',['PROVINCE_ID'],"STATUS = 'E'");
+    }
+
+    public static function getSearchDataPayroll($adapter, $getDisabled = false) {
+        $employeeWhere = (!$getDisabled) ? [HrEmployees::STATUS => "E"] : ["status='E' or employee_id in (select employee_id from HRIS_JOB_HISTORY)"];
+        $companyList = self::getTableList($adapter, Company::TABLE_NAME, [Company::COMPANY_ID, Company::COMPANY_NAME], [Company::STATUS => "E"]);
+        $branchList = self::getTableList($adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"],"","BRANCH_NAME ASC");
+        $departmentList = self::getTableList($adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"],"","DEPARTMENT_NAME ASC");
+        $designationList = self::getTableList($adapter, Designation::TABLE_NAME, [Designation::DESIGNATION_ID, Designation::DESIGNATION_TITLE, Designation::COMPANY_ID], [Designation::STATUS => 'E'],"","DESIGNATION_TITLE ASC");
+        $positionList = self::getTableList($adapter, Position::TABLE_NAME, [Position::POSITION_ID, Position::POSITION_NAME, Position::COMPANY_ID], [Position::STATUS => "E"],"","POSITION_NAME ASC");
+        $serviceTypeList = self::getTableList($adapter, ServiceType::TABLE_NAME, [ServiceType::SERVICE_TYPE_ID, ServiceType::SERVICE_TYPE_NAME], [ServiceType::STATUS => "E"],"","SERVICE_TYPE_NAME ASC");
+        $serviceEventTypeList = self::getTableList($adapter, ServiceEventType::TABLE_NAME, [ServiceEventType::SERVICE_EVENT_TYPE_ID, ServiceEventType::SERVICE_EVENT_TYPE_NAME], [ServiceEventType::STATUS => "E"],"","SERVICE_EVENT_TYPE_NAME ASC");
+        $genderList = self::getTableList($adapter, Gender::TABLE_NAME, [Gender::GENDER_ID, Gender::GENDER_NAME], [Gender::STATUS => "E"]);
+        $locationList = self::getTableList($adapter, Location::TABLE_NAME, [Location::LOCATION_ID, Location::LOCATION_EDESC], [Location::STATUS => "E"]);
+        $functionalTypeList = self::getTableList($adapter, FunctionalTypes::TABLE_NAME, [FunctionalTypes::FUNCTIONAL_TYPE_ID, FunctionalTypes::FUNCTIONAL_TYPE_EDESC], [FunctionalTypes::STATUS=> "E"],"","FUNCTIONAL_TYPE_EDESC ASC");
+        $employeeList = self::getTableList($adapter, HrEmployees::TABLE_NAME, [
+                    new Expression(HrEmployees::EMPLOYEE_ID." AS ".HrEmployees::EMPLOYEE_ID),
+                    new Expression(HrEmployees::EMPLOYEE_CODE." AS ".HrEmployees::EMPLOYEE_CODE),
+                    new Expression("EMPLOYEE_CODE||'-'||FULL_NAME AS FULL_NAME"),
+                    new Expression(HrEmployees::FULL_NAME." AS FULL_NAME_SCIENTIFIC"),
+                    new Expression(HrEmployees::COMPANY_ID." AS ".HrEmployees::COMPANY_ID),
+                    new Expression(HrEmployees::BRANCH_ID." AS ".HrEmployees::BRANCH_ID),
+                    new Expression(HrEmployees::DEPARTMENT_ID." AS ".HrEmployees::DEPARTMENT_ID),
+                    new Expression(HrEmployees::DESIGNATION_ID." AS ".HrEmployees::DESIGNATION_ID),
+                    new Expression(HrEmployees::POSITION_ID." AS ".HrEmployees::POSITION_ID),
+                    new Expression(HrEmployees::SERVICE_TYPE_ID." AS ".HrEmployees::SERVICE_TYPE_ID),
+                    new Expression(HrEmployees::SERVICE_EVENT_TYPE_ID." AS ".HrEmployees::SERVICE_EVENT_TYPE_ID),
+                    new Expression(HrEmployees::GENDER_ID." AS ".HrEmployees::GENDER_ID),
+                    new Expression(HrEmployees::EMPLOYEE_TYPE." AS ".HrEmployees::EMPLOYEE_TYPE),
+                    new Expression(HrEmployees::GROUP_ID." AS ".HrEmployees::GROUP_ID),
+                    new Expression(HrEmployees::FUNCTIONAL_TYPE_ID." AS ".HrEmployees::FUNCTIONAL_TYPE_ID),
+                        ], $employeeWhere,"","FULL_NAME_SCIENTIFIC ASC");
+
+                        // print_r($employeeList);die;
+                        // print_r(Helper::extractDbData(self::rawQueryResult($adapter, 'select * from hris_acc_code_map')));die;
+            $employeeSqlPayroll = "select distinct 
+            E.employee_id,
+            E.employee_code, E.EMPLOYEE_CODE||'-'||E.FULL_NAME AS FULL_NAME,
+            E.FULL_NAME AS FULL_NAME_SCIENTIFIC,
+            E.company_id as company_id,
+            E.branch_id,
+            E.department_id,
+            E.DESIGNATION_ID,
+            E.POSITION_ID,
+            E.SERVICE_TYPE_ID,
+            E.SERVICE_EVENT_TYPE_ID,
+            E.GENDER_ID,
+            E.EMPLOYEE_TYPE,
+            E.GROUP_ID,
+            E.FUNCTIONAL_TYPE_ID
+            from hris_employees E
+            where E.status='E'
+            
+            union 
+            
+            select distinct 
+            E.employee_id,
+            E.employee_code, E.EMPLOYEE_CODE||'-'||E.FULL_NAME AS FULL_NAME,
+            E.FULL_NAME AS FULL_NAME_SCIENTIFIC,
+            nvl(SED.company_id,E.company_id) as company_id,
+            E.branch_id,
+            E.department_id,
+            E.DESIGNATION_ID,
+            E.POSITION_ID,
+            E.SERVICE_TYPE_ID,
+            E.SERVICE_EVENT_TYPE_ID,
+            E.GENDER_ID,
+            E.EMPLOYEE_TYPE,
+            E.GROUP_ID,
+            E.FUNCTIONAL_TYPE_ID
+            from hris_employees E
+            left join hris_salary_sheet_emp_detail SED on (E.employee_id = SED.employee_id)
+            where E.status='E' order by FULL_NAME_SCIENTIFIC";
+
+        $searchValues = [
+            'company' => $companyList,
+            'branch' => $branchList,
+            'department' => $departmentList,
+            'designation' => $designationList,
+            'position' => $positionList,
+            'serviceType' => $serviceTypeList,
+            'serviceEventType' => $serviceEventTypeList,
+            'gender' => $genderList,
+            'employeeType' => [['EMPLOYEE_TYPE_KEY' => 'R', 'EMPLOYEE_TYPE_VALUE' => 'Employee'], ['EMPLOYEE_TYPE_KEY' => 'C', 'EMPLOYEE_TYPE_VALUE' => 'Worker']],
+            // 'employee' => $employeeList,
+            'employee' => Helper::extractDbData(self::rawQueryResult($adapter, $employeeSqlPayroll)),
+            'location' => $locationList,
+            'functionalType' => $functionalTypeList,
+        ];
+        /* end of search values */
+        // echo '<pre>';print_r($searchValues);die;
+        return $searchValues;
     }
 }

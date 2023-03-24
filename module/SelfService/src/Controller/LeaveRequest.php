@@ -170,8 +170,8 @@ class LeaveRequest extends HrisController {
             $subLeaveMaxDays = $this->preference['subLeaveMaxDays'];
         }
         $selfBranch="branch_id=(select branch_id from hris_employees where employee_id=".$this->employeeId.")";
-//        echo $subLeaveReference;
-//        die();
+        //$aa = $this->repository->getLeaveList($this->employeeId,'Y');
+		//echo ($this->employeeId); die;
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'employeeId' => $this->employeeId,
@@ -298,8 +298,10 @@ class LeaveRequest extends HrisController {
                 $leaveId = $postedData['leaveId'];
                 $employeeId = $postedData['employeeId'];
                 $startDate = $postedData['startDate'];
+				$endDate = $postedData['endDate'];
                 $leaveDetail = $leaveRequestRepository->getLeaveDetail($employeeId, $leaveId, $startDate);
-                
+                $leaveDetail['BALANCE'] = $leaveRequestRepository->checkSubstitueBalance($employeeId,$leaveId,$endDate, $leaveDetail['BALANCE']);
+
                 $maxSubDays=500;
                 if(isset($this->preference['subLeaveMaxDays'])){
                 $maxSubDays=$this->preference['subLeaveMaxDays'];

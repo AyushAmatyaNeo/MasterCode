@@ -16,6 +16,7 @@ use ManagerService\Controller\ManagerReportController;
 use ManagerService\Controller\OvertimeApproveController;
 use ManagerService\Controller\Subordinate;
 use ManagerService\Controller\TrainingApproveController;
+use ManagerService\Controller\EventApproveController;
 use ManagerService\Controller\TravelApproveController;
 use Zend\Router\Http\Segment;
 
@@ -88,6 +89,16 @@ return [
                     'route' => '/managerservice/trainingApprove[/:action[/:id][/:role]]',
                     'defaults' => [
                         'controller' => TrainingApproveController::class,
+                        'action' => 'index'
+                    ]
+                ]
+            ],
+             'eventApprove' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/managerservice/eventApprove[/:action[/:id][/:role]]',
+                    'defaults' => [
+                        'controller' => EventApproveController::class,
                         'action' => 'index'
                     ]
                 ]
@@ -406,6 +417,33 @@ return [
                 ]
             ]
         ],
+        'eventApprove' => [
+            [
+                'label' => 'Event Request',
+                'route' => 'eventApprove',
+            ],
+            [
+                'label' => 'Event Request',
+                'route' => 'eventApprove',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'eventApprove',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'List',
+                        'route' => 'eventApprove',
+                        'action' => 'status',
+                    ],
+                    [
+                        'label' => 'View',
+                        'route' => 'eventApprove',
+                        'action' => 'view',
+                    ],
+                ]
+            ]
+        ],
         'salaryReview' => [
             [
                 'label' => 'Salary Review',
@@ -559,6 +597,7 @@ return [
             DayoffWorkApproveController::class => ControllerFactory::class,
             HolidayWorkApproveController::class => ControllerFactory::class,
             TrainingApproveController::class => ControllerFactory::class,
+            EventApproveController::class => ControllerFactory::class,
             OvertimeApproveController::class => ControllerFactory::class,
             AppraisalEvaluation::class => ControllerFactory::class,
             AppraisalReview::class => ControllerFactory::class,

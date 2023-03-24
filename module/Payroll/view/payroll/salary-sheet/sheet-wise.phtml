@@ -12,7 +12,7 @@ $this->headScript()->appendFile($this->basePath('assets/global/plugins/please-wa
 $this->headScript()
     ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
     ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-    ->appendFile($this->basePath('js/Payroll/salary-sheet/sheet-wise.js'));
+    ->appendFile($this->basePath('js/Payroll/salary-sheet/sheet-wise.js?1'));
 
 ?>
 <script>
@@ -23,6 +23,9 @@ $this->headScript()
     document.deleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheet"]); ?>';
     document.bulkDeleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheetInBulk"]); ?>';
     document.getEmployeeSheetWise = '<?= $this->url("salarySheet", ["action" => "getEmployeeSheetWise"]); ?>';
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

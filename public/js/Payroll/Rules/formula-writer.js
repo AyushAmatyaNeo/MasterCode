@@ -41,6 +41,7 @@ window.formulaWriter = function (id, data) {
     for (var i in referencingRuleListOthers){
          list.push(`[PM:${convertToCodeForm(referencingRuleListOthers[i]['PAY_EDESC'])}]`);
          list.push(`[PS:${convertToCodeForm(referencingRuleListOthers[i]['PAY_EDESC'])}]`);
+		 list.push(`[MS:${convertToCodeForm(referencingRuleListOthers[i]['PAY_EDESC'])}]`);
     }
 
     CodeMirror.registerHelper("hint", "customword", function (editor, options) {

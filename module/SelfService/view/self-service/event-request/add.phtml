@@ -1,0 +1,155 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('js/SelfService/event-request/add.js'));
+
+$eventId = $form->get('eventId');
+$startDate = $form->get('startDate');
+$endDate = $form->get('endDate');
+$duration = $form->get('duration');
+$title = $form->get('title');
+$eventType = $form->get('eventType');
+$description = $form->get('description');
+$remarks = $form->get('remarks');
+$isWithinCompany = $form->get('isWithinCompany');
+$dailyEventHour = $form->get('dailyEventHour');
+$submit = $form->get('submit');
+$form->setAttribute('action', $this->url('eventRequest', ['action' => 'add']));
+$form->prepare();
+?>
+<script>
+    document.eventList =<?= json_encode($eventList) ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\eventRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>New Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php print $this->form()->openTag($form); ?>
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($eventId); ?>
+                            <?php print $this->formElement($eventId); ?>
+                            <?php print $this->formElementErrors()->render($eventId, ['class' => 'help-block']); ?>
+                        </div> 
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($title); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($title); ?>
+                            <?php print $this->formElementErrors()->render($title, ['class' => 'help-block']); ?>
+                        </div> 
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($eventType); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($eventType); ?>
+                            <?php print $this->formElementErrors()->render($eventType, ['class' => 'help-block']); ?>
+                        </div> 
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($description); ?>
+                            <?php print $this->formElement($description); ?>
+                            <?php print $this->formElementErrors()->render($description, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group required">
+                                    <?php print $this->formLabel($startDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($startDate) ?>
+                                    <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block error']) ?>
+                                </div>
+                            </div>     
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliStartDate">&nbsp;</label>
+                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate" class="form-control" value="">
+                                </div>
+                            </div>     
+                        </div>        
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div  class="form-group required">
+                                    <?php print $this->formLabel($endDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($endDate) ?>
+                                    <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block error']) ?>
+                                </div>
+                            </div>     
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliEndDate">&nbsp;</label>
+                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate" class="form-control" value="" disabled="disabled">
+                                </div>
+                            </div>     
+                        </div>        
+                    </div>
+                    <div class="col-sm-4">
+                        <div   class="form-group required">
+                            <?php print $this->formLabel($duration); ?>
+                            <?php print $this->formElement($duration); ?>
+                            <?php print $this->formElementErrors()->render($duration, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($isWithinCompany); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($isWithinCompany); ?>
+                            </div>
+                            <?php print $this->formElementErrors()->render($isWithinCompany, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($dailyEventHour); ?>
+                            <?php print $this->formElement($dailyEventHour); ?>
+                            <?php print $this->formElementErrors()->render($dailyEventHour, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                            <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                print $this->formSubmit($submit);
+                print $this->form()->closeTag();
+                ?>
+            </div>
+
+        </div>
+    </div>
+</div>

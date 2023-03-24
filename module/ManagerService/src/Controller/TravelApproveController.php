@@ -17,11 +17,13 @@ use Travel\Repository\TravelItnaryRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use PrintLayout\Controller\PrintController;
 
 class TravelApproveController extends HrisController {
 
     public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
         parent::__construct($adapter, $storage);
+		$this->storage = $storage;
         $this->initializeRepository(TravelApproveRepository::class);
         $this->initializeForm(TravelRequestForm::class);
     }
@@ -166,6 +168,7 @@ class TravelApproveController extends HrisController {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
+            // echo '<pre>';print_r('sahd');die;
             $this->makeDecision($postData['id'], $postData['role'], $postData['btnAction'] == "btnApprove");
             return new JsonModel(['success' => true, 'data' => null]);
         } catch (Exception $e) {
@@ -199,6 +202,11 @@ class TravelApproveController extends HrisController {
                 $notificationEvent = $approve ? NotificationEvents::TRAVEL_APPROVE_ACCEPTED : NotificationEvents::TRAVEL_APPROVE_REJECTED;
                 break;
         } 
+        $detail = $this->repository->fetchById($id);
+        $model->employeeId = $detail['EMPLOYEE_ID'];
+        $model->fromDate = $detail['FROM_DATE'];
+        $model->toDate = $detail['TO_DATE'];
+        // echo '<pre>';print_r($model);die;
         $editError=$this->repository->edit($model, $id);
         if ($enableFlashNotification) {
             $this->flashmessenger()->addMessage($message);
@@ -209,5 +217,21 @@ class TravelApproveController extends HrisController {
         } catch (Exception $e) {
             $this->flashmessenger()->addMessage($e->getMessage());
         }
+    }
+	
+	public function printAction(){
+        $id = (int) $this->params()->fromRoute("id");
+        if($id == 0){
+            return $this->redirect()->toRoute('travelApprove');
+        }
+        $travelRequest = new TravelRequest();
+        $travelRequest->exchangeArrayFromDB($this->repository->fetchById($id));
+        $printController = new PrintController($this->adapter, $this->storage);
+        $printData = $printController->printTravelForm($travelRequest);
+        return Helper::addFlashMessagesToArray(
+            $this, [
+                'data' => $printData
+            ]
+        );
     }
 }

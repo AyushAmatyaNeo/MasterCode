@@ -209,7 +209,26 @@ class VariableProcessor {
             case PayrollGenerator::VARIABLES[29]:
                 $processedValue = $this->payrollRepo->getRemoteBranch($this->employeeId);
                 break;
-            
+
+            /*
+             * AGE
+             */
+            case PayrollGenerator::VARIABLES[30]:
+                $processedValue = $this->payrollRepo->getAge($this->employeeId);
+                break;
+			/*
+             * SALARY DAYS
+             */
+            case PayrollGenerator::VARIABLES[31]:
+                $processedValue = $this->payrollRepo->getSalaryDays($this->employeeId,$this->monthId);
+                break;
+
+            /*
+             * OT_WORKED_HOURS
+             */ 
+            case PayrollGenerator::VARIABLES[32]:
+                   $processedValue = $this->payrollRepo->getMonthlyOTHours($this->employeeId, $this->sheetNo,$this->monthId);
+                   break;   
             
             default:
                 break;

@@ -39,6 +39,7 @@ class Preference extends Model {
     public $leaveEncashMaxDays='500';
     public $provinceWiseBranchFilter='N';
     public $displayHrApproved='N';
+	public $doNotInsertSubDetailFlag = null;
 
     CONST ALLOW_SYSTEM_ATTENANCE = "ALLOW_SYSTEM_ATTENDANCE";
     CONST NEED_APPROVAL_FOR_LATE_CHECK_IN = "NEED_APPROVAL_FOR_LATE_CHECK";
@@ -75,6 +76,7 @@ class Preference extends Model {
     CONST LEAVE_ENCASH_MAX_DAYS="LEAVE_ENCASH_MAX_DAYS";
     CONST PROVINCE_WISE_BRANCH_FILTER = "PROVINCE_WISE_BRANCH_FILTER";
     CONST DISPLAY_HR_APPROVED="DISPLAY_HR_APPROVED";
+	CONST DO_NOT_INSERT_SUB_DETAIL="DO_NOT_INSERT_SUB_DETAIL";
 
     public $mappings = [
         'allowSystemAttendance' => self::ALLOW_SYSTEM_ATTENANCE,
@@ -111,7 +113,8 @@ class Preference extends Model {
         'companyAccountNo' =>self::COMPANY_ACCOUNT_NO,
         'leaveEncashMaxDays' =>self::LEAVE_ENCASH_MAX_DAYS,
         'provinceWiseBranchFilter' =>self::PROVINCE_WISE_BRANCH_FILTER,
-        'displayHrApproved' =>self::DISPLAY_HR_APPROVED
+        'displayHrApproved' =>self::DISPLAY_HR_APPROVED,
+		'doNotInsertSubDetailFlag' =>self::DO_NOT_INSERT_SUB_DETAIL
     ];
     
 }

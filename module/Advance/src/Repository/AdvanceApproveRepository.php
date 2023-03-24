@@ -43,6 +43,9 @@ class AdvanceApproveRepository implements RepositoryInterface {
                 END;";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
+		
+		//print_r($result);die;
+		
         return $result;
     }
 

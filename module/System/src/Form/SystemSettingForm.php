@@ -84,7 +84,7 @@ class SystemSettingForm {
      * @Annotation\Type("Zend\Form\Element\Number")
      * @Annotation\Required(false)
      * @Annotation\Options({"label":"Late Penalty Leave Deduction"})
-     * @Annotation\Attributes({ "id":"latePenaltyLeaveDeduction", "class": "form-control"})
+     * @Annotation\Attributes({ "id":"latePenaltyLeaveDeduction", "class": "form-control","min":"0","step":"0.5"})
      */
     public $latePenaltyLeaveDeduction;
 
@@ -258,6 +258,15 @@ class SystemSettingForm {
      * @Annotation\Attributes({ "id":"displayHrApproved","value":"N"})
      */
     public $displayHrApproved;
+	
+	/**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"value_options":{null:"---","D":"Debit","C":"Credit","B":"Both"},"label":"Do not Insert Sub Detail of:"})
+     * @Annotation\Required(false)
+     * @Annotation\Attributes({ "id":"doNotInsertSubDetailFlag"})
+     */
+    public $doNotInsertSubDetailFlag;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Submit")

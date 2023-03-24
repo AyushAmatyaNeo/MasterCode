@@ -3,7 +3,7 @@
     $(document).ready(function () {
 
         $("select").select2();
-
+        var data = window.data;
         var $payHeadId = $("#payHeadId");
         var $fiscalYearId = $("#fiscalYearId");
         var $searchEmployeesBtn = $('#searchEmployeesBtn');
@@ -18,6 +18,8 @@
         var changedValues = [];
         var companyList = null;
         var groupList = null;
+        var getGroupListLink = data['getGroupListLink'];
+
 
         app.populateSelect($payHeadId, document.payHeads, "PAY_ID", "PAY_EDESC", "Select Pay Head");
         app.populateSelect($fiscalYearId, document.fiscalYears, "FISCAL_YEAR_ID", "FISCAL_YEAR_NAME", "Select Fiscal Year");
@@ -40,6 +42,30 @@
             var onDataLoad = function (data) {
                 companyList = data['company'];
                 app.populateSelect($companyId, data['company'], 'COMPANY_ID', 'COMPANY_NAME', 'Select Company');
+                var acl = document.acl;
+            var employeeDetail = document.employeeDetail;
+            if (typeof acl !== 'undefined' && typeof employeeDetail !== 'undefined') {
+                console.log(acl['CONTROL']);
+                for(let i = 0; i < acl['CONTROL'].length; i++){
+                    var populateValues = [];
+                    $.each(acl['CONTROL_VALUES'], function (k, v) {
+
+                        if (v.CONTROL == acl['CONTROL'][i]) {
+                            populateValues.push(v.VAL);
+                        }
+                    });
+                    
+                    switch (acl['CONTROL'][i]) {
+                        case 'C':
+                            $companyId.val((populateValues.length<1)?employeeDetail['COMPANY_ID']:populateValues);
+                            console.log((populateValues.length<1)?employeeDetail['COMPANY_ID']:populateValues);
+                            $companyId.trigger('change');
+                            $companyId.prop('disabled', true);
+                            break;
+                        
+                    }
+                }
+            }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -50,10 +76,124 @@
             });
         })($companyId, data.getSearchDataLink);
 
+        // (function ($groupId, link) {
+        //     var onDataLoad = function (data) {
+        //         groupList = data;
+        //         app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+        //         var acl = document.acl;
+        //         console.log(acl);
+        //         if(acl['CONTROL'] == 'C'){
+        //             var companyWiseGroup = document.getCompanyWiseGroup;
+        //             if(companyWiseGroup[0]['GROUP_ID']){
+        //                 $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+        //             }                    
+        //             document.getElementById("groupId").setAttribute("disabled", "disabled");
+        //         }else{
+        //             console.log('Role is not company wise');
+        //         }
+        //     };
+        //     app.serverRequest(link, {}).then(function (response) {
+        //         if (response.success) {
+        //             onDataLoad(response.data);
+        //         }
+        //     }, function (error) {
+
+        //     });
+        // })($groupId, data.getGroupListLink);
         (function ($groupId, link) {
             var onDataLoad = function (data) {
                 groupList = data;
                 app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+				var acl = document.getAcl;
+                console.log(acl);
+                if(acl['CONTROL'] == 'C'){
+					var groupListControl = [];
+					
+                    var companyWiseGroup = document.getCompanyWiseGroup;
+                    if(companyWiseGroup[0]['GROUP_ID']){
+                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+                    }     
+
+					var totarrLength = (companyWiseGroup.length) - 1;
+					if(totarrLength == 0) 
+					{
+						document.getElementById("groupId").setAttribute("disabled", "disabled");
+					}
+					
+					if(totarrLength == 0) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 1) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 2) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 3) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+                    if(totarrLength == 4) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					if(totarrLength == 5) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID ) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+                    
+					if(totarrLength == 6) 
+					{
+						$.each(groupList, function (i, value) {
+							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
+								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
+							}
+						});
+					}
+					
+					//console.log(groupListControl);
+					
+					app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+					
+					//FOR selecting the group
+					if(companyWiseGroup[0]['GROUP_ID']){
+                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
+                    } 
+                    //document.getElementById("groupId").setAttribute("disabled", "disabled");
+                }else{
+                    console.log('Role is not company wise');
+                }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -62,7 +202,7 @@
             }, function (error) {
 
             });
-        })($groupId, data.getGroupListLink);
+        })($groupId, getGroupListLink);
 
         app.populateSelect($monthId, selectedYearMonthList, 'MONTH_ID', 'MONTH_EDESC', 'Months');
         app.searchTable($table, ['FULL_NAME', 'EMPLOYEE_CODE']);
@@ -186,5 +326,7 @@
                 console.log(error);
             });
         });
+
+        
     });
 })(window.jQuery, window.app);

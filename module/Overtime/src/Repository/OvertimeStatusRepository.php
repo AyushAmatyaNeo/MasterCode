@@ -31,7 +31,7 @@ class OvertimeStatusRepository extends HrisRepository {
             new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
             new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
             new Expression("BS_DATE(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS"),
-            new Expression("OT.DESCRIPTION AS IN_DESCRIPTION"),
+            new Expression("OT.DESCRIPTION AS DESCRIPTION"),
             new Expression("OT.REMARKS AS REMARKS"),
             new Expression("OT.TOTAL_HOUR AS TOTAL_HOUR"),
             new Expression("MIN_TO_HOUR(OT.TOTAL_HOUR) AS TOTAL_HOUR_DETAIL"),

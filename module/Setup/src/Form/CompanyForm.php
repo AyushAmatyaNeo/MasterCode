@@ -76,7 +76,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Form Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Form Code Headoffice"})
      * @Annotation\Attributes({ "id":"formCode","class":"form-control"})
      */
     public $formCode;
@@ -84,7 +84,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Dr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Dr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"formCode","class":"form-control"})
      */
     public $drAccCode;
@@ -92,7 +92,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Cr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Cr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"formCode","class":"form-control"})
      */
     public $crAccCode;
@@ -100,7 +100,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Excess Cr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Excess Cr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"formCode","class":"form-control"})
      */
     public $excessCrAccCode;
@@ -108,7 +108,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Less Dr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Less Dr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"formCode","class":"form-control"})
      */
     public $lessDrAccCode;
@@ -116,7 +116,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Equal Dr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Equal Dr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"equalCrAccCode","class":"form-control"})
      */
     public $equalCrAccCode;
@@ -124,7 +124,7 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Dr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Dr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"advanceDrAccCode","class":"form-control"})
      */
     public $advanceDrAccCode;
@@ -132,10 +132,74 @@ class CompanyForm {
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Cr Account Code"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Cr Account Code Headoffice"})
      * @Annotation\Attributes({ "id":"advanceCrAccCode","class":"form-control"})
      */
     public $advanceCrAccCode;
+    
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Form Code Factory"})
+     * @Annotation\Attributes({ "id":"formCodeFac","class":"form-control"})
+     */
+    public $formCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Dr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"formCodeFac","class":"form-control"})
+     */
+    public $drAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Cr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"formCodeFac","class":"form-control"})
+     */
+    public $crAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Excess Cr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"formCodeFac","class":"form-control"})
+     */
+    public $excessCrAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Less Dr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"formCodeFac","class":"form-control"})
+     */
+    public $lessDrAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Equal Dr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"equalCrAccCodeFac","class":"form-control"})
+     */
+    public $equalCrAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Dr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"advanceDrAccCodeFac","class":"form-control"})
+     */
+    public $advanceDrAccCodeFac;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Advance Cr Account Code Factory"})
+     * @Annotation\Attributes({ "id":"advanceCrAccCodeFac","class":"form-control"})
+     */
+    public $advanceCrAccCodeFac;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Submit")

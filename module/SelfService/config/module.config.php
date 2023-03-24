@@ -20,6 +20,7 @@ use SelfService\Controller\Service;
 use SelfService\Controller\SubordinatesReview;
 use SelfService\Controller\TrainingList;
 use SelfService\Controller\TrainingRequest;
+use SelfService\Controller\EventRequest;
 use SelfService\Controller\TravelNotification;
 use SelfService\Controller\TravelRequest;
 use SelfService\Controller\WorkOnDayoff;
@@ -263,6 +264,20 @@ return [
                     ],
                     'defaults' => [
                         'controller' => TrainingRequest::class,
+                        'action' => 'index',
+                    ]
+                ],
+            ],
+            'eventRequest' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/selfservice/eventRequest[/:action[/:id]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => EventRequest::class,
                         'action' => 'index',
                     ]
                 ],
@@ -557,6 +572,21 @@ return [
                         'route' => 'payroll',
                         'action' => 'taxslip',
                     ],
+                    [
+                        'label' => 'Salary Sheet',
+                        'route' => 'payroll',
+                        'action' => 'salarySheet',
+                    ],
+                    [
+                        'label' => 'Tax Sheet',
+                        'route' => 'payroll',
+                        'action' => 'taxSheet',
+                    ],
+                    [
+                        'label' => 'Tax Sheet Yearly',
+                        'route' => 'payroll',
+                        'action' => 'taxYearly',
+                    ],
                 ],
             ],
         ],
@@ -828,6 +858,33 @@ return [
                 ],
             ],
         ],
+        'eventRequest' => [
+            [
+                'label' => 'Event Request',
+                'route' => 'eventRequest',
+            ],
+            [
+                'label' => 'Event Request',
+                'route' => 'eventRequest',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'eventRequest',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'Add',
+                        'route' => 'eventRequest',
+                        'action' => 'add',
+                    ],
+                    [
+                        'label' => 'Detail',
+                        'route' => 'eventRequest',
+                        'action' => 'view',
+                    ],
+                ],
+            ],
+        ],
         'overtimeRequest' => [
             [
                 'label' => 'Overtime Request',
@@ -937,6 +994,7 @@ return [
             LeaveNotification::class => ControllerFactory::class,
             TravelNotification::class => ControllerFactory::class,
             TrainingRequest::class => ControllerFactory::class,
+            EventRequest::class => ControllerFactory::class,
             OvertimeRequest::class => ControllerFactory::class,
             SubordinatesReview::class => ControllerFactory::class,
             Birthday::class => ControllerFactory::class,

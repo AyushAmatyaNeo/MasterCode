@@ -1,0 +1,112 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
+$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-value-modified-modern.js'));
+?>
+<script>
+    document.getPayValueModifiedLink = '<?php echo $this->url("salarySheet", ["action" => "getPayValueDetail"]); ?>';
+    document.postPayValueModifiedLink = '<?php echo $this->url("salarySheet", ["action" => "postPayValueDetail"]); ?>';
+    document.payHeads =<?php echo json_encode($payHeads); ?>;
+    document.fiscalYears =<?php echo json_encode($fiscalYears); ?>;
+    document.months =<?php echo json_encode($months); ?>;
+    document.employees =<?php echo json_encode($employees); ?>;
+    document.salaryTypes =<?php echo json_encode($salaryTypes); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    window.data =<?php echo json_encode($data); ?>;
+	document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+	document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col-sm-12 ">
+            <div class="portlet box green">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-gift"></i>Portlet </div>
+                    <div class="tools">
+                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                        <a href="" class="fullscreen" data-original-title="" title=""> </a>
+                    </div>
+                </div>
+                <div class="portlet-body" style="display: block;">
+                    <div class="row">
+                        <div class="col-sm-2">
+                        <label>Fiscal Year</label>
+                            <select class="form-control" id="fiscalYearId" >
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Month</label>
+                            <select class="form-control" id="monthId" >
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Company</label>
+                            <select  class="form-control" name="company" id="companyId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Group</label>
+                            <select class="form-control" name="group" id="groupId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Employees</label>
+                            <select class="form-control reset-field" id="employeeId" multiple="multiple">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Pay Heads</label>
+                            <select class="form-control reset-field" id="payHeadId" multiple="multiple">
+                            </select>
+                        </div>
+                        <div class="col-sm-10">
+                        </div>
+                        <div class="col-sm-2">
+                        <label>Salary Type</label>
+                            <select class="form-control reset-field" id="salaryTypeId">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-sm-2">
+                        <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                                Reset
+                                <i class="fa fa-refresh"></i>
+                        </button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button  id="searchEmployeesBtn" class="btn btn-default btn-sm pull-right">
+                            Search
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">
+                    <div class="tools">
+                        <a href="" class="fullscreen" data-original-title="" title=""> </a>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <button id="saveChanges" class="btn pull-right" >Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="table">
+</div>

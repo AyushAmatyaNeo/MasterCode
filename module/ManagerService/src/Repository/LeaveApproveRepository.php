@@ -416,7 +416,7 @@ class LeaveApproveRepository implements RepositoryInterface {
                 AND L.ENABLE_OVERRIDE='N'
                 ) OR (RAO.recommender=U.EMPLOYEE_ID AND L.ENABLE_OVERRIDE='Y' )
                 )
-                AND LA.STATUS IN ('CR')) 
+                AND LA.STATUS IN ('CP')) 
                 OR (
                 (
                 (
@@ -426,7 +426,7 @@ class LeaveApproveRepository implements RepositoryInterface {
                 )
                 OR ( RAO.APPROVER=U.EMPLOYEE_ID AND L.ENABLE_OVERRIDE='N' )
                 )
-                AND LA.STATUS IN ('CP')) )
+                AND LA.STATUS IN ('CR')) )
                 AND U.EMPLOYEE_ID=:id
                 AND (LS.APPROVED_FLAG =
                   CASE
@@ -436,6 +436,8 @@ class LeaveApproveRepository implements RepositoryInterface {
                 OR LS.EMPLOYEE_ID IS NULL
                 OR LA.STATUS IN ('CP','CR'))
                 ORDER BY LA.REQUESTED_DT DESC";
+				
+				//echo $sql; die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParameter);
         return $result;

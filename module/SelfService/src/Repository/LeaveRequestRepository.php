@@ -99,7 +99,7 @@ class LeaveRequestRepository implements RepositoryInterface {
         $boundedParameter['leaveId']=$leaveId;
         $boundedParameter['employeeId']=$employeeId;
         $sql = "SELECT LA.EMPLOYEE_ID       AS EMPLOYEE_ID,
-                  LA.BALANCE - 
+                  LA.BALANCE - case when l.is_monthly='Y' then 0 else
                 (select 
                 nvl(sum(
                 case when half_day in ('F','S')
@@ -110,7 +110,7 @@ class LeaveRequestRepository implements RepositoryInterface {
                 end
                 ),0)
                 from hris_employee_leave_request where status in ('RQ','RC') 
-                and  leave_id=:leaveId and employee_id=:employeeId)                  AS BALANCE,
+                and  leave_id=:leaveId and employee_id=:employeeId)   end               AS BALANCE,
                   LA.FISCAL_YEAR            AS FISCAL_YEAR,
                   LA.FISCAL_YEAR_MONTH_NO   AS FISCAL_YEAR_MONTH_NO,
                   LA.LEAVE_ID               AS LEAVE_ID,
@@ -163,6 +163,7 @@ class LeaveRequestRepository implements RepositoryInterface {
                   END
                 OR LA.FISCAL_YEAR_MONTH_NO IS NULL ) 
                 ";
+				//echo'<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         return $statement->execute($boundedParameter)->current();
     }
@@ -182,15 +183,16 @@ class LeaveRequestRepository implements RepositoryInterface {
             "LA.EMPLOYEE_ID"=>$employeeId,
             $selfRequestCondition
         ]);
-
+		
         $statement = $sql->prepareStatementForSqlObject($select);
-
+		
         $resultset = $statement->execute();
-
+		
         $entitiesArray = array();
         foreach ($resultset as $result) {
             $entitiesArray[$result['LEAVE_ID']] = $result['LEAVE_ENAME'];
         }
+		//echo '<pre>'; print_r( $resultset); die;
         return $entitiesArray;
     }
 
@@ -213,6 +215,7 @@ class LeaveRequestRepository implements RepositoryInterface {
         $leaveStatus = $this->getLeaveFrontOrBack($id);
         $currentDate = Helper::getcurrentExpressionDate();
         $leaveStatusAction=$leaveStatus['CANCEL_ACTION'];
+		
         $this->tableGateway->update([LeaveApply::STATUS => $leaveStatusAction, LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
             $boundedParameter = [];
             $boundedParameter['id']=$id;
@@ -493,6 +496,8 @@ and Sub_Ref_Id is not null
  group by Sub_Ref_Id) lt on (lt.Sub_Ref_Id=sl.id)
             
             ";
+            // echo('<pre>');print_r($boundedParameter);
+            // echo '<pre>'; print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result=$statement->execute($boundedParameter);
         return Helper::extractDbData($result);
@@ -501,6 +506,102 @@ and Sub_Ref_Id is not null
     public function cancelFromSubstitue($id) {
         $currentDate = Helper::getcurrentExpressionDate();
         $this->tableGateway->update([LeaveApply::STATUS => 'C', LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
+    }
+	
+	public function checkSubstitueBalance($employeeId,$leaveId,$endDate, $currentBal){
+        $sql = "
+        select 
+        case when $leaveId in (select leave_id from hris_leave_master_setup where status='E' and is_substitute='Y') and '$endDate'>=trunc(sysdate) then
+            new_bal
+            else $currentBal END as REVISED_BALANCE
+            from 
+            (
+        SELECT
+        sum(no_of_days) as new_bal
+        FROM
+            (
+                SELECT
+                    employee_id,
+                    leave_id,
+                    no_of_days,
+                    remarks,
+                    created_date,
+                    wod_id,
+                    woh_id,
+                    training_id,
+                    travel_id,
+                    CASE
+                        WHEN wod_id IS NOT NULL THEN
+                            (
+                                SELECT
+                                    to_date
+                                FROM
+                                    hris_employee_work_dayoff
+                                WHERE
+                                    id = wod_id
+                            )
+                        WHEN woh_id IS NOT NULL THEN
+                            (
+                                SELECT
+                                    to_date
+                                FROM
+                                    hris_employee_work_holiday
+                                WHERE
+                                    id = woh_id
+                            )
+                        WHEN training_id IS NOT NULL THEN
+                            (
+                                SELECT
+                                    created_date
+                                FROM
+                                    hris_employee_training_assign
+                                WHERE
+                                    training_id = ela.training_id
+                                    AND employee_id = ela.employee_id
+                            )
+                        WHEN travel_id IS NOT NULL THEN
+                            (
+                                SELECT
+                                    to_date
+                                FROM
+                                    hris_employee_travel_request
+                                WHERE
+                                    travel_id = ela.travel_id
+                            )
+                    END AS reward_date
+                FROM
+                    hris_employee_leave_addition ela
+                WHERE
+                    employee_id = $employeeId
+                    AND leave_id = $leaveId
+            )
+        WHERE
+            reward_date >= ( trunc(to_date('$endDate') - 21) - (
+                SELECT
+                    COUNT(*)
+                FROM
+                    hris_attendance_detail
+                WHERE
+                    employee_id = $employeeId
+                    AND attendance_dt BETWEEN reward_date AND trunc(to_date('$endDate'))
+                    AND overall_status IN (
+                        'HD',
+                        'WD',
+                        'WH',
+                        'DO'
+                    )
+            ) )
+        ORDER BY
+            reward_date DESC)
+        ";
+
+        $resultList =  EntityHelper::rawQueryResult($this->adapter,$sql)->current();
+        // print_r($resultList);die;
+        if($resultList['REVISED_BALANCE']){
+			return $resultList['REVISED_BALANCE'];
+		}else{
+			return 0;
+		}
     }
     
 }

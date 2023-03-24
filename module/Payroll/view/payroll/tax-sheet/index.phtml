@@ -18,6 +18,7 @@ $this->headScript()
     document.ruleList =<?php echo json_encode($ruleList); ?>;
     document.salarySheetList =<?php echo json_encode($salarySheetList); ?>;
     document.acl =<?php echo json_encode($acl); ?>;
+	document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\taxSheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

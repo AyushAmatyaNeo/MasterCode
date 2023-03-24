@@ -23,7 +23,7 @@ class TravelRequestForm{
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Request Amount"})
-     * @Annotation\Attributes({ "id":"form-requestedAmount", "class":"form-requestedAmount form-control","min":"0","step":"0.01" })
+     * @Annotation\Attributes({ "id":"form-requestedAmount", "class":"form-requestedAmount form-control","min":"0","step":"0.01"})
      */
     public $requestedAmount;
     
@@ -97,6 +97,16 @@ class TravelRequestForm{
      * @Annotation\Attributes({"id":"form-purpose","class":"form-purpose form-control","style":"    height: 50px; font-size:12px"})
      */
     public $purpose;
+
+     /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Travel Category"})
+     * @Annotation\Attributes({ "id":"form-travelCategory","class":"form-control"})
+     */
+
+    public $travelCategory;
    
     /**
      * @Annotation\Type("Zend\Form\Element\Textarea")

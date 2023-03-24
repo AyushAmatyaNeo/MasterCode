@@ -1,0 +1,51 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/PrintLayout/index.js'));
+
+?>
+<script>
+    
+    document.getReportsTableData = '<?= $this->url("printlayout", ["action" => "getReportsTableData"]) ?>';
+    document.deleteLink = '<?= $this->url("printlayout", ["action" => "delete"]) ?>';
+    document.editLink = '<?= $this->url("printlayout", ["action" => "edit"]) ?>';
+</script>
+
+<div class="margin-top-20">
+    <div class="portlet light bg-inverse">
+        <div class="portlet-title">
+            <div class="tools">
+                <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                <a href="" class="fullscreen" data-original-title="" title=""> </a>
+            </div>
+            <div class="actions">
+                <div class="btn-group">
+                    <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-copy"></i> Tools
+                        <i class="fa fa-angle-down "></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li >
+                            <a href="javascript:;" id ="excelExport" class="hris-export-to-excel">
+                                <i class="fa fa-file-excel-o" ></i> Export to Excel </a>
+                        </li>
+                        <li >
+                            <a href="javascript:;" id="pdfExport">
+                                <i class="fa fa-file-pdf-o" ></i> 
+                                Export to PDF 
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="reportTable">
+        </div>
+    </div>
+</div>
+

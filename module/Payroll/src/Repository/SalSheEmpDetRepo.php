@@ -15,7 +15,32 @@ class SalSheEmpDetRepo extends HrisRepository {
         return $this->tableGateway->select($by)->current();
     }
     
-    public function fetchOneByWithEmpDetails($monthId,$employeeId){
+    public function fetchOneByWithEmpDetailsNew($monthId,$employeeId,$salaryTypeId){
+        $sql="SELECT 
+        SSD.*
+        ,E.ID_PROVIDENT_FUND_NO
+        ,E.ID_PAN_NO
+        ,E.ID_RETIREMENT_NO
+        ,sd.val as USE_PRESENT
+        ,ssd.total_days - sd.val as USE_ABSENT
+        FROM HRIS_SALARY_SHEET_EMP_DETAIL SSD
+        LEFT JOIN HRIS_EMPLOYEES E ON SSD.EMPLOYEE_ID=E.EMPLOYEE_ID
+        left join hris_salary_sheet ss on (ssd.sheet_no = ss.sheet_no and approved='Y')
+        left join hris_salary_sheet_detail sd on (ssd.employee_id = sd.employee_id and sd.sheet_no = ssd.sheet_no)
+        WHERE
+        SS.MONTH_ID=:monthId AND SSD.EMPLOYEE_ID=:employeeId and
+        sd.pay_id = 3 
+        and ss.salary_type_id =:salaryTypeId";
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['employeeId'] = $employeeId;
+        $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        $statement = $this->adapter->query($sql);
+        $result=$statement->execute($boundedParameter);
+        return $result->current();
+    }
+	
+	public function fetchOneByWithEmpDetails($monthId,$employeeId){
         $sql="SELECT 
         SSD.*
         ,E.ID_PROVIDENT_FUND_NO

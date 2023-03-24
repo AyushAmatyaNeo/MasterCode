@@ -1,0 +1,95 @@
+<?php
+//Load JS files here
+$this->headScript()->appendFile($this->basePath('js/Payroll/employee-map/index.js'));
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/angular.min.js'))
+        ->appendFile($this->basePath('js/search.js'));
+?> 
+
+<script>
+document.getAccountHeadByCompany = <?php echo json_encode($accountListCompanyWise) ?>;
+document.getBranchNameByCompany = <?php echo json_encode($branchListCompanyWise) ?>;
+document.employeeListOfCompany = '<?php echo $this->url('employeeMap', ['action' => 'employeeListOfCompany']); ?>';
+document.insertIntoAccCodeMap = '<?php echo $this->url('employeeMap', ['action' => 'insertIntoAccCodeMap']); ?>';
+</script>
+
+
+<div class="row margin-top-20">
+        <div class="col-sm-12">
+
+                <div class="row">
+                        <div class="col-sm-3">
+                                <label>Company</label>
+                                <select required class="form-control" name="company" id="company">
+                                        <option value='---'>---</option>
+                                        <?php  foreach($companyList as $key => $value) {  ?>
+                                                <option value='<?=$key?>'><?=$value?></option>
+                                        <?php } ?> 
+                                </select>
+                        </div>
+                        <div class="col-sm-3">
+                                <label>Branch</label>
+                                <?php print $this->formElement($branchs); ?>
+                        </div> 
+                        <div class="col-sm-3">
+                                <label>Salary Group</label>
+                                <select required class="form-control" name="groupId" id="groupId">
+                                        <option value='---'>---</option>
+                                        <?php  foreach($groupList as $key => $value) {  ?>
+                                                <option value='<?=$key?>'><?=$value?></option>
+                                        <?php } ?> 
+                                </select>
+                        </div>
+                        <div class="col-sm-3">
+                                <label>Pay Head</label>
+                                <select class="form-control" name="payHead" id="payHead">
+                                        <option value='---'>---</option>
+                                        <?php  foreach($payHeadList as $key => $value) {  ?>
+                                                <option value='<?=$key?>'><?=$value?></option>
+                                        <?php } ?> 
+                                </select>
+                        </div>
+                        <div class="col-sm-3">
+                        </div>
+                        <div class="col-sm-3">
+                        </div>
+                        <div class="col-sm-3">
+                        </div>
+                        <div class="col-sm-3">
+                                <label>Account Head</label>
+                                <?php print $this->formElement($accounts); ?>
+                        </div>
+                </div>
+                <div class="row" style="margin-top:20px;">
+                        
+                </div>
+                <div class="row">
+                        <br>
+                        <div class="col-sm-2 " id="btnSearchEmployees" style="margin-right:50%">
+                                <button class="btn btn-primary">Search Unmapped Employees</button>
+                        </div>
+                        <div class="col-sm-2 " id="mapPayIdAndAccCode">
+                                <button class="btn btn-primary">Map Pay Head and Account Head</button>
+                                </div>
+                        <br>
+                </div>                                  
+
+        </div>
+</div>
+<div class="row margin-top-20">
+        <div class="col-sm-12">
+                <div class="portlet box custom-box">
+                        <div id="employeeTableDiv">
+                                <div id="employeeTable">
+                                </div>
+                                
+                        </div>
+                </div>
+        </div>
+</div>

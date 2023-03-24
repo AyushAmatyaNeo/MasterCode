@@ -51,7 +51,8 @@ return [
     'PayrollApi',
     'Cafeteria',
     'KioskApi',
-    'Cron'
+    'Cron',
+	'PrintLayout',
 ];
 
 

@@ -1,0 +1,66 @@
+<?php
+$this->headScript()->appendFile($this->basePath('js/setup/bank/add.js'));
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('id', 'bank-form');
+
+$bankName = $form->get('bankName');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+
+$form->setAttribute('action', $this->url('bank', ['action' => 'edit', 'id' => $id]));
+
+if ($this->messages) {
+    print '<ul class="help-block bg-danger" style="background:#f3e250;">';
+    foreach ($this->messages as $message) {
+        print '<li>' . $message . '</li>';
+    }
+    print '</ul>';
+}
+
+$form->prepare();
+?>
+<script>
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\Bank')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>New Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+
+                <div class=" row" style="margin-bottom: 5rem;">
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($bankName->getMessages()) ? "" : "has-error" ?>" >
+                            <?php print $this->formLabel($bankName); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($bankName); ?>
+                            <?php print $this->formElementErrors()->render($bankName, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                </div>
+
+
+                <?php
+                print $this->formSubmit($submit);
+                print $this->form()->closeTag();
+                ?>
+            </div>
+
+        </div>
+    </div>
+</div>

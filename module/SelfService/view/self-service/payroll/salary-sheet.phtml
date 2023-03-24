@@ -1,0 +1,79 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.min.js'))
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/SelfService/payroll/salarySheet.js?1'));
+?>
+
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+
+<script>
+</script>
+
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\payroll')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+
+<div class="portlet box yellow">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-money"></i>Salary  Sheet 
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li >
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o" ></i> 
+                            Export to Excel 
+                        </a>
+                    </li>
+                    <li >
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i> 
+                            Export to PDF 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="portlet-body">
+        <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
+        <div class="row">
+            <div class="col-sm-2" style="margin: 2rem;">
+                <select class="form-control reset-field" name="fiscalYearId[]" id="fiscalYearId">
+                    <?php foreach($fiscalYears as $key => $value ){?>
+                        <option value='<?=$key?>'><?=$value?></option>
+                    <?php  }?>
+                </select>
+            </div>
+
+            <div class="col-sm-2 col-sm-offset-9">
+                <button id="viewBtn" class="btn btn-info pull-right">View</button>
+            </div>
+        </div>
+      
+
+    </div>
+
+    <div class="portlet-body">
+            <div id="table">
+            </div>
+        </div>
+</div>

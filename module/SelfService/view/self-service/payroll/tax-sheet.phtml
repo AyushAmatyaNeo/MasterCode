@@ -1,0 +1,89 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/search.js'))
+        ->appendFile($this->basePath('js/mustache.js'))
+        ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'))
+        ->appendFile($this->basePath('js/SelfService/payroll/tax-sheet.js?1'));
+?>
+<script>
+    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.getFiscalYearMonthLink = '<?php echo $this->url('payroll', ['action' => 'getFiscalYearMonth']); ?>';
+    document.pulltaxYearlyLink = '<?= $this->url("payroll", ["action" => "pulltaxYearlyEmpWise"]) ?>';
+    document.salaryType =<?php echo json_encode($salaryType); ?>;
+    document.preference =<?php echo json_encode($preference) ?>;
+    document.incomes =<?php echo json_encode($incomes); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.taxExcemptions =<?php echo json_encode($taxExcemptions); ?>;
+    document.otherTax =<?php echo json_encode($otherTax); ?>;
+    document.miscellaneous =<?php echo json_encode($miscellaneous); ?>;
+    document.bMiscellaneou =<?php echo json_encode($bMiscellaneou); ?>;
+    document.cMiscellaneou =<?php echo json_encode($cMiscellaneou); ?>;
+    document.sumOfExemption =<?php echo json_encode($sumOfExemption); ?>;
+    document.sumOfOtherTax =<?php echo json_encode($sumOfOtherTax); ?>;
+	document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\payroll')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="portlet box yellow">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-money"></i>Tax Sheet
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li >
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o" ></i> 
+                            Export to Excel 
+                        </a>
+                    </li>
+                    <li >
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i> 
+                            Export to PDF 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="portlet-body">
+        <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
+        <div class="row">
+            <div class="col-sm-2" style="margin: 2rem;">
+                <select id="fiscalYearId">
+                </select>
+            </div>
+            <div class="col-sm-2" style="margin: 2rem;">
+                <select id="monthId">
+                </select>
+            </div>
+			<div class="col-sm-2" style="margin: 2rem;">
+                <select class="form-control" name="salaryType" id="salaryTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2 col-sm-offset-9">
+                <!-- <button id="printBtn" class="btn btn-outline pull-right">Print</button> -->
+                <button id="viewBtn" class="btn btn-info pull-right">View</button>
+            </div>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <div id="table">
+        </div>
+                        
+    </div>
+</div>

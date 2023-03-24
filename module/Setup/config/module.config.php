@@ -25,7 +25,13 @@ use Setup\Controller\ServiceEventTypeController;
 use Setup\Controller\ServiceQuestionController;
 use Setup\Controller\ServiceTypeController;
 use Setup\Controller\TrainingController;
+use Setup\Controller\EventsAndConferenceController;
 use Setup\Controller\ShiftGroupController;
+use Setup\Controller\TravelCategoryController;
+use Setup\Controller\TravelExpClassController;
+use Setup\Controller\BankController;
+
+
 use Zend\Router\Http\Segment;
 
 return [
@@ -50,6 +56,26 @@ return [
                         'action' => 'index'
                     ]
                 ]
+             ],
+            'travelCategory'=>[
+                'type'=>Segment::class,
+                'options'=>[
+                    'route'=>'/setup/travelCategory[/:action[/:id]]',
+                    'defaults'=>[
+                        'controller'=>TravelCategoryController::class,
+                        'action'=>'index'
+                    ],
+                ],
+            ],
+			 'travelExpenseClass'=>[
+                'type'=>Segment::class,
+                'options'=>[
+                    'route'=>'/setup/travelExpenseClass[/:action[/:id]]',
+                    'defaults'=>[
+                        'controller'=>TravelExpClassController::class,
+                        'action'=>'index'
+                    ],
+                ],
             ],
             'company' => [
                 'type' => Segment::class,
@@ -338,6 +364,30 @@ return [
                         'action' => 'index'
                     ]
                 ]
+            ],
+            'bank' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/setup/bank[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => BankController::class,
+                        'action' => 'index'
+                    ]
+                ]
+            ],
+            'events' => [
+                'type' => segment::class,
+                'options' => [
+                    'route' => '/setup/events[/:action[/:id]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => EventsAndConferenceController::class,
+                        'action' => 'index',
+                    ]
+                ],
             ],
         ]
     ],
@@ -946,6 +996,77 @@ return [
                 ]
             ]
         ],
+        'travelCategory'=>[
+            [
+                'label'=>"Travel Category",
+                'route'=>"travelCategory"
+            ],
+            [
+                'label'=>"Travel Category",
+                'route'=>"travelCategory",
+                'pages'=>[
+                    [
+                        'label'=>'List',
+                        'route'=>'travelCategory',
+                        'action'=>'index',
+                    ],
+                    [
+                        'label'=>'Add',
+                        'route'=>'travelCategory',
+                        'action'=>'add',
+                    ],
+                    [
+                        'label'=>'Detail',
+                        'route'=>'travelCategory',
+                        'action'=>'view',
+                    ],
+                    [
+                        'label'=>'Edit',
+                        'route'=>'travelCategory',
+                        'action'=>'edit',
+                    ],
+                    [
+                        'label'=>'Delete',
+                        'route'=>'travelCategory',
+                        'action'=>'delete',
+                    ],
+                ],
+            ],
+        ],
+		 'travelExpenseClass'=>[
+            [
+                'label'=>"Travel Expense",
+                'route'=>"travelExpenseClass"
+            ],
+            [
+                'label'=>"Travel Expense",
+                'route'=>"travelExpenseClass",
+                'pages'=>[
+                    [
+                        'label'=>'List',
+                        'route'=>'travelExpenseClass',
+                        'action'=>'index',
+                    ],
+                    [
+                        'label'=>'Add',
+                        'route'=>'travelExpenseClass',
+                        'action'=>'add',
+                    ],
+                   
+                    [
+                        'label'=>'Edit',
+                        'route'=>'travelExpenseClass',
+                        'action'=>'edit',
+                    ],
+                    [
+                        'label'=>'Delete',
+                        'route'=>'travelExpenseClass',
+                        'action'=>'delete',
+                    ],
+                ],
+            ],
+        ],
+
         'fileType' => [
             [
                 'label' => 'File Type',
@@ -1000,6 +1121,60 @@ return [
                 ]
             ]
         ],
+        'bank' => [
+            [
+                'label' => 'Bank',
+                'route' => 'bank',
+            ],
+            [
+                'label' => 'Bank',
+                'route' => 'bank',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'bank',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'Add',
+                        'route' => 'bank',
+                        'action' => 'add',
+                    ],
+                    [
+                        'label' => 'Edit',
+                        'route' => 'bank',
+                        'action' => 'edit',
+                    ],
+                ]
+            ]
+        ],
+        'events' => [
+            [
+                'label' => 'Event and Conference',
+                'route' => 'events',
+            ],
+            [
+                'label' => 'Event and Conference',
+                'route' => 'events',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'events',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'Add',
+                        'route' => 'events',
+                        'action' => 'add',
+                    ],
+                    [
+                        'label' => 'Edit',
+                        'route' => 'events',
+                        'action' => 'edit',
+                    ],
+                ]
+            ]
+        ],
     ],
     'controllers' => [
         'factories' => [
@@ -1026,7 +1201,11 @@ return [
             FunctionalTypesController::class => ControllerFactory::class,
             FunctionalLevelsController::class => ControllerFactory::class,
             FileTypeController::class => ControllerFactory::class,
-            ShiftGroupController::class => ControllerFactory::class
+            ShiftGroupController::class => ControllerFactory::class,
+            TravelCategoryController::class => ControllerFactory::class,
+			TravelExpClassController::class => ControllerFactory::class,
+            EventsAndConferenceController::class => ControllerFactory::class,
+			BankController::class => ControllerFactory::class
         ],
     ],
     'view_manager' => [

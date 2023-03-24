@@ -45,29 +45,34 @@
                         deductionCounter++;
                         break;
                 }
-                 netSum = additionSum - deductionSum;
+                netSum = additionSum - deductionSum;
             });
-                add = parseFloat(additionSum).toFixed(2);
-                sub = parseFloat(deductionSum).toFixed(2);
-                net= parseFloat(netSum).toFixed(2);
+            add = parseFloat(additionSum).toFixed(2);
+            sub = parseFloat(deductionSum).toFixed(2);
+            net= parseFloat(netSum).toFixed(2);
             var maxRows = (additionCounter > deductionCounter) ? additionCounter : deductionCounter;
             for (var i = 0; i < maxRows; i++) {
                 var $row = $(`<tr>
                                 <td>${(typeof additionData[i] !== 'undefined') ? additionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof additionData[i] !== 'undefined') ? additionData[i]['VAL'] : ''}</td>
+                                <td>${(typeof additionData[i] !== 'undefined') ? parseFloat(additionData[i]['VAL']).toFixed(2) : ''}</td>
                                 <td>${(typeof deductionData[i] !== 'undefined') ? deductionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof deductionData[i] !== 'undefined') ? deductionData[i]['VAL'] : ''}</td>
+                                <td>${(typeof deductionData[i] !== 'undefined') ? parseFloat(deductionData[i]['VAL']).toFixed(2) : ''}</td>
                                 </tr>`);
                 $paySlipBody.append($row);
             }
             $paySlipBody.append($(`<tr>
-                                <td>Total Addition:</td>
-                                <td>${add}</td>
-                                <td>Total Deduction:</td>
-                                <td>${sub}</td>
-                                </tr></tr> <td>Net Salary:</td>
-                                 <td>${net}</td>`));
+                                <td><b>Total Addition:</b></td>
+                                <td><b>${add}</b></td>
+                                <td><b>Total Deduction:</b></td>
+                                <td><b>${sub}</b></td>
+                                </tr></tr> <td><b>Net Salary:</b></td>
+                                 <td><b>${net}</b></td>`));
 
+        }
+        var showEmpDetail = function ($data) {
+            for (var i in $data) {
+                $(`td[key='${i}'] `).html($data[i]);
+            }
         }
         $viewBtn.on('click', function () {
             var selectedYearText=$("#fiscalYearId option:selected" ).text();
@@ -75,7 +80,7 @@
             var selectNameText=$("#employeeId option:selected").text();
             var displayYearMonthtext='Payslip of '+selectNameText+' for '+selectedMonthText+' '+selectedYearText;
             $('#yearMonthDetails').html(displayYearMonthtext);
-            
+
             var monthId = $month.val();
             var employeeId = $employeeId.val();
             var salaryTypeId =$salaryTypeId.val();
@@ -89,7 +94,8 @@
                 groupId: employee['GROUP_ID'],
                 salaryTypeId: salaryTypeId
             }).then(function (response) {
-                showPaySlip(response.data);
+                showPaySlip(response.data['pay-detail']);
+                showEmpDetail(response.data['emp-detail']);
             }, function (error) {
 
             });

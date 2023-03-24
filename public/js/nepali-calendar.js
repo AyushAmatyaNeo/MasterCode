@@ -59,7 +59,35 @@ window.nepaliCalendar = (function ($) {
                 '10': {from: "2021-01-14", to: "2021-02-12"},
                 '11': {from: "2021-02-13", to: "2021-03-13"},
                 '12': {from: "2021-03-14", to: "2021-04-13"}
-            }
+            },
+			"2078": {
+			'01': {from: "2021-04-14", to: "2021-05-14"},
+			'02': {from: "2021-05-15", to: "2021-06-14"},
+			'03': {from: "2021-06-15", to: "2021-07-15"},
+			'04': {from: "2021-07-16", to: "2021-08-16"},
+			'05': {from: "2021-08-17", to: "2021-09-16"},
+			'06': {from: "2021-09-17", to: "2021-10-17"},
+			'07': {from: "2021-10-18", to: "2021-11-16"},
+			'08': {from: "2021-11-17", to: "2021-12-15"},
+			'09': {from: "2021-12-16", to: "2022-01-14"},
+			'10': {from: "2022-01-15", to: "2022-02-12"},
+			'11': {from: "2022-02-13", to: "2022-03-14"},
+			'12': {from: "2022-03-15", to: "2022-04-13"}
+			},
+			"2079": {
+			'01': {from: "2022-04-14", to: "2022-05-14"},
+			'02': {from: "2022-05-15", to: "2022-06-14"},
+			'03': {from: "2022-06-15", to: "2022-07-16"},
+			'04': {from: "2022-07-17", to: "2022-08-16"},
+			'05': {from: "2022-08-17", to: "2022-09-16"},
+			'06': {from: "2022-09-17", to: "2022-10-17"},
+			'07': {from: "2022-10-18", to: "2022-11-16"},
+			'08': {from: "2022-11-17", to: "2022-12-15"},
+			'09': {from: "2022-12-16", to: "2023-01-14"},
+			'10': {from: "2023-01-15", to: "2023-02-12"},
+			'11': {from: "2023-02-13", to: "2023-03-14"},
+			'12': {from: "2023-03-15", to: "2023-04-13"}
+			}
         },
         "E": {
             "2019":
@@ -346,10 +374,10 @@ window.nepaliCalendar = (function ($) {
                     $date.find('.in-time').html(value.IN_TIME);
                     $date.find('.out-time').html(value.OUT_TIME);
                     $date.find('.status').html(value.ATTENDANCE_STATUS);
-                    if (value.OVERALL_STATUS == 'DO') {
+                    if (value.OVERALL_STATUS == 'DO' || value.OVERALL_STATUS == 'WD') {
                         $date.css('background-color', '#ADFF2F');
                         $date.children().css('background-color', '#ADFF2F');
-                    } else if (value.OVERALL_STATUS == 'HD' || value.OVERALL_STATUS == 'WD') {
+                    } else if (value.OVERALL_STATUS == 'HD' || value.OVERALL_STATUS == 'WH') {
                         $date.css('background-color', '#eaea2a');
                         $date.children().css('background-color', '#eaea2a');
                     } else if (value.OVERALL_STATUS == 'LV' || value.OVERALL_STATUS == 'LP') {
@@ -364,6 +392,9 @@ window.nepaliCalendar = (function ($) {
                     } else if (value.OVERALL_STATUS == 'AB') {
                         $date.css('background-color', '#cc0000');
                         $date.children().css('background-color', '#cc0000');
+                    } else if (value.OVERALL_STATUS == 'EC') {
+                        $date.css('background-color', '#d14ef5');
+                        $date.children().css('background-color', '#d14ef5');
                     }
                 });
             }, function (error) {

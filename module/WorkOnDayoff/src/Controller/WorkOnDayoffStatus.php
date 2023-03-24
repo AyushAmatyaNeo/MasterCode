@@ -82,6 +82,10 @@ class WorkOnDayoffStatus extends HrisController {
             }
             $workOnDayoffModel->approvedBy = $this->employeeId;
             $workOnDayoffModel->approvedRemarks = $reason;
+            $workOnDayoffModel->employeeId = $detail['EMPLOYEE_ID'];
+            $workOnDayoffModel->fromDate = $detail['FROM_DATE'];
+            $workOnDayoffModel->toDate = $detail['TO_DATE'];
+            // echo '<pre>';print_r($workOnDayoffModel);die;
             $this->dayoffWorkApproveRepository->edit($workOnDayoffModel, $id);
 
             return $this->redirect()->toRoute("workOnDayoffStatus");
@@ -141,7 +145,6 @@ class WorkOnDayoffStatus extends HrisController {
     }
 
     private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
-
         $model = new WorkOnDayoff();
         $model->id = $id;
         $model->recommendedDate = Helper::getcurrentExpressionDate();
@@ -152,6 +155,7 @@ class WorkOnDayoffStatus extends HrisController {
         $model->status = $approve ? "AP" : "R";
         $message = $approve ? "WOD Request Approved" : "WOD Request Rejected";
         $notificationEvent = $approve ? NotificationEvents::WORKONDAYOFF_APPROVE_ACCEPTED : NotificationEvents::WORKONDAYOFF_APPROVE_REJECTED;
+        // echo '<pre>';print_r($model);die;
         $this->dayoffWorkApproveRepository->edit($model, $id);
         if ($enableFlashNotification) {
             $this->flashmessenger()->addMessage($message);

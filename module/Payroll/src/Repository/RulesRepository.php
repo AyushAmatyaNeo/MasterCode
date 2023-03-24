@@ -129,9 +129,9 @@ class RulesRepository extends HrisRepository {
     public function fetchSSRules(): array {
         $sql = "SELECT PAY_ID,'H_'||PAY_ID AS PAY_ID_COL,PAY_EDESC
                 FROM HRIS_PAY_SETUP
-                WHERE INCLUDE_IN_SALARY='Y'
-                AND PAY_TYPE_FLAG     IN ('A','D')
-                AND STATUS ='E'
+                WHERE --INCLUDE_IN_SALARY='Y'
+              --  AND PAY_TYPE_FLAG     IN ('A','D')   AND
+               STATUS ='E'
                 ORDER BY PRIORITY_INDEX";
         return $this->rawQuery($sql);
     }
@@ -230,7 +230,7 @@ class RulesRepository extends HrisRepository {
         AND EMPLOYEE_ID=:employeeId)
         join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id )
         where 
-        ssed.month_id<:monthId 
+        ssed.month_id<=:monthId 
         group by ssd.pay_id
           ) sd
           right join HRIS_PAY_SETUP ps on ( sd.PAY_ID=ps.PAY_ID)";
@@ -238,5 +238,65 @@ class RulesRepository extends HrisRepository {
         return $statement->execute($boundedParameter);
         
     }
+	
+	public function fetchMaxPayVal($employeeId,$monthId) {
+        $boundedParameter = [];
+        $boundedParameter['employeeId'] = $employeeId;
+        $boundedParameter['monthId'] = $monthId;
+        $query="select 
+ '[MS:'||REPLACE(UPPER(ps.PAY_EDESC), ' ', '_')||']' as PAY_EDESC,
+  sd.pay_id,
+ case when 
+ sd.value is not null
+ then sd.value
+ else 0 
+ end
+ as value 
+ from (select 
+        ssd.pay_id,
+        nvl(max(ssd.val),0) as value
+        from 
+        Hris_Salary_Sheet_Emp_Detail  ssed
+        join Hris_Month_Code mc on (mc.month_id=ssed.month_id and 
+        mc.FISCAL_YEAR_ID=(select FISCAL_YEAR_ID from Hris_Month_Code where MONTH_ID=:monthId) 
+        AND EMPLOYEE_ID=:employeeId)
+        join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id )
+        where 
+        ssed.month_id=:monthId 
+        group by ssd.pay_id
+          ) sd
+          right join HRIS_PAY_SETUP ps on ( sd.PAY_ID=ps.PAY_ID)";
+        $statement = $this->adapter->query($query);
+        return $statement->execute($boundedParameter);
+        
+    }
+	
+	public function getCompanyWise($companyId){
+      $sql="select distinct group_id from hris_employees where company_id = {$companyId} and group_id is not null and status='E'";
+      // echo '<pre>';print_r($sql);die;
+        return $this->rawQuery($sql);
+    }
+
+    public function getCompanyWiseGroup($companyId){
+      $sql="select group_name,group_id from HRIS_SALARY_SHEET_GROUP where group_id in (select  distinct 
+      group_id from hris_employees where company_id =$companyId and group_id is not null and status='E')
+      ";
+      // echo '<pre>';print_r($sql);die;
+        return $this->rawQuery($sql);
+    }
+
+    public function getCompany($id){
+      // echo '<pre>';print_r($empId);die;
+      $sql="SELECT
+      company_name,
+      company_id
+  FROM
+   hris_company 
+  WHERE
+      company_id = $id";
+      return $this->rawQuery($sql);
+    }
+
+   
 
 }

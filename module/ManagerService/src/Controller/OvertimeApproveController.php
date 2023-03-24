@@ -59,10 +59,12 @@ class OvertimeApproveController extends HrisController {
         $authApprover = $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'];
         $recommenderId = $detail['RECOMMENDED_BY'] == null ? $detail['RECOMMENDER_ID'] : $detail['RECOMMENDED_BY'];
         $overtimeDetailResult = $this->overtimeDetailRepository->fetchByOvertimeId($detail['OVERTIME_ID']);
+		//print_r($overtimeDetailResult); die;
         $overtimeDetails = [];
         foreach ($overtimeDetailResult as $overtimeDetailRow) {
             array_push($overtimeDetails, $overtimeDetailRow);
         }
+		//print_r($overtimeDetails); die;
         if ($request->isPost()) {
             $postedData = (array) $request->getPost();
             $action = $postedData['submit'];
@@ -71,6 +73,7 @@ class OvertimeApproveController extends HrisController {
         }
         $overtimeModel->exchangeArrayFromDB($detail);
         $this->form->bind($overtimeModel);
+		
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'id' => $id,

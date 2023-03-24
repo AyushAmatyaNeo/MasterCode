@@ -34,6 +34,7 @@ $companyName = $form->get('companyName');
 $companyAddress = $form->get('companyAddress');
 $companyAccountNo = $form->get('companyAccountNo');
 $displayHrApproved = $form->get('displayHrApproved');
+$doNotInsertSubDetailFlag = $form->get('doNotInsertSubDetailFlag');
 
 $submit = $form->get('submit');
 
@@ -264,6 +265,14 @@ if ($this->messages) {
                             </div>
                         </div>
                         <?php print $this->formElementErrors()->render($provinceWiseBranchFilter, ['class' => 'help-block error']); ?>
+                    </div>
+					
+					<div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($doNotInsertSubDetailFlag); ?><br>
+                            <?php print $this->formElement($doNotInsertSubDetailFlag); ?>
+                            <?php print $this->formElementErrors()->render($doNotInsertSubDetailFlag, ['class' => 'help-block error']); ?>
+                        </div>
                     </div>
 
                 </div>

@@ -12,7 +12,7 @@
     	let $table = $("#table");
     	var excelData;
     	let typeFlag = 1;
-        let basedOnFlag = 1;
+        let basedOnFlag = 2;
     	$("select").select2();
     	$(".months").hide();
         $(".salary-types").hide();
@@ -54,7 +54,8 @@
     	app.initializeKendoGrid($table, columns);
 
     	$("#submit").on('click', function(){
-	if(prompt("Make sure all options are correctly selected. Type CONFIRM to proceed.") !== "CONFIRM"){ return; }
+	// if(prompt("Make sure all options are correctly selected. Type CONFIRM to proceed.") !== "CONFIRM"){ return; }
+            if(!confirm("confirm ?")){ return; }
             var valueType = $payHeads.val();
             var fileUploadedFlag = document.getElementById("excelImport").files.length;
             var fiscalYearId = $fiscalYearId.val();

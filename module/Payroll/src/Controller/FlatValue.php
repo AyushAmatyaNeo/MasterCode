@@ -110,6 +110,7 @@ class FlatValue extends HrisController {
                     'flatValues' => $flatValues,
                     'fiscalYears' => $fiscalYears,
                     'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
@@ -156,7 +157,9 @@ class FlatValue extends HrisController {
         return $this->stickFlashMessagesTo([
                     'fiscalYears' => $fiscalYears,
                     'flatValues' => $flatValues,
-                    'positions' => $positions
+                    'positions' => $positions,
+					'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
@@ -319,7 +322,8 @@ class FlatValue extends HrisController {
                     'fiscalYears' => $fiscalYears,
                     'flatValues' => $flatValues,
                     'positions' => $positions,
-                    'acl' => $this->acl
+                    'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 

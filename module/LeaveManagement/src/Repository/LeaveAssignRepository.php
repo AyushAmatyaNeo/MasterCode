@@ -102,7 +102,6 @@ class LeaveAssignRepository extends HrisRepository {
            END=1
           )
                 ORDER BY C.COMPANY_NAME,B.BRANCH_NAME,DEP.DEPARTMENT_NAME,E.FULL_NAME,MC.LEAVE_YEAR_MONTH_NO";
-
         $boundedParameter['leaveId'] = $leaveId;
         return $this->rawQuery($sql, $boundedParameter);
     }

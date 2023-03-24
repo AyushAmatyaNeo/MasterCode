@@ -59,7 +59,7 @@ class OvertimeReportRepo extends HrisRepository {
                   ROWNUM AS MONTH_DAY_TITLE
                 FROM DUAL
                   CONNECT BY ROWNUM <=
-                  (SELECT (TO_DATE-FROM_DATE)+1 FROM HRIS_MONTH_CODE WHERE MONTH_ID={$monthId}
+                  (SELECT (TO_DATE-FROM_DATE)+1 FROM HRIS_MONTH_CODE WHERE MONTH_ID= :monthId
                   )";
 
         $boundedParameter = [];
@@ -105,7 +105,7 @@ class OvertimeReportRepo extends HrisRepository {
                     FROM HRIS_ATTENDANCE_DETAIL AD
                     JOIN HRIS_MONTH_CODE MC
                     ON (AD.ATTENDANCE_DT BETWEEN MC.FROM_DATE AND MC.TO_DATE)
-                    WHERE MC.MONTH_ID={$monthId}
+                    WHERE MC.MONTH_ID= :monthId
                     ) AD
                   LEFT JOIN HRIS_OVERTIME_MANUAL OM
                   ON (AD.EMPLOYEE_ID    =OM.EMPLOYEE_ID
@@ -115,7 +115,7 @@ class OvertimeReportRepo extends HrisRepository {
                   LEFT JOIN HRIS_DEPARTMENTS D
                   ON (E.DEPARTMENT_ID = D.DEPARTMENT_ID)
                   WHERE 1=1 
-                  {$searchConditon['sql']}
+                  {$searchCondition['sql']}
                   ) PIVOT (MAX(OVERTIME_HOUR) FOR MONTH_DAY IN ({$pivotIn}))) SS left join HRIS_OVERTIME_A_D AD
  on SS.EMPLOYEE_ID = AD.EMPLOYEE_ID AND AD.MONTH_ID = :monthId";
         } else {
@@ -132,7 +132,7 @@ class OvertimeReportRepo extends HrisRepository {
                     FROM HRIS_ATTENDANCE_DETAIL AD
                     JOIN HRIS_MONTH_CODE MC
                     ON (AD.ATTENDANCE_DT BETWEEN MC.FROM_DATE AND MC.TO_DATE)
-                    WHERE MC.MONTH_ID={$monthId}
+                    WHERE MC.MONTH_ID= :monthId
                     ) AD
                   LEFT JOIN HRIS_OVERTIME_MANUAL OM
                   ON (AD.EMPLOYEE_ID    =OM.EMPLOYEE_ID
@@ -142,7 +142,7 @@ class OvertimeReportRepo extends HrisRepository {
                   LEFT JOIN HRIS_DEPARTMENTS D
                   ON (E.DEPARTMENT_ID = D.DEPARTMENT_ID)
                   WHERE 1=1 
-                  {$searchConditon['sql']}
+                  {$searchCondition['sql']}
                   ) PIVOT (MAX(OVERTIME_HOUR) FOR MONTH_DAY IN ({$pivotIn}))) SS left join HRIS_OVERTIME_A_D AD
  on SS.EMPLOYEE_ID = AD.EMPLOYEE_ID AND AD.MONTH_ID = :monthId";
         }
@@ -163,8 +163,11 @@ class OvertimeReportRepo extends HrisRepository {
 
     private function createOrUpdate($m, $d, $e, $h) {
         $hour = $h == null ? 'NULL' : $h;
+		if($d == 'DEPARTMENT_NAME'){
+		} else {
         $sql = "BEGIN HRIS_OT_MANUAL_CR_OR_UP({$m},{$d},{$e},{$hour}); END;";
-        $this->executeStatement($sql);
+		$this->executeStatement($sql);
+		}
     }
 
     private function addAndDeduct($e,$m,$a,$d){

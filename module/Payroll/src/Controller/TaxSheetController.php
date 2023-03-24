@@ -3,6 +3,7 @@
 namespace Payroll\Controller;
 
 use Application\Controller\HrisController;
+use Application\Helper\EntityHelper;
 use Exception;
 use Payroll\Repository\RulesRepository;
 use Payroll\Repository\SalarySheetRepo;
@@ -34,6 +35,8 @@ class TaxSheetController extends HrisController {
         $data['ruleList'] = iterator_to_array($ruleRepo->fetchAll(), false);
         $data['salarySheetList'] = iterator_to_array($salarySheetRepo->fetchAll(), false);
         $data['acl'] = $this->acl;
+		$data['employeeDetail'] = $this->storageData['employee_detail'];
+		//'employeeDetail' => $this->storageData['employee_detail'],
         return $data;
     }
 
@@ -48,6 +51,16 @@ class TaxSheetController extends HrisController {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
+    }
+
+    public function getSearchDataAction(){
+        $acl =  $this->acl;
+        if($acl['CONTROL'][0]=='C'){
+            $searchValues = EntityHelper::getSearchDataCompanyWise($this->adapter, true, $acl['CONTROL_VALUES'][0]['VAL']);
+        }else{
+            $searchValues = EntityHelper::getSearchDataCompanyWise($this->adapter, false, null);
+        }
+      return new JsonModel(['success' => true, 'data' => $searchValues, 'error' => '']);
     }
 
 }

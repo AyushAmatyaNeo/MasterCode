@@ -6,7 +6,7 @@ $this->headLink()
 $this->headScript()
         ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
         ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
-$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-value-modified-modern.js'));
+$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-value-modified-modern.js?1'));
 ?>
 <script>
     document.getPayValueModifiedLink = '<?php echo $this->url("salarySheet", ["action" => "getPayValueDetail"]); ?>';
@@ -18,6 +18,9 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/pay-val
     document.salaryTypes =<?php echo json_encode($salaryTypes); ?>;
     document.acl =<?php echo json_encode($acl); ?>;
     window.data =<?php echo json_encode($data); ?>;
+    document.getAcl = <?php echo json_encode($acl); ?>;
+	document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+	document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

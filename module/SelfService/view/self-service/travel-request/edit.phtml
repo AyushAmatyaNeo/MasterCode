@@ -2,6 +2,10 @@
     <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
 </div>
 <?php
+
+    use Doctrine\Common\Collections\Expr\Value;
+    use Setup\Model\TravelCategory;
+
 $this->headLink()
         ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
  
@@ -20,7 +24,8 @@ $fromDate = $form->get('fromDate');
 $toDate = $form->get('toDate');
 
 $destination = $form->get('destination');
-
+$travelCategory=$form->get('travelCategory');
+$travelCategory->setValueOptions([$detail['LEVEL_NO'] => $detail['CATEGORY_NAME']]);
 $purpose = $form->get('purpose');
 $departure = $form->get('departure');
 $requestedType = $form->get('requestedType');
@@ -40,7 +45,9 @@ $form->prepare();
 print $this->form()->openTag($form);
 ?>
 <script>
+    document.advanceAmt=<?=$advanceAmt?>;
     document.urlCss = '<?= $this->basePath('css/custom.css') ?>';
+
 </script>
 <div class="col-sm-12">
     <div class="portlet box custom-box">
@@ -106,6 +113,7 @@ print $this->form()->openTag($form);
                                     </td>
                                 </tr>                               
                             </table>
+                            
                         </div>
                     </div>
                 </div>
@@ -194,6 +202,12 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($purpose); ?>
                             <?php print $this->formElement($purpose); ?>
                             <?php print $this->formElementErrors()->render($purpose, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($travelCategory); ?>
+                            <?php print $this->formElement($travelCategory); ?>
                         </div>
                     </div>
 

@@ -133,7 +133,7 @@ class HeadNotification {
             throw new Exception("Sender email is not set or valid.");
         }
         if (!isset($model->toEmail) || $model->toEmail == null || $model->toEmail == '' || !$isValidEmail($model->toEmail)) {
-            throw new Exception("Receiver email is not set or valid.");
+            //throw new Exception("Receiver email is not set or valid.");
         }
         $mail->addTo($model->toEmail, $model->toName);
 
@@ -897,7 +897,7 @@ class HeadNotification {
             $mail->setBody($html2txt->getText());
 
             if (!isset($toEmail) || $toEmail == null || $toEmail == '' || !$isValidEmail($toEmail)) {
-                throw new Exception("Receiver email is not set or valid.");
+                //throw new Exception("Receiver email is not set or valid.");
             }
             $mail->addTo($toEmail, $toName);
 

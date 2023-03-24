@@ -214,7 +214,7 @@ class HrEmployeesFormTabFour extends Model {
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Tax Base","value_options":{"U":"Unmarried","M":"Married"}})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Tax Base","value_options":{"":"---","U":"Unmarried","M":"Married"}})
      * @Annotation\Attributes({ "id":"taxBase","class":"form-control"})
      */
     public $taxBase;

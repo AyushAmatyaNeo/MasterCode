@@ -1,0 +1,53 @@
+<?php
+$this->headLink()->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+$this->headLink()->appendStylesheet($this->basePath('assets/global/plugins/albe-timeline/style-albe-timeline.css'));
+
+$this->headLink()->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
+$this->headScript()->appendFile($this->basePath('dropzone/dropzone.min.js'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/albe-timeline/jquery-albe-timeline.js'));
+$this->headScript()->appendFile($this->basePath('js/manager-service/travel-approve/print.js'));
+$this->headScript()->appendFile($this->basePath('js/jspdf.min.js'));
+
+?>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-file-text"></i>
+                    Travel Request Form
+                </div>
+                <div class="actions">
+                <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i>
+                            Export to PDF
+                        </a>
+                </div>
+            </div>
+            <div class="portlet-body" id="body" >
+
+                    <?php
+                echo $data;
+                ?>
+            <!-- <div id="editor"></div> -->
+                
+            </div>
+
+            <div class="row" id="ignore">
+                    <div class="col-sm-4 col-lg-offset-8">
+                        <button id="close" class="btn default btn-sm pull-right hris-reset-btn ">
+                            Close
+                            <i class="fa fa-window-close"></i>
+                        </button>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+

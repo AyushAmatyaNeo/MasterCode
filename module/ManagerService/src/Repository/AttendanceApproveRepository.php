@@ -117,15 +117,15 @@ class AttendanceApproveRepository extends HrisRepository {
     }
 
     public function backdateAttendance($id) {
-        $boundedParams = [];
+        //$boundedParams = [];
         $sql = "
                 BEGIN
-                  HRIS_BACKDATE_ATTENDANCE(:id);
+                  HRIS_BACKDATE_ATTENDANCE({$id});
                 END;";
 
-        $boundedParams['id'] = $id;
-//        EntityHelper::rawQueryResult($this->adapter, $sql);
-        $this->executeStatement($sql,$boundedParams);
+        //$boundedParams['id'] = $id;
+        EntityHelper::rawQueryResult($this->adapter, $sql);
+        //$this->executeStatement($sql,$boundedParams);
     }
 
 }

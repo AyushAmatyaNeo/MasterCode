@@ -10,6 +10,9 @@ use Payroll\Controller\SalarySheetController;
 use Payroll\Controller\ExcelUploadController;
 use Payroll\Controller\SalarySheetLockController;
 use Payroll\Controller\TaxSheetController;
+use Payroll\Controller\AccCodeMap;
+use Payroll\Controller\EmployeeMap;
+use Payroll\Controller\MappedEmployees;
 use Zend\Router\Http\Segment;
 
 return [
@@ -101,6 +104,26 @@ return [
                     'route' => '/payroll/payrollReport[/:action[/:id]]',
                     'defaults' => [
                         'controller' => Controller\PayrollReportController::class,
+                        'action' => 'index'
+                    ]
+                ]
+            ],
+			'employeeMap' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/payroll/employeeMap[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => Controller\EmployeeMap::class,
+                        'action' => 'index'
+                    ]
+                ]
+            ],
+            'mapped' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/payroll/mapped[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => Controller\MappedEmployees::class,
                         'action' => 'index'
                     ]
                 ]
@@ -289,6 +312,8 @@ return [
             ExcelUploadController::class => ControllerFactory::class,
             Controller\VarianceSetupController::class => ControllerFactory::class,
             Controller\PayrollReportController::class => ControllerFactory::class,
+			MappedEmployees::class => ControllerFactory::class,
+            EmployeeMap::class => ControllerFactory::class,
         ],
     ],
     'view_manager' => [

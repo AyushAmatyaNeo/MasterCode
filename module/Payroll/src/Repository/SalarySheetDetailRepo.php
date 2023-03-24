@@ -123,7 +123,7 @@ class SalarySheetDetailRepo extends HrisRepository {
                 WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
                 AND TS.SHEET_NO       IN
                   (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
-                      AND SALARY_TYPE_ID=:salaryTypeId
+                      AND SALARY_TYPE_ID=:salaryTypeId  AND APPROVED='Y'
                   )
                 AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
 
@@ -131,6 +131,7 @@ class SalarySheetDetailRepo extends HrisRepository {
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['employeeId'] = $employeeId;
+                    // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 
@@ -186,10 +187,11 @@ class SalarySheetDetailRepo extends HrisRepository {
         
     }
     
-    public function fetchSalarySheetByGroupSheet($monthId,$groupId,$sheetNo,$salaryTypeId) {
+    public function fetchSalarySheetByGroupSheet($monthId,$groupId,$sheetNo,$salaryTypeId,$companyId) {
         
         
            $sheetString = $sheetNo;
+        //    echo '<pre>';print_r($sheetNo );die;
         if ($sheetNo == -1) {
 //            echo is_array($groupId);
             if (is_array($groupId)) {
@@ -212,7 +214,26 @@ class SalarySheetDetailRepo extends HrisRepository {
         }
 
         $in = $this->fetchPayIdsAsArray();
-        $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
+        if ($companyId>0){
+            $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
+            FROM
+              (SELECT *
+              FROM
+                (SELECT SSED.SHEET_NO,
+                  SSED.EMPLOYEE_ID,
+                  SSD.PAY_ID,
+                  SSD.VAL
+                FROM HRIS_SALARY_SHEET_DETAIL SSD
+                RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
+                WHERE SSED.SHEET_NO in ({$sheetString}) and SSED.company_id=$companyId
+                ) PIVOT (MAX(VAL) FOR PAY_ID IN ({$in}))
+              ) P
+            JOIN HRIS_EMPLOYEES E
+            ON (P.EMPLOYEE_ID=E.EMPLOYEE_ID) 
+            LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
+            LEFT JOIN HRIS_POSITIONS PO ON (PO.POSITION_ID=E.POSITION_ID)";
+        }else{
+            $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
                 FROM
                   (SELECT *
                   FROM
@@ -222,15 +243,16 @@ class SalarySheetDetailRepo extends HrisRepository {
                       SSD.VAL
                     FROM HRIS_SALARY_SHEET_DETAIL SSD
                     RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
-                    WHERE SSED.SHEET_NO in ({$sheetString})
+                    WHERE SSED.SHEET_NO in ({$sheetString}) 
                     ) PIVOT (MAX(VAL) FOR PAY_ID IN ({$in}))
                   ) P
                 JOIN HRIS_EMPLOYEES E
                 ON (P.EMPLOYEE_ID=E.EMPLOYEE_ID) 
                 LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
                 LEFT JOIN HRIS_POSITIONS PO ON (PO.POSITION_ID=E.POSITION_ID)";
-//                    echo $sql;
-//                    die();
+        }
+        
+// echo '<pre>';print_r($sql);die;
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
     

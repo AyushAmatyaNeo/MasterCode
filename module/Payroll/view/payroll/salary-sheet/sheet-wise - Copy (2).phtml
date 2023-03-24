@@ -1,0 +1,113 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+$this->headLink()->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+$this->headLink()->appendStylesheet($this->basePath('assets/global/plugins/please-wait/build/please-wait.css'));
+$this->headLink()->appendStylesheet($this->basePath('css/please-wait-custom.css'));
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/please-wait/build/please-wait.min.js'));
+$this->headScript()
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/Payroll/salary-sheet/sheet-wise.js'));
+
+?>
+<script>
+    document.data =<?php echo $data; ?>;
+    document.data['loading-icon'] = '<?php echo $this->basePath('img/payroll-icon.png'); ?>';
+    document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
+    document.pullGroupEmployeeLink = '<?php echo $this->url('salarySheet', ['action' => 'pullGroupEmployee']); ?>';
+    document.deleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheet"]); ?>';
+    document.bulkDeleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheetInBulk"]); ?>';
+    document.getEmployeeSheetWise = '<?= $this->url("salarySheet", ["action" => "getEmployeeSheetWise"]); ?>';
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div class="portlet box yellow">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-money"></i>Salary Sheet 
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li >
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o" ></i> 
+                            Export to Excel 
+                        </a>
+                    </li>
+                    <li >
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i> 
+                            Export to PDF 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="portlet-body">
+        <div class="row">
+            <div class="col-sm-2">
+                <label>Salary Type</label>
+                <select class="form-control" name="salaryType" id="salaryTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Company</label>
+                <select  class="form-control" name="company" id="companyId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Group</label>
+                <select multiple="multiple" class="form-control" name="group" id="groupId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Sheet</label>
+                <select class="form-control" name="allSheetId" id="allSheetId">
+                </select>
+            </div>
+        </div>
+        <div class="row margin-top-10">
+            <div class="col-sm-2">
+                <select id="fiscalYearId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <select id="monthId">
+                </select>
+            </div>
+            <div class="col-sm-4">
+                <button id="viewBtn" style="margin-bottom: 20px;" class="btn yellow-saffron pull-right">View</button>
+            </div>
+        </div>
+        
+        <div id="employeeTableDiv">
+            <div id="sheetTable">
+            </div>
+            <div style="display: none;" class="row margin-top-20" id="bulkActionDiv" >
+                <div class="col-sm-2 ">
+                    <button action="delete" class="btn btn-danger btnApproveReject">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<h4 class="close-please-wait" id="please-wait-options" >
+    <button type="button" class="btn red default btn-lg" id="cancelBtn">Cancel</button>
+    <button type="button" class="btn blue default btn-lg" action="pause" id="pauseBtn">Pause</button>
+</h4>

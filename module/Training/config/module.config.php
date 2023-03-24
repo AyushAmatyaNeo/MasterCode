@@ -5,8 +5,10 @@ namespace Training;
 use Application\Controller\ControllerFactory;
 use Training\Controller\TrainingApplyController;
 use Training\Controller\TrainingAssignController;
+use Training\Controller\EventAssignController;
 use Training\Controller\TrainingAttendanceController;
 use Training\Controller\TrainingStatusController;
+use Training\Controller\EventStatusController;
 use Zend\Router\Http\Segment;
 
 return [
@@ -26,6 +28,20 @@ return [
                     ],
                 ],
             ],
+            'eventAssign' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/training/eventAssign[/:action[/:employeeId][/:eventId]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => EventAssignController::class,
+                        'action' => 'index'
+                    ],
+                ],
+            ],
             'trainingStatus' => [
                 'type' => Segment::class,
                 'options' => [
@@ -36,6 +52,20 @@ return [
                     ],
                     'defaults' => [
                         'controller' => TrainingStatusController::class,
+                        'action' => 'index'
+                    ],
+                ],
+            ],
+            'eventStatus' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/training/eventStatus[/:action[/:id]]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => EventStatusController::class,
                         'action' => 'index'
                     ],
                 ],
@@ -103,6 +133,38 @@ return [
                 ],
             ],
         ],
+        'eventAssign' => [
+            [
+                'label' => "Event Assign",
+                'route' => "eventAssign"
+            ],
+            [
+                'label' => "Event Assign",
+                'route' => "eventAssign",
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'eventAssign',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'Add',
+                        'route' => 'eventAssign',
+                        'action' => 'add',
+                    ],
+                    [
+                        'label' => 'Detail',
+                        'route' => 'eventAssign',
+                        'action' => 'view',
+                    ],
+                    [
+                        'label' => 'Assign',
+                        'route' => 'eventAssign',
+                        'action' => 'assign',
+                    ],
+                ],
+            ],
+        ],
         'trainingStatus' => [
             [
                 'label' => 'Training Request',
@@ -120,6 +182,28 @@ return [
                     [
                         'label' => 'View',
                         'route' => 'trainingStatus',
+                        'action' => 'view',
+                    ],
+                ]
+            ]
+        ],
+        'eventStatus' => [
+            [
+                'label' => 'Event Request',
+                'route' => 'eventStatus',
+            ],
+            [
+                'label' => 'Event Request',
+                'route' => 'eventStatus',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'eventStatus',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'View',
+                        'route' => 'eventStatus',
                         'action' => 'view',
                     ],
                 ]
@@ -168,7 +252,9 @@ return [
     'controllers' => [
         'factories' => [
             Controller\TrainingAssignController::class => ControllerFactory::class,
+            Controller\EventAssignController::class => ControllerFactory::class,
             Controller\TrainingStatusController::class => ControllerFactory::class,
+            Controller\EventStatusController::class => ControllerFactory::class,
             Controller\TrainingAttendanceController::class => ControllerFactory::class,
             Controller\TrainingApplyController::class => ControllerFactory::class,
         ],

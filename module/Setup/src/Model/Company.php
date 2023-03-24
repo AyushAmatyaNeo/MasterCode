@@ -29,6 +29,15 @@ class Company extends Model {
     CONST EQUAL_CR_ACC_CODE = "EQUAL_CR_ACC_CODE";
     CONST ADVANCE_DR_ACC_CODE = "ADVANCE_DR_ACC_CODE";
     CONST ADVANCE_CR_ACC_CODE = "ADVANCE_CR_ACC_CODE";
+    CONST FORM_CODE_FAC = "FORM_CODE_FAC";
+    CONST DR_ACC_CODE_FAC = "DR_ACC_CODE_FAC";
+    CONST CR_ACC_CODE_FAC = "CR_ACC_CODE_FAC";
+    CONST EXCESS_CR_ACC_CODE_FAC = "EXCESS_CR_ACC_CODE_FAC";
+    CONST LESS_DR_ACC_CODE_FAC = "LESS_DR_ACC_CODE_FAC";
+    CONST EQUAL_CR_ACC_CODE_FAC = "EQUAL_CR_ACC_CODE_FAC";
+    CONST ADVANCE_DR_ACC_CODE_FAC = "ADVANCE_DR_ACC_CODE_FAC";
+    CONST ADVANCE_CR_ACC_CODE_FAC = "ADVANCE_CR_ACC_CODE_FAC";
+
 
     public $companyId;
     public $companyCode;
@@ -52,6 +61,14 @@ class Company extends Model {
     public $equalCrAccCode = null;
     public $advanceDrAccCode = null;
     public $advanceCrAccCode = null;
+    public $formCodeFac = null;
+    public $drAccCodeFac = null;
+    public $crAccCodeFac = null;
+    public $excessCrAccCodeFac = null;
+    public $lessDrAccCodeFac = null;
+    public $equalCrAccCodeFac = null;
+    public $advanceDrAccCodeFac = null;
+    public $advanceCrAccCodeFac = null;
     public $mappings = [
         'companyId' => self::COMPANY_ID,
         'companyCode' => self::COMPANY_CODE,
@@ -75,6 +92,14 @@ class Company extends Model {
         'equalCrAccCode' => self::EQUAL_CR_ACC_CODE,
         'advanceDrAccCode' => self::ADVANCE_DR_ACC_CODE,
         'advanceCrAccCode' => self::ADVANCE_CR_ACC_CODE,
+        'formCodeFac' => self::FORM_CODE_FAC,
+        'drAccCodeFac' => self::DR_ACC_CODE_FAC,
+        'crAccCodeFac' => self::CR_ACC_CODE_FAC,
+        'excessCrAccCodeFac' => self::EXCESS_CR_ACC_CODE_FAC,
+        'lessDrAccCodeFac' => self::LESS_DR_ACC_CODE_FAC,
+        'equalCrAccCodeFac' => self::EQUAL_CR_ACC_CODE_FAC,
+        'advanceDrAccCodeFac' => self::ADVANCE_DR_ACC_CODE_FAC,
+        'advanceCrAccCodeFac' => self::ADVANCE_CR_ACC_CODE_FAC,
     ];
 
 }

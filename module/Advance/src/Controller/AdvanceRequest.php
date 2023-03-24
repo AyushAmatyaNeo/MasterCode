@@ -76,13 +76,14 @@ class AdvanceRequest extends HrisController {
         $advanceList = $this->repository->fetchAvailableAdvacenList($this->employeeId);
 
         $basicSalary = EntityHelper::getTableList($this->adapter, HrEmployees::TABLE_NAME, ['SALARY'], [HrEmployees::EMPLOYEE_ID => $this->employeeId]);
-        return Helper::addFlashMessagesToArray($this, [
+        $empSalary = $basicSalary[0]['SALARY'] ? $basicSalary[0]['SALARY'] : 0;
+		return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'employeeId' => $this->employeeId,
                     'advance' => $advanceList,
                     'customRenderer' => Helper::renderCustomView(),
                     'employeeList' => EntityHelper::getTableList($this->adapter, HrEmployees::TABLE_NAME, [HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"]),
-                    'salary' => $basicSalary[0]['SALARY']
+                    'salary' => $empSalary
         ]);
     }
 

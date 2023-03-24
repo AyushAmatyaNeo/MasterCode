@@ -21,6 +21,8 @@ $this->headScript()
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
     document.pullGroupEmployeeLink = '<?php echo $this->url('salarySheet', ['action' => 'pullGroupEmployee']); ?>';
     document.deleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheet"]); ?>';
+	document.getAcl = <?php echo json_encode($acl); ?>;
+    document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
