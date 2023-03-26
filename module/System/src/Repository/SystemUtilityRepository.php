@@ -215,4 +215,35 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
         return Helper::extractDbData($result);
     }
 
+    public function recalYearlyLeave($employeeId,$leaveId){
+        $sql=" 
+        BEGIN 
+        hris_recalculate_leave({$employeeId},{$leaveId});
+        END;
+        ";
+        $statement =$this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result->current();
+ 
+    } 
+
+    public function checkMonthlyFlag($leaveId){
+        $sql="SELECT IS_MONTHLY FROM HRIS_LEAVE_MASTER_SETUP WHERE LEAVE_ID=$leaveId";
+        $statement=$this->adapter->query($sql);
+        $result=$statement->execute();
+        return $result->current();
+    }
+
+    public function recalMonthlyLeave($employeeId,$leaveId){
+        $sql=" 
+        BEGIN 
+        hris_recalc_monthly_leaves({$employeeId},{$leaveId});
+        END;
+        ";
+
+        $statement =$this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result->current(); 
+    }  
+
 }

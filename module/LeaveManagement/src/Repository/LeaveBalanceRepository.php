@@ -225,53 +225,134 @@ class LeaveBalanceRepository extends HrisRepository {
         $leaveArrayDb = $this->fetchLeaveAsDbArray($isMonthly, $leaveData,$leaveYear);
         $includePreviousBalance = $isMonthly ? "0" : " HA.PREVIOUS_YEAR_BAL ";
         
-        $sql = "
-           SELECT LA.*,E.FULL_NAME, E.EMPLOYEE_CODE AS EMPLOYEE_CODE
-,D.Department_Name,
-    Funt.Functional_Type_Edesc        
-    ,BP.PROVINCE_NAME                                 AS BRANCH_PROVINCE,
-     BR.BRANCH_NAME
-     ,P.POSITION_NAME
-FROM (SELECT *
-            FROM
-              (SELECT 
-              HA.EMPLOYEE_ID,
-                    NVL(HA.PREVIOUS_YEAR_BAL,0) as PREVIOUS_YEAR_BAL,
-                    HA.LEAVE_ID,
-                    HA.TOTAL_DAYS AS CURR,
-                    NVL({$includePreviousBalance}, 0) + HA.TOTAL_DAYS AS TOTAL,
-                    HA.BALANCE,
-                    HS.ENCASH_DAYS as ENCASHED,
-                    ( NVL({$includePreviousBalance}, 0) + ha.total_days - ha.balance - (case when
-                    HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end) - nvl(EPD.penalty_days,0)) AS taken,
-                    EPD.penalty_days as DEDUCTED
-              FROM 
-              HRIS_EMPLOYEE_LEAVE_ASSIGN HA
-                    left JOIN 
-                    HRIS_EMP_SELF_LEAVE_CLOSING HS
-                    on (HA.EMPLOYEE_ID = HS.EMPLOYEE_ID and HA.leave_id = HS.leave_id)
-                    left join (
-                    select employee_id,leave_id,sum(no_of_days) as penalty_days
-                    from HRIS_EMPLOYEE_PENALTY_DAYS
-                    group by employee_id,leave_id) EPD
-                    on (EPD.EMPLOYEE_ID = HA.EMPLOYEE_ID AND EPD.LEAVE_ID = HA.LEAVE_ID)
-              WHERE ha.EMPLOYEE_ID IN
-                ( SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 AND E.STATUS='E' {$searchCondition['sql']}
-                ){$monthlyCondition} {$leaveCondition}
-              ) PIVOT (sum ( ENCASHED ) AS ENCASHED, sum ( DEDUCTED ) AS DEDUCTED, MAX(PREVIOUS_YEAR_BAL) AS PREVIOUS_YEAR_BAL,MAX(BALANCE) AS BALANCE,MAX(CURR) AS CURR,MAX(TOTAL) AS TOTAL,MAX(TAKEN) AS TAKEN FOR LEAVE_ID IN ({$leaveArrayDb}) )
-            ) LA LEFT JOIN HRIS_EMPLOYEES E ON (LA.EMPLOYEE_ID=E.EMPLOYEE_ID)
-            LEFT JOIN HRIS_DESIGNATIONS DES
-      ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
-      LEFT JOIN HRIS_POSITIONS P
-      ON E.POSITION_ID=P.POSITION_ID
-      LEFT JOIN hris_departments d on d.department_id=e.department_id
-    left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
-    left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
-    LEFT JOIN HRIS_BRANCHES BR ON (E.BRANCH_ID = BR.BRANCH_ID)
-    LEFT JOIN HRIS_PROVINCES BP on (BP.PROVINCE_ID=BR.PROVINCE_ID)
-";
-        //print_r($sql);
-    //    die();
+//         $sql = "
+//            SELECT LA.*,E.FULL_NAME, E.EMPLOYEE_CODE AS EMPLOYEE_CODE
+// ,D.Department_Name,
+//     Funt.Functional_Type_Edesc        
+//     ,BP.PROVINCE_NAME                                 AS BRANCH_PROVINCE,
+//      BR.BRANCH_NAME
+//      ,P.POSITION_NAME
+// FROM (SELECT *
+//             FROM
+//               (SELECT 
+//               HA.EMPLOYEE_ID,
+//                     NVL(HA.PREVIOUS_YEAR_BAL,0) as PREVIOUS_YEAR_BAL,
+//                     HA.LEAVE_ID,
+//                     HA.TOTAL_DAYS AS CURR,
+//                     NVL({$includePreviousBalance}, 0) + HA.TOTAL_DAYS AS TOTAL,
+//                     HA.BALANCE,
+//                     HS.ENCASH_DAYS as ENCASHED,
+//                     ( NVL({$includePreviousBalance}, 0) + ha.total_days - ha.balance - (case when
+//                     HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end) - nvl(EPD.penalty_days,0)) AS taken,
+//                     EPD.penalty_days as DEDUCTED
+//               FROM 
+//               HRIS_EMPLOYEE_LEAVE_ASSIGN HA
+//                     left JOIN 
+//                     HRIS_EMP_SELF_LEAVE_CLOSING HS
+//                     on (HA.EMPLOYEE_ID = HS.EMPLOYEE_ID and HA.leave_id = HS.leave_id)
+//                     left join (
+//                     select employee_id,leave_id,sum(no_of_days) as penalty_days
+//                     from HRIS_EMPLOYEE_PENALTY_DAYS
+//                     group by employee_id,leave_id) EPD
+//                     on (EPD.EMPLOYEE_ID = HA.EMPLOYEE_ID AND EPD.LEAVE_ID = HA.LEAVE_ID)
+//               WHERE ha.EMPLOYEE_ID IN
+//                 ( SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 AND E.STATUS='E' {$searchCondition['sql']}
+//                 ){$monthlyCondition} {$leaveCondition}
+//               ) PIVOT (sum ( ENCASHED ) AS ENCASHED, sum ( DEDUCTED ) AS DEDUCTED, MAX(PREVIOUS_YEAR_BAL) AS PREVIOUS_YEAR_BAL,MAX(BALANCE) AS BALANCE,MAX(CURR) AS CURR,MAX(TOTAL) AS TOTAL,MAX(TAKEN) AS TAKEN FOR LEAVE_ID IN ({$leaveArrayDb}) )
+//             ) LA LEFT JOIN HRIS_EMPLOYEES E ON (LA.EMPLOYEE_ID=E.EMPLOYEE_ID)
+//             LEFT JOIN HRIS_DESIGNATIONS DES
+//       ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
+//       LEFT JOIN HRIS_POSITIONS P
+//       ON E.POSITION_ID=P.POSITION_ID
+//       LEFT JOIN hris_departments d on d.department_id=e.department_id
+//     left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
+//     left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
+//     LEFT JOIN HRIS_BRANCHES BR ON (E.BRANCH_ID = BR.BRANCH_ID)
+//     LEFT JOIN HRIS_PROVINCES BP on (BP.PROVINCE_ID=BR.PROVINCE_ID)
+// ";
+if($isMonthly){
+    $sql = "
+    SELECT LA.*,E.FULL_NAME, E.EMPLOYEE_CODE AS EMPLOYEE_CODE
+    ,D.Department_Name,
+        Funt.Functional_Type_Edesc,
+    P.Position_Name	
+    FROM (SELECT *
+                FROM
+                (select employee_id, previous_year_bal, leave_id, total, 
+               case when (Previous_year_bal+total-takenNew)<0 then 0 else  Previous_year_bal+total-takenNew end as balance,
+                encashed, takenNew as taken from 
+                (SELECT 
+                HA.EMPLOYEE_ID,
+                        HA.PREVIOUS_YEAR_BAL,
+                        HA.LEAVE_ID,
+                        HA.TOTAL_DAYS AS TOTAL,
+                        HA.BALANCE,
+                        (select max(total_days) from hris_employee_leave_assign where employee_id =ha.employee_id and leave_id = HA.leave_id) - HA.TOTAL_DAYS  as leave_added,
+        HA.TOTAL_DAYS as max_balance,
+                        HS.ENCASH_DAYS as ENCASHED,
+                        ( HA.PREVIOUS_YEAR_BAL + ha.total_days - ha.balance - (case when
+                        HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end)) AS taken,
+                        (select nvl(sum(case when half_day ='N' then no_of_days else no_of_days/2 end),0) from hris_Employee_leave_request where status = 'AP' and leave_id = HA.leave_id
+and employee_id = ha.employee_id and start_date between 
+(select start_date from hris_leave_years where leave_year_id = (select fiscal_year from hris_leave_master_setup where leave_id = HA.leave_id))
+and (select to_date from hris_leave_month_code where leave_year_month_no = {$searchQuery['leaveYearMonthNo']} and leave_year_id = (select fiscal_year from hris_leave_master_setup where leave_id = HA.leave_id))
+)  - (case when
+                        HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end) as takenNew
+                FROM 
+                HRIS_EMPLOYEE_LEAVE_ASSIGN HA
+                        left JOIN 
+                        HRIS_EMP_SELF_LEAVE_CLOSING HS
+                        on (HA.EMPLOYEE_ID = HS.EMPLOYEE_ID and HA.leave_id = HS.leave_id)
+                WHERE ha.EMPLOYEE_ID IN
+                    ( SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 AND E.STATUS='E' {$searchConditon}
+                    ){$monthlyCondition} {$leaveCondition} )
+                ) PIVOT (sum ( ENCASHED ) AS ENCASHED, MAX(PREVIOUS_YEAR_BAL) AS PREVIOUS_YEAR_BAL,MAX(BALANCE) AS BALANCE,MAX(TOTAL) AS TOTAL,MAX(TAKEN) AS TAKEN FOR LEAVE_ID IN ({$leaveArrayDb}) )
+                ) LA LEFT JOIN HRIS_EMPLOYEES E ON (LA.EMPLOYEE_ID=E.EMPLOYEE_ID)
+                LEFT JOIN HRIS_DESIGNATIONS DES
+        ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
+        LEFT JOIN HRIS_POSITIONS P
+        ON E.POSITION_ID=P.POSITION_ID
+        LEFT JOIN hris_departments d on d.department_id=e.department_id
+        left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
+        left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
+    ";
+}else{
+    $sql = "
+    SELECT LA.*,E.FULL_NAME, E.EMPLOYEE_CODE AS EMPLOYEE_CODE
+    ,D.Department_Name,
+        Funt.Functional_Type_Edesc,
+    P.Position_Name	
+    FROM (SELECT *
+                FROM
+                (SELECT 
+                HA.EMPLOYEE_ID,
+                        HA.PREVIOUS_YEAR_BAL,
+                        HA.LEAVE_ID,
+                        HA.TOTAL_DAYS AS TOTAL,
+                        HA.BALANCE,
+                        HS.ENCASH_DAYS as ENCASHED,
+                        ( HA.PREVIOUS_YEAR_BAL + ha.total_days - ha.balance - (case when
+                        HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end)) AS taken
+                FROM 
+                HRIS_EMPLOYEE_LEAVE_ASSIGN HA
+                        left JOIN 
+                        HRIS_EMP_SELF_LEAVE_CLOSING HS
+                        on (HA.EMPLOYEE_ID = HS.EMPLOYEE_ID and HA.leave_id = HS.leave_id)
+                WHERE ha.EMPLOYEE_ID IN
+                    ( SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 AND E.STATUS='E' {$searchConditon}
+                    ){$monthlyCondition} {$leaveCondition}
+                ) PIVOT (sum ( ENCASHED ) AS ENCASHED, MAX(PREVIOUS_YEAR_BAL) AS PREVIOUS_YEAR_BAL,MAX(BALANCE) AS BALANCE,MAX(TOTAL) AS TOTAL,MAX(TAKEN) AS TAKEN FOR LEAVE_ID IN ({$leaveArrayDb}) )
+                ) LA LEFT JOIN HRIS_EMPLOYEES E ON (LA.EMPLOYEE_ID=E.EMPLOYEE_ID)
+                LEFT JOIN HRIS_DESIGNATIONS DES
+        ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
+        LEFT JOIN HRIS_POSITIONS P
+        ON E.POSITION_ID=P.POSITION_ID
+        LEFT JOIN hris_departments d on d.department_id=e.department_id
+        left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
+        left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
+    ";
+}
+    // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 

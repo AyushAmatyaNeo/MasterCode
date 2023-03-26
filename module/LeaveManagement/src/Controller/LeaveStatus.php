@@ -210,7 +210,7 @@ class LeaveStatus extends HrisController {
             if ($postData['super_power'] == 'true') {
                 $this->makeSuperDecision($postData['id'], $postData['action'] == "approve");
             } else {
-                $this->makeDecision($postData['id'], $postData['action'] == "approve");
+                $this->makeDecision($postData['id'], $postData['action']);
             }
             return new JsonModel(['success' => true, 'data' => null]);
         } catch (Exception $e) {
@@ -222,10 +222,11 @@ class LeaveStatus extends HrisController {
 
         $leaveApproveRepository = new LeaveApproveRepository($this->adapter);
         $detail = $leaveApproveRepository->fetchById($id);
+        // echo '<pre>';print_r($detail);die;
         if($detail['SETUP_STATUS']!='E'){
             return;
         }
-        if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC') {
+        if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC' || $detail['STATUS'] == 'AP' || $detail['STATUS'] == 'R') {
             $checkSameDateApproved = $this->repository->getSameDateApprovedStatus($detail['EMPLOYEE_ID'],$detail['START_DATE'],$detail['END_DATE']);
             if($checkSameDateApproved['LEAVE_COUNT']>0 && $approve){
                 throw new Exception('Leave Overlap Detected');
@@ -237,9 +238,10 @@ class LeaveStatus extends HrisController {
             $model->approvedRemarks = $remarks;
             $model->approvedDate = Helper::getcurrentExpressionDate();
             $model->approvedBy = $this->employeeId;
-            $model->status = $approve ? "AP" : "R";
-            $message = $approve ? "Leave Request Approved" : "Leave Request Rejected";
+            $model->status = ($approve == 'approve' )? "AP" : "R";
+            $message = ($approve == 'approve' )? "Leave Request Approved" : "Leave Request Rejected";
             $notificationEvent = $approve ? NotificationEvents::LEAVE_APPROVE_ACCEPTED : NotificationEvents::LEAVE_APPROVE_REJECTED;
+            // echo '<pre>';print_r($model);die;
             $leaveApproveRepository->edit($model, $id);
             if ($enableFlashNotification) {
                 $this->flashmessenger()->addMessage($message);

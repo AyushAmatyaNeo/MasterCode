@@ -405,6 +405,11 @@ return [
                         'route' => 'system-utility',
                         'action' => 'updateSeniority',
                     ],
+                    [
+                        'label' => 'Recalculate Leave',
+                        'route' => 'system-utility',
+                        'action' => 'reCalculate',
+                    ],
                 ],
             ],
         ]

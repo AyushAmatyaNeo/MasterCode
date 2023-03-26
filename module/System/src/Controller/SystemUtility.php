@@ -7,6 +7,7 @@ use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Exception;
 use Setup\Model\HrEmployees;
+use LeaveManagement\Model\LeaveMaster;
 use System\Repository\SystemUtilityRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
@@ -124,6 +125,38 @@ class SystemUtility extends HrisController {
                     'acl' => $this->acl,
                     'employeeDetail' => $this->storageData['employee_detail'],
         ]);
+    }
+
+    public function reCalculateAction(){
+        // print_r('dhbf');die;
+        return $this->stickFlashMessagesTo([
+            'employeeList' =>EntityHelper::getTableList($this->adapter,HrEmployees::TABLE_NAME,[HrEmployees::EMPLOYEE_ID,HrEmployees::FULL_NAME],[HrEmployees::STATUS=>'E',HrEmployees::RETIRED_FLAG=>"N"]),
+            'leaveList'=>EntityHelper::getTableList($this->adapter,LeaveMaster::TABLE_NAME,[LeaveMaster::LEAVE_ID,LeaveMaster::LEAVE_ENAME],[LeaveMaster::STATUS=>'E'])
+        ]);
+    }
+
+
+    public function reCalculateLeaveAction(){
+        $request =$this->getRequest();
+
+        if($request->isPost()){
+            try{
+                $data =$request->getPost();
+
+                $checkFlag=$this->repository->checkMonthlyFlag($data['LEAVE_ID']); 
+
+                if ($checkFlag['IS_MONTHLY']=='N'){
+                    $this->repository->recalYearlyLeave($data['EMPLOYEE_ID'],$data['LEAVE_ID']);
+                    return $this->redirect()->toRoute("");
+                }else{
+                    $this->repository->recalMonthlyLeave($data['EMPLOYEE_ID'],$data['LEAVE_ID']);
+                    return $this->redirect()->toRoute("");
+                }
+     
+            } catch (Exception $e){
+                return new JsonModel(['success'=>false, 'data' =>null,'message' =>$e->getMessage()]);
+            }
+        }
     }
 
 }
