@@ -36,6 +36,8 @@ class TrainingAssignRepository extends HrisRepository implements RepositoryInter
         $boundedParameter['id0'] = $id[0];
         $boundedParameter['id1'] = $id[1];
         $this->executeStatement("BEGIN  HRIS_TRAINING_LEAVE_REWARD(:id0,:id1); END;", $boundedParameter);
+        $this->reAttendance($id[0],$id[1]);
+
     }
 
     public function getDetailByEmployeeID($employeeId, $trainingId) {
@@ -253,6 +255,35 @@ class TrainingAssignRepository extends HrisRepository implements RepositoryInter
 
                 END;";
 //        $statement = $this->adapter->query($sql);
+        $this->executeStatement($sql, $boundedParams);
+        return;
+    }
+
+    public function reAttendance($employeeId,$trainingId){
+        $boundedParams = [];
+        $boundedParams['employeeId'] = $employeeId;
+        $boundedParams['trainingId'] = $trainingId;
+        $sql="DECLARE
+                V_EMPLOYEE_ID NUMBER(7,0):= :employeeId;
+                V_TRAINING_ID NUMBER(7,0):= :trainingId;
+                V_START_DATE DATE;
+                V_END_DATE DATE;
+                V_DURATION NUMBER;
+                BEGIN
+                SELECT START_DATE,END_DATE,DURATION
+                INTO V_START_DATE,V_END_DATE,V_DURATION
+                FROM HRIS_TRAINING_MASTER_SETUP WHERE TRAINING_ID=V_TRAINING_ID;
+
+                DBMS_OUTPUT.PUT_LINE(V_START_DATE);
+                DBMS_OUTPUT.PUT_LINE(V_END_DATE);
+                DBMS_OUTPUT.PUT_LINE(V_DURATION);
+
+                 BEGIN
+                 HRIS_REATTENDANCE(V_START_DATE,V_EMPLOYEE_ID,V_END_DATE);
+                 END;
+                END;";
+                // echo '<pre>';print_r($sql);die;
+
         $this->executeStatement($sql, $boundedParams);
         return;
     }

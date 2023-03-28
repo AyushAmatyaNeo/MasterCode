@@ -110,7 +110,7 @@ class EventApproveController extends HrisController {
                 $model->recommendedBy = $this->employeeId;
                 $model->status = $approve ? "RC" : "R";
                 $message = $approve ? "Event Request Recommended" : "Event Request Rejected";
-                // $notificationEvent = $approve ? NotificationEvents::Event_RECOMMEND_ACCEPTED : NotificationEvents::Event_RECOMMEND_REJECTED;
+                $notificationEvent = $approve ? NotificationEvents::EVENT_RECOMMEND_ACCEPTED : NotificationEvents::EVENT_RECOMMEND_REJECTED;
                 break;
             case 4:
                 $model->recommendedDate = Helper::getcurrentExpressionDate();
@@ -121,7 +121,7 @@ class EventApproveController extends HrisController {
                 $model->approvedBy = $this->employeeId;
                 $model->status = $approve ? "AP" : "R";
                 $message = $approve ? "Event Request Approved" : "Event Request Rejected";
-                // $notificationEvent = $approve ? NotificationEvents::Event_APPROVE_ACCEPTED : NotificationEvents::Event_APPROVE_REJECTED;
+                $notificationEvent = $approve ? NotificationEvents::EVENT_APPROVE_ACCEPTED : NotificationEvents::EVENT_APPROVE_REJECTED;
                 break;
         }
         $this->repository->edit($model, $id);
@@ -129,7 +129,7 @@ class EventApproveController extends HrisController {
             $this->flashmessenger()->addMessage($message);
         }
         try {
-            // HeadNotification::pushNotification($notificationEvent, $model, $this->adapter, $this);
+            HeadNotification::pushNotification($notificationEvent, $model, $this->adapter, $this);
         } catch (\Exception $e) {
             $this->flashmessenger()->addMessage($e->getMessage());
         }

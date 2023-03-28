@@ -109,6 +109,15 @@ class NotificationEvents {
     const LEAVE_DEDUCTION_REJECTED = 83;
     const LEAVE_DEDUCTION_APPROVED = 84;
 
+    const EVENT_ASSIGNED = 85;
+    const EVENT_CANCELLED = 86;
+
+    const EVENT_APPLIED = 87;
+    const EVENT_RECOMMEND_ACCEPTED = 88;
+    const EVENT_RECOMMEND_REJECTED = 89;
+    const EVENT_APPROVE_ACCEPTED = 90;
+    const EVENT_APPROVE_REJECTED = 91;
+
 //    note number 79 80 81 82 already used in leave above
     
 }

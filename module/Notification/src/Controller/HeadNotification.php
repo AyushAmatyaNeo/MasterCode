@@ -15,6 +15,7 @@ use Appraisal\Repository\AppraisalAssignRepository;
 use Exception;
 use HolidayManagement\Repository\HolidayRepository;
 use Html2Text\Html2Text;
+use SelfService\Repository\EventRequestRepository;
 use LeaveManagement\Model\LeaveApply;
 use LeaveManagement\Repository\LeaveApplyRepository;
 use LeaveManagement\Repository\LeaveMasterRepository;
@@ -26,13 +27,16 @@ use Notification\Model\LeaveRequestNotificationModel;
 use Notification\Model\LeaveSubNotificationModel;
 use Notification\Model\Notification;
 use Notification\Model\NotificationEvents;
+use SelfService\Model\EventRequest as EventRequestModel;
 use Notification\Model\NotificationModel;
 use Notification\Model\SalaryReviewNotificationModel;
 use Notification\Model\TrainingReqNotificationModel;
+use Notification\Model\EventReqNotificationModel;
 use Notification\Model\TravelSubNotificationModel;
 use Notification\Model\WorkOnDayoffNotificationModel;
 use Notification\Model\WorkOnHolidayNotificationModel;
 use Notification\Repository\NotificationRepo;
+use SelfService\Controller\EventRequest;
 use SelfService\Model\AttendanceRequestModel;
 use SelfService\Model\BirthdayModel;
 use SelfService\Model\LoanRequest;
@@ -53,9 +57,12 @@ use SelfService\Repository\WorkOnHolidayRepository;
 use Setup\Model\HrEmployees;
 use Setup\Model\RecommendApprove;
 use Setup\Model\Training;
+use Training\Model\EventAssign;
+use Setup\Model\Events;
 use Setup\Repository\EmployeeRepository;
 use Setup\Repository\RecommendApproveRepository;
 use Setup\Repository\TrainingRepository;
+use Setup\Repository\EventsRepository;
 use Training\Model\TrainingAssign;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Mail\Message;
@@ -504,10 +511,35 @@ class HeadNotification {
         $notification->route = json_encode(["route" => "trainingList", "action" => "view", "employeeId" => $request->employeeId, "trainingId" => $request->trainingId]);
         $title = "Training $type";
         $desc = "Training $type";
-
-       // self::addNotifications($notification, $title, $desc, $adapter);
+        // echo '<pre>';print_r($request);die;
+       self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 12, $adapter, $url);
     }
+
+    private static function eventAssigned(EventAssign $request, AdapterInterface $adapter, Url $url, $type) {
+        $notification = self::initializeNotificationModel($request->createdBy, $request->employeeId, \Notification\Model\EventReqNotificationModel::class, $adapter);
+
+        $events = new Events();
+        self::initFullModel(new EventsRepository($adapter), $events, $request->eventId);
+
+        $notification->duration = $events->duration;
+        $notification->endDate = $events->endDate;
+        $notification->startDate = $events->startDate;
+        $notification->instructorName = $events->instructorName;
+//        $notification->eventsCode = $events->eventsCode;
+        $notification->eventsName = $events->eventName;
+        $notification->eventsType = $events->eventType;
+        $notification->status = $type;
+
+
+        $notification->route = json_encode(["route" => "eventList", "action" => "view", "employeeId" => $request->employeeId, "eventId" => $request->eventId]);
+        $title = "Event $type";
+        $desc = "Event $type";
+
+        self::addNotifications($notification, $title, $desc, $adapter);
+        self::sendEmail($notification, 12, $adapter, $url);
+    }
+
 
     private static function loanApplied(LoanRequest $request, AdapterInterface $adapter, Url $url, $type) {
         self::initFullModel(new LoanRequestRepository($adapter), $request, $request->loanRequestId);
@@ -728,6 +760,30 @@ class HeadNotification {
         self::sendEmail($notification, 22, $adapter, $url);
     }
 
+    private static function eventApplied(EventRequestModel $request, AdapterInterface $adapter, Url $url, $type) {
+        $eventReqRepo = new EventRequestRepository($adapter);
+        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
+        $request->exchangeArrayFromDB($eventReqDetail);
+
+        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
+        $roleAndId = self::findRoleType($recommdAppModel, $type);
+        $notification = self::initializeNotificationModel($recommdAppModel[RecommendApprove::EMPLOYEE_ID], $roleAndId['id'], EventReqNotificationModel::class, $adapter);
+
+        $notification->route = json_encode(["route" => "eventApprove", "action" => "view", "id" => $request->requestId, "role" => $roleAndId['role']]);
+
+        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
+        $notification->eventName = $eventReqDetail['TITLE'];
+        $notification->fromDate = $eventReqDetail['START_DATE'];
+        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->duration = $eventReqDetail['DURATION'];
+
+        $title = "Event Request";
+        $desc = "Event Request of $notification->fromName from $notification->fromDate to $notification->toDate";
+
+        self::addNotifications($notification, $title, $desc, $adapter);
+        // self::sendEmail($notification, 22, $adapter, $url);
+    }
+
     private static function trainingRecommend(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
         $trainingRequestRepo = new TrainingRequestRepository($adapter);
         $trainingRequestDetail = $trainingRequestRepo->fetchById($request->requestId);
@@ -753,6 +809,33 @@ class HeadNotification {
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 23, $adapter, $url);
+    }
+
+    private static function eventRecommend(EventRequestModel $request, AdapterInterface $adapter, Url $url, string $status) {
+        $eventReqRepo = new EventRequestRepository($adapter);
+        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
+        $request->exchangeArrayFromDB($eventReqDetail);
+
+        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
+        $notification = self::initializeNotificationModel($recommdAppModel[RecommendApprove::RECOMMEND_BY], $recommdAppModel[RecommendApprove::EMPLOYEE_ID], EventReqNotificationModel::class, $adapter);
+
+        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
+        $notification->eventName = $eventReqDetail['TITLE'];
+//        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
+        $notification->fromDate = $eventReqDetail['START_DATE'];
+        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->duration = $eventReqDetail['DURATION'];
+        $notification->remarks = $request->remarks;
+        $notification->status = $status;
+
+        $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
+        $title = "Event Recommendation";
+        $desc = "Recommendation of Event Request by"
+                . " $notification->fromName from $notification->fromDate"
+                . " to $notification->toDate is $notification->status";
+
+        self::addNotifications($notification, $title, $desc, $adapter);
+        // self::sendEmail($notification, 23, $adapter, $url);
     }
 
     private static function trainingApprove(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -782,6 +865,35 @@ class HeadNotification {
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 24, $adapter, $url);
+    }
+
+    private static function eventApprove(EventRequestModel $request, AdapterInterface $adapter, Url $url, string $status) {
+        $eventReqRepo = new EventRequestRepository($adapter);
+        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
+        $request->exchangeArrayFromDB($eventReqDetail);
+
+        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
+
+        $notification = self::initializeNotificationModel(
+                        $recommdAppModel[RecommendApprove::APPROVED_BY], $recommdAppModel[RecommendApprove::EMPLOYEE_ID], EventReqNotificationModel::class, $adapter);
+
+        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
+        $notification->eventName = $eventReqDetail['TITLE'];
+//        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
+        $notification->fromDate = $eventReqDetail['START_DATE'];
+        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->duration = $eventReqDetail['DURATION'];
+        $notification->remarks = $request->remarks;
+        $notification->status = $status;
+
+        $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
+        $title = "Event Approval";
+        $desc = "Approval of Event Request by"
+                . " $notification->fromName from $notification->fromDate"
+                . " to $notification->toDate is $notification->status";
+
+        self::addNotifications($notification, $title, $desc, $adapter);
+        // self::sendEmail($notification, 24, $adapter, $url);
     }
 
     private static function leaveSubstituteApplied(LeaveApply $request, AdapterInterface $adapter, Url $url) {
@@ -1413,6 +1525,12 @@ class HeadNotification {
             case NotificationEvents::TRAINING_CANCELLED:
                 self::trainingAssigned($model, $adapter, $url, self::CANCELLED);
                 break;
+            case NotificationEvents::EVENT_ASSIGNED:
+                self::eventAssigned($model, $adapter, $url, self::ASSIGNED);
+                break;
+            case NotificationEvents::EVENT_CANCELLED:
+                self::eventAssigned($model, $adapter, $url, self::CANCELLED);
+                break;
             case NotificationEvents::LOAN_APPLIED:
                 self::loanApplied($model, $adapter, $url, self::RECOMMENDER);
                 break;
@@ -1476,6 +1594,22 @@ class HeadNotification {
                 break;
             case NotificationEvents::TRAINING_APPROVE_REJECTED:
                 self::trainingApprove($model, $adapter, $url, self::REJECTED);
+                break;
+            case NotificationEvents::EVENT_APPLIED:
+                self::eventApplied($model, $adapter, $url, self::RECOMMENDER);
+                break;
+            case NotificationEvents::EVENT_RECOMMEND_ACCEPTED:
+                self::eventRecommend($model, $adapter, $url, self::ACCEPTED);
+                self::eventApplied($model, $adapter, $url, self::APPROVER);
+                break;
+            case NotificationEvents::EVENT_RECOMMEND_REJECTED:
+                self::eventRecommend($model, $adapter, $url, self::REJECTED);
+                break;
+            case NotificationEvents::EVENT_APPROVE_ACCEPTED:
+                self::eventApprove($model, $adapter, $url, self::ACCEPTED);
+                break;
+            case NotificationEvents::EVENT_APPROVE_REJECTED:
+                self::eventApprove($model, $adapter, $url, self::REJECTED);
                 break;
             case NotificationEvents::LEAVE_SUBSTITUTE_APPLIED:
                 self::leaveSubstituteApplied($model, $adapter, $url);

@@ -121,13 +121,13 @@ class EventStatusController extends HrisController
             $model->approvedBy = $this->employeeId;
             $model->status = $approve ? "AP" : "R";
             $message = $approve ? "Event Request Approved" : "Event Request Rejected";
-            // $notificationEvent = $approve ? NotificationEvents::TRAINING_APPROVE_ACCEPTED : NotificationEvents::TRAINING_APPROVE_REJECTED;
+            $notificationEvent = $approve ? NotificationEvents::EVENT_APPROVE_ACCEPTED : NotificationEvents::EVENT_APPROVE_REJECTED;
             $this->repository->edit($model, $id);
             if ($enableFlashNotification) {
                 $this->flashmessenger()->addMessage($message);
             }
             try {
-                // HeadNotification::pushNotification($notificationEvent, $model, $this->adapter, $this);
+                HeadNotification::pushNotification($notificationEvent, $model, $this->adapter, $this);
             } catch (Exception $e) {
                 $this->flashmessenger()->addMessage($e->getMessage());
             }

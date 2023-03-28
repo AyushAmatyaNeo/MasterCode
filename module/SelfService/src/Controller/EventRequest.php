@@ -66,7 +66,7 @@ class EventRequest extends HrisController {
                 $this->repository->add($model);
                 $this->flashmessenger()->addMessage("Event Request Successfully added!!!");
                 try {
-                    // HeadNotification::pushNotification(NotificationEvents::TRAINING_APPLIED, $model, $this->adapter, $this);
+                    HeadNotification::pushNotification(NotificationEvents::EVENT_APPLIED, $model, $this->adapter, $this);
                 } catch (Exception $e) {
                     $this->flashmessenger()->addMessage($e->getMessage());
                 }

@@ -14,6 +14,7 @@ use Notification\Model\LoanRequestNotificationModel;
 use Notification\Model\OvertimeReqNotificationModel;
 use Notification\Model\SalaryReviewNotificationModel;
 use Notification\Model\TrainingReqNotificationModel;
+use Notification\Model\EventReqNotificationModel;
 use Notification\Model\TravelReqNotificationModel;
 use Notification\Model\TravelSubNotificationModel;
 use Notification\Model\WorkOnDayoffNotificationModel;

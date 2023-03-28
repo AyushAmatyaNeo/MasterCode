@@ -112,7 +112,7 @@ class EventsRepository implements RepositoryInterface {
 
         $select->where([
             "T.STATUS='E'",
-            "T.EVENT_ID IN (SELECT EVENT_ID FROM HRIS_EMPLOYEE_TRAINING_ASSIGN WHERE STATUS='E' AND EMPLOYEE_ID=$employeeId)"
+            // "T.EVENT_ID IN (SELECT EVENT_ID FROM HRIS_EMPLOYEE_TRAINING_ASSIGN WHERE STATUS='E' AND EMPLOYEE_ID=$employeeId)"
 //            "T.END_DATE<=".$today->getExpression()
         ]);
 
