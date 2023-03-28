@@ -61,7 +61,7 @@ class LeaveMasterForm {
      * @Annotation\Type("Zend\Form\Element\Number")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Default Days"})
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Attributes({ "id":"defaultDays", "class":"form-control","step":"0.1"})
      */
     public $defaultDays;
