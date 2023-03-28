@@ -68,7 +68,8 @@ class CompanyController extends HrisController {
                         $this, [
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages(),
-                    'imageData' => $imageData
+                    'imageData' => $imageData,
+                    'customRenderer' => Helper::renderCustomView(),
                         ]
                 )
         );

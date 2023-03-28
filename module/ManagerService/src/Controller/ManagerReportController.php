@@ -81,8 +81,6 @@ class ManagerReportController extends AbstractActionController{
         $employeeFormElement->setValueOptions($employees);
         $employeeFormElement->setAttributes(["id" => "employeeId", "class" => "form-control reset-field"]);
         $employeeFormElement->setLabel("Employee");
-        
-
 
         return Helper::addFlashMessagesToArray($this, [
                     'employeeId' => $this->employeeId,
