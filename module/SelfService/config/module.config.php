@@ -19,6 +19,7 @@ use SelfService\Controller\Profile;
 use SelfService\Controller\Service;
 use SelfService\Controller\SubordinatesReview;
 use SelfService\Controller\TrainingList;
+use SelfService\Controller\EventList;
 use SelfService\Controller\TrainingRequest;
 use SelfService\Controller\EventRequest;
 use SelfService\Controller\TravelNotification;
@@ -166,6 +167,20 @@ return [
                     ],
                     'defaults' => [
                         'controller' => TrainingList::class,
+                        'action' => 'index',
+                    ]
+                ],
+            ],
+            'eventList' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/selfservice/eventList[/:action[/:employeeId][/:eventId]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => EventList::class,
                         'action' => 'index',
                     ]
                 ],
@@ -649,6 +664,33 @@ return [
                 ],
             ],
         ],
+        'eventList' => [
+            [
+                'label' => 'Event List',
+                'route' => 'eventList',
+            ],
+            [
+                'label' => 'Event List',
+                'route' => 'eventList',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'eventList',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'Add',
+                        'route' => 'eventList',
+                        'action' => 'add',
+                    ],
+                    [
+                        'label' => 'Detail',
+                        'route' => 'trainingList',
+                        'action' => 'view',
+                    ],
+                ],
+            ],
+        ],
         'travelRequest' => [
             [
                 'label' => 'Travel Request',
@@ -987,6 +1029,7 @@ return [
             Payroll::class => ControllerFactory::class,
             LoanRequest::class => ControllerFactory::class,
             TrainingList::class => ControllerFactory::class,
+            EventList::class => ControllerFactory::class,
             TravelRequest::class => ControllerFactory::class,
             WorkOnHoliday::class => ControllerFactory::class,
             WorkOnDayoff::class => ControllerFactory::class,

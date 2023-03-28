@@ -66,6 +66,7 @@ class TrainingAssignController extends HrisController {
         $model = new \Training\Model\TrainingAssign();
         $model->trainingId = $trainingId;
         $model->employeeId = $employeeId;
+        $model->createdBy = $this->employeeId;
         $this->flashmessenger()->addMessage("Training Assign Successfully Cancelled!!!");
         try {
             HeadNotification::pushNotification(NotificationEvents::TRAINING_CANCELLED, $model, $this->adapter, $this);

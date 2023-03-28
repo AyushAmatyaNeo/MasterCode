@@ -64,14 +64,14 @@ class EventAssignController extends HrisController {
         if (!$eventId && !$employeeId) {
             return $this->redirect()->toRoute('eventAssign');
         }
-        // echo '<pre>';print_r($eventId);die;
         $this->repository->delete([$employeeId, $eventId]);
         $model = new \Training\Model\EventAssign();
         $model->eventId = $eventId;
         $model->employeeId = $employeeId;
+        $model->createdBy = $this->employeeId;
         $this->flashmessenger()->addMessage("Event  Assign Successfully Cancelled!!!");
         try {
-            // HeadNotification::pushNotification(NotificationEvents::TRAINING_CANCELLED, $model, $this->adapter, $this);
+            HeadNotification::pushNotification(NotificationEvents::EVENT_CANCELLED, $model, $this->adapter, $this);
         } catch (Exception $e) {
             $this->flashmessenger()->addMessage($e->getMessage());
         }
@@ -129,7 +129,7 @@ class EventAssignController extends HrisController {
                 $eventAssignRepo->add($eventAssignModel);
             }
             try {
-                // HeadNotification::pushNotification(NotificationEvents::TRAINING_ASSIGNED, $eventAssignModel, $this->adapter, $this);
+                HeadNotification::pushNotification(NotificationEvents::EVENT_ASSIGNED, $eventAssignModel, $this->adapter, $this);
             } catch (Exception $e) {
                 return new JsonModel([
                     "success" => true,

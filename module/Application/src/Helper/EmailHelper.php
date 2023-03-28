@@ -17,8 +17,10 @@ class EmailHelper {
             'port' => 587,
             'connection_class' => 'login',
             'connection_config' => [
-                'username' => 'jgiserver@jginepal.com',
-                'password' => 'Nepal@123',
+                // 'username' => 'jgiserver@jginepal.com',
+                // 'password' => 'Nepal@123',
+                'username' => 'sabitamgr133@gmail.com',
+                'password' => 'gxlgwfjehrbpdpsm',
                 'ssl' => 'tls',
             ],
         ]);

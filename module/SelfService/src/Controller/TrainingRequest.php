@@ -70,10 +70,10 @@ class TrainingRequest extends HrisController {
                 }
                 return $this->redirect()->toRoute("trainingRequest");
             }
-			print_r ($trainings['trainingList']);die();
         }
         $this->prepareForm();
         $trainings = $this->getTrainingList($this->employeeId);
+        // echo '<pre>';print_r($trainings);die;
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'trainingList' => $trainings['trainingList'],

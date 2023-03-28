@@ -36,7 +36,8 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
         $boundedParameter['id0'] = $id[0];
         $boundedParameter['id1'] = $id[1];
         // echo '<pre>';print_r($id[0]);die;
-        $this->eventReward($id[0], $id[1]);
+        // $this->eventReward($id[0], $id[1]);
+        $this->reAttendance($id[0],$id[1]);
 
         // $this->executeStatement("BEGIN  HRIS_TRAINING_LEAVE_REWARD(:id0,:id1); END;", $boundedParameter);
     }
@@ -68,11 +69,12 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
         $boundedParams['eventid'] = $eventid;
 
         $statement = $sql->prepareStatementForSqlObject($select);
+        // echo '<pre>';print_r($eventid);die
         $result = $statement->execute($boundedParams);
         return $result->current();
     }
 
-    public function getAllTrainingList($employeeId) {
+    public function getAllEventList($employeeId) {
         $boundedParams = [];
         $sql = new Sql($this->adapter);
         $select = $sql->select();
@@ -235,18 +237,18 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
                 DBMS_OUTPUT.PUT_LINE(V_DURATION);
 
 
-                BEGIN
-                DELETE  FROM  HRIS_EMP_TRAINING_ATTENDANCE WHERE
-                EVENT_ID=V_EVENT_ID AND EMPLOYEE_ID=V_EMPLOYEE_ID;
-                END;
-                 FOR i IN 0..v_duration - 1 LOOP
+                // BEGIN
+                // DELETE  FROM  HRIS_EMP_TRAINING_ATTENDANCE WHERE
+                // EVENT_ID=V_EVENT_ID AND EMPLOYEE_ID=V_EMPLOYEE_ID;
+                // END;
+                //  FOR i IN 0..v_duration - 1 LOOP
 
-                    DBMS_OUTPUT.PUT_LINE(V_START_DATE+i);
-                 INSERT INTO HRIS_EMP_TRAINING_ATTENDANCE VALUES
-                 (V_EVENT_ID,V_EMPLOYEE_ID,V_START_DATE+i,'P');
+                //     DBMS_OUTPUT.PUT_LINE(V_START_DATE+i);
+                //  INSERT INTO HRIS_EMP_TRAINING_ATTENDANCE VALUES
+                //  (V_EVENT_ID,V_EMPLOYEE_ID,V_START_DATE+i,'P');
 
 
-                 END LOOP;
+                //  END LOOP;
 
                  BEGIN
                  HRIS_REATTENDANCE(V_START_DATE,V_EMPLOYEE_ID,V_END_DATE);
@@ -285,6 +287,35 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
                 END;";
 //        $statement = $this->adapter->query($sql);
 // echo '<pre>';print_r($sql);die;
+        $this->executeStatement($sql, $boundedParams);
+        return;
+    }
+
+    public function reAttendance($employeeId,$eventId){
+        $boundedParams = [];
+        $boundedParams['employeeId'] = $employeeId;
+        $boundedParams['eventId'] = $eventId;
+        $sql="DECLARE
+                V_EMPLOYEE_ID NUMBER(7,0):= :employeeId;
+                V_EVENT_ID NUMBER(7,0):= :eventId;
+                V_START_DATE DATE;
+                V_END_DATE DATE;
+                V_DURATION NUMBER;
+                BEGIN
+                SELECT START_DATE,END_DATE,DURATION
+                INTO V_START_DATE,V_END_DATE,V_DURATION
+                FROM HRIS_EVENT_MASTER_SETUP WHERE EVENT_ID=V_EVENT_ID;
+
+                DBMS_OUTPUT.PUT_LINE(V_START_DATE);
+                DBMS_OUTPUT.PUT_LINE(V_END_DATE);
+                DBMS_OUTPUT.PUT_LINE(V_DURATION);
+
+                 BEGIN
+                 HRIS_REATTENDANCE(V_START_DATE,V_EMPLOYEE_ID,V_END_DATE);
+                 END;
+                END;";
+                // echo '<pre>';print_r($sql);die;
+
         $this->executeStatement($sql, $boundedParams);
         return;
     }
