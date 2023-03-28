@@ -64,12 +64,14 @@ class CompanyController extends HrisController {
                 $imageData = $this->getFileInfo($this->adapter, $postedData['logo']);
             }
         }
+
         return new ViewModel(Helper::addFlashMessagesToArray(
                         $this, [
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages(),
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
+                    'existingCodes' => $existingCodes
                         ]
                 )
         );
@@ -129,6 +131,7 @@ class CompanyController extends HrisController {
                     'id' => $id,
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
+                    'companyId' => $company->companyId
                         ]
         );
     }
@@ -217,6 +220,17 @@ class CompanyController extends HrisController {
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
+    }
+
+    public function validateCompanyCodeAction(){
+
+        $companyCode = strtolower($_POST['companyCode']);
+        $companyId = $_POST['companyId'];
+
+        $exists = $this->repository->codeExists($companyCode, $companyId)['COUNT'] == '0' ? true : false;
+
+        return new JsonModel(['validated'=>$exists]);
+
     }
 
 }

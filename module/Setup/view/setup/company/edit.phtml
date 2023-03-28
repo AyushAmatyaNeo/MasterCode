@@ -60,6 +60,8 @@ $form->prepare();
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.wsFileUpload = '<?= $this->url('company', ["action" => "fileUpload"]) ?>';
     document.imageData =<?php echo json_encode($imageData); ?>;
+    document.validateCompanyCode = '<?= $this->url('company', ["action" => "validateCompanyCode"]) ?>';
+    document.companyId = <?php echo $companyId; ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\Company')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -99,6 +101,7 @@ $form->prepare();
                             <?php print $this->formElement($companyCode); ?>
                             <?php print $this->formElementErrors()->render($companyCode, ['class' => 'help-block']); ?>
                             <span class="errorMsg" style="font-size:11px; color:red;"></span>
+                            <span id="codeError" style="color:red; display:none;">Company Code already exists</span>
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -268,6 +271,9 @@ $form->prepare();
 
                 <?php
                 print $this->formSubmit($submit);
+                ?>
+                <span id="imgError" style="color:red;">Please Upload Image</span>
+                <?php
                 print $this->form()->closeTag($form);
                 ?>
             </div>
