@@ -35,6 +35,7 @@ class InstituteForm {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Telephone"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"min":"10"}}) 
      * @Annotation\Attributes({ "id":"form-telephone", "placeholder":"xxx-xxxxxxx", "pattern":"^\(?\d{2,3}\)?[- ]?\d{7}$", "class":"form-control","title"="Enter your mobile number(xx-xxxxxxx)"})
      */
     public $telephone;
