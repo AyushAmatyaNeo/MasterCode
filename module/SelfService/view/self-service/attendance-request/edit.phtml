@@ -5,6 +5,7 @@ $this->headScript()->appendFile($this->basePath('js/AttendanceManagement/attenda
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('class', 'attendanceByHr-form');
+$form->setAttribute('id', 'requestForm');
 
 $attendanceDt = $form->get('attendanceDt');
 $inTime = $form->get('inTime');
@@ -78,7 +79,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             </div>
                         </div>
                         <?php print $this->formElementErrors()->render($outTime, ['class' => 'help-block error']); ?>
-
+                        <label><input type="checkbox" value="Y" name='nextDay' id="nextDay">Next Day</label>
                     </div>
                 </div>
 

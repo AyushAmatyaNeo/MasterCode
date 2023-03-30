@@ -11,6 +11,7 @@
         });
 
         var $attendanceDt = $("#attendanceDt");
+        
         if (!($attendanceDt.is('[readonly]'))) {
             app.datePickerWithNepali("attendanceDt", "nepaliDate");
             app.getServerDate().then(function (response) {
@@ -51,6 +52,18 @@
             }
             return true;
         });
+
+        $("#requestForm").on('submit', function(e){
+
+            if(!$('#nextDay').is(':checked')){
+                if($('#inTime').val() > $('#outTime').val()){
+                    e.preventDefault();
+                    app.showMessage('In time cannot be greater than out time', 'error');
+                }    
+            }
+
+        });
+
     });
 })(window.jQuery, window.app);
 

@@ -28,7 +28,7 @@ class AttendanceRequestForm {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Text")
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"In Time"})
      * @Annotation\Attributes({ "id":"inTime",  "data-format":"h:mm a", "data-template":"hh : mm A", "class":"form-control"  })
@@ -37,7 +37,7 @@ class AttendanceRequestForm {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Text")
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Out Time"})
      * @Annotation\Attributes({ "id":"outTime",  "data-format":"h:mm a", "data-template":"hh : mm A", "class":"form-control"  })
