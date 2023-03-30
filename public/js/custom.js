@@ -2042,6 +2042,34 @@ window.app = (function ($, toastr, App) {
         
     }
 
+    var checkUniqueValue = function (inputId, id, errorMessage, disableButton, tableName, columnName, idColumn) {
+        $(inputId).on('change', function(e){
+
+            document.body.style.cursor='wait';
+
+            // Code validate url is in layout.phtml inside application module
+            pullDataById(document.codeValidateUrl, {
+                'code': $(inputId).val(),
+                'id': id,
+                'tableName': tableName,
+                'columnName': columnName,
+                'idColumn': idColumn
+            }).then(function (response) {
+                document.body.style.cursor='default';
+                if(response.validated){
+                    $(errorMessage).hide();
+                    $(disableButton).attr('disabled', false);
+                }else{
+                    $(disableButton).attr('disabled', true);
+                    $(errorMessage).show();
+                }
+            }, function (error) {
+                showMessage(error, 'error');
+            });
+
+        });
+    }
+
     return {
         filterExportColumns : filterExportColumns,
         format: format,
@@ -2092,5 +2120,6 @@ window.app = (function ($, toastr, App) {
         setLeaveMonth: setLeaveMonth,
         exportToPDFPotrait : exportToPDFPotrait,
         exportTableToExcel : exportTableToExcel,
+        checkUniqueValue: checkUniqueValue,
     };
 })(window.jQuery, window.toastr, window.App);

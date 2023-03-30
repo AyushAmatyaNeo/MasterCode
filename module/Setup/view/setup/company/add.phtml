@@ -58,7 +58,6 @@ $form->prepare();
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.wsFileUpload = '<?= $this->url('company', ["action" => "fileUpload"]) ?>';
     document.imageData =<?php echo json_encode($imageData); ?>;
-    document.validateCompanyCode = '<?= $this->url('company', ["action" => "validateCompanyCode"]) ?>';
     document.companyId = null;
 </script>
 <div class="page-bar">

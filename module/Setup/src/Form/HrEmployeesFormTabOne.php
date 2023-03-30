@@ -12,7 +12,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Employee Code"})
-     * @Annotation\Validator({"name":"StringLength", "options":{"max":"15"}})
+     * @Annotation\Validator({"name":"Digits", "options":{"max":"15"}})
      * @Annotation\Attributes({ "id":"employeeCode", "class":"form-control" })
      */
     public $employeeCode;
@@ -140,7 +140,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Type("Zend\Form\Element\Email")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email Official"})
-     * @Annotation\Attributes({ "id":"emailOfficial", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"emailOfficial", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" })
      */
     public $emailOfficial;
 
@@ -149,7 +149,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email Personal"})
-     * @Annotation\Attributes({ "id":"emailPersonal", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"emailPersonal", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" })
      */
     public $emailPersonal;
 

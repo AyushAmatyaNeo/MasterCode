@@ -102,30 +102,19 @@
             }
         });
 
-        // Validate if company code exists
-        $("#companyCode").on('change', function(e){
+        $("#company-form").on('submit', function(e){
 
-            document.body.style.cursor='wait';
+            document.body.style.cursor = 'default';
 
-            app.pullDataById(document.validateCompanyCode, {
-                'companyCode': $('#companyCode').val(),
-                'companyId': document.companyId
-            }).then(function (response) {
-                document.body.style.cursor='default';
-                if(response.validated){
-                    if(uploadedFile == 1){
-                        $("#submit").attr('disabled', false);
-                    }
-                    $("#codeError").hide();
-                }else{
-                    $("#submit").attr('disabled', true);
-                    $("#codeError").show();
-                }
-            }, function (error) {
-                app.showMessage(error, 'error');
-            });
+            if(uploadedFile == 0){
+                e.preventDefault();
+                app.showMessage('Please upload image', 'error');
+            }
 
         });
+
+        // Validate if company code exists
+        app.checkUniqueValue("#companyCode", document.companyId, "#codeError", "#submit", tableName, 'COMPANY_CODE', checkColumnName);
 
     });
 })(window.jQuery, window.app);

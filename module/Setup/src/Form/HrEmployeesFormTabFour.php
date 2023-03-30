@@ -92,7 +92,7 @@ class HrEmployeesFormTabFour extends Model {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(False)
+     * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"disable_inarray_validator":"true","label":"Employee Type"})
      * @Annotation\Attributes({ "id":"employeeType","class":"form-control"})
@@ -130,7 +130,7 @@ class HrEmployeesFormTabFour extends Model {
     
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(False)
+     * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"disable_inarray_validator":"true","label":"Payroll Emp Type"})
      * @Annotation\Attributes({ "id":"payEmpType","class":"form-control"})

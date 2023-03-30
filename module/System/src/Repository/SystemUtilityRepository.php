@@ -244,6 +244,17 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
         $statement =$this->adapter->query($sql);
         $result = $statement->execute();
         return $result->current(); 
-    }  
+    }
+
+    public function codeExists($code, $tableName, $columnName, $id = null, $idName = null){
+        $sql = "select count(*) as count from {$tableName} where lower({$columnName}) = '{$code}'";
+  
+        if($id){
+            $sql = $sql . " and {$idName} <> {$id}";
+        }
+  
+        $statement = $this->adapter->query($sql);
+        return $statement->execute()->current();
+    }
 
 }

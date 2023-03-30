@@ -222,17 +222,6 @@ class CompanyController extends HrisController {
         }
     }
 
-    public function validateCompanyCodeAction(){
-
-        $companyCode = strtolower($_POST['companyCode']);
-        $companyId = $_POST['companyId'];
-
-        $exists = $this->repository->codeExists($companyCode, $companyId)['COUNT'] == '0' ? true : false;
-
-        return new JsonModel(['validated'=>$exists]);
-
-    }
-
 }
 
 ?>

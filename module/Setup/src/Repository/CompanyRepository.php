@@ -55,15 +55,4 @@ class CompanyRepository implements RepositoryInterface {
         ]);
     }
 
-    public function codeExists($companyCode, $companyId = null){
-        $sql = "select count(*) as count from HRIS_COMPANY where lower(company_code) = '{$companyCode}'";
-
-        if($companyId){
-            $sql = $sql . " and company_id <> {$companyId}";
-        }
-
-        $statement = $this->adapter->query($sql);
-        return $statement->execute()->current();
-    }
-
 }

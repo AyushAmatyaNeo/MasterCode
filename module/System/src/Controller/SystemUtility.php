@@ -159,4 +159,18 @@ class SystemUtility extends HrisController {
         }
     }
 
+    public function validateCodeAction(){
+
+        $code = strtolower($_POST['code']);
+        $id = $_POST['id'];
+        $tableName = $_POST['tableName'];
+        $columnName = $_POST['columnName'];
+        $idName = $_POST['idColumn'];
+
+        $exists = $this->repository->codeExists($code, $tableName, $columnName, $id, $idName)['COUNT'] == '0' ? true : false;
+
+        return new JsonModel(['validated'=>$exists]);
+
+    }
+
 }
