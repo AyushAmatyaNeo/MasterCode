@@ -23,8 +23,8 @@ $dob = $formNine->get('dob');
                 <table class="table table-striped table-bordered table-hover no-footer customtbl" id="relationTbl">
                     <tr>
                         <td><?php print $this->formLabel($relationId); ?></td>
-                        <td><?php print $this->formLabel($personName); ?></td>
-                        <td><?php print $this->formLabel($dob); ?></td>
+                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($personName); ?></td>
+                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($dob); ?></td>
                         <td><?php print $this->formLabel($isDependent); ?></td>
                         <td><?php print $this->formLabel($isNominee); ?></td>
 

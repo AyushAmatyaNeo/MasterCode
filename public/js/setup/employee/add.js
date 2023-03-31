@@ -10,9 +10,7 @@
         var addrTempVdcMunicipality = $('#addrTempVdcMunicipality');
 
         var $serviceEventId  = $('#serviceEventId');
-        /*
-         * 
-         */
+
         app.checkUniqueValue("#employeeCode", document.employeeId, "#codeError", "#submit", 'HRIS_EMPLOYEES', 'EMPLOYEE_CODE', 'EMPLOYEE_ID');
 
         app.populateSelectElement($('#idCitizenshipIssuePlace'), document.allDistrict, address['citizenshipIssuePlace']);

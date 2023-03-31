@@ -9,15 +9,15 @@
                 $('#tab' + (index + 1) + " select").select2();
                 switch (index + 1) {
                     case 1:
-                        app.datePickerWithNepali('birthdate', 'nepaliBirthDate');
+                        app.datePickerWithNepaliRestrictDate('birthdate', 'nepaliBirthDate');
                         break;
                     case 2:
-                        app.datePickerWithNepali('famSpouseBirthDate', 'famSpouseBirthDateNepali');
+                        app.datePickerWithNepaliRestrictDate('famSpouseBirthDate', 'famSpouseBirthDateNepali');
                         app.datePickerWithNepali('famSpouseWeddingAnniversary', 'weddingAnniversaryDateNepali');
                         break;
                     case 3:
                         app.datePickerWithNepali('idDrivingLicenseExpiry', 'drivingLicenseExpiaryNepali');
-                        app.datePickerWithNepali('idCitizenshipIssueDate', 'citizenshipIssueDateNepali');
+                        app.datePickerWithNepaliRestrictDate('idCitizenshipIssueDate', 'citizenshipIssueDateNepali');
                         app.datePickerWithNepali('idPassportExpiry', 'passportExpiryNepali');
                         break;
                     case 4:

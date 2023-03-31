@@ -2042,6 +2042,9 @@ window.app = (function ($, toastr, App) {
         
     }
 
+    /**
+     * Validates unique data for certain table. If it is not unique data, it displays error label and disables submit button 
+     */
     var checkUniqueValue = function (inputId, id, errorMessage, disableButton, tableName, columnName, idColumn) {
         $(inputId).on('change', function(e){
 
@@ -2068,6 +2071,24 @@ window.app = (function ($, toastr, App) {
             });
 
         });
+    }
+
+    /**
+     * Function for english and nepali date with restriction
+     */
+    var datePickerWithNepaliRestrictDate = function (englishDateId, nepaliDateId){
+        var $englishDate = $("#"+englishDateId);
+        
+        if (!($englishDate.is('[readonly]'))) {
+            app.datePickerWithNepali(englishDateId, nepaliDateId);
+            app.getServerDate().then(function (response) {
+                $englishDate.datepicker('setEndDate', app.getSystemDate(response.data.serverDate));
+            }, function (error) {
+                console.log("error=>getServerDate", error);
+            });
+        } else {
+            app.datePickerWithNepali(englishDateId, nepaliDateId);
+        }
     }
 
     return {
@@ -2121,5 +2142,6 @@ window.app = (function ($, toastr, App) {
         exportToPDFPotrait : exportToPDFPotrait,
         exportTableToExcel : exportTableToExcel,
         checkUniqueValue: checkUniqueValue,
+        datePickerWithNepaliRestrictDate: datePickerWithNepaliRestrictDate,
     };
 })(window.jQuery, window.toastr, window.App);

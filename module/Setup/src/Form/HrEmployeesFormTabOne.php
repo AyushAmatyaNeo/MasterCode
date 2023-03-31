@@ -12,7 +12,8 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Employee Code"})
-     * @Annotation\Validator({"name":"Digits", "options":{"max":"15"}})
+     * @Annotation\Validator({"name":"Digits"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"15"}})
      * @Annotation\Attributes({ "id":"employeeCode", "class":"form-control" })
      */
     public $employeeCode;
@@ -31,7 +32,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"First Name"})
-     * @Annotation\Attributes({ "id":"firstName", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"firstName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters"})
      */
     public $firstName;
 
@@ -40,7 +41,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Middle Name"})
-     * @Annotation\Attributes({ "id":"middleName", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"middleName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters" })
      */
     public $middleName;
 
@@ -49,7 +50,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Last Name"})
-     * @Annotation\Attributes({ "id":"lastName", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"lastName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters" })
      */
     public $lastName;
 
