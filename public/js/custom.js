@@ -1261,6 +1261,70 @@ window.app = (function ($, toastr, App) {
         kendo.saveAs({dataURI: workbook.toDataURL(), fileName: fileName});
     };
 
+    var excelExportModified = function ($table, col, fileName, exportType = {}) {
+        if (!checkForFileExt(fileName)) {
+            fileName = fileName + ".xlsx";
+        }
+        var header = [];
+        var cellWidths = [];
+        $.each(col, function (key, value) {
+            header.push({value: value});
+            cellWidths.push({autoWidth: true});
+        });
+        var rows = [{
+            cells: header
+        }];
+
+        var data = [];
+        if (Array.isArray($table)) {
+            data = $table;
+        } else {
+            var dataSource = $table.data("kendoGrid").dataSource;
+            var filteredDataSource = new kendo.data.DataSource({
+                data: dataSource.data(),
+                filter: dataSource.filter()
+            });
+            filteredDataSource.read();
+            var data = filteredDataSource.view();
+        }
+
+        for (var i = 0; i < data.length; i++) {
+            var dataItem = data[i];
+            var row = [];
+            $.each(col, function (key, value) {
+                if (dataItem[key] != null && dataItem[key] != '') {
+                    if (exportType[key]) {
+                        if (exportType[key] == 'STRING') {
+                            row.push({value: dataItem[key]});
+                        }
+                    } else {
+                        if (isNaN(dataItem[key])) {
+                            row.push({value: dataItem[key]});
+                        } else {
+                            row.push({value: parseFloat(dataItem[key])});
+                        }
+                    }
+                } else {
+                    row.push({value: dataItem[key]});
+                }
+            });
+            rows.push({
+                cells: row
+            });
+        }
+        var workbook = new kendo.ooxml.Workbook({
+            sheets: [
+                {
+                    columns: cellWidths,
+                    title: fileName,
+                    rows: rows
+                }
+            ]
+        });
+
+        kendo.saveAs({dataURI: workbook.toDataURL(), fileName: fileName});
+    };
+
     var checkForFileExt = function (file) {
         return (file.indexOf('.') >= 0);
     };
@@ -2143,5 +2207,6 @@ window.app = (function ($, toastr, App) {
         exportTableToExcel : exportTableToExcel,
         checkUniqueValue: checkUniqueValue,
         datePickerWithNepaliRestrictDate: datePickerWithNepaliRestrictDate,
+        excelExportModified: excelExportModified,
     };
 })(window.jQuery, window.toastr, window.App);

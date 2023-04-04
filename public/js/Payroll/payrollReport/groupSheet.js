@@ -152,6 +152,7 @@
 					const salaryTypes = document.salaryType;
                     const salaryType = salaryTypes.filter(salaryType => salaryType.SALARY_TYPE_ID == selectedSalarySheetList[0].SALARY_TYPE_ID);
                     
+                    
                     rows.unshift({
                         cells: [
                         {value: salaryType[0].SALARY_TYPE_NAME + " Salary Sheet of " + selectedMonthDetails.MONTH_EDESC+ " ," + selectedMonthDetails.YEAR + " ", colSpan: columns.length, textAlign: "left"}
@@ -175,6 +176,7 @@
                             });
                         }
                     }
+                    
                 },
                 height: 550,
                 scrollable: true,
@@ -337,7 +339,7 @@ grandTotalHideUnHide=JSON.parse(JSON.stringify(grandTotal));
         });
 
         $('#excelExport').on('click', function () {
-            app.excelExport($table, map, 'GroupSheet.xlsx',exportType);
+            app.excelExportModified($table, map, 'GroupSheet.xlsx',exportType);
         });
         $('#pdfExport').on('click', function () {
             app.exportToPDF($table, map, 'GroupSheet.pdf','A1');

@@ -347,7 +347,7 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
                 OR 
                 (((RA.APPROVED_BY    = U.EMPLOYEE_ID)  OR (ALA.R_A_ID = U.EMPLOYEE_ID))
                 AND TR.STATUS         ='RC') )
-                AND U.EMPLOYEE_ID     =:employeeId
+                AND U.EMPLOYEE_ID     = {$employeeId}
                 AND (TS.APPROVED_FLAG =
                   CASE
                     WHEN TS.EMPLOYEE_ID IS NOT NULL
@@ -355,9 +355,11 @@ class TravelApproveRepository extends HrisRepository implements RepositoryInterf
                   END
                 OR TS.EMPLOYEE_ID IS NULL)";
 
+        // print_r($sql); die;
+
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
-        // echo '<pre>';print_r($boundedParameter);die;
+        
         return $this->rawQuery($sql, $boundedParameter);
     }
 }
