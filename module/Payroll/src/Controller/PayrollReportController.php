@@ -16,36 +16,41 @@ use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class PayrollReportController extends HrisController {
+class PayrollReportController extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(PayrollReportRepo::class);
-//        $this->initializeForm(Variance::class);
+        //        $this->initializeForm(Variance::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         die();
         echo 'NO Action';
     }
 
-    public function varianceAction() {
+    public function varianceAction()
+    {
         $fiscalYears = EntityHelper::getTableList($this->adapter, FiscalYear::TABLE_NAME, [FiscalYear::FISCAL_YEAR_ID, FiscalYear::FISCAL_YEAR_NAME]);
         $months = EntityHelper::getTableList($this->adapter, Months::TABLE_NAME, [Months::MONTH_ID, Months::MONTH_EDESC, Months::FISCAL_YEAR_ID]);
 
         $columnsList = $this->repository->getVarianceColumns();
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'fiscalYears' => $fiscalYears,
-                    'months' => $months,
-                    'columnsList' => $columnsList,
-                    'preference' => $this->preference,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'fiscalYears' => $fiscalYears,
+            'months' => $months,
+            'columnsList' => $columnsList,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullVarianceListAction() {
+    public function pullVarianceListAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -63,20 +68,22 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function gradeBasicAction() {
+    public function gradeBasicAction()
+    {
         $datas['otVariables'] = $this->repository->getGbVariables();
         $datas['monthList'] = $this->repository->getMonthList();
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'datas' => $datas,
-                    'preference' => $this->preference,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'datas' => $datas,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullGradeBasicAction() {
+    public function pullGradeBasicAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -100,19 +107,21 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function basicMonthlyReportAction() {
+    public function basicMonthlyReportAction()
+    {
         $otVariables = $this->repository->getGbVariables();
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'otVariables' => $otVariables,
-                    'preference' => $this->preference,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'otVariables' => $otVariables,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function basicMonthlyAction() {
+    public function basicMonthlyAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -129,7 +138,8 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function specialMonthlyReportAction() {
+    public function specialMonthlyReportAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $data = $request->getPost();
@@ -140,17 +150,18 @@ class PayrollReportController extends HrisController {
         $otVariables = $this->repository->getGbVariables();
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'otVariables' => $otVariables,
-                    'preference' => $this->preference,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'otVariables' => $otVariables,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
     // menu for this action not inserted
-    public function groupSheetAction() {
-		$ruleRepo = new RulesRepository($this->adapter);
+    public function groupSheetAction()
+    {
+        $ruleRepo = new RulesRepository($this->adapter);
         $nonDefaultList = $this->repository->getSalaryGroupColumns('S', 'N');
         $groupVariables = $this->repository->getSalaryGroupColumns('S');
 
@@ -160,31 +171,33 @@ class PayrollReportController extends HrisController {
         $data['salarySheetList'] = iterator_to_array($salarySheetRepo->fetchAll(), false);
         $links['getGroupListLink'] = $this->url()->fromRoute('payrollReport', ['action' => 'getGroupList']);
         $data['links'] = $links;
-		
-		$companyWiseGroup = null;
-        if($this->acl['CONTROL_VALUES']){
-        if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-            $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
-        }else{
-            $companyWiseGroup = null;
-        }}
-// echo('<pre>');print_r(EntityHelper::getSearchDataPayroll($this->adapter));die;
+
+        $companyWiseGroup = null;
+        if ($this->acl['CONTROL_VALUES']) {
+            if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
+            } else {
+                $companyWiseGroup = null;
+            }
+        }
+        // echo('<pre>');print_r(EntityHelper::getSearchDataPayroll($this->adapter));die;
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-//                    'fiscalYears' => $fiscalYears,
-//                    'months' => $months,
-                    'nonDefaultList' => $nonDefaultList,
-                    'groupVariables' => $groupVariables,
-                    'preference' => $this->preference,
-                    'data' => json_encode($data),
-					'acl' => $this->acl,
-					'companyWiseGroup' => $companyWiseGroup,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            //                    'fiscalYears' => $fiscalYears,
+            //                    'months' => $months,
+            'nonDefaultList' => $nonDefaultList,
+            'groupVariables' => $groupVariables,
+            'preference' => $this->preference,
+            'data' => json_encode($data),
+            'acl' => $this->acl,
+            'companyWiseGroup' => $companyWiseGroup,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullGroupSheetAction() {
+    public function pullGroupSheetAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -195,14 +208,14 @@ class PayrollReportController extends HrisController {
                 // $defaultColumnsList = $this->repository->getDefaultColumns('S');
                 $defaultColumnsList = $this->repository->getDefaultColumnsNew('S', $data['monthId'], $data['groupId'], $data['salaryTypeId']);
                 $resultData = $this->repository->getGroupReport('S', $data);
-                                            // echo '<pre>';print_r($defaultColumnsList);die;
+                // echo '<pre>';print_r($defaultColumnsList);die;
             } elseif ($reportType == "GD") {
                 $defaultColumnsList = $this->repository->getVarianceDetailColumns($groupVariable);
                 $resultData = $this->repository->getGroupDetailReport($data);
             }
-            
-            $monthDetails=EntityHelper::rawQueryResult($this->adapter, "SELECT MONTH_EDESC,YEAR FROM HRIS_MONTH_CODE WHERE MONTH_ID=:monthId",['monthId'=>$data['monthId']])->current();
-            
+
+            $monthDetails = EntityHelper::rawQueryResult($this->adapter, "SELECT MONTH_EDESC,YEAR FROM HRIS_MONTH_CODE WHERE MONTH_ID=:monthId", ['monthId' => $data['monthId']])->current();
+
             $result = [];
             $result['success'] = true;
             $result['data'] = Helper::extractDbData($resultData);
@@ -214,9 +227,10 @@ class PayrollReportController extends HrisController {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-	
-	public function employeeWiseGroupSheetAction() {
-		$ruleRepo = new RulesRepository($this->adapter);
+
+    public function employeeWiseGroupSheetAction()
+    {
+        $ruleRepo = new RulesRepository($this->adapter);
         $nonDefaultList = $this->repository->getSalaryGroupColumns('S', 'N');
         $groupVariables = $this->repository->getSalaryGroupColumns('S');
 
@@ -227,17 +241,18 @@ class PayrollReportController extends HrisController {
         $links['getGroupListLink'] = $this->url()->fromRoute('payrollReport', ['action' => 'getGroupList']);
         $data['links'] = $links;
 
-        $fiscalYears = EntityHelper::getTableKVListWithSortOption($this->adapter, FiscalYear::TABLE_NAME,FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], [FiscalYear::STATUS => 'E'], FiscalYear::FISCAL_YEAR_ID,  "DESC");
-		
-		$companyWiseGroup = null;
-        if($this->acl['CONTROL_VALUES']){
+        $fiscalYears = EntityHelper::getTableKVListWithSortOption($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], [FiscalYear::STATUS => 'E'], FiscalYear::FISCAL_YEAR_ID,  "DESC");
+
+        $companyWiseGroup = null;
+        if ($this->acl['CONTROL_VALUES']) {
             // print_r($this->acl['CONTROL_VALUES']);die;
-        if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-            $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
-        }else{
-            $companyWiseGroup = null;
-        }}
-		// echo '<pre>';print_r($companyWiseGroup);die;
+            if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
+            } else {
+                $companyWiseGroup = null;
+            }
+        }
+        // echo '<pre>';print_r($companyWiseGroup);die;
         return Helper::addFlashMessagesToArray($this, [
             'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
             'salaryType' => $salaryType,
@@ -246,22 +261,22 @@ class PayrollReportController extends HrisController {
             'groupVariables' => $groupVariables,
             'preference' => $this->preference,
             'data' => json_encode($data),
-			'acl' => $this->acl,
-			'employeeDetail' => $this->storageData['employee_detail'],
-			'companyWiseGroup' => $companyWiseGroup,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'companyWiseGroup' => $companyWiseGroup,
         ]);
     }
 
-    public function pullemployeeWiseGroupSheetAction() {
+    public function pullemployeeWiseGroupSheetAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
             $resultData = [];
             $groupVariable = $data['groupVariable'];
-
-            $defaultColumnsList = $this->repository->getDefaultColumns('S');
+            // echo '<pre>';print_r($data);die;
+            $defaultColumnsList = $this->repository->getDefaultColumnsEmployeeWise('S', $data);
             $resultData = $this->repository->getEmployeeWiseGroupReport('S', $data);
-
             $result = [];
             $result['success'] = true;
             $result['data'] = Helper::extractDbData($resultData);
@@ -273,7 +288,8 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function groupTaxReportAction() {
+    public function groupTaxReportAction()
+    {
         $nonDefaultList = $this->repository->getSalaryGroupColumns('T', 'N');
         $groupVariables = $this->repository->getSalaryGroupColumns('T');
 
@@ -281,19 +297,20 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-//                    'fiscalYears' => $fiscalYears,
-//                    'months' => $months,
-                    'nonDefaultList' => $nonDefaultList,
-                    'groupVariables' => $groupVariables,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            //                    'fiscalYears' => $fiscalYears,
+            //                    'months' => $months,
+            'nonDefaultList' => $nonDefaultList,
+            'groupVariables' => $groupVariables,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullGroupTaxReportAction() {
+    public function pullGroupTaxReportAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -319,19 +336,21 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function monthlySummaryAction() {
+    public function monthlySummaryAction()
+    {
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullMonthlySummaryAction() {
+    public function pullMonthlySummaryAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -342,7 +361,7 @@ class PayrollReportController extends HrisController {
             $result = [];
             $result['success'] = true;
             $result['data'] = $resultData;
-//            $result['columns'] = $defaultColumnsList;
+            //            $result['columns'] = $defaultColumnsList;
             $result['error'] = "";
             return new CustomViewModel($result);
         } catch (Exception $e) {
@@ -350,7 +369,8 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function departmentWiseAction() {
+    public function departmentWiseAction()
+    {
         $ruleRepo = new RulesRepository($this->adapter);
         $ruleList = iterator_to_array($ruleRepo->fetchAll(), false);
 
@@ -358,27 +378,28 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'preference' => $this->preference,
-                    'ruleList' => $ruleList,
-                    'salaryType' => $salaryType,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'preference' => $this->preference,
+            'ruleList' => $ruleList,
+            'salaryType' => $salaryType,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pulldepartmentWiseAction() {
+    public function pulldepartmentWiseAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-//            $resultData = [];
+            //            $resultData = [];
             $resultData = $this->repository->pulldepartmentWise($data);
-//            $resultData['deductionDetail'] = $this->repository->fetchMonthlySummary('D', $data);
+            //            $resultData['deductionDetail'] = $this->repository->fetchMonthlySummary('D', $data);
 
             $result = [];
             $result['success'] = true;
             $result['data'] = $resultData;
-//           $result['columns'] = $defaultColumnsList;
+            //           $result['columns'] = $defaultColumnsList;
             $result['error'] = "";
             return new CustomViewModel($result);
         } catch (Exception $e) {
@@ -386,7 +407,8 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function jvReportAction() {
+    public function jvReportAction()
+    {
         $ruleRepo = new RulesRepository($this->adapter);
         $ruleList = iterator_to_array($ruleRepo->fetchAll(), false);
 
@@ -403,16 +425,17 @@ class PayrollReportController extends HrisController {
             }
         }
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'preference' => $this->preference,
-                    'ruleList' => $ruleList,
-                    'salaryType' => $salaryType,
-					'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'preference' => $this->preference,
+            'ruleList' => $ruleList,
+            'salaryType' => $salaryType,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function taxYearlyAction() {
+    public function taxYearlyAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -429,23 +452,24 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function taxYearlyNewAction() {
+    public function taxYearlyNewAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -462,23 +486,24 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pulltaxYearlyAction() {
+    public function pulltaxYearlyAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -495,7 +520,8 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function pulltaxYearlyNewAction() {
+    public function pulltaxYearlyNewAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -509,8 +535,9 @@ class PayrollReportController extends HrisController {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-	
-	public function getGroupListAction() {
+
+    public function getGroupListAction()
+    {
         $request = $this->getRequest();
 
         if ($request->isPost()) {
@@ -518,50 +545,52 @@ class PayrollReportController extends HrisController {
                 $data = EntityHelper::getTableList($this->adapter, "HRIS_SALARY_SHEET_GROUP", ["GROUP_ID", "GROUP_NAME"]);
 
                 // echo '<pre>';print_r($companyWiseGroup);die;         
-               return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
     }
 
-    public function pullGroupAction() {
+    public function pullGroupAction()
+    {
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-            $group=$data['group'];
-            $monthId=$data['monthId'];
-            $salaryTypeId=$data['salaryTypeId'];
+            $group = $data['group'];
+            $monthId = $data['monthId'];
+            $salaryTypeId = $data['salaryTypeId'];
 
             $valuesinCSV = "";
             for ($i = 0; $i < sizeof($group); $i++) {
-                $value= $group[$i];
-//                $value = isString ? "'{$group[$i]}'" : $group[$i];
+                $value = $group[$i];
+                //                $value = isString ? "'{$group[$i]}'" : $group[$i];
                 if ($i + 1 == sizeof($group)) {
                     $valuesinCSV .= "{$value}";
                 } else {
                     $valuesinCSV .= "{$value},";
                 }
             }
-			
-            if($this->acl['CONTROL_VALUES']){
-                if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-                    $companyId=$this->acl['CONTROL_VALUES'][0]['VAL'];
-                    $sheetList= $salarySheetRepo->fetchGeneratedSheetByGroup($monthId,$valuesinCSV,$salaryTypeId,$companyId);
 
-                  }else{
-                }}else{
-                    $companyId=0;
-                    $sheetList= $salarySheetRepo->fetchGeneratedSheetByGroup($monthId,$valuesinCSV,$salaryTypeId,$companyId);
+            if ($this->acl['CONTROL_VALUES']) {
+                if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                    $companyId = $this->acl['CONTROL_VALUES'][0]['VAL'];
+                    $sheetList = $salarySheetRepo->fetchGeneratedSheetByGroup($monthId, $valuesinCSV, $salaryTypeId, $companyId);
+                } else {
                 }
+            } else {
+                $companyId = 0;
+                $sheetList = $salarySheetRepo->fetchGeneratedSheetByGroup($monthId, $valuesinCSV, $salaryTypeId, $companyId);
+            }
             return new JsonModel(['success' => true, 'data' => $employeeList, 'sheetData' => $sheetList, 'message' => null]);
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
         }
     }
 
-    public function taxSheetAction() {
+    public function taxSheetAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -578,23 +607,24 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function taxSheetNewAction() {
+    public function taxSheetNewAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -611,23 +641,24 @@ class PayrollReportController extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
         // echo '<pre>';print_r($taxExcemptions);die;
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pulltaxSheetAction() {
+    public function pulltaxSheetAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -639,14 +670,15 @@ class PayrollReportController extends HrisController {
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
-            $result['columns']=$defaultColumnsList;
+            $result['columns'] = $defaultColumnsList;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
 
-    public function pulltaxSheetNewAction() {
+    public function pulltaxSheetNewAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -658,14 +690,15 @@ class PayrollReportController extends HrisController {
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
-            $result['columns']=$defaultColumnsList;
+            $result['columns'] = $defaultColumnsList;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
 
-    public function annualSalarySheetAction() {
+    public function annualSalarySheetAction()
+    {
         $nonDefaultList = $this->repository->getSalaryGroupColumns('N', 'N');
         $groupVariables = $this->repository->getSalaryGroupColumns('N');
 
@@ -678,28 +711,30 @@ class PayrollReportController extends HrisController {
         $ruleRepo = new RulesRepository($this->adapter);
 
         $companyWiseGroup = null;
-        if($this->acl['CONTROL_VALUES']){
-        if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-            $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
-        }else{
-            $companyWiseGroup = null;
-        }}
+        if ($this->acl['CONTROL_VALUES']) {
+            if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                $companyWiseGroup = $ruleRepo->getCompanyWise($this->acl['CONTROL_VALUES'][0]['VAL']);
+            } else {
+                $companyWiseGroup = null;
+            }
+        }
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-//                    'fiscalYears' => $fiscalYears,
-//                    'months' => $months,
-                    'nonDefaultList' => $nonDefaultList,
-                    'groupVariables' => $groupVariables,
-                    'preference' => $this->preference,
-                    'data' => json_encode($data),
-					'acl' => $this->acl,
-                    'companyWiseGroup' => $companyWiseGroup,
-					'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            //                    'fiscalYears' => $fiscalYears,
+            //                    'months' => $months,
+            'nonDefaultList' => $nonDefaultList,
+            'groupVariables' => $groupVariables,
+            'preference' => $this->preference,
+            'data' => json_encode($data),
+            'acl' => $this->acl,
+            'companyWiseGroup' => $companyWiseGroup,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function pullAnnualSalarySheetAction() {
+    public function pullAnnualSalarySheetAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -714,17 +749,17 @@ class PayrollReportController extends HrisController {
 
                 $final = [];
                 $employeeIdList = [];
-                foreach ($resultData as $data){
-                    if (!in_array($data['EMPLOYEE_ID'], $employeeIdList)){
-                        array_push($employeeIdList,$data['EMPLOYEE_ID']);
+                foreach ($resultData as $data) {
+                    if (!in_array($data['EMPLOYEE_ID'], $employeeIdList)) {
+                        array_push($employeeIdList, $data['EMPLOYEE_ID']);
                     }
                 }
-                
-                foreach($employeeIdList as $eId){
+
+                foreach ($employeeIdList as $eId) {
                     $tempList = [];
                     $tempList['EMPLOYEE_ID'] = $eId;
-                    foreach ($resultData as $data){
-                        if($data['EMPLOYEE_ID'] == $eId){
+                    foreach ($resultData as $data) {
+                        if ($data['EMPLOYEE_ID'] == $eId) {
                             $tempList['ID_ACCOUNT_NO'] = $data['ID_ACCOUNT_NO'];
                             $tempList['EMPLOYEE_CODE'] = $data['EMPLOYEE_CODE'];
                             $tempList['COMPANY_NAME'] = $data['COMPANY_NAME'];
@@ -733,29 +768,29 @@ class PayrollReportController extends HrisController {
                             $tempList[$data['PAY_EDESC']] = $data['AMOUNT'];
                         }
                     }
-                    array_push($final,$tempList);
+                    array_push($final, $tempList);
                 }
 
-                foreach ($final as $data){
+                foreach ($final as $data) {
                     $keys = array_keys($data);
-                    foreach($keys as $k){
+                    foreach ($keys as $k) {
                         if ($k != 'EMPLOYEE_ID' && $k != 'ID_ACCOUNT_NO' && $k != 'EMPLOYEE_CODE' && $k != 'COMPANY_NAME' && $k != 'BANK_NAME' && $k != 'FULL_NAME')
-                        if (!in_array(str_replace('/','_',str_replace(' ', '', str_replace('(','',str_replace(')','',$k)))), $defaultColumnsList)){
-                            $defaultColumnsList[str_replace('/','_',str_replace(' ', '', str_replace('(','',str_replace(')','',$k))))]=$k;
-                        }
+                            if (!in_array(str_replace('/', '_', str_replace(' ', '', str_replace('(', '', str_replace(')', '', $k)))), $defaultColumnsList)) {
+                                $defaultColumnsList[str_replace('/', '_', str_replace(' ', '', str_replace('(', '', str_replace(')', '', $k))))] = $k;
+                            }
                     }
                 }
-                foreach ($final as $data){
+                foreach ($final as $data) {
                     $keys = array_keys($data);
-                    foreach($defaultColumnsList as $defaultColumn){
-                        if (!in_array($defaultColumn, $keys)){
+                    foreach ($defaultColumnsList as $defaultColumn) {
+                        if (!in_array($defaultColumn, $keys)) {
                             $data[$defaultColumn] = 0;
                         }
                     }
-                    array_push($returnList,$data);
+                    array_push($returnList, $data);
                 }
                 $tempFinal = [];
-                foreach($returnList as $f){
+                foreach ($returnList as $f) {
                     $tempFinalRow = [];
                     $tempFinalRow['EMPLOYEE_ID'] = $f['EMPLOYEE_ID'];
                     $tempFinalRow['ID_ACCOUNT_NO'] = $f['ID_ACCOUNT_NO'];
@@ -763,21 +798,20 @@ class PayrollReportController extends HrisController {
                     $tempFinalRow['COMPANY_NAME'] = $f['COMPANY_NAME'];
                     $tempFinalRow['BANK_NAME'] = $f['BANK_NAME'];
                     $tempFinalRow['FULL_NAME'] = $f['FULL_NAME'];
-                    foreach($defaultColumnsList as $k => $v){
+                    foreach ($defaultColumnsList as $k => $v) {
                         $tempFinalRow[$k] = $f[$v];
                     }
-                    array_push($tempFinal,$tempFinalRow);
+                    array_push($tempFinal, $tempFinalRow);
                 }
-                
+
 
                 $returnList = $tempFinal;
                 unset($tempFinal);
-
             } elseif ($reportType == "GD") {
                 $defaultColumnsList = $this->repository->getVarianceDetailColumns($groupVariable);
                 $resultData = $this->repository->getGroupDetailReport($data);
             }
-            
+
             // $monthDetails=EntityHelper::rawQueryResult($this->adapter, "SELECT MONTH_EDESC,YEAR FROM HRIS_MONTH_CODE WHERE MONTH_ID=:monthId",['monthId'=>$data['monthId']])->current();
             $result = [];
             $result['success'] = true;
@@ -792,43 +826,45 @@ class PayrollReportController extends HrisController {
         }
     }
 
-    public function pullAnnualAction() {
+    public function pullAnnualAction()
+    {
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-            $group=$data['group'];
-            $monthId=$data['monthId'];
-            $salaryTypeId=$data['salaryTypeId'];
+            $group = $data['group'];
+            $monthId = $data['monthId'];
+            $salaryTypeId = $data['salaryTypeId'];
 
             $valuesinCSV = "";
             for ($i = 0; $i < sizeof($group); $i++) {
-                $value= $group[$i];
-//                $value = isString ? "'{$group[$i]}'" : $group[$i];
+                $value = $group[$i];
+                //                $value = isString ? "'{$group[$i]}'" : $group[$i];
                 if ($i + 1 == sizeof($group)) {
                     $valuesinCSV .= "{$value}";
                 } else {
                     $valuesinCSV .= "{$value},";
                 }
             }
-            if($this->acl['CONTROL_VALUES']){
-                if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-                    $companyId=$this->acl['CONTROL_VALUES'][0]['VAL'];
-                    $sheetList= $salarySheetRepo->fetchGeneratedSheetByGroup($monthId,$valuesinCSV,$salaryTypeId,$companyId);
-
-                  }else{
-                }}else{
-                    $companyId=0;
-                    $sheetList= $salarySheetRepo->fetchGeneratedSheetByGroup($monthId,$valuesinCSV,$salaryTypeId,$companyId);
+            if ($this->acl['CONTROL_VALUES']) {
+                if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                    $companyId = $this->acl['CONTROL_VALUES'][0]['VAL'];
+                    $sheetList = $salarySheetRepo->fetchGeneratedSheetByGroup($monthId, $valuesinCSV, $salaryTypeId, $companyId);
+                } else {
                 }
-// echo '<pre>';print_r($sheetList);die;
+            } else {
+                $companyId = 0;
+                $sheetList = $salarySheetRepo->fetchGeneratedSheetByGroup($monthId, $valuesinCSV, $salaryTypeId, $companyId);
+            }
+            // echo '<pre>';print_r($sheetList);die;
             return new JsonModel(['success' => true, 'data' => $employeeList, 'sheetData' => $sheetList, 'message' => null]);
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
         }
     }
 
-    public function letterToBankAction() {
+    public function letterToBankAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -844,57 +880,61 @@ class PayrollReportController extends HrisController {
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
         $bankType = $this->repository->getBankType();
-        
-        $controlValue=$this->acl['CONTROL_VALUES'][0]['CONTROL'];
-        // echo '<pre>';print_r($this->acl['CONTROL_VALUES'][0]['CONTROL']);die;
+
+        $controlValue = $this->acl['CONTROL_VALUES'][0]['CONTROL'];
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax,
-                    'bankType' => $bankType,
-                    'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
-                    'controlValues' => $controlValue
+            'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax,
+            'bankType' => $bankType,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'controlValues' => $controlValue
         ]);
     }
 
-    public function pullLetterToBankDetailAction() {
+    public function pullLetterToBankDetailAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
             $ruleRepo = new RulesRepository($this->adapter);
             $companyWiseGroup = null;
-            if($this->acl['CONTROL_VALUES']){
-            if($this->acl['CONTROL_VALUES'][0]['CONTROL']=='C'){
-            $empId=$this->employeeId;
-            $companyDetail= $ruleRepo->getCompany($this->acl['CONTROL_VALUES'][0]['VAL']);
-            $data['companyId']=$companyDetail[0]['COMPANY_ID'];
-            $resultData = $this->repository->getBankWiseEmployeeNet($data);
-        }else{
-            $companyDetail = null;
-        }}else{
-            $data['companyId']=$data['companyId'];
-            $resultData = $this->repository->getBankWiseEmployeeNet($data);
-        }
+            if ($this->acl['CONTROL_VALUES']) {
+                if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                    $empId = $this->employeeId;
+                    $companyDetail = $ruleRepo->getCompany($this->acl['CONTROL_VALUES'][0]['VAL']);
+                    $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
+                    $resultData = $this->repository->getBankWiseEmployeeNet($data);
+                } else {
+                    $companyDetail = null;
+                }
+            } elseif ($this->employeeId == 7001422) {
+                $companyDetail = $ruleRepo->getCompanyId($this->employeeId);
+                $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
+                $resultData = $this->repository->getBankWiseEmployeeNet($data);
+            } else {
+                $data['companyId'] = $data['companyId'];
+                $resultData = $this->repository->getBankWiseEmployeeNet($data);
+            }
             $result = [];
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
-            $result['companyDetail']=$companyDetail;
+            $result['companyDetail'] = $companyDetail;
+            // echo '<pre>';print_r($result);die;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-
 }
-

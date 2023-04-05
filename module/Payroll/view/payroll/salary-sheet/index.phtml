@@ -16,12 +16,12 @@ $this->headScript()
 
 ?>
 <script>
-    document.data =<?php echo $data; ?>;
+    document.data = <?php echo $data; ?>;
     document.data['loading-icon'] = '<?php echo $this->basePath('img/payroll-icon.png'); ?>';
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
     document.pullGroupEmployeeLink = '<?php echo $this->url('salarySheet', ['action' => 'pullGroupEmployee']); ?>';
     document.deleteLink = '<?= $this->url("salarySheet", ["action" => "deleteSheet"]); ?>';
-	document.getAcl = <?php echo json_encode($acl); ?>;
+    document.getAcl = <?php echo json_encode($acl); ?>;
     document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
 </script>
 <div class="page-bar">
@@ -30,7 +30,7 @@ $this->headScript()
 <div class="portlet box yellow">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-money"></i>Salary Sheet 
+            <i class="fa fa-money"></i>Salary Sheet
         </div>
         <div class="actions">
             <div class="btn-group">
@@ -39,23 +39,23 @@ $this->headScript()
                     <i class="fa fa-angle-down "></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li >
+                    <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
-                    <li >
-                        
+                    <li>
+
                         <a href="<?php echo $this->basePath('uploads/PAYROLL_LOG.txt'); ?>" download="log.txt">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Download payroll log 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Download payroll log
                         </a>
                     </li>
                 </ul>
@@ -72,7 +72,7 @@ $this->headScript()
             </div>
             <div class="col-sm-2">
                 <label>Company</label>
-                <select  class="form-control" name="company" id="companyId">
+                <select class="form-control" name="company" id="companyId">
                 </select>
             </div>
             <div class="col-sm-2">
@@ -99,22 +99,22 @@ $this->headScript()
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <input type="text" id="fromDate"  class="form-control" placeholder="From Date"/>
+                            <input type="text" id="fromDate" class="form-control" placeholder="From Date" />
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <input type="text" id="nepaliFromDate" class="form-control" placeholder="From Date Nepali"/>
+                            <input type="text" id="nepaliFromDate" class="form-control" placeholder="From Date Nepali" />
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <input type="text" id="toDate" class="form-control" placeholder="To Date"/>
+                            <input type="text" id="toDate" class="form-control" placeholder="To Date" />
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <input type="text" id="nepaliToDate" class="form-control" placeholder="To Date Nepali"/>
+                            <input type="text" id="nepaliToDate" class="form-control" placeholder="To Date Nepali" />
                         </div>
                     </div>
                 </div>
@@ -123,20 +123,29 @@ $this->headScript()
         </div>
         <div class="row">
             <div class="col-sm-2">
-                 <label>Pay Heads</label>
-                 <select multiple class="form-control reset-field" name="allPayHeads" id="allPayHeads">
-                            </select>
+                <label>Pay Heads</label>
+                <select multiple class="form-control reset-field" name="allPayHeads" id="allPayHeads">
+                </select>
             </div>
-            <div>
+            <div class="col-sm-2">
                 </br>
                 <button id="hideEmpSheet" class="btn btn-cont ">Show Hide</button>
+            </div>
+            <div style="padding: 6px;" style="font-weight: 700;">
+                </br>
+                <label for="" class="radio-inline">
+                    <input type="radio" name="overTime" value="overtime">Overtime
+                </label>
+                <label for="" class="radio-inline">
+                    <input type="radio" name="overTime" value="overtime">WithOut Overtime
+                </label>
             </div>
             <div class="col-sm-9">
                 <button id="generateBtn" class="btn blue-hoki pull-right">Generate</button>
                 <button id="viewBtn" class="btn yellow-saffron pull-right">View</button>
             </div>
         </div>
-        
+
         <!--<div id="employeeTableDiv" class="row" style="height:200px;overflow:auto;">-->
         <div id="employeeTableDiv" class="row">
             <div class="col-lg-6 col-ms-6 col-sm-6">
@@ -148,12 +157,12 @@ $this->headScript()
                 </div>
             </div>
         </div>
-        
+
         <div id="table" class="margin-top-10">
         </div>
     </div>
 </div>
-<h4 class="close-please-wait" id="please-wait-options" >
+<h4 class="close-please-wait" id="please-wait-options">
     <button type="button" class="btn red default btn-lg" id="cancelBtn">Cancel</button>
     <button type="button" class="btn blue default btn-lg" action="pause" id="pauseBtn">Pause</button>
 </h4>

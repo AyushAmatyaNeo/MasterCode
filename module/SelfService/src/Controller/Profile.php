@@ -282,8 +282,10 @@ class Profile extends HrisController {
                         $shiftAssign = new ShiftAssign();
                         $shiftAssign->employeeId = $id;
                         $shiftAssign->shiftId = $shiftId;
+                        // echo '<pre>';print_r($getEmpShiftDtl);die;
 
                         if ($getEmpShiftDtl != null) {
+                            // print_r('sddf');die;
                             $shiftAssignClone = clone $shiftAssign;
 
                             unset($shiftAssignClone->employeeId);
@@ -302,6 +304,8 @@ class Profile extends HrisController {
                                 $shiftAssignRepo->add($shiftAssign);
                             }
                         } else {
+                            // print_r('123');die;
+
                             $shiftAssign->createdDt = Helper::getcurrentExpressionDate();
                             $shiftAssign->createdBy = $this->employeeId;
                             $shiftAssign->status = 'E';

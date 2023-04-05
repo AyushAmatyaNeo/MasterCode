@@ -16,20 +16,19 @@
                 'EMPLOYEE_CODE': 'EID',
                 'POSITION_NAME': 'Position',
                 'SERVICE_TYPE_NAME': 'Service',
-				'MONTH_EDESC': 'Month',
+                'MONTH_EDESC': 'Month',
                 'BANK_NAME': 'Bank Name',
                 'ACCOUNT_NO': 'Account No.',
             }
 
             var columns = [
-                {field: "EMPLOYEE_CODE", title: "Code", width: 80, locked: true},
-                {field: "FULL_NAME", title: "Employee", width: 120, locked: true},
-                {field: "POSITION_NAME", title: "Position", width: 100, locked: true},
-                {field: "SERVICE_TYPE_NAME", title: "Service", width: 100, locked: true},
-                {field: "MONTH_EDESC", title: "Month", width: 80, locked: true},
-                {field: "SALARY_TYPE_NAME", title: "Salary Type", width: 80, locked: true},
-                {field: "BANK_NAME", title: "Bank Name", width: 100, locked: true},
-                {field: "ACCOUNT_NO", title: "Account No.", width: 120, locked: true}
+                { field: "EMPLOYEE_CODE", title: "Code", width: 80, locked: true },
+                { field: "FULL_NAME", title: "Employee", width: 120, locked: true },
+                { field: "POSITION_NAME", title: "Position", width: 100, locked: true },
+                { field: "SERVICE_TYPE_NAME", title: "Service", width: 100, locked: true },
+                { field: "MONTH_EDESC", title: "Month", width: 80, locked: true },
+                { field: "SALARY_TYPE_NAME", title: "Salary Type", width: 80, locked: true }
+
             ];
 
             $.each(defaultColumns, function (index, value) {
@@ -43,9 +42,14 @@
 
                 });
                 map[value['VARIANCE']] = value['VARIANCE_NAME'];
-                dataSchemaCols[value['VARIANCE']] = {type: "number"};
-                aggredCols.push({field: value['VARIANCE'], aggregate: "sum"});
+                dataSchemaCols[value['VARIANCE']] = { type: "number" };
+                aggredCols.push({ field: value['VARIANCE'], aggregate: "sum" });
             });
+
+            columns.push(
+                { field: "BANK_NAME", title: "Bank Name", width: 100 },
+                { field: "ID_ACCOUNT_NO", title: "Account No.", width: 120 }
+            );
 
             $table.kendoGrid({
                 dataSource: {
@@ -87,7 +91,7 @@
                         if (document.preference.companyName != null) {
                             rows.unshift({
                                 cells: [
-                                    {value: document.preference.companyName, colSpan: columns.length, textAlign: "left"}
+                                    { value: document.preference.companyName, colSpan: columns.length, textAlign: "left" }
                                 ]
                             });
                         }
@@ -113,7 +117,7 @@
         $('#viewBtn').on('click', function () {
             var $fiscalId = $fiscalYear.val();
 
-            app.serverRequest('', {'fiscalId':$fiscalId}).then(function (response) {
+            app.serverRequest('', { 'fiscalId': $fiscalId }).then(function (response) {
                 if (response.success) {
                     initKendoGrid(response.columns, response.data);
                 }

@@ -67,6 +67,7 @@ print $this->form()->openTag($form);
                     <div class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($advanceId); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($advanceId); ?>
                             <?php print $this->formElementErrors()->render($advanceId, ['class' => 'help-block']); ?>
                         </div>
@@ -75,6 +76,7 @@ print $this->form()->openTag($form);
                     <div class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($requestedAmount); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($requestedAmount); ?>
                             <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
                         </div>

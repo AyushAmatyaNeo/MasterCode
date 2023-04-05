@@ -1,5 +1,7 @@
 <?php
+
 namespace Payroll\Controller;
+
 use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Application\Controller\HrisController;
@@ -18,7 +20,7 @@ class EmployeeMap extends HrisController
     {
         parent::__construct($adapter, $storage);
         //$this->initializeRepository(PayrollRepository::class);
-        $this->repository= new VoucherImpactMapRepo($adapter);
+        $this->repository = new VoucherImpactMapRepo($adapter);
     }
 
     // public function getRenderer() {
@@ -43,30 +45,44 @@ class EmployeeMap extends HrisController
         // die;
         $accountSE = $this->getSelectElement(['name' => 'account', 'id' => 'accHead', 'class' => 'form-control reset-field', 'label' => 'Type'], []);
         $branchSE = $this->getSelectElement(['name' => 'branch', 'id' => 'branchName', 'class' => 'form-control reset-field', 'label' => 'Type'], []);
-
-        $accountListCompanyWise= $this->repository->getAccHeadList();
+        $accountListCompanyWise = $this->repository->getAccHeadList();
         $branchListCompanyWise = $this->repository->getBranchList();
+        $ruleRepo = new RulesRepository($this->adapter);
+        $empWiseCompany = null;
+        if ($this->acl['CONTROL_VALUES']) {
+            if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+                $empWiseCompanyDtl = $ruleRepo->getCompanyId($this->employeeId);
+                $empWiseCompany = array();
+                foreach ($empWiseCompanyDtl as $element) {
+                    $empWiseCompany[$element['COMPANY_CODE']] = $element['COMPANY_NAME'];
+                }
+            }
+        } else {
+            $empWiseCompany = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_COMPANY", "COMPANY_CODE", ["COMPANY_NAME"], ["STATUS" => 'E'], "COMPANY_NAME", "ASC", "-", false, true);
+        }
+
         return Helper::addFlashMessagesToArray($this, [
             'form' => $this->form,
             //'requestTypes' => $requestType,
             //'transportTypes' => $transportTypes,
             //'applyOption' => $applyOption,
-            'companyList' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_COMPANY", "COMPANY_CODE", ["COMPANY_NAME"], ["STATUS" => 'E'], "COMPANY_NAME", "ASC", "-", false, true),
+            'companyList' => $empWiseCompany,
             'groupList' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_SALARY_SHEET_GROUP", "GROUP_ID", ["GROUP_NAME"], [], "GROUP_NAME", "ASC", "-", false, true),
             'payHeadList' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_PAY_SETUP", "PAY_ID", ["PAY_EDESC"], ["VOUCHER_IMPACT = 'Y'"], "PAY_EDESC", "ASC", "-", false, true),
             'accountListCompanyWise' => $accountListCompanyWise,
             'accounts' => $accountSE,
             'branchListCompanyWise' => $branchListCompanyWise,
             'branchs' => $branchSE,
-			'acl' => $this->acl,
-					'employeeDetail' => $this->storageData['employee_detail'],
-            
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+
         ]);
     }
-    
-    public function employeeListOfCompanyAction(){
+
+    public function employeeListOfCompanyAction()
+    {
         $request = $this->getRequest();
-        
+
         if ($request->isPost()) {
             try {
                 $data = $request->getPost();
@@ -80,7 +96,8 @@ class EmployeeMap extends HrisController
 
         return;
     }
-    public function insertIntoAccCodeMapAction(){
+    public function insertIntoAccCodeMapAction()
+    {
         $request = $this->getRequest();
         $accCodeMapData = new AccCodeMap();
         if ($request->isPost()) {
@@ -118,7 +135,7 @@ class EmployeeMap extends HrisController
             $valuesinCSV = "";
             for ($i = 0; $i < sizeof($group); $i++) {
                 $value = $group[$i];
-//                $value = isString ? "'{$group[$i]}'" : $group[$i];
+                //                $value = isString ? "'{$group[$i]}'" : $group[$i];
                 if ($i + 1 == sizeof($group)) {
                     $valuesinCSV .= "{$value}";
                 } else {
@@ -141,17 +158,27 @@ class EmployeeMap extends HrisController
         $action = $_POST['action'];
         $col = null;
         $val = null;
-        if ($action == 'A') {$col = 'APPROVED';
-            $val = 'Y';}
-        if ($action == 'NA') {$col = 'APPROVED';
-            $val = 'N';}
-        if ($action == 'L') {$col = 'LOCKED';
-            $val = 'Y';}
-        if ($action == 'UL') {$col = 'LOCKED';
-            $val = 'N';}
+        if ($action == 'A') {
+            $col = 'APPROVED';
+            $val = 'Y';
+        }
+        if ($action == 'NA') {
+            $col = 'APPROVED';
+            $val = 'N';
+        }
+        if ($action == 'L') {
+            $col = 'LOCKED';
+            $val = 'Y';
+        }
+        if ($action == 'UL') {
+            $col = 'LOCKED';
+            $val = 'N';
+        }
         foreach ($data as $key) {
             $checkData = $this->salarySheetRepo->checkApproveLock($key);
-            if ($checkData[0]['LOCKED'] == 'Y') {continue;}
+            if ($checkData[0]['LOCKED'] == 'Y') {
+                continue;
+            }
             $this->salarySheetRepo->bulkApproveLock($key, $col, $val);
         }
 
@@ -175,7 +202,7 @@ class EmployeeMap extends HrisController
         foreach ($voucherData as $vData) {
             $vData['SERIAL_NO'] = $i;
 
-            $this->salarySheetRepo->insertIntoDoubleVoucher($vData,$this->employeeId);
+            $this->salarySheetRepo->insertIntoDoubleVoucher($vData, $this->employeeId);
             $i++;
         }
         foreach ($pivotData as $eachEmployeePivotData) {
@@ -191,47 +218,47 @@ class EmployeeMap extends HrisController
 
                         foreach ($voucherSubDetailData as $vSubDetailData) {
                             $vSubDetailData['SERIAL_NO'] = $i;
-                            $this->salarySheetRepo->insertIntoVoucherSubDetail($vSubDetailData,$eachEmployeePivotData['EMPLOYEE_ID']);
+                            $this->salarySheetRepo->insertIntoVoucherSubDetail($vSubDetailData, $eachEmployeePivotData['EMPLOYEE_ID']);
                             $i++;
                         }
-
-                    } 
+                    }
                 }
             }
         }
 
         $masterTransactionData = $this->salarySheetRepo->getDataForMasterTransection($voucherData[0]['VOUCHER_NO']);
-        $this->salarySheetRepo->insertIntoMasterTransaction($masterTransactionData[0],$this->employeeId);
+        $this->salarySheetRepo->insertIntoMasterTransaction($masterTransactionData[0], $this->employeeId);
 
         $subDetailsData = $this->salarySheetRepo->getDataOfSubDetails($voucherData[0]['VOUCHER_NO']);
 
-        foreach ($subDetailsData as $singleSubDetailData){
+        foreach ($subDetailsData as $singleSubDetailData) {
             $this->salarySheetRepo->insertIntoFaSubLedger($singleSubDetailData);
         }
 
         $doubleVoucherData = $this->salarySheetRepo->getDataOfDoubleVoucher($voucherData[0]['VOUCHER_NO']);
         $generalVoucherblncAmt = 0;
-        foreach ($doubleVoucherData as $singleDoubleVoucherData){
-            if ($singleDoubleVoucherData['TRANSACTION_TYPE'] == 'DR'){
+        foreach ($doubleVoucherData as $singleDoubleVoucherData) {
+            if ($singleDoubleVoucherData['TRANSACTION_TYPE'] == 'DR') {
                 $generalVoucherblncAmt += $singleDoubleVoucherData['AMOUNT'];
-            }else{
+            } else {
                 $generalVoucherblncAmt -= $singleDoubleVoucherData['AMOUNT'];
             }
         }
-        foreach ($doubleVoucherData as $singleDoubleVoucherData){            
-            $this->salarySheetRepo->insertIntoFaGeneralLedger($singleDoubleVoucherData,$generalVoucherblncAmt);
+        foreach ($doubleVoucherData as $singleDoubleVoucherData) {
+            $this->salarySheetRepo->insertIntoFaGeneralLedger($singleDoubleVoucherData, $generalVoucherblncAmt);
         }
         $postedTransactioData = $this->salarySheetRepo->getDataForPostedTransaction($voucherData[0]['VOUCHER_NO']);
-        $this->salarySheetRepo->insertIntoPostedTransaction($postedTransactioData[0]); 
+        $this->salarySheetRepo->insertIntoPostedTransaction($postedTransactioData[0]);
     }
 
-    public function getMappedAccCodeAction(){
-		$request = $this->getRequest();
-        
+    public function getMappedAccCodeAction()
+    {
+        $request = $this->getRequest();
+
         if ($request->isPost()) {
             try {
                 $data = $request->getPost();
-				//print_r($data);die;
+                //print_r($data);die;
                 $employeeDataList = $this->repository->getMappedAccCode($data);
 
                 return new JsonModel(['success' => true, 'data' => $employeeDataList, 'error' => '']);
@@ -241,9 +268,10 @@ class EmployeeMap extends HrisController
         }
 
         return;
-	}
+    }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $id = (int) $this->params()->fromRoute("id");
         if (!$id) {
             return $this->redirect()->toRoute('employeeMap');

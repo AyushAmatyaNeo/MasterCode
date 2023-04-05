@@ -34,39 +34,42 @@
                 switch (item['PAY_TYPE_FLAG']) {
                     case 'A':
                         additionData[additionCounter] = item;
-                        additionSum = additionSum + parseFloat(item['VAL']);
+                        const myString = $.trim((item['VAL']));
+                        additionSum = additionSum +parseFloat(myString.replace(',', ''));
                         additionCounter++;
                         break;
                     case 'D':
                         deductionData[deductionCounter] = item;
-                        deductionSum = deductionSum + parseFloat(item['VAL']);
+                        const String = $.trim((item['VAL']));
+                        deductionSum = deductionSum + parseFloat(String.replace(',', ''));
                         deductionCounter++;
                         break;
                        
                 }
                         netSum = additionSum - deductionSum;
             });
-                add = parseFloat(additionSum).toFixed(2);
-                sub = parseFloat(deductionSum).toFixed(2);
-                net= parseFloat(netSum).toFixed(2);
+                add = (additionSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }));
+                sub = (deductionSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }));
+                net= (netSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }
+                ));
 
             var maxRows = (additionCounter > deductionCounter) ? additionCounter : deductionCounter;
             for (var i = 0; i < maxRows; i++) {
                 var $row = $(`<tr>
                                 <td>${(typeof additionData[i] !== 'undefined') ? additionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof additionData[i] !== 'undefined') ? parseFloat(additionData[i]['VAL']).toFixed(2) : ''}</td>
+                                <td style="text-align: right">${(typeof additionData[i] !== 'undefined') ? (additionData[i]['VAL']) : ''}</td>
                                 <td>${(typeof deductionData[i] !== 'undefined') ? deductionData[i]['PAY_EDESC'] : ''}</td>
-                                <td>${(typeof deductionData[i] !== 'undefined') ? parseFloat(deductionData[i]['VAL']).toFixed(2) : ''}</td>
+                                <td style="text-align: right">${(typeof deductionData[i] !== 'undefined') ? (deductionData[i]['VAL']) : ''}</td>
                                 </tr>`);
                 $paySlipBody.append($row);
             }
             $paySlipBody.append($(`<tr>
                                 <td><b>Total Addition:</b></td>
-                                <td><b>${add}</b></td>
+                                <td style="text-align: right"><b>${add}</b></td>
                                 <td><b>Total Deduction:</b></td>
-                                <td><b>${sub}</b></td>
+                                <td style="text-align: right"><b>${sub}</b></td>
                                 </tr></tr> <td><b>Net Salary:</b></td>
-                                 <td><b>${net}</b></td>`));
+                                 <td style="text-align: right"><b>${net}</b></td>`));
 
         };
         var showEmpDetail = function ($data) {
