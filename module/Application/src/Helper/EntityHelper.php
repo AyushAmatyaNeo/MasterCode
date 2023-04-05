@@ -942,4 +942,11 @@ class EntityHelper {
         // echo '<pre>';print_r($searchValues);die;
         return $searchValues;
     }
+
+    public static function getPreferenceValue($adapter, $key){
+
+        $sql = "select value from hris_preferences where key = '{$key}'";
+
+        return $adapter->query($sql)->execute()->current()['VALUE'];
+    }
 }
