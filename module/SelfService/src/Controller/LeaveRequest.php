@@ -114,6 +114,7 @@ class LeaveRequest extends HrisController {
         $request = $this->getRequest();
         if ($request->isPost()) { 
             $postData = $request->getPost(); 
+            // print_r($postData); die;
             $this->form->setData($postData);
             $leaveSubstitute = $postData->leaveSubstitute;
             if ($this->form->isValid()) {
@@ -142,7 +143,8 @@ class LeaveRequest extends HrisController {
                     $leaveSubstituteModel->createdBy = $this->employeeId;
                     $leaveSubstituteModel->createdDate = Helper::getcurrentExpressionDate();
                     $leaveSubstituteModel->status = 'E';
-
+                    
+                    // echo '<pre>';print_r($this);die;
                     $leaveSubstituteRepo->add($leaveSubstituteModel);
                     try {
                         HeadNotification::pushNotification(NotificationEvents::LEAVE_SUBSTITUTE_APPLIED, $leaveRequest, $this->adapter, $this);
@@ -151,6 +153,7 @@ class LeaveRequest extends HrisController {
                     }
                 } else {
                     try {
+                        // echo '<pre>';print_r($this);die;
                         HeadNotification::pushNotification(NotificationEvents::LEAVE_APPLIED, $leaveRequest, $this->adapter, $this);
                     } catch (Exception $e) {
                         $this->flashmessenger()->addMessage($e->getMessage());

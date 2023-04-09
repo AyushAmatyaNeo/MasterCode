@@ -1,0 +1,336 @@
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+ 
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()
+        ->appendFile($this->basePath('js/SelfService/travel-request/view.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/new-travel-request/add.js'));
+$this->headScript()
+        ->appendFile($this->basePath('js/SelfService/new-travel-request/advance-add-international.js'));
+$form->setAttribute('role', 'form');
+$form->setAttribute('id', 'travelRequest-form');
+
+$fromDate = $form->get('fromDate');
+
+$toDate = $form->get('toDate');
+
+$destination = $form->get('destination');
+
+$purpose = $form->get('purpose');
+$departure = $form->get('departure');
+$requestedType = $form->get('requestedType');
+$requestedType->setValueOptions([$detail['REQUESTED_TYPE'] => $detail['REQUESTED_TYPE_DETAIL']]);
+$transportType = $form->get('transportType');
+$transportType->setValueOptions($transportTypes);
+$requestedAmount = $form->get('requestedAmount');
+$remarks = $form->get('remarks');
+$recommendedRemarks = $form->get('recommendedRemarks');
+$approvedRemarks = $form->get('approvedRemarks');
+$noOfDays = $form->get('noOfDays');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+$form->setAttribute('action', '');
+$form->prepare();
+print $this->form()->openTag($form);
+?>
+ <?php  $all_data = json_encode(file_get_contents("https://gist.githubusercontent.com/aaronhayes/5fef481815ac75f771d37b16d16d35c9/raw/edbec8eea5cc9ace57a79409cc390b7b9bcf24f6/currencies.json")); ?>
+<script>
+    document.urlCss = '<?= $this->basePath('css/custom.css') ?>';
+    document.currencyList = <?php echo json_decode($all_data) ?>;
+    document.advanceInterAddLink = '<?= $this->url("newtravelrequest", ["action" => "advanceAddInternational"]) ?>';
+</script>
+<div class="col-sm-12">
+    <div class="portlet box custom-box">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="fa fa-user"></i>Travel Advance Request
+            </div>
+            <div class="actions">
+                <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="border-bottom">
+                <div class="form-group">
+                    <div class="row div-font-11">
+                        <div class="col-sm-4">
+                            <table width="100%">
+                                <tr height="30">
+                                    <td>
+                                        Requested Date
+                                    </td>
+                                    <td width="15">:</td>
+                                    <td>
+                                        <?php echo $detail['REQUESTED_DATE']; ?>
+                                    </td>
+                                </tr>
+                                <tr height="30">
+                                    <td>
+                                        Status
+                                    </td>
+                                    <td width="15">:</td>
+                                    <td>
+                                        <?php echo $detail['STATUS_DETAIL']; ?>
+                                    </td>
+                                </tr>
+
+
+                            </table>
+                        </div>
+                        <div class="col-sm-4">
+                            <table width="100%">
+                                <tr height="30">
+                                    <td>
+                                        Recommender
+                                    </td>
+                                    <td width="15">:</td>
+                                    <td>
+                                        <?php echo $recommender; ?>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+                        <div class="col-sm-4">
+                            <table width="100%">  
+                                <tr height="30">
+                                    <td>
+                                        Approver
+                                    </td>
+                                    <td width="15">:</td>
+                                    <td>
+                                        <?php echo $approver; ?>
+                                    </td>
+                                </tr>                               
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class=" row">
+
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($fromDate); ?>
+                                    <div class="input-group date" id="fromDate">
+                                        <?php print $this->formElement($fromDate); ?>
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                    <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>     
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliStartDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
+                                               class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>     
+                        </div>    
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($toDate); ?>
+                                    <div class="input-group date" id="toDate">
+                                        <?php print $this->formElement($toDate); ?>
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                    <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>     
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliEndDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
+                                               class="form-control" value="" disabled="disabled">
+                                    </div>
+                                </div>
+                            </div>     
+                        </div>     
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <div
+                            class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                                <?php print $this->formLabel($noOfDays); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($noOfDays); ?>
+                            <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                        </div>
+                        <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($departure); ?>
+                            <?php print $this->formElement($departure); ?>
+                            <?php print $this->formElementErrors()->render($departure, ['class' => 'help-block']); ?>
+                        </div>               
+                    </div>
+                    
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($destination); ?>
+                            <?php print $this->formElement($destination); ?>
+                            <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
+                        </div>               
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($purpose); ?>
+                            <?php print $this->formElement($purpose); ?>
+                            <?php print $this->formElementErrors()->render($purpose, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                   
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="associateName">Travel Type </label>
+                            <select name="travelType" onchange="showTravelTypeForm()" class="form-control" id="travelType" required>
+                                <option value="<?php echo ($detail['TRAVEL_TYPE']) ?>" selected>International</option>
+                            </select>
+                        </div>               
+                    </div>
+                       
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($transportType); ?>
+                            <?php print $this->formElement($transportType); ?>
+                            <?php print $this->formElementErrors()->render($transportType, ['class' => 'help-block']); ?>
+                        </div> 
+                    </div>
+                    <div class="domestic"  <?php echo ($detail['TRAVEL_TYPE'] == 'LTR') ? 'style="display:none"':'' ?> > 
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="associateName">Request Type</label>
+                                <select name="requestType"class="form-control" id="requestType" required>
+                                    <option value="ad">Advance</option>
+                                </select>
+                            </div>   
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+
+                                <?php 
+                                // print $this->formLabel($requestedAmount); 
+                                ?>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                    <label for="associateName">Foreign Currency Type</label>
+                                         <br>
+                                        <select class='currency form-control' name='currency' > </select> <br>
+                                        <input type="hidden" id="countnote" value="1"> <br>
+                                        <label for="associateName">Conversion Rate </label><br>
+                                        <input type="number" id="conversionRate" value="1"  onChange="calculateTotal()" name="conversionrate" class="form-control"> <br>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <?php /* <div class="col-sm-4">
+                                                Note <br>
+                                                <input type="text" name="fnote" onkeyup="foreignCurrency()" id="fnote" class="form-control">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                Quantity <br>
+                                                <input type="text" name="fqty" onkeyup="foreignCurrency()" id="fqty" class="form-control">
+                                            </div>
+                                            */ ?>
+                                            <table id='currencyDetail' class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Note
+                                                        </th>
+                                                        <th>
+                                                            Quantity
+                                                        </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="nnumber" name="fnote[]"  class="form-control fnote">
+                                                        </td>
+                                                        <td>
+                                                            <input type="nnumber" name="fqty[]" class="form-control fqty">
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-success" onclick="addNoteDenom()"><i class="fa fa-plus"></i></button> 
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            
+                                        </div>
+                                       
+                                        
+                                        <label for="associateName"> Converted Amount In NPR </label>
+                                        <input type="text" name="advan" id="camount" class="form-control" disabled><br>
+                                    </div>
+                                </div>
+                                <?php 
+                                print $this->formLabel($requestedAmount); 
+                                ?>
+                                <input type="text" class="form-requestedAmount form-control" name="requestedAmount" id="form-requestedAmount" min="0",step="0.01" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                            <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                </div>   
+ 
+                <?php if(!empty($files)){ ?>
+                        <div class="row"> 
+                            <div class="col-sm-6"> 
+                                <label>Attachments</label>
+                                    <div style="overflow: scroll; height:100px;" >
+                                        <ul> 
+                                            <?php foreach($files as $file){ ?>
+                                                <a target="_blank" href="<?='../../../uploads/travel_documents/'.$file['FILE_IN_DIR_NAME']?>">
+                                                    <li><?=$file['FILE_NAME']?></li></a>
+                                            <?php } ?>
+                                        </ul>
+                                    </div>
+                                </div>
+                        </div> 
+                    <?php } ?>
+
+               
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+
+<?php
+print $this->formSubmit($submit);
+print $this->form()->closeTag();
+?>

@@ -9,7 +9,7 @@
         var $toDate = $('#toDate');
         var action = `
             <div class="clearfix">
-                #if(REQUESTED_TYPE=='ad'){#
+                #if(REQUESTED_TYPE=='ad' || REQUESTED_TYPE=='ia'){#
                 <a class="btn btn-icon-only green" href="${document.viewLink}/#:TRAVEL_ID#/#:ROLE#" style="height:17px;" title="View Detail">
                     <i class="fa fa-search"></i>
                 </a>
@@ -60,7 +60,7 @@
             {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
             {field: "STATUS_DETAIL", title: "Status"},
             {field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action}
-        ], null, null, null, 'Travel Request List');
+        ]);
         $search.on('click', function () {
             app.pullDataById('', {
                 'status': $status.val(),

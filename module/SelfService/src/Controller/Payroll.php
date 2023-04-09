@@ -108,7 +108,7 @@ class Payroll extends HrisController
             $request = $this->getRequest();
             $data = $request->getPost();
             $data['employeeId'] = [$this->employeeId];
-            $resultData = $this->repository->getTaxYearlyNewEmpwise($data);
+            $resultData = $this->repository->getTaxYearlyNew($data);
             $result = [];
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);

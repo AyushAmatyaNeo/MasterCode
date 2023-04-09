@@ -211,6 +211,9 @@
 				// 'endDate': (endDateValue == '') ? null : endDateValue
             }).then(function (success) {
                 App.unblockUI("#hris-page-content");
+                // console.log(success);
+                // return false;
+
                 var leaveDetail = success.data;
                 applyLimit = leaveDetail.APPLY_LIMIT;
                 substituteDetails = success.subtituteDetails;

@@ -85,6 +85,8 @@ class UserSetupController extends HrisController {
         }
         $userSetup->exchangeArrayFromDB($detail);
         $this->form->bind($userSetup);
+        // echo '<pre>';print_r($this->form->bind($userSetup));die;
+
         return $this->stickFlashMessagesTo([
                     'form' => $this->form,
                     'id' => $id,

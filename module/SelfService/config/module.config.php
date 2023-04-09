@@ -24,6 +24,7 @@ use SelfService\Controller\TrainingRequest;
 use SelfService\Controller\EventRequest;
 use SelfService\Controller\TravelNotification;
 use SelfService\Controller\TravelRequest;
+use SelfService\Controller\NewTravelRequest;
 use SelfService\Controller\WorkOnDayoff;
 use SelfService\Controller\WorkOnHoliday;
 use SelfService\Controller\RoleTransfer;
@@ -140,6 +141,20 @@ return [
                     'defaults' => [
                         'controller' => Payroll::class,
                         'action' => 'payslip',
+                    ]
+                ],
+            ],
+            'newtravelrequest' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/selfservice/newtravelrequest[/:action[/:id]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => NewTravelRequest::class,
+                        'action' => 'index',
                     ]
                 ],
             ],
@@ -1043,6 +1058,7 @@ return [
             Birthday::class => ControllerFactory::class,
             PaySlipPrevious::class => ControllerFactory::class,
             RoleTransfer::class => ControllerFactory::class,
+            NewTravelRequest::class => ControllerFactory::class,
         ],
     ],
     'view_manager' => [

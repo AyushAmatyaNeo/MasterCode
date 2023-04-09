@@ -33,7 +33,12 @@
         var $salaryTypeId = $('#salaryTypeId');
         var $allSheetId = $('#allSheetId');
         var $allPayHeads = $('#allPayHeads');
-		
+        var $allPayHeads = $('#allPayHeads');
+        var $overtime ;
+        $("input[name='overTime']").change(function() {
+             $overtime = $(this).val();
+        });
+
 		const deleteSalSheLink = data['links']['deleteEmpSalSheLink'];
 
 console.log(data['ruleList']);
@@ -566,14 +571,15 @@ console.log(data['ruleList']);
             let selectedGroups = $groupId.val();
             let selectedSalaryTypeId = $salaryTypeId.val();
             let selectedMonthId = selectedMonth['MONTH_ID'];
-            
+          
             if (selectedGroups !== null || selectedGroups !== '-1') {
                 
             app.serverRequest(data['links']['viewLink'], {
                 monthId: selectedMonthId,
                 sheetNo: sheetNo,
                 groupId: selectedGroups,
-                salaryTypeId: selectedSalaryTypeId
+                salaryTypeId: selectedSalaryTypeId,
+     
             }).then(function (response) {
                 app.renderKendoGrid($table, response.data);
             });
@@ -596,6 +602,7 @@ console.log(data['ruleList']);
             var fromDate = selectedMonth['FROM_DATE'];
             var toDate = selectedMonth['TO_DATE'];
             var company = $companyId.val();
+            let overTime=$overtime;
             if (company === null || company === '-1') {
                 company = [];
                 $.each(companyList, function (key, value) {
@@ -643,6 +650,7 @@ console.log(data['ruleList']);
                     companyId: company,
                     groupId: group,
                     salaryTypeId: salaryType,
+                    overtime :overTime,
                     empList: empList
                 }).then(function (response) {
                     stage2(response.data);
@@ -668,6 +676,7 @@ console.log(data['ruleList']);
                             monthNo: monthNo,
                             fromDate: fromDate,
                             toDate: toDate,
+                            overtime :overTime,
                             employeeId: employeeList[i]['EMPLOYEE_ID']
                         });
                     }

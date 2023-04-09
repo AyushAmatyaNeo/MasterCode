@@ -175,6 +175,7 @@ class HeadNotification {
     }
 
     private static function leaveApplied(LeaveApply $leaveApply, AdapterInterface $adapter, Url $url, $type) {
+                                // echo '<pre>';print_r($url);die;
         self::initFullModel(new LeaveApplyRepository($adapter), $leaveApply, $leaveApply->id);
         $recommdAppModel = self::findRecApp($leaveApply->employeeId, $adapter);
         $idAndRole = self::findRoleType($recommdAppModel, $type);

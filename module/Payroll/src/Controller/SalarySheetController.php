@@ -118,7 +118,11 @@ class SalarySheetController extends HrisController
             $request = $this->getRequest();
             $data = $request->getPost();
             $stage = $data['stage'];
-            echo '<pre>';print_r($data);die;
+            if($data['overtime']!=null){
+                foreach ($data['empList'] as $empId){
+                    $this->salarySheetRepo->updateOValue($data,$empId);
+                }
+            }
             $returnData = null;
             switch ($stage) {
                 case 1:

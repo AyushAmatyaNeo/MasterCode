@@ -715,4 +715,32 @@ return;
             return false;
         }
     }
+
+    public function updateOtValue($detail,$empId){
+
+        $sql="DELETE
+        FROM
+            hris_monthly_value_detail
+        WHERE
+                mth_value = 12
+            AND fiscal_year_id = (select fiscal_year_id from hris_month_code where month_id=$detail[monthId])
+            AND month_id = $detail[monthId]
+            AND employee_id = $empId";
+            $statement=$this->adapter->query($sql);
+            $statement->execute();
+        $sql="INSERT INTO hris_monthly_value_detail (
+            mth_id,
+            employee_id,
+            mth_value,
+            created_dt,
+            modified_dt,
+            fiscal_year_id,
+            month_id
+        ) VALUES (
+            12,$empId,$detail[overtime],trunc(sysdate),NULL,(SELECT fiscal_year_id FROM hris_month_code WHERE month_id = $detail[monthId]),$detail[monthId])";
+
+        $statement=$this->adapter->query($sql);
+        $statement->execute();
+    }
+
 }

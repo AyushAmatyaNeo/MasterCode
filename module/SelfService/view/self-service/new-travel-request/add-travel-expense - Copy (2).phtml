@@ -1,0 +1,289 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/ladda/ladda-themeless.min.css'))
+        ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'))
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('dropzone/dropzone.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/moment.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/combodate.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/ladda/spin.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/ladda/ladda.min.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/travel-request/add-travel-expense.js?1'));
+?>
+ <?php  $all_data = json_encode(file_get_contents("https://gist.githubusercontent.com/aaronhayes/5fef481815ac75f771d37b16d16d35c9/raw/edbec8eea5cc9ace57a79409cc390b7b9bcf24f6/currencies.json")); ?>
+<script>
+    document.transportTypes = '<?php json_encode($transportTypes)  ?>';
+    document.urlExpenseAdd = '<?= $this->url("travelRequest", ["action" => "expenseAdd"]) ?>';
+    document.urlExpense = '<?= $this->url("travelRequest", ["action" => "expense"]) ?>';
+    document.urlExpenseDetailList = '<?= $this->url("travelRequest", ["action" => "expenseDetailList"]) ?>';
+    document.currencyList = <?php echo json_decode($all_data) ?>;
+    document.urlDeleteExpenseDetail = '<?= $this->url("travelRequest", ["action" => "deleteExpenseDetail"]) ?>';
+    document.uploadUrl = '<?= $this->url("travelRequest", ["action" => "fileUpload"]); ?>';
+    document.pushDCFileLink = '<?php echo $this->url('travelRequest', ['action' => 'pushDCFileLink']); ?>';
+    document.getLineTotal = '<?php echo $this->url('travelRequest', ['action' => 'getLineTotal']); ?>';
+    document.expenseItrHeads =<?=json_encode($expenseItrHeads);?>;
+    document.expenseLtrHeads =<?=json_encode($expenseLtrHeads);?>;
+    document.destinationsL = <?=json_encode($destinationsL);?>;
+    document.getTravelDetail = '<?php echo $this->url('newtravelrequest', ['action' => 'getTravelDetail']); ?>';
+    document.destinationsI = <?=json_encode($IntATravels);?>;
+</script>;
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>;
+      
+    </script>
+<?php } ?>
+<div class="row margin-top-20" ng-app="hris" ng-controller="expenseDtlController">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Add Travel Expense 
+                </div>
+            </div>
+            <div class="portlet-body div-font-11">
+                <form name="travelExpenseForm" id="travelRequest-form"  method="post">
+                    <!-- <input type="hidden" id="travelId" value="<?php echo $id; ?>" /> -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Employeee Name:</label>
+                            <input type="text" disabled="disabled" value="<?php echo $employeeDetails['FULL_NAME'] ?>" name="purpose" class="form-control">
+                        </div>
+
+                        <div class="col-md-4">
+                        <label>Department :</label>
+                            <input type="text" disabled="disabled" value="<?php echo $employeeDetails['DEPARTMENT_NAME'] ?>" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                                        <label for="destination">Designations :</label> 
+                                        <input type="text" disabled="disabled" value="<?php echo $employeeDetails['DESIGNATION_TITLE'] ?>"  class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                                        <label for="Travel">Travel Type :</label>
+                                        <select name="traveltype" id="expenseTypeTravel" class="form-control">
+                                            <option value="-1">Select Expense Type</option>
+                                            <option value="ITR">International Travel</option>
+                                            <option value="LTR">Domestic Travel </option>
+                                            <option value="LE">Local Expenses</option>                                                      
+                                        </select>
+                        </div>
+                        <div id="travelIdsforall">
+
+                        </div>
+                        
+                        <div id="addtraveldetails">
+
+                        </div>
+                    
+
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+
+                        </div>
+
+                    </div>
+                    <!-- local -->
+                            <div class="margin-top-10 scrollbar-horizantal" style="display: none;" id="domesticConfigTable">
+                                <div class="row" >
+                                    <div style="" >
+                                        <table id="domesticConfigTable" class="table table-bordered tableForAll">
+                                            <thead>
+                                                <tr>
+                                                    <th colspan="12" style="text-align:center; font-weight:bold; font-size:15px;">Domestic Travel</th>
+                                                </tr>
+                                                <tr>
+                                                    <th style="padding-left:3rem;">Action</th> 
+                                                    <th>ER Type</th>       
+                                                    <th>Location</th>       
+                                                    <th>Date</th>       
+                                                    <th>Ticket/Bill No</th>
+                                                    <th>Expense Head</th>
+                                                    <th>Conversion Rate</th>
+                                                    <th>Currency</th>
+                                                    <th>Amount</th>     
+                                                    <th>Remarks</th>  
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <select name="erTypeL[]"  data-id="0" id="ertyprL_0" class="erTypeL form-control"  style="width:13rem ;">
+                                                            <option value="-1">Select ER Type</option>
+                                                            <option value="EP">Employeee Paid</option>
+                                                            <option value="CP">Company Paid</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="locFromL[]" id="locFromL_0" data-id="0"  class="locFrom form-control"  style="width: 10rem;"> 
+                                                    </td>
+                                                
+                                                    <td>
+                                                        <input type="text" name="arrDateL[]" id="arrDateL_0" data-id="0"  class="arrDate form-control"  style="width:12rem ;"> 
+                                                    </td>
+                                                    
+                                                    <td>
+                                                        <input type="text" name="ticketNoL[]" id="ticketNoL_0" data-id="0" class="ticketNo form-control" > 
+                                                    </td> 
+                                                
+                                                    <td>
+                                                        <!-- <input type="text" name=""  class="ticketNo form-control">  -->
+                                                        <select select2 class="form-control" data-id="0" id="expenseHead_0" name="expenseHeadL[]" id="expensehead"  style="width:17rem ;">
+                                                            <?php  foreach($expenseHeads as $expenseLtrHead) { ?>
+                                                                <option value="<?php echo $expenseLtrHead['gl'] ?>"><?php echo $expenseLtrHead['name'] ?></option>
+                                                            <?php } ?>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="conversionRateL[]" id="conversionRateL_0" data-id="0" class="conversionRateL1" value="1" step="any" disabled  style="width:10rem ;">
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="currencyL[]" id="currencyL_0" data-id="0" value="NPR" disabled style="width:10rem ;" >
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="amountExpL[]" data-id="0" id="amountExpL_0" step="any"  class="amountExpL" >
+                                                    </td>
+                                                    <td>
+                                                        <div style="width:150px">
+                                                            <textarea name="detRemarksL[]" data-id="0" id="detRemarksL_0" class="detRemarks"></textarea>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                    <div class="col-md-12" style="text-align: right;"><strong>Total Amount: <input type="number" id="totalAmountExp" value="0" step="any"></strong></div>
+
+                                    <div class="col-md-1">
+                                        <input class="deatilAddBtn btn btn-default" type="button" value="Add +" style="margin-bottom:20px;">
+                                    </div>
+
+                                </div>
+                            </div>
+                        <!-- international -->
+                        <div class="margin-top-10 scrollbar-horizantal" style="display: none;" id="internationalConfigTable">
+                        <div class="row" >
+                            <div style="margin-left: 20px;">
+                                <table id="internationalConfigTable" class="table table-bordered tableForAll">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="12" style="text-align:center; font-weight:bold; font-size:15px;">International Travel</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Action</th> 
+                                            <th>ER Type</th>       
+                                            <th>Location</th>       
+                                            <th>Date</th>       
+                                            <th>Ticket/Bill No</th>
+                                            <th>Expense Head</th>
+                                            <th>Currency</th> 
+                                            <th>Exchange Rate</th>         
+                                            <th>Amount</th>     
+                                            <th>Remarks</th>       
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <select name="erTypeI[]" data-id="0" id="erTypeI_0" class="erTypeL form-control"  style="width:13rem">
+                                                    <option value="-1">Select ER Type</option>
+                                                    <option value="EP">Employeee Paid</option>
+                                                    <option value="CP">Company Paid</option>
+                                                </select>
+                                            </td>
+                                            
+                                            <td>
+                                                <input type="text" name="locFrom[]" id="locFrom_0" data-id="0" class="locFrom form-control"  style="width:10rem"> 
+                                            </td>
+                                            <td>
+                                                <input type="text" name="arrDate[]" id="arrDate_0" data-id="0" class="arrDate form-control"  style="width:10rem"> 
+                                            </td>
+                                            <td>
+                                                <input type="text" name="ticketNo[]" id="ticketNo_0" data-id="0"  class="ticketNo form-control" style="width:9rem"> 
+                                            </td>   
+                                            <td>
+                                            <!-- <input type="text" name="expenseHead[]"  class="ticketNo form-control">  -->
+                                                <select name="expenseHead[]" data-id="0" id="expensehead_0" >
+                                                    <?php  foreach($expenseHeads as $expenseItrHead) { ?>
+                                                        <option value="<?php echo $expenseItrHead['gl'] ?>"><?php echo $expenseItrHead['name'] ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                    <select class='currency form-control' id="currency_0" name='currency[]' data-id="0" style="width: 8rem;">
+                                                    </select>
+                                            </td>   
+                                            <td>
+                                                <input type="number" name="exchangeRateInternational[]" id="exchangeInt_0" data-id="0" class="exchangeRateInternational" step="any">       
+                                            </td>
+                                           
+                                            <td>
+                                                <input type="number" name="amountExp[]" id="amountExp_0" step="any" data-id="0"  class="amountExpI" >
+                                            </td>
+                                            <td>
+                                                <textarea name="detRemarks[]" id="detRemarks_0" class="detRemarks form-control" data-id="0" style="width:15rem ;padding:2rem"></textarea>
+                                            </td> 
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div class="col-md-12" style="text-align: right;"><strong>Total Amount: <input type="number" id="totalAmountExpI" value="0" step="any"></strong></div>
+
+                            <div class="col-md-1">
+                                <input class="deatilAddBtnInternational btn btn-default" type="button" value="Add +" style="margin-bottom:20px;">
+                            </div>
+
+                        </div>
+                    </div>
+                    <br><br>
+                    
+                    <!-- <div class= "row" style="margin-top:30px;">
+                        <div class=" col-md-6 form-group">
+                            <table id="fileDetailsTbl" class="table">
+                                <tr>
+                                    <th>Document</th>
+                                    <th>&nbsp;</th>
+                                    <th>Action</th>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-3">
+                            <button id="addDocument" type="button" class="btn btn-primary">
+                                Add
+                            </button>
+                        </div>
+                    </div> -->
+                    <div class="submit_button" style="margin-top:2%;">
+                        <button class="btn btn-sm green mt-ladda-btn ladda-button mt-progress-demo" id="submitBtn" name="submit" type="submit">
+                            SUBMIT
+                            <i class="fa fa-edit"></i>
+                        </button>    
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
