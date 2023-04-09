@@ -596,7 +596,7 @@ class EntityHelper {
         }
         
         if ($preference['orderByPosition']=='Y' && $position!=null) {
-            $orderByString.=(empty($orderByString))?' '.$position.'  ASC':','.$position.'  ASC';
+            $orderByString.=(empty($orderByString))?' '.$position.'  DESC':','.$position.'  DESC';
         }
         if ($preference['orderByJoinDate']=='Y' && $joinDate!=null) {
             $orderByString.=(empty($orderByString))?' '.$joinDate.'  ASC':','.$joinDate.'  ASC';

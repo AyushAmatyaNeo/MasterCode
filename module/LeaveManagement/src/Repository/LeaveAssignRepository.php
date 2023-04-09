@@ -54,6 +54,8 @@ class LeaveAssignRepository extends HrisRepository {
         $boundedParameter = [];
         $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
 
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+
         $sql = "SELECT C.COMPANY_NAME,
                   B.BRANCH_NAME,
                   DEP.DEPARTMENT_NAME,
@@ -69,8 +71,12 @@ class LeaveAssignRepository extends HrisRepository {
                 FROM HRIS_EMPLOYEES E
                 LEFT JOIN (SELECT * FROM HRIS_EMPLOYEE_LEAVE_ASSIGN WHERE LEAVE_ID   = :leaveId) ELA
                 ON (E.EMPLOYEE_ID = ELA.EMPLOYEE_ID)
+                LEFT JOIN HRIS_POSITIONS P
+                ON E.POSITION_ID=P.POSITION_ID
                 LEFT JOIN HRIS_LEAVE_MASTER_SETUP LS
                 ON(LS.LEAVE_ID= :leaveId)
+                LEFT JOIN HRIS_DESIGNATIONS DES
+                ON E.DESIGNATION_ID=DES.DESIGNATION_ID
                LEFT JOIN HRIS_LEAVE_MONTH_CODE MC ON
                (MC.LEAVE_YEAR_MONTH_NO=ELA.FISCAL_YEAR_MONTH_NO AND LS.LEAVE_YEAR=MC.LEAVE_YEAR_ID)
                 LEFT JOIN HRIS_COMPANY C
@@ -101,7 +107,7 @@ class LeaveAssignRepository extends HrisRepository {
          2
            END=1
           )
-                ORDER BY C.COMPANY_NAME,B.BRANCH_NAME,DEP.DEPARTMENT_NAME,E.FULL_NAME,MC.LEAVE_YEAR_MONTH_NO";
+                {$orderByString}";
         $boundedParameter['leaveId'] = $leaveId;
         return $this->rawQuery($sql, $boundedParameter);
     }

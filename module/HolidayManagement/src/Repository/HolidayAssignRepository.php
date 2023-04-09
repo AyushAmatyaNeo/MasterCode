@@ -19,6 +19,8 @@ class HolidayAssignRepository {
         $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId,$genderId);
         $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
 
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+
         $sql = "SELECT 
                   E.EMPLOYEE_ID                                                AS EMPLOYEE_ID,
                   E.EMPLOYEE_CODE                                                   AS EMPLOYEE_CODE,
@@ -73,7 +75,7 @@ class HolidayAssignRepository {
                 LEFT JOIN HRIS_VDC_MUNICIPALITIES VMT
                 ON E.ADDR_TEMP_VDC_MUNICIPALITY_ID=VMT.VDC_MUNICIPALITY_ID
                 WHERE 1                 =1 AND E.STATUS='E' 
-                {$searchCondition['sql']} order by E.FULL_NAME  ";
+                {$searchCondition['sql']} {$orderByString}";
                 
                 $statement = $this->adapter->query($sql);
                 $result = $statement->execute($boundedParams);
