@@ -1,4 +1,5 @@
 <?php
+
 namespace SelfService\Controller;
 
 use Application\Controller\HrisController;
@@ -19,31 +20,34 @@ use Application\Helper\EntityHelper;
 use Application\Model\Months;
 use Zend\Form\Element\Month;
 
-class Payroll extends HrisController {
+class Payroll extends HrisController
+{
 
-	private $salarySheetRepo;
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    private $salarySheetRepo;
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(PayrollReportRepo::class);
-		$this->salarySheetRepo = new SalarySheetRepo($adapter);
+        $this->salarySheetRepo = new SalarySheetRepo($adapter);
     }
 
-    public function payslipAction() {
-		$salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
+    public function payslipAction()
+    {
+        $salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
                 $postedData = $request->getPost();
-                // echo '<pre>';print_r($postedData);die;
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'],$postedData['salaryTypeId']);
-                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'],$postedData['salaryTypeId']);
+                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
 
-//                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneBy([
-//                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
-//                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
-//                ]);
+                //                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneBy([
+                //                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
+                //                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
+                //                ]);
+                // echo '<pre>';print_r($data['pay-detail']);die;
                 return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -52,7 +56,8 @@ class Payroll extends HrisController {
         return ['employeeId' => $this->employeeId, 'salaryType' => json_encode($salaryType)];
     }
 
-    public function taxslipAction() {
+    public function taxslipAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -67,7 +72,8 @@ class Payroll extends HrisController {
         return ['employeeId' => $this->employeeId, 'salaryType' => json_encode($salaryType)];
     }
 
-    public function taxYearlyAction() {
+    public function taxYearlyAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -82,26 +88,27 @@ class Payroll extends HrisController {
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'salaryType' => $salaryType,
-                    'preference' => $this->preference,
-                    'incomes' => $incomes,
-                    'taxExcemptions' => $taxExcemptions,
-                    'otherTax' => $otherTax,
-                    'miscellaneous' => $miscellaneous,
-                    'bMiscellaneou' => $bMiscellaneou,
-                    'cMiscellaneou' => $cMiscellaneou,
-                    'sumOfExemption' => $sumOfExemption,
-                    'sumOfOtherTax' => $sumOfOtherTax
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'salaryType' => $salaryType,
+            'preference' => $this->preference,
+            'incomes' => $incomes,
+            'taxExcemptions' => $taxExcemptions,
+            'otherTax' => $otherTax,
+            'miscellaneous' => $miscellaneous,
+            'bMiscellaneou' => $bMiscellaneou,
+            'cMiscellaneou' => $cMiscellaneou,
+            'sumOfExemption' => $sumOfExemption,
+            'sumOfOtherTax' => $sumOfOtherTax
         ]);
     }
 
-    public function pulltaxYearlyAction() {
+    public function pulltaxYearlyAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-            $data['employeeId']=[$this->employeeId];
-            $resultData = $this->repository->getTaxYearlyNew($data);
+            $data['employeeId'] = [$this->employeeId];
+            $resultData = $this->repository->getTaxYearlyNewEmpwise($data);
             $result = [];
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
@@ -112,17 +119,19 @@ class Payroll extends HrisController {
         }
     }
 
-    public function salarySheetAction(){
+    public function salarySheetAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
                 $request = $this->getRequest();
                 $data = $request->getPost();
                 $resultData = [];
-                $data['employeeId']=$this->employeeId;
-                $groupId=$this->repository->getGroupId($this->employeeId);
-                $data['groupId']=$groupId['GROUP_ID'];
-                $defaultColumnsList = $this->repository->getDefaultColumnsempWise('S',$data);
+                $data['employeeId'] = $this->employeeId;
+                $groupId = $this->repository->getGroupId($this->employeeId);
+                $data['groupId'] = $groupId['GROUP_ID'];
+                // echo '<pre>';print_r($data);die;
+                $defaultColumnsList = $this->repository->getDefaultColumnsempWise('S', $data);
                 $resultData = $this->repository->getEmployeeWiseGroupReport('S', $data);
                 $result = [];
 
@@ -134,17 +143,18 @@ class Payroll extends HrisController {
             } catch (Exception $e) {
                 return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
-        }    
-        $fiscalYears = EntityHelper::getTableKVListWithSortOption($this->adapter, FiscalYear::TABLE_NAME,FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], [FiscalYear::STATUS => 'E'], FiscalYear::FISCAL_YEAR_ID,  "DESC");
+        }
+        $fiscalYears = EntityHelper::getTableKVListWithSortOption($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], [FiscalYear::STATUS => 'E'], FiscalYear::FISCAL_YEAR_ID,  "DESC");
         // echo '<pre>';print_r($fiscalYears);die;
-        return Helper::addFlashMessagesToArray($this,[
+        return Helper::addFlashMessagesToArray($this, [
             'preference' => $this->preference,
-            'fiscalYears' =>$fiscalYears
+            'fiscalYears' => $fiscalYears
 
         ]);
     }
 
-    public function taxSheetAction() {
+    public function taxSheetAction()
+    {
 
         $incomes = $this->repository->gettaxYearlyByHeads('IN');
         $taxExcemptions = $this->repository->gettaxYearlyByHeads('TE');
@@ -155,7 +165,7 @@ class Payroll extends HrisController {
         $sumOfExemption = $this->repository->gettaxYearlyByHeads('SE', 'sin');
         $sumOfOtherTax = $this->repository->gettaxYearlyByHeads('ST', 'sin');
 
-		$salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
+        $salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -163,13 +173,13 @@ class Payroll extends HrisController {
                 // echo '<pre>';print_r($postedData);die;
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'],$postedData['salaryTypeId']);
-                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'],$postedData['salaryTypeId']);
+                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
 
-//                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneBy([
-//                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
-//                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
-//                ]);
+                //                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneBy([
+                //                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
+                //                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
+                //                ]);
                 return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -191,14 +201,15 @@ class Payroll extends HrisController {
             'sumOfOtherTax' => $sumOfOtherTax,
             'acl' => $this->acl,
             'employeeDetail' => $this->storageData['employee_detail'],
-]);
+        ]);
     }
 
-    public function pulltaxYearlyEmpWiseAction(){
+    public function pulltaxYearlyEmpWiseAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-            $data['employeeId']=[$this->employeeId];
+            $data['employeeId'] = [$this->employeeId];
             $resultData = $this->repository->getTaxYearlyNew($data);
             $defaultColumnsList = $this->repository->getDefaultColumnsForTaxSheet();
 
@@ -207,15 +218,12 @@ class Payroll extends HrisController {
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
-            $result['columns']=$defaultColumnsList;
-        // echo '<pre>';print_r($result);die;
+            $result['columns'] = $defaultColumnsList;
+            // echo '<pre>';print_r($result);die;
 
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
-        
     }
-
 }
- 

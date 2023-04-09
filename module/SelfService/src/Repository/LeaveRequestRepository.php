@@ -90,82 +90,270 @@ class LeaveRequestRepository implements RepositoryInterface {
 
     //to get the leave detail based on assigned employee id
     public function getLeaveDetail($employeeId, $leaveId, $startDate = null) {
-        $boundedParameter = [];
-//        $date = "TRUNC(SYSDATE)";
-//        if ($startDate != null) {
-//            $boundedParameter['startDate']=$startDate;
-//            $date = "TO_DATE(:startDate,'DD-MON-YYYY')";
-//        }
-        $boundedParameter['leaveId']=$leaveId;
-        $boundedParameter['employeeId']=$employeeId;
-        $sql = "SELECT LA.EMPLOYEE_ID       AS EMPLOYEE_ID,
-                  LA.BALANCE - case when l.is_monthly='Y' then 0 else
-                (select 
-                nvl(sum(
-                case when half_day in ('F','S')
-                then
-                NO_OF_DAYS/2
-                else
-                no_of_days
-                end
-                ),0)
-                from hris_employee_leave_request where status in ('RQ','RC') 
-                and  leave_id=:leaveId and employee_id=:employeeId)   end               AS BALANCE,
-                  LA.FISCAL_YEAR            AS FISCAL_YEAR,
-                  LA.FISCAL_YEAR_MONTH_NO   AS FISCAL_YEAR_MONTH_NO,
-                  LA.LEAVE_ID               AS LEAVE_ID,
-                  L.DOCUMENT_REQUIRED       AS DOCUMENT_REQUIRED,
-                  L.DOCS_COMP_DAYS          AS DOCS_COMP_DAYS,
-                  L.LEAVE_CODE              AS LEAVE_CODE,
-                  INITCAP(L.LEAVE_ENAME)    AS LEAVE_ENAME,
-                  L.ALLOW_HALFDAY           AS ALLOW_HALFDAY,
-                  L.ALLOW_GRACE_LEAVE       AS ALLOW_GRACE_LEAVE,
-                   CASE WHEN L.IS_SUBSTITUTE_MANDATORY='Y' AND LBP.BYPASS='N' THEN 
-                  'Y'
-                  ELSE
-                  'N'
-                  END AS IS_SUBSTITUTE_MANDATORY,
-                  L.ENABLE_SUBSTITUTE       AS ENABLE_SUBSTITUTE
-                  ,L.IS_SUBSTITUTE
-                  ,L.APPLY_LIMIT
-                FROM HRIS_EMPLOYEE_LEAVE_ASSIGN LA
-                INNER JOIN HRIS_LEAVE_MASTER_SETUP L
-                ON L.LEAVE_ID                =LA.LEAVE_ID
-                 LEFT JOIN (
-                SELECT CASE NVL(MIN(LEAVE_ID),'0') WHEN 0 
-                THEN 'N'
-                ELSE 'Y' 
-                END AS BYPASS FROM HRIS_SUB_MAN_BYPASS 
-                WHERE LEAVE_ID=:leaveId AND EMPLOYEE_ID=:employeeId
-                ) LBP ON (1=1)
-                LEFT JOIN (SELECT * FROM HRIS_LEAVE_YEARS WHERE 
-                 TRUNC(SYSDATE)  BETWEEN START_DATE AND END_DATE) LY  
-                 ON(1=1)
-                WHERE L.STATUS               ='E'
-                AND LA.EMPLOYEE_ID           =:employeeId
-                AND L.LEAVE_ID               =:leaveId
-                AND (LA.FISCAL_YEAR_MONTH_NO =
-                  CASE
-                    WHEN (L.IS_MONTHLY='Y')
-                    THEN
-                      (SELECT LEAVE_YEAR_MONTH_NO
-                      FROM HRIS_LEAVE_MONTH_CODE
-                      WHERE 
-                      (select 
-                       case when trunc(sysdate)>max(to_date) then
-                        max(to_date)
-                        else 
-                        trunc(sysdate)
-                        end
-                        from HRIS_LEAVE_MONTH_CODE) 
-                      BETWEEN FROM_DATE AND TO_DATE
-                      )
-                  END
-                OR LA.FISCAL_YEAR_MONTH_NO IS NULL ) 
-                ";
-				//echo'<pre>';print_r($sql);die;
+        EntityHelper::rawQueryResult($this->adapter, "
+        BEGIN
+            Declare
+            v_is_monthly char(1);
+            v_leave_id decimal(7):=$leaveId;
+            v_employee_id decimal(7) :=$employeeId;
+            begin
+            select is_monthly into v_is_monthly from hris_leave_master_setup where leave_id = v_leave_id;
+            if(v_is_monthly='Y') then
+                hris_recalc_monthly_leaves(v_employee_id, v_leave_id);
+            else
+                hris_recalculate_leave(v_employee_id, v_leave_id);    
+            end if;
+            end;
+        END;
+        ");
+        $date = "TRUNC(SYSDATE)";
+        if ($startDate != null) {
+            $date = "TO_DATE('{$startDate}','DD-MON-YYYY')";
+        }
+        // $sql = "SELECT LA.EMPLOYEE_ID       AS EMPLOYEE_ID,
+        //           LA.BALANCE - 
+        //         (select 
+        //         nvl(sum(
+        //         case when half_day in ('F','S')
+        //         then
+        //         NO_OF_DAYS/2
+        //         else
+        //         no_of_days
+        //         end
+        //         ),0)
+        //         from hris_employee_leave_request where status in ('RQ','RC') 
+        //         and  leave_id={$leaveId} and employee_id={$employeeId})                  AS BALANCE,
+        //           LA.FISCAL_YEAR            AS FISCAL_YEAR,
+        //           LA.FISCAL_YEAR_MONTH_NO   AS FISCAL_YEAR_MONTH_NO,
+        //           LA.LEAVE_ID               AS LEAVE_ID,
+        //           L.DOCUMENT_REQUIRED       AS DOCUMENT_REQUIRED,
+        //           L.DOCS_COMP_DAYS          AS DOCS_COMP_DAYS,
+        //           L.LEAVE_CODE              AS LEAVE_CODE,
+        //           INITCAP(L.LEAVE_ENAME)    AS LEAVE_ENAME,
+        //           L.ALLOW_HALFDAY           AS ALLOW_HALFDAY,
+        //           L.ALLOW_GRACE_LEAVE       AS ALLOW_GRACE_LEAVE,
+        //            CASE WHEN L.IS_SUBSTITUTE_MANDATORY='Y' AND LBP.BYPASS='N' THEN 
+        //           'Y'
+        //           ELSE
+        //           'N'
+        //           END AS IS_SUBSTITUTE_MANDATORY,
+        //           L.ENABLE_SUBSTITUTE       AS ENABLE_SUBSTITUTE
+        //           ,L.IS_SUBSTITUTE
+        //           ,L.APPLY_LIMIT
+        //         FROM HRIS_EMPLOYEE_LEAVE_ASSIGN LA
+        //         INNER JOIN HRIS_LEAVE_MASTER_SETUP L
+        //         ON L.LEAVE_ID                =LA.LEAVE_ID
+        //          LEFT JOIN (
+        //         SELECT CASE NVL(MIN(LEAVE_ID),'0') WHEN 0 
+        //         THEN 'N'
+        //         ELSE 'Y' 
+        //         END AS BYPASS FROM HRIS_SUB_MAN_BYPASS 
+        //         WHERE LEAVE_ID={$leaveId} AND EMPLOYEE_ID={$employeeId}
+        //         ) LBP ON (1=1)
+        //         LEFT JOIN (SELECT * FROM HRIS_LEAVE_YEARS WHERE 
+        //          TRUNC(SYSDATE)  BETWEEN START_DATE AND END_DATE) LY  
+        //          ON(1=1)
+        //         WHERE L.STATUS               ='E'
+        //         AND LA.EMPLOYEE_ID           ={$employeeId}
+        //         AND L.LEAVE_ID               ={$leaveId}
+        //         AND (LA.FISCAL_YEAR_MONTH_NO =
+        //           CASE
+        //             WHEN (L.IS_MONTHLY='Y')
+        //             THEN
+        //               (SELECT LEAVE_YEAR_MONTH_NO
+        //               FROM HRIS_LEAVE_MONTH_CODE
+        //               WHERE {$date} BETWEEN FROM_DATE AND TO_DATE
+        //               )
+        //           END
+        //         OR LA.FISCAL_YEAR_MONTH_NO IS NULL ) 
+        //         ";
+
+///////////cnange by aa/////////////////
+// $sql = "select employee_id,
+// case when (balance + leave_added) > max_balance then 
+//  max_balance 
+// else balance + leave_added end as balance,
+// fiscal_year,fiscal_year_month_no, leave_id, document_required, docs_comp_days, leave_code,leave_ename,
+// allow_halfday, allow_grace_leave,is_substitute_mandatory,enable_substitute,is_substitute,apply_limit
+// from (SELECT LA.EMPLOYEE_ID       AS EMPLOYEE_ID,
+// LA.BALANCE - 
+// (select 
+// nvl(sum(
+// case when half_day in ('F','S')
+// then
+// NO_OF_DAYS/2
+// else
+// no_of_days
+// end
+// ),0)
+// from hris_employee_leave_request where status in ('RQ','RC') 
+// and  leave_id={$leaveId} and employee_id={$employeeId})                  AS BALANCE,
+// CASE
+// WHEN (L.IS_MONTHLY='Y')
+// THEN (select max(total_days) from hris_employee_leave_assign where employee_id ={$employeeId} and leave_id = {$leaveId}) - LA.total_days else 0 end as leave_added,
+// LA.total_days as max_balance,
+// LA.FISCAL_YEAR            AS FISCAL_YEAR,
+// LA.FISCAL_YEAR_MONTH_NO   AS FISCAL_YEAR_MONTH_NO,
+// LA.LEAVE_ID               AS LEAVE_ID,
+// L.DOCUMENT_REQUIRED       AS DOCUMENT_REQUIRED,
+// L.DOCS_COMP_DAYS          AS DOCS_COMP_DAYS,
+// L.LEAVE_CODE              AS LEAVE_CODE,
+// INITCAP(L.LEAVE_ENAME)    AS LEAVE_ENAME,
+// L.ALLOW_HALFDAY           AS ALLOW_HALFDAY,
+// L.ALLOW_GRACE_LEAVE       AS ALLOW_GRACE_LEAVE,
+//  CASE WHEN L.IS_SUBSTITUTE_MANDATORY='Y' AND LBP.BYPASS='N' THEN 
+// 'Y'
+// ELSE
+// 'N'
+// END AS IS_SUBSTITUTE_MANDATORY,
+// L.ENABLE_SUBSTITUTE       AS ENABLE_SUBSTITUTE
+// ,L.IS_SUBSTITUTE
+// ,L.APPLY_LIMIT
+// FROM HRIS_EMPLOYEE_LEAVE_ASSIGN LA
+// INNER JOIN HRIS_LEAVE_MASTER_SETUP L
+// ON L.LEAVE_ID                =LA.LEAVE_ID
+// LEFT JOIN (
+// SELECT CASE NVL(MIN(LEAVE_ID),'0') WHEN 0 
+// THEN 'N'
+// ELSE 'Y' 
+// END AS BYPASS FROM HRIS_SUB_MAN_BYPASS 
+// WHERE LEAVE_ID={$leaveId} AND EMPLOYEE_ID={$employeeId}
+// ) LBP ON (1=1)
+// LEFT JOIN (SELECT * FROM HRIS_LEAVE_YEARS WHERE 
+// TRUNC(SYSDATE)  BETWEEN START_DATE AND END_DATE) LY  
+// ON(1=1)
+// WHERE L.STATUS               ='E'
+// AND LA.EMPLOYEE_ID           ={$employeeId}
+// AND L.LEAVE_ID               ={$leaveId}
+// AND (LA.FISCAL_YEAR_MONTH_NO =
+// CASE
+//   WHEN (L.IS_MONTHLY='Y')
+//   THEN
+//     (SELECT LEAVE_YEAR_MONTH_NO
+//     FROM HRIS_LEAVE_MONTH_CODE
+//     WHERE {$date} BETWEEN FROM_DATE AND TO_DATE
+//     )
+// END
+// OR LA.FISCAL_YEAR_MONTH_NO IS NULL ) )
+// ";
+
+$sql = "SELECT
+employee_id,
+CASE
+    WHEN ( total_days - leave_taken_till_this_month ) > max_balance THEN
+            CASE
+                WHEN max_balance < 0 THEN
+                    0
+                ELSE
+                    -- max_balance
+                    ACTUAL_BALANCE
+            END
+    ELSE
+        CASE
+            WHEN ( total_days+ previous_balance - leave_taken_till_this_month ) < 0 THEN
+                    0
+            ELSE
+                -- ( total_days - leave_taken_till_this_month + previous_balance)
+                ACTUAL_BALANCE
+        END
+END AS balance,
+fiscal_year,
+fiscal_year_month_no,
+leave_id,
+document_required,
+docs_comp_days,
+leave_code,
+leave_ename,
+allow_halfday,
+allow_grace_leave,
+is_substitute_mandatory,
+enable_substitute,
+is_substitute,
+apply_limit
+from (SELECT LA.EMPLOYEE_ID       AS EMPLOYEE_ID,
+LA.BALANCE - 
+(select 
+nvl(sum(
+case when half_day in ('F','S')
+then
+NO_OF_DAYS/2
+else
+no_of_days
+end
+),0)
+from hris_employee_leave_request where status in ('RQ','RC') 
+and  leave_id={$leaveId} and employee_id={$employeeId})                  AS ACTUAL_BALANCE,
+(SELECT
+                nvl(SUM(
+                    CASE
+                        WHEN half_day IN('F', 'S') THEN
+                            no_of_days / 2
+                        ELSE
+                            no_of_days
+                    END
+                ),
+                    0)
+            FROM
+                hris_employee_leave_request
+            WHERE
+                status IN ( 'AP')
+                AND leave_id = {$leaveId}
+                AND employee_id = {$employeeId}
+                and start_date <= (select to_date from hris_leave_month_code where {$date} between from_date and to_date))
+                AS leave_taken_till_this_month,
+(select max(balance) from hris_employee_leave_assign where employee_id = {$employeeId} and leave_id = {$leaveId}
+and fiscal_year_month_no <= 
+(select leave_year_month_no from hris_leave_month_code where 
+case when 
+trunc(to_date({$date})) <= trunc(sysdate) then trunc(sysdate) else trunc(to_date({$date})) end between from_date and to_date)) 
+as max_balance,
+LA.total_days as total_days,
+LA.previous_year_bal    AS previous_balance,
+LA.FISCAL_YEAR            AS FISCAL_YEAR,
+LA.FISCAL_YEAR_MONTH_NO   AS FISCAL_YEAR_MONTH_NO,
+LA.LEAVE_ID               AS LEAVE_ID,
+L.DOCUMENT_REQUIRED       AS DOCUMENT_REQUIRED,
+L.DOCS_COMP_DAYS          AS DOCS_COMP_DAYS,
+L.LEAVE_CODE              AS LEAVE_CODE,
+INITCAP(L.LEAVE_ENAME)    AS LEAVE_ENAME,
+L.ALLOW_HALFDAY           AS ALLOW_HALFDAY,
+L.ALLOW_GRACE_LEAVE       AS ALLOW_GRACE_LEAVE,
+CASE WHEN L.IS_SUBSTITUTE_MANDATORY='Y' AND LBP.BYPASS='N' THEN 
+'Y'
+ELSE
+'N'
+END AS IS_SUBSTITUTE_MANDATORY,
+L.ENABLE_SUBSTITUTE       AS ENABLE_SUBSTITUTE
+,L.IS_SUBSTITUTE
+,L.APPLY_LIMIT
+FROM HRIS_EMPLOYEE_LEAVE_ASSIGN LA
+INNER JOIN HRIS_LEAVE_MASTER_SETUP L
+ON L.LEAVE_ID                =LA.LEAVE_ID
+LEFT JOIN (
+SELECT CASE NVL(MIN(LEAVE_ID),'0') WHEN 0 
+THEN 'N'
+ELSE 'Y' 
+END AS BYPASS FROM HRIS_SUB_MAN_BYPASS 
+WHERE LEAVE_ID={$leaveId} AND EMPLOYEE_ID={$employeeId}
+) LBP ON (1=1)
+LEFT JOIN (SELECT * FROM HRIS_LEAVE_YEARS WHERE 
+TRUNC(SYSDATE)  BETWEEN START_DATE AND END_DATE) LY  
+ON(1=1)
+WHERE L.STATUS               ='E'
+AND LA.EMPLOYEE_ID           ={$employeeId}
+AND L.LEAVE_ID               ={$leaveId}
+AND (LA.FISCAL_YEAR_MONTH_NO =
+CASE
+WHEN (L.IS_MONTHLY='Y')
+THEN
+(SELECT LEAVE_YEAR_MONTH_NO
+FROM HRIS_LEAVE_MONTH_CODE
+WHERE {$date} BETWEEN FROM_DATE AND TO_DATE
+)
+end OR la.fiscal_year_month_no IS NULL ) )";
+// echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
-        return $statement->execute($boundedParameter)->current();
+        return $statement->execute()->current();
     }
 
     //to get the leave list based on assigned employee id for select option

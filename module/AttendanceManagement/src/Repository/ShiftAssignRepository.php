@@ -37,6 +37,7 @@ class ShiftAssignRepository extends HrisRepository {
 
     public function fetchByEmployeeId($employeeId) {
         $result = $this->tableGateway->select([ShiftAssign::EMPLOYEE_ID . "=" . $employeeId, ShiftAssign::STATUS => 'E']);
+        // echo '<pre>';print_r($result);die;
         return $result->current();
     }
 
@@ -161,6 +162,7 @@ EOT;
         $boundedParams['toDate'] = $toDate;
         $boundedParams['createdBy'] = $createdBy;
         $statement = $this->adapter->query($sql);
+        // echo '<pre>';print_r($boundedParams);die;
         $statement->execute($boundedParams);
     }
 

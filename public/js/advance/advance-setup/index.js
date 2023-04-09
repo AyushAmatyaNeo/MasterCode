@@ -1,3 +1,4 @@
+
 (function ($) {
     'use strict';
     $(document).ready(function () {
@@ -18,7 +19,7 @@
             {field: "ADVANCE_CODE", title: "Advance Code", width: 150},
             {field: "ADVANCE_ENAME", title: "Name", width: 150},
             {field: "ALLOWED_TO", title: "Allowed To", width: 150},
-            {field: "ALLOWED_MONTH_GAP", title: "Month Gap Before Next Advance", width: 150},
+            {field: "ALLOWED_MONTH_GAP", title: "Next Advance Month Gap", width: 150},
             {field: ["ADVANCE_ID"], title: "Action", width: 120, template: app.genKendoActionTemplate(actiontemplateConfig)}
         ];
         var map = {

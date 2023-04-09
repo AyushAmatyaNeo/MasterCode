@@ -285,4 +285,10 @@ class RulesRepository extends HrisRepository {
         return $this->rawQuery($sql);
     }
 
+    public function getCompanyWise($companyId){
+      $sql="select distinct group_id from hris_employees where company_id = {$companyId} and group_id is not null and status='E'";
+      // echo '<pre>';print_r($sql);die;
+        return $this->rawQuery($sql);
+    }
+
 }

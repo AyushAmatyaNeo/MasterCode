@@ -114,7 +114,14 @@ class SalarySheetDetailRepo extends HrisRepository {
     }
 
     public function fetchEmployeePaySlip($monthId, $employeeId,$salaryTypeId=1) {
-        $sql = "SELECT TS.*,
+        $sql = "SELECT 
+                ts.sheet_no,
+                ts.employee_id,
+                ts.pay_id,
+                CASE
+                WHEN ts.val = 0 THEN '0.00'
+                ELSE to_char(ts.val, '99,99,999.99')
+                END AS val,
                   P.PAY_TYPE_FLAG,
                   P.PAY_EDESC
                 FROM HRIS_SALARY_SHEET_DETAIL TS

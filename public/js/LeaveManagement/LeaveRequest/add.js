@@ -1,3 +1,4 @@
+
 (function ($, app) {
 //    'use strict';
     $(document).ready(function () {
@@ -207,7 +208,7 @@
                 'leaveId': $this.val(),
                 'employeeId': $employee.val(),
                 'startDate': (startDateValue == '') ? null : startDateValue,
-				'endDate': (endDateValue == '') ? null : endDateValue
+				// 'endDate': (endDateValue == '') ? null : endDateValue
             }).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 var leaveDetail = success.data;
@@ -233,7 +234,7 @@
 
                 var noOfDays = parseFloat($noOfDays.val());
 
-                if ((availableDays != "" && noOfDays != "") && noOfDays > availableDays) {
+                if (noOfDays > availableDays) {
                     $("#errorMsg").html("* Applied days can't be more than available days");
                     $("#request").attr("disabled", "disabled");
                 } else if ((availableDays != "" && noOfDays != "") && (noOfDays <= availableDays)) {

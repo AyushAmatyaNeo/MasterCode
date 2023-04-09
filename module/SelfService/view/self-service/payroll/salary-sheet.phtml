@@ -12,7 +12,7 @@ $this->headScript()
 
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
@@ -27,7 +27,7 @@ $this->headScript()
 <div class="portlet box yellow">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-money"></i>Salary  Sheet 
+            <i class="fa fa-money"></i>Salary Sheet
         </div>
         <div class="actions">
             <div class="btn-group">
@@ -36,16 +36,16 @@ $this->headScript()
                     <i class="fa fa-angle-down "></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li >
+                    <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -58,9 +58,9 @@ $this->headScript()
         <div class="row">
             <div class="col-sm-2" style="margin: 2rem;">
                 <select class="form-control reset-field" name="fiscalYearId[]" id="fiscalYearId">
-                    <?php foreach($fiscalYears as $key => $value ){?>
-                        <option value='<?=$key?>'><?=$value?></option>
-                    <?php  }?>
+                    <?php foreach ($fiscalYears as $key => $value) { ?>
+                        <option value='<?= $key ?>'><?= $value ?></option>
+                    <?php  } ?>
                 </select>
             </div>
 
@@ -68,12 +68,12 @@ $this->headScript()
                 <button id="viewBtn" class="btn btn-info pull-right">View</button>
             </div>
         </div>
-      
+
 
     </div>
 
     <div class="portlet-body">
-            <div id="table">
-            </div>
+        <div id="table">
         </div>
+    </div>
 </div>

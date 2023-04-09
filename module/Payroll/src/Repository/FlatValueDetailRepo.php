@@ -70,6 +70,7 @@ class FlatValueDetailRepo extends HrisRepository implements RepositoryInterface 
       $boundedParameter['fiscalYearId'] = $fiscalYearId;
       $boundedParameter['flatValueId'] = $flatValueId;
 
+      echo '<pre>';print_r($sql);die;
       return $this->rawQuery($sql, $boundedParameter);
         // $statement = $this->adapter->query($sql);
         // return $statement->execute();

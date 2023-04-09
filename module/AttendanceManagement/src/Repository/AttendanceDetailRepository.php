@@ -1,4 +1,5 @@
 <?php
+
 namespace AttendanceManagement\Repository;
 
 use Application\Helper\EntityHelper;
@@ -13,39 +14,45 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class AttendanceDetailRepository implements RepositoryInterface {
+class AttendanceDetailRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->tableGateway = new TableGateway(AttendanceDetail::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
         $array = $model->getArrayCopyForDB();
         $this->tableGateway->update($array, [AttendanceDetail::ID => $id]);
     }
 
-    public function editWith(Model $model, $where) {
+    public function editWith(Model $model, $where)
+    {
         $array = $model->getArrayCopyForDB();
         $this->tableGateway->update($array, $where);
     }
 
-    public function fetchAll() {
+    public function fetchAll()
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceDetail::class, NULL, [
-                AttendanceDetail::ATTENDANCE_DT
-                ], [
-                AttendanceDetail::IN_TIME,
-                AttendanceDetail::OUT_TIME
-                ], NULL, NULL, 'A'), false);
+            AttendanceDetail::ATTENDANCE_DT
+        ], [
+            AttendanceDetail::IN_TIME,
+            AttendanceDetail::OUT_TIME
+        ], NULL, NULL, 'A'), false);
 
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
             ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)'), "MIDDLE_NAME" => new Expression('INITCAP(E.MIDDLE_NAME)'), "LAST_NAME" => new Expression('INITCAP(E.LAST_NAME)')], "left");
@@ -57,9 +64,10 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function filterRecord($companyId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $genderId, $functionalTypeId, $employeeId, $fromDate = null, $toDate = null, $status = null, $presentStatus = null, $min = null, $max = null, $presentType = null) {
+    public function filterRecord($companyId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $genderId, $functionalTypeId, $employeeId, $fromDate = null, $toDate = null, $status = null, $presentStatus = null, $min = null, $max = null, $presentType = null)
+    {
         $boundedParams = [];
-        $searchConditon = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId,null, $functionalTypeId);
+        $searchConditon = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
         $boundedParams = array_merge($boundedParams, $searchConditon['parameter']);
         $fromDateCondition = "";
         $toDateCondition = "";
@@ -125,13 +133,13 @@ class AttendanceDetailRepository implements RepositoryInterface {
         }
 
         if ($min != null && $max != null) {
-            $rowNums = "WHERE (Q.R BETWEEN {$min} AND {$max})"; 
+            $rowNums = "WHERE (Q.R BETWEEN {$min} AND {$max})";
         }
 
-        if($presentType == "P"){
+        if ($presentType == "P") {
             $presentTypeCondition = " AND A.IN_TIME IS NOT NULL AND A.OUT_TIME IS NULL ";
         }
-          $orderByString=EntityHelper::getOrderBy('A.ATTENDANCE_DT DESC ,A.IN_TIME ASC','A.ATTENDANCE_DT DESC ,A.IN_TIME ASC','E.SENIORITY_LEVEL','P.LEVEL_NO','E.JOIN_DATE','DES.ORDER_NO','E.FULL_NAME');
+        $orderByString = EntityHelper::getOrderBy('A.ATTENDANCE_DT DESC ,A.IN_TIME ASC', 'A.ATTENDANCE_DT DESC ,A.IN_TIME ASC', 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
         $sql = "
                SELECT ROWNUM AS SN,Q.* FROM (SELECT 
                   ROWNUM                                           AS R,
@@ -283,14 +291,14 @@ class AttendanceDetailRepository implements RepositoryInterface {
                 ) Q
                 {$rowNums}
                 ";
-
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
         return Helper::extractDbData($result);
     }
 
 
-    public function filterRecordCount($employeeId = null, $branchId = null, $departmentId = null, $positionId = null, $designationId = null, $serviceTypeId = null, $serviceEventTypeId = null, $fromDate = null, $toDate = null, $status = null, $companyId = null, $employeeTypeId = null, $widOvertime = false, $missPunchOnly = false) {
+    public function filterRecordCount($employeeId = null, $branchId = null, $departmentId = null, $positionId = null, $designationId = null, $serviceTypeId = null, $serviceEventTypeId = null, $fromDate = null, $toDate = null, $status = null, $companyId = null, $employeeTypeId = null, $widOvertime = false, $missPunchOnly = false)
+    {
         $fromDateCondition = "";
         $toDateCondition = "";
         $employeeCondition = '';
@@ -481,20 +489,21 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return EntityHelper::rawQueryResult($this->adapter, $sql)->current();
     }
 
-    public function filterRecordForMisPunch($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId) {
-        
+    public function filterRecordForMisPunch($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId)
+    {
     }
 
     //may need changes
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceDetail::class, NULL, [
-                AttendanceDetail::ATTENDANCE_DT
-                ], [
-                AttendanceDetail::IN_TIME,
-                AttendanceDetail::OUT_TIME
-                ], NULL, NULL, 'A'), false);
+            AttendanceDetail::ATTENDANCE_DT
+        ], [
+            AttendanceDetail::IN_TIME,
+            AttendanceDetail::OUT_TIME
+        ], NULL, NULL, 'A'), false);
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
             ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)')], "left");
         $select->where([AttendanceDetail::ID => $id]);
@@ -503,28 +512,29 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function delete($id) {
-        
+    public function delete($id)
+    {
     }
 
     //no problem with changes
-    public function getDtlWidEmpIdDate($employeeId, $attendanceDt) {
+    public function getDtlWidEmpIdDate($employeeId, $attendanceDt)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceDetail::class, NULL, [
-                AttendanceDetail::ATTENDANCE_DT
-                ], [
-                AttendanceDetail::IN_TIME,
-                AttendanceDetail::OUT_TIME
-                ], NULL, NULL, 'A'), false);
-//        $select->columns([
-//            new Expression("TO_CHAR(A.ATTENDANCE_DT, 'DD-MON-YYYY') AS ATTENDANCE_DT"),
-//            new Expression("TO_CHAR(A.IN_TIME, 'HH:MI AM') AS IN_TIME"),
-//            new Expression("TO_CHAR(A.OUT_TIME, 'HH:MI AM') AS OUT_TIME"),
-//            new Expression("E.EMPLOYEE_ID AS EMPLOYEE_ID"),
-//            new Expression("A.ID AS ID"),
-//            new Expression("A.IN_REMARKS AS IN_REMARKS"),
-//            new Expression("A.OUT_REMARKS AS OUT_REMARKS")], true);
+            AttendanceDetail::ATTENDANCE_DT
+        ], [
+            AttendanceDetail::IN_TIME,
+            AttendanceDetail::OUT_TIME
+        ], NULL, NULL, 'A'), false);
+        //        $select->columns([
+        //            new Expression("TO_CHAR(A.ATTENDANCE_DT, 'DD-MON-YYYY') AS ATTENDANCE_DT"),
+        //            new Expression("TO_CHAR(A.IN_TIME, 'HH:MI AM') AS IN_TIME"),
+        //            new Expression("TO_CHAR(A.OUT_TIME, 'HH:MI AM') AS OUT_TIME"),
+        //            new Expression("E.EMPLOYEE_ID AS EMPLOYEE_ID"),
+        //            new Expression("A.ID AS ID"),
+        //            new Expression("A.IN_REMARKS AS IN_REMARKS"),
+        //            new Expression("A.OUT_REMARKS AS OUT_REMARKS")], true);
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
             ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)'), "MIDDLE_NAME" => new Expression('INITCAP(E.MIDDLE_NAME)'), "LAST_NAME" => new Expression('INITCAP(E.LAST_NAME)')], "left");
         $select->where([
@@ -537,13 +547,15 @@ class AttendanceDetailRepository implements RepositoryInterface {
     }
 
     //ok
-    public function addAttendance($model) {
+    public function addAttendance($model)
+    {
         $attendanceTableGateway = new TableGateway(Attendance::TABLE_NAME, $this->adapter);
         return $attendanceTableGateway->insert($model->getArrayCopyForDB());
     }
 
     // no problem with changes    
-    public function getNoOfDaysInDayInterval(int $employeeId, $startDate, $endDate, $includeHoliday = true) {
+    public function getNoOfDaysInDayInterval(int $employeeId, $startDate, $endDate, $includeHoliday = true)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->from(['A' => AttendanceDetail::TABLE_NAME]);
@@ -560,21 +572,22 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return $result->count();
     }
 
-//    public function getNoOfDaysAbsent(int $employeeId, Expression $startDate, Expression $endDate) {
-//        $sql = new Sql($this->adapter);
-//        $select = $sql->select();
-//        $select->from(['A' => AttendanceDetail::TABLE_NAME]);
-//        $select->where(['A.' . AttendanceDetail::EMPLOYEE_ID . "=$employeeId"]);
-//        $select->where(['A.' . AttendanceDetail::ATTENDANCE_DT . " BETWEEN " . $startDate->getExpression() . " AND " . $endDate->getExpression()]);
-//        $select->where(['A.' . AttendanceDetail::LEAVE_ID . " IS NOT NULL"]);
-//
-//        $statement = $sql->prepareStatementForSqlObject($select);
-//        $result = $statement->execute();
-//
-//        return $result->count();
-//    }
+    //    public function getNoOfDaysAbsent(int $employeeId, Expression $startDate, Expression $endDate) {
+    //        $sql = new Sql($this->adapter);
+    //        $select = $sql->select();
+    //        $select->from(['A' => AttendanceDetail::TABLE_NAME]);
+    //        $select->where(['A.' . AttendanceDetail::EMPLOYEE_ID . "=$employeeId"]);
+    //        $select->where(['A.' . AttendanceDetail::ATTENDANCE_DT . " BETWEEN " . $startDate->getExpression() . " AND " . $endDate->getExpression()]);
+    //        $select->where(['A.' . AttendanceDetail::LEAVE_ID . " IS NOT NULL"]);
+    //
+    //        $statement = $sql->prepareStatementForSqlObject($select);
+    //        $result = $statement->execute();
+    //
+    //        return $result->count();
+    //    }
     // need change with changes    
-    public function getNoOfDaysAbsent(int $employeeId, Expression $startDate, Expression $endDate) {
+    public function getNoOfDaysAbsent(int $employeeId, Expression $startDate, Expression $endDate)
+    {
         $startDt = $startDate->getExpression();
         $endDt = $endDate->getExpression();
         $sql = "SELECT SUM(LEAVE.LEAVE_COUNT) LEAVE_COUNT FROM (
@@ -612,12 +625,14 @@ class AttendanceDetailRepository implements RepositoryInterface {
     }
 
     // problem with changes    
-    public function getNoOfDaysPresent(int $employeeId, Expression $startDate, Expression $endDate) {
+    public function getNoOfDaysPresent(int $employeeId, Expression $startDate, Expression $endDate)
+    {
         return $this->getNoOfDaysInDayInterval($employeeId, $startDate, $endDate) - $this->getNoOfDaysAbsent($employeeId, $startDate, $endDate);
     }
 
     // problem with changes | MODIFIED   
-    public function getEmployeesAttendanceByDate($date, bool $presentFlag, $branchId = null) {
+    public function getEmployeesAttendanceByDate($date, bool $presentFlag, $branchId = null)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([Helper::timeExpression(AttendanceDetail::IN_TIME, 'A'), new Expression("A.ID AS ID")], true);
@@ -643,7 +658,8 @@ class AttendanceDetailRepository implements RepositoryInterface {
     }
 
     //may need change
-    public function getleaveIdCount(int $employeeId, Expression $startDate, Expression $endDate) {
+    public function getleaveIdCount(int $employeeId, Expression $startDate, Expression $endDate)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->from(['A' => AttendanceDetail::TABLE_NAME]);
@@ -658,14 +674,15 @@ class AttendanceDetailRepository implements RepositoryInterface {
     }
 
     //need change
-    public function getTotalNoOfWorkingDays(Expression $startDate, Expression $endDate) {
+    public function getTotalNoOfWorkingDays(Expression $startDate, Expression $endDate)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->from(['A' => AttendanceDetail::TABLE_NAME]);
         $select->columns([Helper::columnExpression(AttendanceDetail::ATTENDANCE_DT, "DISTINCT  A", null, null)]);
         $select->where(['A.' . AttendanceDetail::ATTENDANCE_DT . " BETWEEN " . $startDate->getExpression() . " AND " . $endDate->getExpression()]);
-//        $select->where(['A.' . AttendanceDetail::HOLIDAY_ID . " IS NULL"]);
-//        $select->group(['A.' . AttendanceDetail::ATTENDANCE_DT]);
+        //        $select->where(['A.' . AttendanceDetail::HOLIDAY_ID . " IS NULL"]);
+        //        $select->group(['A.' . AttendanceDetail::ATTENDANCE_DT]);
 
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
@@ -673,21 +690,22 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return $result->count();
     }
 
-    public function checkAndUpdateLeaves(Expression $date) {
-        
+    public function checkAndUpdateLeaves(Expression $date)
+    {
     }
 
     //may need changes
-    public function fetchByEmpIdAttendanceDT($employeeId, $attendanceDt) {
+    public function fetchByEmpIdAttendanceDT($employeeId, $attendanceDt)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceDetail::class, NULL, [
-                AttendanceDetail::ATTENDANCE_DT
-                ], [
-                AttendanceDetail::IN_TIME,
-                AttendanceDetail::OUT_TIME
-                ], NULL, NULL, 'A'), false);
-//        $select->columns([new Expression("TO_CHAR(A.ATTENDANCE_DT, 'DD-MON-YYYY') AS ATTENDANCE_DT"), new Expression("TO_CHAR(A.IN_TIME, 'HH:MI AM') AS IN_TIME"), new Expression("TO_CHAR(A.OUT_TIME, 'HH:MI AM') AS OUT_TIME"), new Expression("E.EMPLOYEE_ID AS EMPLOYEE_ID"), new Expression("A.ID AS ID"), new Expression("A.IN_REMARKS AS IN_REMARKS"), new Expression("A.OUT_REMARKS AS OUT_REMARKS")], true);
+            AttendanceDetail::ATTENDANCE_DT
+        ], [
+            AttendanceDetail::IN_TIME,
+            AttendanceDetail::OUT_TIME
+        ], NULL, NULL, 'A'), false);
+        //        $select->columns([new Expression("TO_CHAR(A.ATTENDANCE_DT, 'DD-MON-YYYY') AS ATTENDANCE_DT"), new Expression("TO_CHAR(A.IN_TIME, 'HH:MI AM') AS IN_TIME"), new Expression("TO_CHAR(A.OUT_TIME, 'HH:MI AM') AS OUT_TIME"), new Expression("E.EMPLOYEE_ID AS EMPLOYEE_ID"), new Expression("A.ID AS ID"), new Expression("A.IN_REMARKS AS IN_REMARKS"), new Expression("A.OUT_REMARKS AS OUT_REMARKS")], true);
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
             ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)'), "MIDDLE_NAME" => new Expression('INITCAP(E.MIDDLE_NAME)'), "LAST_NAME" => new Expression('INITCAP(E.LAST_NAME)')], "left");
         $select->where([
@@ -695,12 +713,13 @@ class AttendanceDetailRepository implements RepositoryInterface {
             "A.ATTENDANCE_DT=" . $attendanceDt
         ]);
         $statement = $sql->prepareStatementForSqlObject($select);
-//        print_r($statement->getSql()); die();
+        //        print_r($statement->getSql()); die();
         $result = $statement->execute();
         return $result->current();
     }
 
-    public function fetchEmployeeShfitDetails($employeeId) {
+    public function fetchEmployeeShfitDetails($employeeId)
+    {
         $sql = "SELECT INITCAP(TO_CHAR(SYSDATE, 'HH:MI AM')) AS CURRENT_TIME,
             INITCAP(TO_CHAR(S.START_TIME+((S.LATE_IN*60)/86400), 'HH:MI AM')) AS CHECKIN_TIME, 
             INITCAP(TO_CHAR(S.END_TIME-((S.EARLY_OUT*60)/86400), 'HH:MI AM')) AS CHECKOUT_TIME,
@@ -716,7 +735,8 @@ class AttendanceDetailRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function fetchEmployeeDefaultShift() {
+    public function fetchEmployeeDefaultShift()
+    {
         $sql = "SELECT INITCAP(TO_CHAR(SYSDATE, 'HH:MI AM')) AS CURRENT_TIME,
       INITCAP(TO_CHAR(S.START_TIME+((S.LATE_IN*60)/86400), 'HH:MI AM'))   AS CHECKIN_TIME,
       INITCAP(TO_CHAR(S.END_TIME-((S.EARLY_OUT*60)/86400), 'HH:MI AM')) AS CHECKOUT_TIME,
@@ -728,15 +748,16 @@ class AttendanceDetailRepository implements RepositoryInterface {
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result->current();
-    } 
- 
-    public function manualAttendance($employeeId, $attendanceDt, $action, $impactOtherDays, $shiftId = null, $in_time = null, $out_time = null,$outNextDay = false) {
-//        if($outNextDay){
-//            
-//        }else{
-//            
-//        }
-        if ($impactOtherDays) { 
+    }
+
+    public function manualAttendance($employeeId, $attendanceDt, $action, $impactOtherDays, $shiftId = null, $in_time = null, $out_time = null, $outNextDay = false)
+    {
+        //        if($outNextDay){
+        //            
+        //        }else{
+        //            
+        //        }
+        if ($impactOtherDays) {
             $sql = "BEGIN
                   HRIS_MANUAL_ATTENDANCE_ALL({$employeeId},{$attendanceDt},'{$action}', {$shiftId}, {$in_time}, {$out_time});
                 END;";
@@ -745,12 +766,15 @@ class AttendanceDetailRepository implements RepositoryInterface {
                   HRIS_MANUAL_ATTENDANCE({$employeeId},{$attendanceDt},'{$action}', {$shiftId}, {$in_time}, {$out_time});
                 END;";
         }
-		
+        // echo '<pre>';
+        // print_r($action);
+        // die;
         $statement = $this->adapter->query($sql);
         $statement->execute();
     }
 
-    public function filterRecordWithLocation($employeeId = null, $branchId = null, $departmentId = null, $positionId = null, $designationId = null, $serviceTypeId = null, $serviceEventTypeId = null, $fromDate = null, $toDate = null, $status = null, $companyId = null, $employeeTypeId = null, $presentStatus, $min = null, $max = null) {
+    public function filterRecordWithLocation($employeeId = null, $branchId = null, $departmentId = null, $positionId = null, $designationId = null, $serviceTypeId = null, $serviceEventTypeId = null, $fromDate = null, $toDate = null, $status = null, $companyId = null, $employeeTypeId = null, $presentStatus, $min = null, $max = null)
+    {
         $searchConditon = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $fromDateCondition = "";
         $toDateCondition = "";
@@ -815,7 +839,7 @@ class AttendanceDetailRepository implements RepositoryInterface {
         if ($min != null && $max != null) {
             $rowNums = "WHERE (Q.R BETWEEN {$min} AND {$max})";
         }
-        $orderByString=EntityHelper::getOrderBy('ATTENDANCE_DT DESC ,IN_TIME ASC','ATTENDANCE_DT DESC ,IN_TIME ASC','SENIORITY_LEVEL','LEVEL_NO','JOIN_DATE','ORDER_NO','EMPLOYEE_NAME');
+        $orderByString = EntityHelper::getOrderBy('ATTENDANCE_DT DESC ,IN_TIME ASC', 'ATTENDANCE_DT DESC ,IN_TIME ASC', 'SENIORITY_LEVEL', 'LEVEL_NO', 'JOIN_DATE', 'ORDER_NO', 'EMPLOYEE_NAME');
         $sql = "
                SELECT 
 DISTINCT
@@ -981,13 +1005,14 @@ FROM (SELECT
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 
-    public function fetchDailyPerformanceReport($data){
-      $condition = EntityHelper::getSearchConditon($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
+    public function fetchDailyPerformanceReport($data)
+    {
+        $condition = EntityHelper::getSearchConditon($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
 
-      $fromDate = $data['fromDate'];
-      $toDate = $data['toDate'];
+        $fromDate = $data['fromDate'];
+        $toDate = $data['toDate'];
 
-      $sql = "select
+        $sql = "select
             e.full_name as full_name,
             e.employee_code as employee_code,
             D.Department_Name as department_name
@@ -1015,17 +1040,18 @@ FROM (SELECT
             where 
             ad.Attendance_Dt between ";
 
-      $sql .= $data['fromDate'] == null ? "trunc(sysdate) " : " '$fromDate' "  ; 
-      $sql .= " and ";
-      $sql .= $data['toDate'] == null ? "trunc(sysdate) " : " '$toDate' " ; 
-            
-      $sql .= " {$condition} ";
+        $sql .= $data['fromDate'] == null ? "trunc(sysdate) " : " '$fromDate' ";
+        $sql .= " and ";
+        $sql .= $data['toDate'] == null ? "trunc(sysdate) " : " '$toDate' ";
 
-      return EntityHelper::rawQueryResult($this->adapter, $sql);
+        $sql .= " {$condition} ";
+
+        return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
-    
-    public function filterRecordBot($companyId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $genderId, $functionalTypeId, $employeeId, $fromDate = null, $toDate = null, $status = null, $presentStatus = null, $min = null, $max = null) {
-        $searchConditon = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId,null, $functionalTypeId);
+
+    public function filterRecordBot($companyId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $genderId, $functionalTypeId, $employeeId, $fromDate = null, $toDate = null, $status = null, $presentStatus = null, $min = null, $max = null)
+    {
+        $searchConditon = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
         $fromDateCondition = "";
         $toDateCondition = "";
         $statusCondition = '';
@@ -1087,9 +1113,9 @@ FROM (SELECT
         }
 
         if ($min != null && $max != null) {
-            $rowNums = "WHERE (Q.R BETWEEN {$min} AND {$max})"; 
+            $rowNums = "WHERE (Q.R BETWEEN {$min} AND {$max})";
         }
-          $orderByString=EntityHelper::getOrderBy('A.ATTENDANCE_DT DESC ,A.IN_TIME ASC','A.ATTENDANCE_DT DESC ,A.IN_TIME ASC','E.SENIORITY_LEVEL','P.LEVEL_NO','E.JOIN_DATE','DES.ORDER_NO','E.FULL_NAME');
+        $orderByString = EntityHelper::getOrderBy('A.ATTENDANCE_DT DESC ,A.IN_TIME ASC', 'A.ATTENDANCE_DT DESC ,A.IN_TIME ASC', 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
         $sql = "
                SELECT * FROM (SELECT 
                   ROWNUM                                           AS R,
@@ -1224,9 +1250,10 @@ FROM (SELECT
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 
-    public function filterRecordRaw($employeeId, $fromDate = null, $toDate = null){
+    public function filterRecordRaw($employeeId, $fromDate = null, $toDate = null)
+    {
         $searchConditon = "";
-        
+
         if ($employeeId != null && $employeeId != -1) {
             $employeeId = implode(',', $employeeId);
             $searchConditon .= " AND A.EMPLOYEE_ID IN ($employeeId) ";
@@ -1234,7 +1261,7 @@ FROM (SELECT
         if ($fromDate != null) {
             $searchConditon .= " AND A.ATTENDANCE_DT>=TO_DATE('" . $fromDate . "','DD-MM-YYYY') ";
         }
-        $searchConditon .= $toDate != null ? "AND A.ATTENDANCE_DT<=TO_DATE('" . $toDate . "','DD-MM-YYYY')" : "AND A.ATTENDANCE_DT <= trunc(sysdate) " ;
+        $searchConditon .= $toDate != null ? "AND A.ATTENDANCE_DT<=TO_DATE('" . $toDate . "','DD-MM-YYYY')" : "AND A.ATTENDANCE_DT <= trunc(sysdate) ";
         $sql = "SELECT
     e.employee_code,
     e.full_name,
@@ -1249,6 +1276,6 @@ FROM
     left join hris_attd_device_master adm on (a.ip_address = adm.device_ip)
 WHERE
     1=1 {$searchConditon} order by e.employee_code, a.attendance_time asc";
-    return EntityHelper::rawQueryResult($this->adapter, $sql);
+        return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 }

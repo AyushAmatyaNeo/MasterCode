@@ -14,7 +14,8 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class AdvanceSetup extends AbstractActionController {
+class AdvanceSetup extends AbstractActionController
+{
 
     private $form;
     private $repository;
@@ -23,7 +24,8 @@ class AdvanceSetup extends AbstractActionController {
     private $storageData;
     private $acl;
 
-    function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         $this->repository = new AdvanceSetupRepository($adapter);
         $this->adapter = $adapter;
         $this->storageData = $storage->read();
@@ -31,7 +33,8 @@ class AdvanceSetup extends AbstractActionController {
         $this->acl = $this->storageData['acl'];
     }
 
-    private function getForm() {
+    private function getForm()
+    {
         if (!$this->form) {
             $form = new AdvanceSetupForm();
             $builder = new AnnotationBuilder();
@@ -40,7 +43,8 @@ class AdvanceSetup extends AbstractActionController {
         return $this->form;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -53,11 +57,12 @@ class AdvanceSetup extends AbstractActionController {
         }
 
         return Helper::addFlashMessagesToArray($this, [
-                    'acl' => $this->acl
+            'acl' => $this->acl
         ]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
         $form = $this->getForm();
 
@@ -81,7 +86,8 @@ class AdvanceSetup extends AbstractActionController {
         ]);
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $id = (int) $this->params()->fromRoute("id", -1);
         if ($id === -1) {
             return $this->redirect()->toRoute('advance-setup');
@@ -92,9 +98,9 @@ class AdvanceSetup extends AbstractActionController {
         if ($request->isPost()) {
             $form->setData($request->getPost());
             if ($form->isValid()) {
-//                echo '<pre>';
-//                print_r($request->getPost());
-//                die();
+                //                echo '<pre>';
+                //                print_r($request->getPost());
+                //                die();
                 $advanceSetupModel = new AdvanceSetupModel();
                 $advanceSetupModel->exchangeArrayFromForm($form->getData());
                 $advanceSetupModel->modifiedBy = $this->employeeId;
@@ -116,4 +122,15 @@ class AdvanceSetup extends AbstractActionController {
         ]);
     }
 
+    public function deleteAction()
+    {
+        $id = (int) $this->params()->fromRoute("id");
+        if (!$id) {
+            return $this->redirect()->toRoute('advance-setup');
+        }
+        // echo '<pre>';print_r($id);die;
+        $this->repository->delete($id);
+        $this->flashmessenger()->addMessage("Advance Setup Successfully Deleted!!!");
+        return $this->redirect()->toRoute('advance-setup');
+    }
 }
