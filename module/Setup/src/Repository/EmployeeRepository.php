@@ -414,6 +414,9 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $boundedParams = [];
         $condition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $boundedParams = array_merge($boundedParams, $condition['parameter']);
+
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+
         $sql = "SELECT E.EMPLOYEE_ID                                                AS EMPLOYEE_ID,
               E.COMPANY_ID                                                      AS COMPANY_ID,
               E.EMPLOYEE_CODE                                                   AS EMPLOYEE_CODE,
@@ -571,7 +574,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
             ON E.FUNCTIONAL_LEVEL_ID=FUNL.FUNCTIONAL_LEVEL_ID
             WHERE E.STATUS          ='E'
             {$condition['sql']}
-            ORDER BY E.FIRST_NAME ASC";
+            {$orderByString}";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
         if ($getResult != null) {

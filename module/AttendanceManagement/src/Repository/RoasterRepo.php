@@ -228,7 +228,7 @@ PIVOT(
         $employeeTypeId = $data['employeeTypeId'];
         
         $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-
+      
         $sql = "
             SELECT *
 FROM

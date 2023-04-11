@@ -139,6 +139,8 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
         $boundedParameter = [];
         $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
 
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+
         if (isset($search['eventId']) && $search['eventId'] != null && $search['eventId'] != -1) {
             if (gettype($search['eventId']) === 'array') {
 //                $csv = "";
@@ -182,8 +184,12 @@ class EventAssignRepository extends HrisRepository implements RepositoryInterfac
                 ON (TA.EVENT_ID= TMS.EVENT_ID)
                 LEFT JOIN HRIS_EMPLOYEES E
                 ON (TA.EMPLOYEE_ID=E.EMPLOYEE_ID)
+                LEFT JOIN HRIS_DESIGNATIONS DES
+                ON E.DESIGNATION_ID=DES.DESIGNATION_ID
+                LEFT JOIN HRIS_POSITIONS P
+                ON E.POSITION_ID=P.POSITION_ID
                 WHERE 1=1 AND TA.STATUS='E' 
-                {$condition['sql']} ORDER BY TMS.EVENT_NAME,E.FULL_NAME";
+                {$condition['sql']} {$orderByString}";
         // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
