@@ -6,6 +6,8 @@ use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Exception;
 use Notification\Controller\HeadNotification;
+use ManagerService\Repository\ManagerReportRepo;
+use LeaveManagement\Repository\LeaveApplyRepository;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\TravelRequestForm;
 use SelfService\Model\TravelRequest as TravelRequestModel;
@@ -45,7 +47,7 @@ class TravelApply extends HrisController {
         return $this->redirect()->toRoute("travelStatus");
     }
 
-    /*
+    
       public function fileUploadAction() {
       $request = $this->getRequest();
       $responseData = [];
@@ -56,7 +58,7 @@ class TravelApply extends HrisController {
       $fileName = pathinfo($files['file']['name'], PATHINFO_FILENAME);
       $unique = Helper::generateUniqueName();
       $newFileName = $unique . "." . $ext;
-      $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/travel_documents/" . $newFileName);
+      $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/travel-documents/" . $newFileName);
       if (!$success) {
       throw new Exception("Upload unsuccessful.");
       }
@@ -72,7 +74,7 @@ class TravelApply extends HrisController {
       }
       return new JsonModel($responseData);
       }
-
+/*
       public function pushTravelFileLinkAction() {
       try {
       $newsId = $this->params()->fromRoute('id');
@@ -84,83 +86,101 @@ class TravelApply extends HrisController {
       return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
       }
       }
+              $request = $this->getRequest();
+        $employeeId = $this->employeeId;
+        $employeeDetails = $this->repository->getEmployeeData($employeeId);
+        $model = new TravelRequestModel();
      */
 
     public function addAction() {
         $this->initializeForm(TravelRequestForm::class);
         $request = $this->getRequest();
-
         $model = new TravelRequestModel();
         if ($request->isPost()) {
+            // var_dump('here'); die;
             $postData = $request->getPost();
-            $travelSubstitute = $postData->travelSubstitute;
+            $postFiles = $request->getFiles();
             $this->form->setData($postData);
-            if ($this->form->isValid()) {
-                $model->exchangeArrayFromForm($this->form->getData());
-                $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
-                $model->requestedDate = Helper::getcurrentExpressionDate();
-//                $model->status = 'RQ';
-                $model->deductOnSalary = 'Y';
-                $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
+            
 
+            if ($this->form->isValid()) {
+                // echo '<pre>'; print_r('$postData'); die;
+				
+                $model->exchangeArrayFromForm($this->form->getData());
+                $model->requestedAmount = ($postData->requestedAmount == null) ? 0 : $postData->requestedAmount;
+                $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
+                $model->employeeId = $postData['employeeId'];
+                $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
+                $model->requestedType = 'ad';
+                if($postData['travelType'] == 'LTR'){
+                    $model->currencyname = 'NPR';
+                }else {
+                    if($postData['requestedAmount'] == ''){
+                        $model->currencyname = 'NPR';
+                    }else{
+                        $model->currencyname = $postData['currency'];
+                        $model->conversionrate = $postData['conversionrate'];
+                    }
+                }
+				
+                $model->fromDate = Helper::getExpressionDate($model->fromDate);
+                $model->toDate = Helper::getExpressionDate($model->toDate);
+                $model->traveltype = $postData['travelType'];
                 if($model->status == 'AP'){
                     $model->hardcopySignedFlag = 'Y';
                 }
 
                 $this->travelRequesteRepository->add($model);
+				
                 $this->flashmessenger()->addMessage("Travel Request Successfully added!!!");
-
-
-                if ($travelSubstitute !== null) {
-                    $travelSubstituteModel = new TravelSubstitute();
-                    $travelSubstituteRepo = new TravelSubstituteRepository($this->adapter);
-
-                    $travelSubstitute = $postData->travelSubstitute;
-
-                    $travelSubstituteModel->travelId = $model->travelId;
-                    $travelSubstituteModel->employeeId = $travelSubstitute;
-                    $travelSubstituteModel->createdBy = $this->employeeId;
-                    $travelSubstituteModel->createdDate = Helper::getcurrentExpressionDate();
-                    $travelSubstituteModel->status = 'E';
-
-                    if (isset($this->preference['travelSubCycle']) && $this->preference['travelSubCycle'] == 'N') {
-                        $travelSubstituteModel->approvedFlag = 'Y';
-                        $travelSubstituteModel->approvedDate = Helper::getcurrentExpressionDate();
-                    }
-
-                    $travelSubstituteRepo->add($travelSubstituteModel);
-                    if (!isset($this->preference['travelSubCycle']) OR ( isset($this->preference['travelSubCycle']) && $this->preference['travelSubCycle'] == 'Y')) {
-                        try {
-                            HeadNotification::pushNotification(NotificationEvents::TRAVEL_SUBSTITUTE_APPLIED, $model, $this->adapter, $this);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    } else {
-                        try {
-                            HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $model, $this->adapter, $this);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    }
-                } else {
                     try {
                         HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $model, $this->adapter, $this);
                     } catch (Exception $e) {
                         $this->flashmessenger()->addMessage($e->getMessage());
                     }
-                }
+                    // print_r($postData['files']);die;
+                    if(count($postFiles['files']) > 0){
+                        //   echo '<pre>';  print_r($postFiles['files']); die;
+                            foreach ($postFiles['files'] as $value) {
+                                if ($value['name'] != null) {
+                                    $fileDir = getcwd() . '/public/uploads/documents/travel-documents';
+                              
+                                    if (!file_exists($fileDir)) {
+                                        mkdir($fileDir, 0777, true);
+                                    }
+            
+                                    $newImageName = time().$value['name'];
+                                    $path = $fileDir. "/" . $newImageName;
+                                    move_uploaded_file( $value['tmp_name'], $path);
+                                    $data = array(
+                                       'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1,
+                                       'FILE_NAME' => $newImageName,
+                                       'TRAVEL_ID' => $model->travelId,
+                                       'FILE_IN_DIR_NAME' =>  $path,
+                                       'UPLOADED_DATE' => '',
+                                    );
+                                    $this->travelRequesteRepository->addFiles($data);
+                                }
+                            }
+                        }			
                 return $this->redirect()->toRoute("travelStatus");
+            }else{
+                // echo '<pre>'; print_r('not'); die;
             }
+
         }
         $requestType = array(
             'ad' => 'Advance'
         );
         $transportTypes = array(
-            'AP' => 'Aeroplane',
+             'AP' => 'Aeroplane',
             'OV' => 'Office Vehicles',
             'TI' => 'Taxi',
             'BS' => 'Bus',
-            'OF'  => 'On Foot'
+            'OF'  => 'On Foot',
+            'OT'=>'Others',
+            'VV'=>'Own-Vehicle'
         );
         
         $applyOptionValues = [
@@ -169,12 +189,14 @@ class TravelApply extends HrisController {
         ];
         $applyOption = $this->getSelectElement(['name' => 'applyStatus', 'id' => 'applyStatus', 'class' => 'form-control', 'label' => 'Type'], $applyOptionValues);
 
+       
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
+                    $employees = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N', 'IS_ADMIN' => "N"], "FULL_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId),
                     'requestTypes' => $requestType,
                     'transportTypes' => $transportTypes,
                     'applyOption' => $applyOption,
-                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FULL_NAME", "ASC", "-", false, true, $this->employeeId)
+                    'employees' => $employees
         ]);
     }
 

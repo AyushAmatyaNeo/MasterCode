@@ -184,7 +184,7 @@ class TravelApproveController extends HrisController
 
         $expenseDtlRepo = new TravelExpenseDtlRepository($this->adapter);
         $result = $expenseDtlRepo->fetchByTravelId($id);
-        // echo '<pre>'; print_r($result); die;
+        // echo '<pre>'; print_r($detail); die;
         $totalAmount = 0;
 
         $transportType = [
@@ -287,30 +287,20 @@ class TravelApproveController extends HrisController
         $message = null;
         $model = new TravelRequest();
         $model->travelId = $id;
-        echo '<pre>';print_r($role);die;
         switch ($role) {
             case 2:
-                // print_r('ab');die;
                 $model->recommendedRemarks = $remarks;
                 $model->recommendedDate = Helper::getcurrentExpressionDate();
                 $model->recommendedBy = $this->employeeId;
+                $model->status = $approve ? "RC" : "R";
                 $model->status = ($approve == 'Approve') ? "RC" : "R";
                 $message =  ($approve == "Approve" ? "Travel Request Recommended" : "Travel Request Rejected");
                 $notificationEvent = ($approve == "Approve" ? NotificationEvents::TRAVEL_RECOMMEND_ACCEPTED : NotificationEvents::TRAVEL_RECOMMEND_REJECTED);
                 break;
-            case 4: //Expense
-                // print_r('sd');die;
-                $model->approvedRemarks = $remarks;
-                $model->approvedDate = Helper::getcurrentExpressionDate();
-                $model->approvedBy = $this->employeeId;
+            case 4:
                 $model->recommendedDate = Helper::getcurrentExpressionDate();
                 $model->recommendedBy = $this->employeeId;
-                $model->status = ($approve == 'Approve') ? "AP" : "R";
-                $message = ($approve == "Approve" ? "Expense Request Approved" : "Expense Request Rejected");
-                $notificationEvent = ($approve == "Approve" ? NotificationEvents::TRAVEL_EXPENSE_APPROVED : NotificationEvents::TRAVEL_EXPENSE_REJECTED);
-                break;
             case 3:
-                // print_r('nd');die;
                 $model->approvedRemarks = $remarks;
                 $model->approvedDate = Helper::getcurrentExpressionDate();
                 $model->approvedBy = $this->employeeId;
@@ -318,7 +308,7 @@ class TravelApproveController extends HrisController
                 $message = ($approve == "Approve" ? "Travel Request Approved" : "Travel Request Rejected");
                 $notificationEvent = ($approve == "Approve" ? NotificationEvents::TRAVEL_APPROVE_ACCEPTED : NotificationEvents::TRAVEL_APPROVE_REJECTED);
                 break;
-        }
+        } 
         $editError = $this->repository->edit($model, $id);
         if ($enableFlashNotification) {
             $this->flashmessenger()->addMessage($message);

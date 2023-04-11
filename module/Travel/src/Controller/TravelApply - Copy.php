@@ -89,79 +89,69 @@ class TravelApply extends HrisController {
     public function addAction() {
         $this->initializeForm(TravelRequestForm::class);
         $request = $this->getRequest();
-
         $model = new TravelRequestModel();
         if ($request->isPost()) {
+            // var_dump('here'); die;
             $postData = $request->getPost();
-            $travelSubstitute = $postData->travelSubstitute;
+            $postFiles = $request->getFiles();
             $this->form->setData($postData);
+            
+
             if ($this->form->isValid()) {
+                // echo '<pre>'; print_r('$postData'); die;
+				
                 $model->exchangeArrayFromForm($this->form->getData());
-
+                $model->requestedAmount = ($postData->requestedAmount == null) ? 0 : $postData->requestedAmount;
                 $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
+                $model->employeeId = $postData['employeeId'];
                 $model->requestedDate = Helper::getcurrentExpressionDate();
-//                $model->status = 'RQ';
-                $model->deductOnSalary = 'Y';
                 $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
-
+                $model->requestedType = 'ad';
+                if($postData['travelType'] == 'LTR'){
+                    $model->currencyname = 'NPR';
+                }else {
+                    if($postData['requestedAmount'] == ''){
+                        $model->currencyname = 'NPR';
+                    }else{
+                        $model->currencyname = $postData['currency'];
+                        $model->conversionrate = $postData['conversionrate'];
+                    }
+                }
+				
+                $model->fromDate = Helper::getExpressionDate($model->fromDate);
+                $model->toDate = Helper::getExpressionDate($model->toDate);
+                $model->traveltype = $postData['travelType'];
                 if($model->status == 'AP'){
                     $model->hardcopySignedFlag = 'Y';
                 }
 
                 $this->travelRequesteRepository->add($model);
+				
                 $this->flashmessenger()->addMessage("Travel Request Successfully added!!!");
-
-
-                if ($travelSubstitute !== null) {
-                    $travelSubstituteModel = new TravelSubstitute();
-                    $travelSubstituteRepo = new TravelSubstituteRepository($this->adapter);
-
-                    $travelSubstitute = $postData->travelSubstitute;
-
-                    $travelSubstituteModel->travelId = $model->travelId;
-                    $travelSubstituteModel->employeeId = $travelSubstitute;
-                    $travelSubstituteModel->createdBy = $this->employeeId;
-                    $travelSubstituteModel->createdDate = Helper::getcurrentExpressionDate();
-                    $travelSubstituteModel->status = 'E';
-
-                    if (isset($this->preference['travelSubCycle']) && $this->preference['travelSubCycle'] == 'N') {
-                        $travelSubstituteModel->approvedFlag = 'Y';
-                        $travelSubstituteModel->approvedDate = Helper::getcurrentExpressionDate();
-                    }
-
-                    $travelSubstituteRepo->add($travelSubstituteModel);
-                    if (!isset($this->preference['travelSubCycle']) OR ( isset($this->preference['travelSubCycle']) && $this->preference['travelSubCycle'] == 'Y')) {
-                        try {
-                            HeadNotification::pushNotification(NotificationEvents::TRAVEL_SUBSTITUTE_APPLIED, $model, $this->adapter, $this);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    } else {
-                        try {
-                            HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $model, $this->adapter, $this);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    }
-                } else {
                     try {
                         HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $model, $this->adapter, $this);
                     } catch (Exception $e) {
                         $this->flashmessenger()->addMessage($e->getMessage());
                     }
-                }
+                // }
+				
                 return $this->redirect()->toRoute("travelStatus");
+            }else{
+                echo '<pre>'; print_r('not'); die;
             }
+
         }
         $requestType = array(
             'ad' => 'Advance'
         );
         $transportTypes = array(
-            'AP' => 'Aeroplane',
+             'AP' => 'Aeroplane',
             'OV' => 'Office Vehicles',
             'TI' => 'Taxi',
             'BS' => 'Bus',
-            'OF'  => 'On Foot'
+            'OF'  => 'On Foot',
+            'OT'=>'Others',
+            'VV'=>'Own-Vehicle'
         );
         
         $applyOptionValues = [
@@ -169,45 +159,14 @@ class TravelApply extends HrisController {
             'AP' => 'Approved'
         ];
         $applyOption = $this->getSelectElement(['name' => 'applyStatus', 'id' => 'applyStatus', 'class' => 'form-control', 'label' => 'Type'], $applyOptionValues);
-        // $travelCategory=$this->repository->travelCategory($this->employeeId);
 
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'requestTypes' => $requestType,
                     'transportTypes' => $transportTypes,
                     'applyOption' => $applyOption,
-                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FULL_NAME", "ASC", "-", false, true, $this->employeeId),
-                    // 'travelCategoryList'=>$travelCategory['LEVEL_NO']
+                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FULL_NAME", "ASC", "-", false, true, $this->employeeId)
         ]);
-    }
-
-    public function travelCategoryAction(){
-        $request=$this->getRequest();
-        if($request->isPost()){
-            try{
-                $data=$request->getPost();
-                $id=$data['id'];
-                $rawList=$this->travelRequesteRepository->getTravelRecords($id);
-
-                return new JsonModel(['success'=>true,'data'=>$rawList,'error'=>'']);
-            }catch (Exception $e){
-                return new JsonModel(['success'=>false,'data'=>[],'error'=>$e->getMessage()]);
-            }
-        }
-    }
-
-    public function travelCategoryByIDAction(){
-        $request=$this->getRequest();
-        if($request->isPost()){
-            try{
-                $data=$request->getPost();
-                $id=$data['id'];
-                $travelById=$this->travelRequesteRepository->TravelRecordById($id);
-                return new JsonModel(['success'=>true,'data'=>$travelById,'error'=>'']);
-            }catch(Exception $e){
-                return new JsonModel((['success'=>false,'data'=>[],'error'=>$e->getMessage()]));
-            }
-        }
     }
 
 }

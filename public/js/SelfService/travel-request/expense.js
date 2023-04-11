@@ -58,7 +58,10 @@
                         title: "Nepali",
                     }]},
             {field: "DESTINATION", title: "Destination"},
+            {field: "DEPARTURE", title: "Departure"},
+            {field: "TRAVEL_TYPE", title: "Travel Type"},
             {field: "REQUESTED_AMOUNT", title: "Request Amt."},
+            {field: "CURRENCY", title: "Currency"},
             {field: "REQUESTED_TYPE", title: "Request For"},
             {field: "STATUS_DETAIL", title: "Status"},
             {field: "TRAVEL_ID", title: "Action", template: action}
@@ -98,6 +101,8 @@
             'REQUESTED_DATE_AD': 'Request Date(AD)',
             'REQUESTED_DATE_BS': 'Request Date(BS)',
             'DESTINATION': 'Destination',
+            'DEPARTURE': 'Departure',
+            'TRAVEL_TYPE': 'Travel Type',
             'REQUESTED_AMOUNT': 'Request Amt',
             'REQUESTED_TYPE_DETAIL': 'Request Type',
             'STATUS_DETAIL': 'Status',
@@ -110,7 +115,8 @@
             'RECOMMENDED_REMARKS': 'Recommended Remarks',
             'RECOMMENDED_DATE': 'Recommended Date',
             'APPROVED_REMARKS': 'Approved Remarks',
-            'APPROVED_DATE': 'Approved Date'
+            'APPROVED_DATE': 'Approved Date',
+            'CURRENCY': 'Currency',
         };
         $('#excelExport').on('click', function () {
             app.excelExport($table, exportMap, 'Travel Request List.xlsx');

@@ -663,7 +663,6 @@ class NewTravelRequest extends HrisController {
             }
             $error = "";
             $preference=$this->repository->getPreferenceData();
-                        // echo '<pre>';print_r($preference[0]);die;
             try {
                 // if(isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y'){
                 if(isset($preference[18]['KEY']) && $preference[18]['VALUE'] == 'Y'){
@@ -679,7 +678,7 @@ class NewTravelRequest extends HrisController {
                
                 $travelId = $postData['travelIdToInsert'];
                 $detail = $this->repository->fetchById($travelId);
-                    // echo '<pre>';print_r();die;
+                    echo '<pre>';print_r('dbfd');die;
                 $traveltype = '';
                 if ($postData['erTypeL'][0] != -1 && $postData['traveltype'] == 'LTR' &&  $postData['travelIdToInsert'] != ''){
                     for ($i = 0; $i < count($postData['erTypeL']); $i++){
@@ -750,7 +749,7 @@ class NewTravelRequest extends HrisController {
                 $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
                 $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
                 $reqModel->traveltype = $traveltype;
-                // echo '<pre>'; print_r($reqModel); die;
+                echo '<pre>'; print_r('891'); die;
                 $this->repository->add($reqModel);
             } else {
                 if ($postData['erTypeL'][0] != -1){
@@ -787,7 +786,7 @@ class NewTravelRequest extends HrisController {
                     $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
                     $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
                     $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
-                    // echo '<pre>';print_r($postData);die;
+                    echo '<pre>';print_r('fdsn');die;
                     $this->repository->add($reqModel);
                 }
             }

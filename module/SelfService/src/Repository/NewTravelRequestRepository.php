@@ -68,7 +68,13 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
             new Expression("TR.REQUESTED_TYPE AS REQUESTED_TYPE"),
             new Expression("TR.CURRENCY_NAME AS CURRENCY"),
             new Expression("TR.TRAVEL_TYPE AS TRAVEL_TYPE"),
-            new Expression("(CASE WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'LTR' THEN 'Local Travel Request' WHEN LOWER(TR.REQUESTED_TYPE) = 'ia' THEN 'Intenational Travel Request' WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'ITR' THEN 'Intenational Travel Advance Request' ELSE 'Expense' END) AS REQUESTED_TYPE"),
+            new Expression("(CASE WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'LTR' THEN 'Local Travel Request' WHEN LOWER(TR.REQUESTED_TYPE) = 'ia' THEN 'Intenational Travel Request'
+             WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'ITR' THEN 'Intenational Travel Advance Request'
+             WHEN TR.REQUESTED_TYPE = 'ep' and TR.TRAVEL_TYPE = 'LTR'
+             THEN 'Expense For Domestic Travel'
+             WHEN TR.REQUESTED_TYPE = 'ep' and TR.TRAVEL_TYPE = 'ITR'
+             THEN 'Expense For International Travel'
+             ELSE 'Expense For Local Travel' END) AS REQUESTED_TYPE"),
             new Expression("(CASE WHEN TR.STATUS in ('RQ','SV') THEN 'Y' ELSE 'N' END) AS ALLOW_EDIT"),
             new Expression("(CASE WHEN TR.STATUS IN ('RQ','RC','SV') THEN 'Y' ELSE 'N' END) AS ALLOW_DELETE"),
             new Expression("(CASE WHEN (TR.STATUS = 'AP' AND LOWER(TR.REQUESTED_TYPE) = 'ad' AND (SELECT COUNT(*) FROM HRIS_EMPLOYEE_TRAVEL_REQUEST WHERE REFERENCE_TRAVEL_ID =TR.TRAVEL_ID AND STATUS not in ('C','R') ) =0 ) THEN 'Y' ELSE 'N' END) AS ALLOW_EXPENSE_APPLY"),

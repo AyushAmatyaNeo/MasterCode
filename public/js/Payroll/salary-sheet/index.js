@@ -34,7 +34,7 @@
         var $allSheetId = $('#allSheetId');
         var $allPayHeads = $('#allPayHeads');
         var $allPayHeads = $('#allPayHeads');
-        var $overtime ;
+        var $overtime = $('input[name="overTime"]:checked').val();
         $("input[name='overTime']").change(function() {
              $overtime = $(this).val();
         });
@@ -756,10 +756,12 @@ console.log(data['ruleList']);
             var sheetNo = $this.attr('sheet-no');
             var salarySheet = app.findOneBy(salarySheetList, {SHEET_NO: sheetNo});
             var monthId = salarySheet['MONTH_ID'];
+            let overTime=$overtime;
             app.serverRequest(regenEmpSalSheLink, {
                 employeeId: employeeId,
                 monthId: monthId,
                 sheetNo: sheetNo,
+                overtime :overTime,
             }).then(function (response) {
                 $viewBtn.trigger('click');
             }, function (error) {

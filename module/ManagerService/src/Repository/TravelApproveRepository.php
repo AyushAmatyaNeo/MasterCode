@@ -45,11 +45,11 @@ class TravelApproveRepository implements RepositoryInterface
 
     public function edit(Model $model, $id)
     {
-        // var_dump('here'); die;
         $temp = $model->getArrayCopyForDB();
         $this->tableGateway->update($temp, [TravelRequest::TRAVEL_ID => $id]);
         if ($model->status == 'AP') {
             try {
+                // echo '<pre>';print_r('kdfjndf' );die;
                 EntityHelper::rawQueryResult($this->adapter, "
                 BEGIN
                     hris_travel_leave_reward({$id});
@@ -61,6 +61,7 @@ class TravelApproveRepository implements RepositoryInterface
 
         $link = $model->status == 'AP' ? 'Y' : 'N';
         if ($link == 'Y') {
+            // echo '<pre>';print_r($link);die;
             try {
                 EntityHelper::rawQueryResult($this->adapter, "
                 BEGIN
@@ -629,18 +630,18 @@ class TravelApproveRepository implements RepositoryInterface
 
     public function getPendingListExpense($employeeId)
     {
-        $degSql = "select designation_id from hris_employees where employee_id = $employeeId";
-        $degId = Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, $degSql))[0]['DESIGNATION_ID'];
-        // print_r($degId);die;
-        if ($degId == 163) {
-            $st = 'A2';
-        } elseif ($degId == 93) {
-            $st = 'A3';
-        } elseif ($degId == 166 || $degId == 34) {
-            $st = 'A4';
-        } else {
-            $st = 'AA';
-        }
+        // $degSql = "select designation_id from hris_employees where employee_id = $employeeId";
+        // $degId = Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, $degSql))[0]['DESIGNATION_ID'];
+        // // print_r($degId);die;
+        // if ($degId == 163) {
+        //     $st = 'A2';
+        // } elseif ($degId == 93) {
+        //     $st = 'A3';
+        // } elseif ($degId == 166 || $degId == 34) {
+        //     $st = 'A4';
+        // } else {
+        //     $st = 'AA';
+        // }
         $sql = "SELECT TR.TRAVEL_ID                        AS TRAVEL_ID,
                   TR.TRAVEL_CODE                           AS TRAVEL_CODE,
                   TR.EMPLOYEE_ID                           AS EMPLOYEE_ID,
@@ -665,10 +666,10 @@ class TravelApproveRepository implements RepositoryInterface
                     WHEN TR.REQUESTED_TYPE = 'ad' AND TR.TRAVEL_TYPE = 'ITR'
                     THEN 'International Travel Advance'
                     WHEN TR.REQUESTED_TYPE = 'ep' AND TR.TRAVEL_TYPE = 'LTR'
-                    THEN 'Local Travel Expense'
+                    THEN 'Expense for Local Travel '
                     WHEN TR.REQUESTED_TYPE = 'ep' AND TR.TRAVEL_TYPE = 'ITR'
-                    THEN 'International Travel Expense'
-                    ELSE 'Expense'
+                    THEN 'Expense for International Travel '
+                    ELSE 'Expense for Local Travel'
                   END)                                                            AS REQUESTED_TYPE_DETAIL,
                   NVL(TR.REQUESTED_AMOUNT,0)                                      AS REQUESTED_AMOUNT,
                   TR.TRANSPORT_TYPE                                               AS TRANSPORT_TYPE,
@@ -738,12 +739,12 @@ class TravelApproveRepository implements RepositoryInterface
                  (
                     ((
                 ((RA.RECOMMEND_BY = U.EMPLOYEE_ID) OR (ALR.R_A_ID = U.EMPLOYEE_ID))
-                AND TR.STATUS         ='RQ')
+                AND TR.STATUS         in ('RQ','RC'))
                 OR 
                 (((RA.APPROVED_BY    = U.EMPLOYEE_ID)  OR (ALA.R_A_ID = U.EMPLOYEE_ID))
-                AND TR.STATUS         ='RQ') )
+                AND TR.STATUS         in ('RQ','RC')) )
                 AND U.EMPLOYEE_ID     ={$employeeId}
-                OR TR.STATUS = '$st' 
+                -- OR TR.STATUS = '$st' 
                 )
                 AND (TS.APPROVED_FLAG =
                   CASE
@@ -754,6 +755,7 @@ class TravelApproveRepository implements RepositoryInterface
                 and TR.requested_type not in  ('ad') order by TR.REQUESTED_DATE desc
                 
                 ";
+                // echo '<pre>';print_r($sql);die;
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 

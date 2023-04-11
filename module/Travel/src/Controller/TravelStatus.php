@@ -11,15 +11,15 @@ use ManagerService\Repository\TravelApproveRepository;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\TravelRequestForm;
+use SelfService\Model\TRAVELFILES;
 use SelfService\Model\TravelRequest;
-use SelfService\Model\TravelRequest as TravelRequestModel;
 use SelfService\Repository\TravelExpenseDtlRepository;
-use SelfService\Repository\TravelRequestRepository;
-use Travel\Repository\TravelItnaryRepository;
 use Travel\Repository\TravelStatusRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use SelfService\Repository\TravelRequestRepository;
+use SelfService\Model\TravelRequest as TravelRequestModel;
 
 class TravelStatus extends HrisController {
 
@@ -39,8 +39,8 @@ class TravelStatus extends HrisController {
         if ($request->isPost()) {
             try {
                 $search = $request->getPost();
+                // echo '<pre>';print_r($search);die;
                 $list = $this->travelStatusRepository->getFilteredRecord($search);
-
                 if($this->preference['displayHrApproved'] == 'Y'){
                     for($i = 0; $i < count($list); $i++){
                         if($list[$i]['HARDCOPY_SIGNED_FLAG'] == 'Y'){
@@ -57,16 +57,14 @@ class TravelStatus extends HrisController {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
-        
+
         $statusSE = $this->getStatusSelectElement(['name' => 'status', "id" => "status", "class" => "form-control reset-field", 'label' => 'status']);
         return Helper::addFlashMessagesToArray($this, [
                     'travelStatus' => $statusSE,
                     'searchValues' => EntityHelper::getSearchData($this->adapter),
                     'acl' => $this->acl,
                     'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference,
-//                    'itnaryCodeList'=>[], 
-                    'itnaryCodeList' =>EntityHelper::getTableList($this->adapter, 'HRIS_TRAVEL_ITNARY', ['ITNARY_ID','ITNARY_CODE'], ['STATUS' => "E"]),
+                    'preference' => $this->preference
         ]);
     }
 
@@ -77,11 +75,11 @@ class TravelStatus extends HrisController {
         }
         $request = $this->getRequest();
         if ($request->isPost()) {
-            $detail = $this->travelApproveRepository->fetchById($id);
             $travelRequest = new TravelRequest();
             $getData = $request->getPost();
             $reason = $getData->approvedRemarks;
             $action = $getData->submit;
+
             $travelRequest->approvedDate = Helper::getcurrentExpressionDate();
             if ($action == "Reject") {
                 $travelRequest->status = "R";
@@ -92,10 +90,6 @@ class TravelStatus extends HrisController {
             }
             $travelRequest->approvedBy = $this->employeeId;
             $travelRequest->approvedRemarks = $reason;
-            $travelRequest->employeeId = $detail['EMPLOYEE_ID'];
-            $travelRequest->fromDate = $detail['FROM_DATE'];
-            $travelRequest->toDate = $detail['TO_DATE'];
-            // echo '<pre>';print_r($travelRequest);die;
             $this->travelApproveRepository->edit($travelRequest, $id);
 
             return $this->redirect()->toRoute("travelStatus");
@@ -118,19 +112,11 @@ class TravelStatus extends HrisController {
             $detail['RECOMMENDED_BY_NAME'] = 'HR';
             $detail['APPROVED_BY_NAME'] = 'HR';
         }
-        //$fileDetails = $this->travelApproveRepository->fetchAttachmentsById($id);
+        $fileDetails = $this->travelApproveRepository->fetchAttachmentsById($id);
         $travelRequestModel->exchangeArrayFromDB($detail);
         $this->form->bind($travelRequestModel);
         $numberInWord = new NumberHelper();
         $advanceAmount = $numberInWord->toText($detail['REQUESTED_AMOUNT']);
-        
-         $travelItnaryDet = [];
-        $travelItnaryMemDet = [];
-        if ($detail['ITNARY_ID']) {
-            $travelItnaryRepo = new TravelItnaryRepository($this->adapter);
-            $travelItnaryDet = $travelItnaryRepo->fetchItnaryDetails($detail['ITNARY_ID']);
-            $travelItnaryMemDet = $travelItnaryRepo->fetchItnaryMembers($detail['ITNARY_ID']);
-        }
 
         return Helper::addFlashMessagesToArray($this, [
                     'id' => $id,
@@ -140,11 +126,7 @@ class TravelStatus extends HrisController {
                     'detail' => $detail,
                     'todayDate' => date('d-M-Y'),
                     'advanceAmount' => $advanceAmount,
-                    'itnaryId' => $detail['ITNARY_ID'],
-                    'travelItnaryDet' => $travelItnaryDet,
-                    'travelItnaryMemDet' => $travelItnaryMemDet,
-                    'acl' => $this->acl
-                        //'files' => $fileDetails
+                        'files' => $fileDetails
         ]);
     }
 
@@ -162,7 +144,8 @@ class TravelStatus extends HrisController {
         if ($request->isPost()) {
             $travelRequest = new TravelRequestModel();
             $postedData = $request->getPost();
-            $this->form->setData($postedData);
+            $postFiles = $request->getFiles();
+        $this->form->setData($postedData);
 
             if ($this->form->isValid()) {
                 $travelRequest->exchangeArrayFromForm($this->form->getData());
@@ -170,27 +153,54 @@ class TravelStatus extends HrisController {
                 $travelRequest->employeeId = $this->employeeId;
                 $this->travelRequestRepository->edit($travelRequest, $id);
                 $this->flashmessenger()->addMessage("Travel Request Successfully Edited!!!");
+                if(count($postFiles['files']) > 0){
+                    //   echo '<pre>';  print_r($postFiles['files']); die;
+                        foreach ($postFiles['files'] as $value) {
+                            if ($value['name'] != null) {
+                                $fileDir = getcwd() . '/public/uploads/documents/travel-documents';
+                          
+                                if (!file_exists($fileDir)) {
+                                    mkdir($fileDir, 0777, true);
+                                }
+        
+                                $newImageName = time().$value['name'];
+                                $path = $fileDir. "/" . $newImageName;
+                                move_uploaded_file( $value['tmp_name'], $path);
+                                $data = array(
+                                   'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TRAVELFILES::TABLE_NAME, TRAVELFILES::FILE_ID)) + 1,
+                                   'FILE_NAME' => $newImageName,
+                                   'TRAVEL_ID' => $id,
+                                   'FILE_IN_DIR_NAME' =>  $path,
+                                   'UPLOADED_DATE' => '',
+                                );
+                                // echo '<pre>';print_r($data);die;
+
+                                $this->travelRequestRepository->updateFiles($data);
+                            }
+                        }
+                    }
                 return $this->redirect()->toRoute("travelApply");
             }
         }
 
         $detail = $this->travelRequestRepository->fetchById($id);
-        //$fileDetails = $this->repository->fetchAttachmentsById($id);
+        $fileDetails = $this->travelApproveRepository->fetchAttachmentsById($id);
         $model = new TravelRequestModel();
         $model->exchangeArrayFromDB($detail);
         $this->form->bind($model);
 
         $numberInWord = new NumberHelper();
         $advanceAmount = $numberInWord->toText($detail['REQUESTED_AMOUNT']);
-
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
                     'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
                     'detail' => $detail,
                     'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount
-                        //'files' => $fileDetails
+                    'advanceAmount' => $advanceAmount,
+                    'files' => $fileDetails,
+                    'fileId' => $fileDetails[0]['FILE_ID']
+
         ]);
     }
 
@@ -200,13 +210,6 @@ class TravelStatus extends HrisController {
             return $this->redirect()->toRoute("travelApprove");
         }
         $detail = $this->travelApproveRepository->fetchById($id);
-      //  echo '<pre>';print_r($detail);die;
-
-        
-        $allCategoryList = EntityHelper::getTableKVList($this->adapter, "HRIS_TRAVELS_EXPENSES_CATEGORY", "ID", ["CATEGORY_NAME"], null,null,true,'ID','ASC');
-        $categoryWisePercentage = EntityHelper::getTableKVList($this->adapter, "HRIS_TRAVELS_EXPENSES_CATEGORY", "ID", ["ALLOWANCE_PERCENTAGE"], null,null,false,'ID','ASC');
-        
-        // echo '<pre>';print_r($detail);die;
 
         $authRecommender = $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'];
         $authApprover = $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'];
@@ -214,15 +217,11 @@ class TravelStatus extends HrisController {
 
 
         $expenseDtlRepo = new TravelExpenseDtlRepository($this->adapter);
-        
         $result = $expenseDtlRepo->fetchByTravelId($id);
-        // echo '<pre>';print_r($result);die;
-      
         $expenseDtlList = [];
-       
         $totalAmount = 0;
         foreach ($result as $row) {
-            $totalAmount += $row['TOTAL_AMOUNT'];
+            $totalAmount += $row['AMOUNT'];
             array_push($expenseDtlList, $row);
         }
         $transportType = [
@@ -234,9 +233,9 @@ class TravelStatus extends HrisController {
         ];
         $numberInWord = new NumberHelper();
         $totalAmountInWords = $numberInWord->toText($totalAmount);
-        $balance = $detail['REQUESTED_AMOUNT'] - $totalAmount;
-    // echo '<pre>';print_r($expenseDtlList);die;
-        
+        // echo '<pre>';print_r($totalAmountInWords );die;
+
+        $balance = $detail['REQUESTED_AMOUNT'];
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'id' => $id,
@@ -245,8 +244,6 @@ class TravelStatus extends HrisController {
                     'recommendedBy' => $recommenderId,
                     'employeeId' => $this->employeeId,
                     'expenseDtlList' => $expenseDtlList,
-                    'TravelClass'=>$allCategoryList,
-                    'categoryWisePercentage' => $categoryWisePercentage,
                     'transportType' => $transportType,
                     'todayDate' => date('d-M-Y'),
                     'detail' => $detail,
@@ -289,14 +286,10 @@ class TravelStatus extends HrisController {
     private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
 
         $detail = $this->travelApproveRepository->fetchById($id);
-        // echo '<pre>';print_r($detail);die;
 
         if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC') {
             $model = new TravelRequest();
             $model->travelId = $id;
-            $model->employeeId = $detail['EMPLOYEE_ID'];
-            $model->fromDate = $detail['FROM_DATE'];
-            $model->toDate = $detail['TO_DATE'];
             $model->recommendedDate = Helper::getcurrentExpressionDate();
             $model->recommendedBy = $this->employeeId;
             $model->approvedRemarks = $remarks;
@@ -320,7 +313,6 @@ class TravelStatus extends HrisController {
     private function makeSuperDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
 
         $detail = $this->travelApproveRepository->fetchById($id);
-       // echo '<pre>';print_r($detail);die;
 
         if ($detail['STATUS'] == 'AP') {
             $model = new TravelRequest();

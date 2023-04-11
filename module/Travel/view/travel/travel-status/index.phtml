@@ -22,6 +22,7 @@ $this->headScript()
     document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
     document.bulkLink = '<?php echo $this->url('travelStatus', ['action' => 'bulk']); ?>';
     document.preference =<?php echo json_encode($preference) ?>;
+	document.expenseeditLink = '<?= $this->url("travelStatus", ["action" => "edit"]) ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\travelStatus')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -153,26 +154,6 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
                 </div>
             </div>
-            <?php
-//                    echo '<pre>';
-//        print_r($itnaryCodeList);
-//        die();
-            if(!empty($itnaryCodeList)){
-            ?>
-            <div class="col-sm-2">
-                <select  class="form-control" name="itnaryId" id="itnaryId">
-                    <option value="-1">Travel Code</option>
-                        <?php
-                        foreach ($itnaryCodeList as $codeList) {
-                            echo '<option value="'.$codeList['ITNARY_ID'].'">'.$codeList['ITNARY_CODE'].'</option>';
-                        }
-                        ?>
-                </select>
-            </div>
-            <?php
-            
-            }
-            ?>
         </div>
 
             <div class="row margin-top-10">
@@ -193,6 +174,21 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
         </div>
     </div>
+	<div class="row">
+            <div class="col-sm-2">
+            <div class="form-group">
+            <label for="fromDate">Year</label>
+                            <select name="year" id="appliedYear">
+                                <option value="18">2018</option>
+                                <option value="19">2019</option>
+                                <option value="20">2020</option>
+                                <option value="21">2021</option>
+                                <option value="22" >2022</option>
+                                <option value="23" selected>2023</option>
+								<option value="24" >2024</option>
+                            </select>
+            </div>   
+            </div>
 </div>
 <div class="margin-top-20">
     <div id="table">

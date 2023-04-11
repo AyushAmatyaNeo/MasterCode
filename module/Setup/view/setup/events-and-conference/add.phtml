@@ -138,6 +138,7 @@ $form->prepare();
                     <div class="col-sm-4">
                         <div class="form-group" >
                             <?php print $this->formLabel($dailyEventHour); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($dailyEventHour); ?>
                             <?php print $this->formElementErrors()->render($dailyEventHour, ['class' => 'help-block error']); ?>
                         </div>

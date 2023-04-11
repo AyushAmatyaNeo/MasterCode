@@ -120,9 +120,10 @@ class SalarySheetController extends HrisController
             $stage = $data['stage'];
             if($data['overtime']!=null){
                 foreach ($data['empList'] as $empId){
-                    $this->salarySheetRepo->updateOValue($data,$empId);
+                    $this->salarySheetRepo->updateOtValue($data,$empId);
                 }
             }
+            // echo '<pre>';print_r($data);die;
             $returnData = null;
             switch ($stage) {
                 case 1:
@@ -215,7 +216,10 @@ class SalarySheetController extends HrisController
             $employeeId = $data['employeeId'];
             $monthId = $data['monthId'];
             $sheetNo = $data['sheetNo'];
-
+            if($data['overtime']!=null){
+            //    echo '<pre>'; print_r($data['employeeId']);die;
+                    $this->salarySheetRepo->updateOtValue($data,$data['employeeId']);
+            }
             $checkData = $this->salarySheetRepo->checkApproveLock($sheetNo);
             if ($checkData[0]['LOCKED'] == 'Y' || $checkData[0]['APPROVED'] == 'Y') {
                 throw new Exception('Cant Regenerate approved or locked');
