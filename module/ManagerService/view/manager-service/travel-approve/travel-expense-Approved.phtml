@@ -1,0 +1,93 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+$this->headScript()
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/manager-service/travel-approve/travel-expense-toapprove.js'));
+
+?>
+<div class="page-bar">
+<?= $this->navigation('Zend\Navigation\travelApprove')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+
+<script>
+    document.viewLink = '<?= $this->url("travelApprove", ["action" => "view"]) ?>';
+    document.expenseDetailLink = '<?= $this->url("travelApprove", ["action" => "expenseDetail"]) ?>';
+    document.approveRejectUrl = '<?php echo $this->url('travelApprove', ['action' => 'batchApproveReject']); ?>';
+</script>
+
+<div class="margin-top-20">
+    <div class="portlet light bg-inverse">
+        <div class="portlet-title">
+        <i class="icon-paper-plane font-green-haze"></i>
+            <span class="caption-subject bold font-green-haze uppercase"> Travel To Approve</span>
+
+            <div class="tools">
+                <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                <a href="" class="fullscreen" data-original-title="" title=""> </a>
+            </div>
+            <div class="actions">
+            <?php if($designation == "34"){?>
+                <a href="<?= $this->url('travelApprove', ['action' => 'index']) ?>" class="btn btn-sm  btn-success">
+                    Travel To Approve
+                    </a>
+                    <a href="<?= $this->url('travelApprove', ['action' => 'travelExpenseToApprove']) ?>" class="btn btn-sm  btn-success">
+                       Travel Expense To Approve
+                    </a>
+              <?php } 
+              
+               ?>
+                <div class="btn-group">
+                    <a class="btn btn-sm  btn-success" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-copy"></i> Tools
+                        <i class="fa fa-angle-down "></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li>
+                            <a href="javascript:;" id="excelExport">
+                                <i class="fa fa-file-excel-o" ></i> 
+                                Export to Excel 
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript:;" id="pdfExport">
+                                <i class="fa fa-file-excel-o" ></i> 
+                                Export to PDF 
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="table">
+        </div>
+        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv" >
+            <div class="col-sm-2 ">
+                <button id="btnReject" class="btn btn-danger btnApproveReject">Reject</button>
+            </div>
+            <div class="col-sm-2 col-sm-offset-8">
+                <button id="btnApprove" class="btn btn-info btnApproveReject pull-right">Approve</button>
+            </div>
+        </div>
+
+    </div>
+</div>

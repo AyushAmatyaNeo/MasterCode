@@ -718,6 +718,7 @@ class PayrollReportController extends HrisController
                 $companyWiseGroup = null;
             }
         }
+        // echo '<pre>';print_r(EntityHelper::getSearchDataPayroll($this->adapter));die;
         return Helper::addFlashMessagesToArray($this, [
             'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
             'salaryType' => $salaryType,

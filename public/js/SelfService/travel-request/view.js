@@ -2,6 +2,7 @@
     'use strict';
     $(document).ready(function () {
         app.startEndDatePickerWithNepali('nepaliStartDate1', 'form-fromDate', 'nepaliEndDate1', 'form-toDate')
+        
         var employeeId = $('#employeeId').val();
         window.app.floatingProfile.setDataFromRemote(employeeId);
 

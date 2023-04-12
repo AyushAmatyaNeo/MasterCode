@@ -15,7 +15,7 @@
                     <i class="fa fa-edit"></i>
                 </a>
                 #}#
-                #if(ALLOW_DELETE=='Y' && STATUS!='AP'){#
+                #if(ALLOW_DELETE=='Y'){#
                 <a  class="btn btn-icon-only red confirmation" href="${document.deleteLink}/#:TRAVEL_ID#" style="height:17px;" title="Cancel">
                     <i class="fa fa-times"></i>
                 </a>
@@ -25,6 +25,11 @@
                     <i class="fa fa-arrow-right"></i>
                 </a>
                 #}#
+                #if(ALLOW_ADVANCE_ITR=='Y'){#
+                    <a  class="btn btn-icon-only blue" href="${document.advanceInterAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
+                        <i class="fa fa-arrow-right"></i>
+                    </a>
+                    #}#
             </div>
         `;
         app.initializeKendoGrid($table, [
@@ -56,11 +61,13 @@
             {field: "DEPARTURE", title: "Departure"},
             {field: "DESTINATION", title: "Destination"},
             {field: "REQUESTED_AMOUNT", title: "Request Amt."},
+            {field: "CURRENCY", title: "Currency"},
             {field: "REQUESTED_TYPE", title: "Request For"},
             {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
+            {field: "TRAVEL_TYPE",title:"Travel Type"},
             {field: "STATUS_DETAIL", title: "Status"},
             {field: "TRAVEL_ID", title: "Action", template: action}
-        ], null, null, null, 'Travel Request List');
+        ]);
 
 
         $('#search').on('click', function () {
@@ -68,12 +75,16 @@
             var statusId = $('#statusId').val();
             var fromDate = $('#fromDate').val();
             var toDate = $('#toDate').val();
+            var year = $('#appliedYear').val();
+            var travelType=$('#travelId').val();
 
             app.pullDataById('', {
                 'employeeId': employeeId,
                 'statusId': statusId,
                 'fromDate': fromDate,
-                'toDate': toDate
+                'toDate': toDate,
+                'year': year,
+                'travelType':travelType
             }).then(function (response) {
                 if (response.success) {
                     app.renderKendoGrid($table, response.data);
@@ -86,8 +97,9 @@
 
         });
 
+        // $('#search').trigger('click');
 
-        app.searchTable($table, ['EMPLOYEE_NAME', 'EMPLOYEE_CODE']);
+        app.searchTable($table, ['EMPLOYEE_NAME', 'EMPLOYEE_CODE','FROM_DATE_AD', 'FROM_DATE_BS', 'TO_DATE_AD', 'TO_DATE_BS','TRAVEL_TYPE',]);
         var exportMap = {
             'FROM_DATE_AD': 'From Date(AD)',
             'FROM_DATE_BS': 'From Date(BS)',
@@ -101,6 +113,7 @@
             'REQUESTED_TYPE_DETAIL': 'Request Type',
             'TRANSPORT_TYPE_DETAIL': 'Transport',
             'STATUS_DETAIL': 'Status',
+            'TRAVEL_TYPE':'Travel Type',
             'PURPOSE': 'Purpose',
             'REMARKS': 'Remarks',
             'RECOMMENDER_NAME': 'Recommender',
@@ -110,7 +123,8 @@
             'RECOMMENDED_REMARKS': 'Recommended Remarks',
             'RECOMMENDED_DATE': 'Recommended Date',
             'APPROVED_REMARKS': 'Approved Remarks',
-            'APPROVED_DATE': 'Approved Date'
+            'APPROVED_DATE': 'Approved Date',
+            'CURRENCY': 'Currency'
         };
         $('#excelExport').on('click', function () {
             app.excelExport($table, exportMap, 'Travel Request List.xlsx');

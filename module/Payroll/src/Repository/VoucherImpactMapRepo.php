@@ -169,7 +169,7 @@ class VoucherImpactMapRepo extends HrisRepository {
         DESC,
             ps.priority_index
 		";
-		// print_r($sql); die;
+		// echo '<pre>';print_r($sql); die;
 		$statement = $this->adapter->query($sql);
 		
 		$result = $statement->execute();

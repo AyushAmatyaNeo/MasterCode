@@ -28,9 +28,10 @@ class TravelRequest extends Model{
     const DEPARTURE_DATE = "DEPARTURE_DATE";
     const RETURNED_DATE = "RETURNED_DATE";
     const TRANSPORT_TYPE = "TRANSPORT_TYPE";
-    const TRAVEL_CATEGORY_ID="TRAVEL_CATEGORY_ID";
     const HARDCOPY_SIGNED_FLAG = "HARDCOPY_SIGNED_FLAG";
-    const ITNARY_ID = "ITNARY_ID";
+    const TRAVEL_TYPE = "TRAVEL_TYPE";
+    const CONVERSION_RATE = "CONVERSION_RATE";
+    const CURRENCY_NAME = "CURRENCY_NAME";
     
     public $travelId;
     public $employeeId;
@@ -56,8 +57,9 @@ class TravelRequest extends Model{
     public $returnedDate;
     public $transportType;
     public $hardcopySignedFlag;
-    public $itnaryId;
-    public $travelCategory;
+    public $traveltype;
+    public $conversionrate;
+    public $currencyname;
 
     public $mappings= [
         'travelId'=>self::TRAVEL_ID,
@@ -84,7 +86,8 @@ class TravelRequest extends Model{
         'returnedDate'=>self::RETURNED_DATE,
         'transportType'=>self::TRANSPORT_TYPE,
         'hardcopySignedFlag' => self::HARDCOPY_SIGNED_FLAG,
-        'itnaryId' => self::ITNARY_ID,
-        'travelCategory'=>self::TRAVEL_CATEGORY_ID
+        'traveltype' => self::TRAVEL_TYPE,
+        'conversionrate' => self::CONVERSION_RATE,
+        'currencyname' => self::CURRENCY_NAME,
     ];   
 }

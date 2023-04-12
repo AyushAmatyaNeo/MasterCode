@@ -26,6 +26,7 @@
             $noOfDays.val(diff + 1);
         });
         
+        
         $toDate.on('change', function () {
             var diff =  Math.floor(( Date.parse($toDate.val()) - Date.parse($fromDate.val()) ) / 86400000);
             $noOfDays.val(diff + 1);

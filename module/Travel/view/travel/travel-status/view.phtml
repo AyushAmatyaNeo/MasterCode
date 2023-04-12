@@ -199,7 +199,6 @@ print $this->form()->openTag($form);
 
 
                 <div class=" row">
-                    <?php if(!$itnaryId){ ?>
                     <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($departure); ?>
@@ -214,7 +213,6 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
                         </div>               
                     </div>
-                    <?php } ?>
 
                     <div class="col-sm-4">
                         <div class="form-group">
@@ -242,9 +240,7 @@ print $this->form()->openTag($form);
                         </div>
                         <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
                     </div>
-                </div>
 
-                <div class=" row">
                     <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($transportType); ?>
@@ -252,6 +248,10 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($transportType, ['class' => 'help-block']); ?>
                         </div> 
                     </div>
+                </div>
+
+                <div class=" row">
+                   
 
 
                     <div class="col-sm-4">
@@ -317,23 +317,6 @@ print $this->form()->openTag($form);
                     <input type="submit" name="submit" class="btn btn-danger pull-right" value="Reject">
                 <?php }      ?>
             <?php } ?>
-                    
-                    
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?php
-                             if ($itnaryId) {
-                            echo $this->partial('travel/travel-itnary-request/itnaryPartialView.phtml', [
-                                'itnaryId' => $itnaryId,
-                                'travelItnaryDet' => $travelItnaryDet,
-                                'travelItnaryMemDet' => $travelItnaryMemDet
-                            ]);
-                             }
-                            ?>
-
-                        </div>
-                    </div>
-                    
 
         </div>
 
@@ -381,9 +364,12 @@ print $this->form()->closeTag();
                 Advance For Tour : Rs. <?= $detail['REQUESTED_AMOUNT'] ?> (<?= $advanceAmount; ?>)
             </li>
             <li>Mode of Transport: <?php echo $detail['TRANSPORT_TYPE_DETAIL']; ?></li>
+            <li>Status: <?php echo $detail['STATUS_DETAIL']; ?></li>
+
         </ul>
     </div>
-
+    <br>
+    <label style="color:red ;" ><i>* Note:I hereby declare that all expenses, including self-stay arrangement (if any), claimed are legitimate business expenses actually incurred and claimed as per company policy.</i></label>
     <div class="row font-common signature">
         <div class="signEmployee">
             <div class="border-dotted">
@@ -404,7 +390,7 @@ print $this->form()->closeTag();
         </div>
     </div>
 
-    <div class="row detailOfRequest" style="">
+    <div class="row detailOfRequest" >
         <h4 style="margin-bottom:3px;">To Account Section:</h4>
         <div class="font-common">
             <p style="margin-top:0px;">

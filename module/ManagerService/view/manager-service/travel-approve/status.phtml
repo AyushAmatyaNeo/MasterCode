@@ -32,15 +32,14 @@ $this->headScript()
 ?>
 
 <script>
-    document.viewLink = '<?= $this->url("travelApprove", ["action" => "view"]) ?>';
-    document.expenseDetailLink = '<?= $this->url("travelApprove", ["action" => "expenseDetail"]) ?>';
-	document.printLink = '<?= $this->url("travelApprove", ["action" => "print"]) ?>';
+    document.viewLink = '<?= $this->url("travelApprove", ["action" => "approveView"]) ?>';
+    document.expenseDetailLink = '<?= $this->url("travelApprove", ["action" => "expenseDetailApprove"]) ?>';
 </script>
 <div class="portlet light bg-inverse">
     <div class="portlet-title">
         <div class="caption">
             <i class="icon-paper-plane font-green-haze"></i>
-            <span class="caption-subject bold font-green-haze uppercase"> Filter Employees</span>
+            <span class="caption-subject bold font-green-haze uppercase">Travel Status</span>
         </div>
         <div class="tools">
             <a href="" class="collapse" data-original-title="" title=""> </a>
@@ -48,6 +47,12 @@ $this->headScript()
         </div>
         <div class="actions">
             <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="<?= $this->url('travelApprove', ['action' => 'status']) ?>">
+                    <i class="fa fa-copy"></i> Advance
+                </a> &nbsp;
+                <a class="btn btn-sm blue-soft" href="<?= $this->url('travelApprove', ['action' => 'statuse']) ?>">
+                    <i class="fa fa-copy"></i> Expense
+                </a>&nbsp;
                 <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                     <i class="fa fa-copy"></i> Tools
                     <i class="fa fa-angle-down "></i>
@@ -73,7 +78,15 @@ $this->headScript()
         <div class="row margin-top-10">
             <div class="col-sm-2">
                 <label>Status</label>
-                <?php print $this->formElement($travelStatus); ?>
+                <!-- <?php print $this->formElement($travelStatus); ?> -->
+                <select name="status" id="status"  class="form-control reset-field">
+                    <option value="-1">All status</option>
+                    <option value="RQ">Pending</option>
+                    <option value="AP">Approved</option>
+                    <option value="RC">Recommended</option>
+                    <option value="C">Rejected</option>
+                    <option value="C">Cancelled</option>
+                </select>
             </div>   
             <div class="col-sm-2">
                 <div class="form-group">

@@ -109,6 +109,7 @@ class HeadNotification {
         $notification->messageDateTime = Helper::getcurrentExpressionDateTime();
         $notification->expiryTime = Helper::getExpressionDate(date(Helper::PHP_DATE_FORMAT, strtotime("+" . self::EXPIRE_IN . " days")));
         $notification->status = 'U';
+        // echo '<pre>';print_r($notification);die;
         return $notificationRepo->add($notification);
     }
 
@@ -175,6 +176,7 @@ class HeadNotification {
     }
 
     private static function leaveApplied(LeaveApply $leaveApply, AdapterInterface $adapter, Url $url, $type) {
+                                // echo '<pre>';print_r($url);die;
         self::initFullModel(new LeaveApplyRepository($adapter), $leaveApply, $leaveApply->id);
         $recommdAppModel = self::findRecApp($leaveApply->employeeId, $adapter);
         $idAndRole = self::findRoleType($recommdAppModel, $type);
@@ -410,18 +412,21 @@ class HeadNotification {
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "view", "id" => $request->travelId, "role" => $roleAndId['role']]);
+                $title = "Travel Request";
+                $desc = "Travel Request";
                 break;
             case self::TRAVEL_EXPENSE_REQUEST :
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "expenseDetail", "id" => $request->travelId, "role" => $roleAndId['role']]);
+                $title = "Expense Reimbursement Request";
+                $desc = "Expense Reimbursement Request";
                 break;
             default:
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "view", "id" => $request->travelId, "role" => $roleAndId['role']]);
+                $title = "Travel Request";
+                $desc = "Travel Request";
                 break;
         }
-        $title = "Travel Request";
-        $desc = "Travel Request";
-
-
+    
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 9, $adapter, $url);
     }
@@ -443,20 +448,28 @@ class HeadNotification {
 
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
+                $title = "Travel Recommendation";
+                $desc = "Travel Recommendation {$status}";
+                self::sendEmail($notification, 10, $adapter, $url);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST :
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "viewExpense", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "expenseView", "id" => $request->travelId]);
+                $title = "Expense Reimbursement Recommendation";
+                $desc = "Expense Reimbursement Recommendation {$status}";
+                self::sendEmail($notification, 47, $adapter, $url);
                 break;
             default:
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
+                $title = "Travel Recommendation";
+                $desc = "Travel Recommendation {$status}";
+                self::sendEmail($notification, 10, $adapter, $url);
                 break;
         }
-        $title = "Travel Recommendation";
-        $desc = "Travel Recommendation {$status}";
-
+        
+        // echo '<pre>';print_r($notification);die;
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 10, $adapter, $url);
+        // self::sendEmail($notification, 10, $adapter, $url);
     }
 
     private static function travelApprove(TravelRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -476,20 +489,28 @@ class HeadNotification {
 
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
+                $title = "Travel Approval";
+                $desc = "Travel Approval {$status}";
+                // self::sendEmail($notification, 11, $adapter, $url);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST :
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "viewExpense", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "expenseView", "id" => $request->travelId]);
+                $title = "Expense Reimbursement";
+                $desc = "Expense Reimbursement {$status}";
+                // self::sendEmail($notification, 46, $adapter, $url);
                 break;
             default:
-                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
+                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
+                $title = "Travel Approval";
+                $desc = "Travel Approval {$status}";
+                // self::sendEmail($notification, 11, $adapter, $url);
                 break;
         }
-        $title = "Travel Approval";
-        $desc = "Travel Approval {$status}";
+        // echo '<pre>';print_r($notification);die;
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 11, $adapter, $url);
+        // self::sendEmail($notification, 11, $adapter, $url);
     }
 
     private static function trainingAssigned(TrainingAssign $request, AdapterInterface $adapter, Url $url, $type) {
@@ -1502,10 +1523,11 @@ class HeadNotification {
                 break;
             case NotificationEvents::TRAVEL_APPLIED:
                 self::travelApplied($model, $adapter, $url, self::RECOMMENDER);
+                // self::travelApplied($model, $adapter, $url, self::APPROVER);
                 break;
             case NotificationEvents::TRAVEL_RECOMMEND_ACCEPTED:
-                self::travelRecommend($model, $adapter, $url, self::ACCEPTED);
                 self::travelApplied($model, $adapter, $url, self::APPROVER);
+                self::travelRecommend($model, $adapter, $url, self::ACCEPTED);
                 break;
             case NotificationEvents::TRAVEL_RECOMMEND_REJECTED:
                 self::travelRecommend($model, $adapter, $url, self::REJECTED);
@@ -1697,6 +1719,17 @@ class HeadNotification {
             case NotificationEvents::LEAVE_CANCELLED_APPROVE_REJECTED:
                 self::leaveCancelApprove($model, $adapter, $url, self::CANCELLED_REJECTED);
                 break;
+            case NotificationEvents::TRAVEL_EXPENSE_APPLIED:
+                self::travelApplied($model, $adapter, $url, self::RECOMMENDER);
+                self::travelApplied($model, $adapter, $url, self::APPROVER);
+                break;
+            case NotificationEvents::TRAVEL_EXPENSE_APPROVED:
+                self::travelApprove($model, $adapter, $url, self::ACCEPTED);
+                self::travelApplied($model, $adapter, $url, self::APPROVER);
+                break;
+            case NotificationEvents::TRAVEL_EXPENSE_REJECTED:
+                self::travelApprove($model, $adapter, $url, self::REJECTED);
+                break;    
         }
     }
 

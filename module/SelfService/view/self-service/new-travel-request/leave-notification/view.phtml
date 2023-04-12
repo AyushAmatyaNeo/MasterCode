@@ -1,0 +1,279 @@
+<?php
+/**
+ * Load Javascript files here
+ */
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/leave-notification/view.js'));
+?>
+
+
+<?php
+$form->setAttribute('role', 'form');
+
+$leaveId = $form->get('leaveId');
+$leaveId->setValueOptions($leave);
+$leaveId->setAttributes(['disabled' => "disabled"]);
+$startDate = $form->get('startDate');
+$startDate->setAttributes(['disabled' => "disabled"]);
+$endDate = $form->get('endDate');
+$endDate->setAttributes(['disabled' => "disabled"]);
+$noOfDays = $form->get('noOfDays');
+$noOfDays->setAttributes(['disabled' => "disabled"]);
+$halfDay = $form->get('halfDay');
+$halfDay->setAttributes(['disabled' => "disabled"]);
+$remarks = $form->get('remarks');
+$remarks->setAttributes(['disabled' => 'disabled']);
+$recommendedRemarks = $form->get('recommendedRemarks');
+$recommendedRemarks->setAttributes(['disabled' => 'disabled']);
+$approvedRemarks = $form->get('approvedRemarks');
+$approvedRemarks->setAttributes(['disabled' => 'disabled']);
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'Approve');
+$submit->setAttribute('id', 'approve');
+
+$form->setAttribute('action', $this->url('leaveNotification', ['action' => 'view', 'id' => $id]));
+$form->prepare();
+?>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\leaveNotification')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb'); ?>
+</div>
+<?php print $this->form()->openTag($form); ?>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Substitute Work Request
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div>
+                    <div class="form-group">
+                        <div class="row div-font-11">
+                            <div class="col-sm-4">
+                                <table>
+                                    <tr height="30">
+                                        <td>
+                                            Employee Name
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $employeeName; ?>
+                                        </td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td>
+                                            Recommender
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $recommender; ?>
+                                        </td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td>
+                                            Status
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php
+                                            if ($status == 'RQ') {
+                                                echo "Pending";
+                                            } else if ($status == 'RC') {
+                                                echo "Recommended";
+                                            } else if ($status == 'AP') {
+                                                echo "Approved";
+                                            } else if ($status == "R") {
+                                                echo "Rejected";
+                                            } else if ($status == "C") {
+                                                echo "Cancelled";
+                                            }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <table>
+                                    <tr height="30">
+                                        <td>
+                                            Requested Date
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $requestedDt; ?>
+                                        </td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td>
+                                            Approver
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $approver; ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <table>
+                                    <tr height="30">
+                                        <td>
+                                            Total Assigned Days
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $totalDays; ?>
+                                        </td>
+                                    </tr>
+                                    <tr height="30">
+                                        <td>
+                                            Available Days
+                                        </td>
+                                        <td width="15">:</td>
+                                        <td>
+                                            <?php echo $availableDays; ?>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class=" row">
+                        <div class="col-sm-4">
+                            <div
+                                class="form-group required <?= empty($leaveId->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($leaveId); ?>
+                                    <?php print $this->formElement($leaveId); ?>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group required  <?= empty($startDate->getMessages()) ? "" : "error" ?>">
+                                        <?php print $this->formLabel($startDate) ?>
+                                        <?php print $this->formElement($startDate) ?>
+                                    </div>
+                                    <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block error']) ?>
+                                </div>     
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="nepaliStartDate">&nbsp;</label>
+                                        <div class="input-group">
+                                            <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
+                                                   class="form-control" value="" disabled="disabled">
+                                        </div>
+                                    </div>
+                                </div>     
+                            </div>        
+
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group required <?= empty($endDate->getMessages()) ? "" : "error" ?>">
+                                        <?php print $this->formLabel($endDate) ?>
+                                        <?php print $this->formElement($endDate) ?>
+                                    </div>
+                                    <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block error']) ?>
+                                </div>     
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="nepaliEndDate">&nbsp;</label>
+                                        <div class="input-group">
+                                            <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
+                                                   class="form-control" value="" disabled="disabled">
+                                        </div>
+                                    </div>
+                                </div>     
+                            </div>        
+
+                        </div>
+                    </div>
+
+
+                    <div class=" row">
+                        <div class="col-sm-4">
+                            <div
+                                class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($noOfDays); ?>
+                                    <?php print $this->formElement($noOfDays); ?>
+                                <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                            </div>
+                            <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
+                        </div>
+
+
+
+                        <div class="col-sm-4">
+                            <?php if ($remarksDtl != null) { ?>
+                                <div
+                                    class="form-group required <?= empty($remarks->getMessages()) ? "" : "error" ?>">
+                                        <?php print $this->formLabel($remarks); ?>
+                                        <?php print $this->formElement($remarks); ?>
+                                </div>
+                            <?php }
+                            ?>
+                        </div>
+                    </div>
+
+
+                    <?php
+                    if ($subEmployeeId != null) {
+                        $disabled = ($subApprovedFlag != null) ? "disabled" : "";
+                        if ($subApprovedFlag == 'Y') {
+                            $note = "[Approved]";
+                        } else if ($subApprovedFlag == 'N') {
+                            $note = "[Rejected]";
+                        } else {
+                            $note = "[Pending]";
+                        }
+                        ?>
+                        <div class="form-group padding-0">
+                            <label for="noOfDays">
+                                Substitute Employee 
+
+                            </label>
+                            <div>
+                                <select disabled="disabled" class="form-control" name="leaveSubstitute">
+                                    <?php
+                                    foreach ($employeeList as $key => $value) {
+                                        $selected = ($key == $subEmployeeId) ? "selected" : "";
+                                        ?>
+                                        <option style="cursor: pointer;" value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo $value; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group margin-top-10 required">
+                            <label>Reason for action [From You] <?php echo $note; ?></label>
+                            <textarea <?php echo $disabled; ?> name="subRemarks" id="form-subRemarks" class="form-subRemarks form-control" style="height: 50px; font-size:12px" required="required"><?php echo $subRemarks; ?></textarea>
+                        </div>
+                    <?php } ?>
+                </div>
+                <?php if ($subApprovedFlag == null) { ?>
+                    <div class="form-group">
+                        <?php print $this->formSubmit($submit); ?>
+                        <input type="submit" name="submit" class="btn btn-success pull-right" value="Reject">
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+<?php print $this->form()->closeTag(); ?>

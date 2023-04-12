@@ -316,14 +316,13 @@ class RulesRepository extends HrisRepository
   {
     // echo '<pre>';print_r($empId);die;
     $sql = "SELECT
-      hc.company_name,
-      hc.company_id,
-      hc.company_code
+    company_name,
+    company_id,
+    company_code
   FROM
-   hris_company  hc 
-   left join hris_employees he on (hc.company_id=he.company_id)
+   hris_company  
   WHERE
-      he.employee_id = $id";
+  company_id = $id";
     return $this->rawQuery($sql);
   }
 }

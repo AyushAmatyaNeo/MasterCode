@@ -20,7 +20,6 @@ $fromDate->setAttributes(["disabled" => "disabled"]);
 $toDate = $form->get('toDate');
 $toDate->setAttributes(["disabled" => "disabled"]);
 $requestedAmount = $form->get('requestedAmount');
-$requestedAmount->setAttributes(["disabled" => "disabled"]);
 $destination = $form->get('destination');
 $destination->setAttributes(["disabled" => "disabled"]);
 $purpose = $form->get('purpose');
@@ -145,7 +144,13 @@ print $this->form()->openTag($form);
                                         } else if ($role == 2) {
                                             echo 'Recommender';
                                         } else if ($role == 4) {
-                                            echo 'Recommender\Approver';
+                                            echo 'Recommender/Approver';
+                                        } else if ($role == 'A2'){
+                                            echo 'HR Approver';
+                                        } else if ($role == 'A3'){
+                                            echo 'MD Approver';
+                                        } else if ($role == 'A4'){
+                                            echo 'Finance Approver';
                                         }
                                         ?>
                                     </td>
@@ -175,7 +180,6 @@ print $this->form()->openTag($form);
                                 </div>
                             </div>     
                         </div>        
-
                     </div>
 
                     <div class="col-sm-4">
@@ -197,7 +201,6 @@ print $this->form()->openTag($form);
                                 </div>
                             </div>     
                         </div>        
-
                     </div>
 
                     <div class="col-sm-4">
@@ -272,24 +275,36 @@ print $this->form()->openTag($form);
                         </div>
                     <?php } ?>
 
-                <?php if (isset($detail['SUB_EMPLOYEE_ID'])) { ?>
-                    <div class="form-group padding-0">
+                <?php 
+                // if (isset($detail['SUB_EMPLOYEE_ID'])) { 
+                    ?>
+                    <!-- <div class="form-group padding-0">
                         <label for="noOfDays">
                             Substitute Employee 
 
                         </label>
                         <div>
                             <select disabled="disabled" class="form-control" name="travelSubstitute">
-                                <option style="cursor: pointer;" value="<?php echo $detail['SUB_EMPLOYEE_ID']; ?>" selected="selected"><?php echo $detail['SUB_EMPLOYEE_NAME']; ?></option>
+                                <option style="cursor: pointer;" value="<?php 
+                                // echo $detail['SUB_EMPLOYEE_ID']; 
+                                ?>" selected="selected"><?php 
+                                // echo $detail['SUB_EMPLOYEE_NAME']; 
+                                ?></option>
                             </select>
                         </div>
                     </div>
                     <div
                         class="form-group margin-top-10 required">
-                        <label>Reason for action [From Substitute Employee] <?php echo $detail['SUB_APPROVED_FLAG_DETAIL']; ?></label>
-                        <textarea disabled name="subRemarks" id="form-subRemarks" required="required" class="form-subRemarks form-control" style="height: 50px; font-size:12px"><?php echo $detail['SUB_REMARKS']; ?></textarea>
-                    </div>
-                <?php } ?>
+                        <label>Reason for action [From Substitute Employee] <?php 
+                        // echo $detail['SUB_APPROVED_FLAG_DETAIL']; 
+                        ?></label>
+                        <textarea disabled name="subRemarks" id="form-subRemarks" required="required" class="form-subRemarks form-control" style="height: 50px; font-size:12px"><?php 
+                        // echo $detail['SUB_REMARKS']; 
+                        ?></textarea>
+                    </div> -->
+                <?php 
+                // } 
+                ?>
             </div>     
             <?php if ($role == 3 || $role == 4) { ?>
                 <?php $recommendedRemarks->setAttributes(['disabled' => 'disabled']); ?>
@@ -319,27 +334,10 @@ print $this->form()->openTag($form);
                 </div>
             <?php } ?>
 
-            <?php if ($detail['STATUS'] == 'RQ' || ($detail['STATUS'] == 'RC')) { ?>
+            <?php if ($detail['STATUS'] == 'RQ' || ($detail['STATUS'] == 'RC') || ($detail['STATUS'] == 'A2') || ($detail['STATUS'] == 'A3') || ($detail['STATUS'] == 'A4')) { ?>
                 <?php print $this->formSubmit($submit); ?>
                 <input type="submit" name="submit" class="btn btn-danger pull-right" value="Reject">
             <?php } ?>
-                
-                
-                <div class="row">
-                    <div class="col-md-12">
-                        <?php
-                        if ($itnaryId) {
-                            echo $this->partial('travel/travel-itnary-request/itnaryPartialView.phtml', [
-                                'itnaryId' => $itnaryId,
-                                'travelItnaryDet' => $travelItnaryDet,
-                                'travelItnaryMemDet' => $travelItnaryMemDet
-                            ]);
-                        }
-                        ?>
-
-                    </div>
-                </div>
-                
 
         </div>
 
@@ -349,6 +347,24 @@ print $this->form()->openTag($form);
 <?php
 print $this->form()->closeTag();
 ?>
+                   <div class= "row" style="margin-top:30px;">
+                        <div class=" col-md-6 form-group">
+                            <table id="fileDetailsTbl" class="table">
+                                <tr>
+                                    <th>Document</th>
+                                    <th>&nbsp;</th>
+                                    <th>Action</th>
+                                </tr>
+                                <?php
+                                   foreach ($filesnew as $key => $value) { ?>
+                                    <td> <?php echo $value['FILE_NAME'] ?></td>
+                                    <td> <a href="<?= $this->basePath() . "/uploads/documents/travel-documents/" . $value['FILE_NAME']; ?>" target="_blank" rel="noopener noreferrer">View </a> </td>
+                                <?php   }
+                                ?>
+                                <td></td>
+                            </table>
+                        </div>
+                    </div>
 <div style="border:1px solid; display: none;" id="printableArea" class="col-md-8">
     <div class="row">
         <div class="col-md-8 col-sm-offset-2">

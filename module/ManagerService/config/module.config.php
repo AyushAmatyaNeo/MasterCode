@@ -328,11 +328,18 @@ return [
                         'route' => 'travelApprove',
                         'action' => 'view',
                     ],
+                ]  
+                ],
+            [
+                'label' => 'Expense Reimbursement',
+                'route' => 'travelApprove',
+                'action' => 'expenseIndex',
+                'pages' => [
                     [
-                        'label' => 'View',
+                        'label' => 'Expense Detail',
                         'route' => 'travelApprove',
                         'action' => 'expenseDetail',
-                    ],
+                    ]
                 ]
             ]
         ],

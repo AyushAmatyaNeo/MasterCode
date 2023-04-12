@@ -118,6 +118,10 @@ class NotificationEvents {
     const EVENT_APPROVE_ACCEPTED = 90;
     const EVENT_APPROVE_REJECTED = 91;
 
+    const TRAVEL_EXPENSE_APPLIED = 100;
+    const TRAVEL_EXPENSE_APPROVED=101;
+    const TRAVEL_EXPENSE_REJECTED=102;
+
 //    note number 79 80 81 82 already used in leave above
     
 }
