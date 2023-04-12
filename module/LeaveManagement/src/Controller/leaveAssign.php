@@ -31,6 +31,7 @@ class leaveAssign extends HrisController {
             ->setOrder([LeaveMaster::VIEW_ORDER => Select::ORDER_ASCENDING,LeaveMaster::LEAVE_ENAME => Select::ORDER_ASCENDING])
             ->setKeyValue(LeaveMaster::LEAVE_ID, LeaveMaster::LEAVE_ENAME)
             ->result();
+        
         $config = [
             'name' => 'leave',
             'id' => 'leaveId',
@@ -38,7 +39,6 @@ class leaveAssign extends HrisController {
             'label' => 'Type'
         ];
         $leaveSE = $this->getSelectElement($config, $leaveList);
-        
         
          $leaveYearData = HrisQuery::singleton()
             ->setAdapter($this->adapter)
@@ -48,6 +48,7 @@ class leaveAssign extends HrisController {
             ->setOrder(['LEAVE_YEAR_ID' => Select::ORDER_DESCENDING])
             ->setKeyValue('LEAVE_YEAR_ID', 'LEAVE_YEAR_NAME')
             ->result();
+        
          $leaveYearConfig = [
             'name' => 'leaveYear',
             'id' => 'leaveYear',

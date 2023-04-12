@@ -31,6 +31,7 @@ $this->headScript()->appendFile($this->basePath('js/LeaveManagement/LeaveRequest
 
 <?php
 $form->setAttribute('role', 'form');
+$form->setAttribute('id', 'leaveApply');
 
 $startDate = $form->get('startDate');
 $endDate = $form->get('endDate');
@@ -58,6 +59,7 @@ print $this->form()->openTag($form);
     document.wsValidateLeaveRequest = '<?= $this->url("leaverequest", ["action" => "validateLeaveRequest"]) ?>';
     document.subLeaveReference = '<?=$subLeaveReference?>';
     document.subLeaveMaxDays = '<?=$subLeaveMaxDays?>';
+    document.allowPrevMnthLeave = '<?=$allowPrevMnthLeave?>';
 
 </script>
 
