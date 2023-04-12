@@ -228,6 +228,7 @@
                     });
                 };
                 $scope.addDocument = function () {
+
                     var modalInstance = $uibModal.open({
                         ariaLabelledBy: 'modal-title',
                         ariaDescribedBy: 'modal-body',
@@ -281,6 +282,9 @@
                         });
                     });
                     modalInstance.result.then(function (selectedItem) {
+
+                        alert("validation here"); return 0;
+
                         window.app.pullDataById(document.pushEmployeeDocumentLink, {
                             'fileTypeCode': selectedItem.fileTypeCode,
                             'filePath': selectedItem.fileName,
@@ -305,6 +309,7 @@
                         console.log("Modal Action Cancelled");
                     });
                 };
+
                 window.app.pullDataById(document.pullEmployeeFileByEmpIdLink, {
                     'employeeId': document.employeeId
                 }).then(function (success) {
