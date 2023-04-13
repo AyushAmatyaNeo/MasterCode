@@ -64,9 +64,8 @@ class JobHistoryController extends HrisController {
                 $jobHistory->retiredFlag = $jobHistory->retiredFlag ? 'Y' : 'N';
                 $jobHistory->disabledFlag = $jobHistory->disabledFlag ? 'Y' : 'N';
                 $jobHistory->eventDate = Helper::getExpressionDate($jobHistory->eventDate);
-
                 $this->repository->add($jobHistory);
-
+                // $this->repository->updateUser($jobHistory->employeeId,$jobHistory->disabledFlag);
                 $this->flashmessenger()->addMessage("Job History Successfully added!!!");
                 return $this->redirect()->toRoute("jobHistory");
             }
@@ -101,6 +100,7 @@ class JobHistoryController extends HrisController {
                 $jobHistory->endDate = Helper::getExpressionDate($jobHistory->endDate);
                 $jobHistory->modifiedDt = Helper::getcurrentExpressionDate();
                 $jobHistory->modifiedBy = $this->employeeId;
+                $jobHistory->status = 'E';
                 $jobHistory->retiredFlag = $jobHistory->retiredFlag ? 'Y' : 'N';
                 $jobHistory->disabledFlag = $jobHistory->disabledFlag ? 'Y' : 'N';
                 $jobHistory->eventDate = Helper::getExpressionDate($jobHistory->eventDate);

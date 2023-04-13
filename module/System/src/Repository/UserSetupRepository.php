@@ -214,7 +214,7 @@ class UserSetupRepository implements RepositoryInterface {
             $boundedParameter['userId']=$userId;
         $sql .= "AND USER_ID!=:userId";
         }
-        
+        // echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParameter);
         return $result->current();

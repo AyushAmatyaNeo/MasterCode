@@ -43,8 +43,21 @@ DELETE FROM HRIS_EMPLOYEE_LEAVE_ADDITION WHERE WOD_ID={$id};
 DELETE FROM HRIS_OVERTIME_DETAIL WHERE WOD_ID= {$id};
 DELETE FROM HRIS_OVERTIME WHERE WOD_ID = {$id};
 END;";
+EntityHelper::rawQueryResult($this->adapter, $sql);
 
-        EntityHelper::rawQueryResult($this->adapter, $sql);
+$sql="select * from HRIS_EMPLOYEE_WORK_DAYOFF where id={$id}";
+$statement = $this->adapter->query($sql);
+$result = $statement->execute()->current();
+// echo '<pre>';print_r($result);die;
+
+if ($result['STATUS']=='C') {
+    $sql = "BEGIN 
+    HRIS_REATTENDANCE('{$result['FROM_DATE']}',{$result['EMPLOYEE_ID']},'{$result['FROM_DATE']}');
+       END; ";
+// echo '<pre>';print_r($sql);die;
+
+    EntityHelper::rawQueryResult($this->adapter, $sql);
+}
     }
 
     public function edit(Model $model, $id) {

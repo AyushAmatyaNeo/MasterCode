@@ -76,6 +76,7 @@ class WorkOnHoliday extends HrisController {
         if ($id === 0) {
             return $this->redirect()->toRoute('workOnHoliday');
         }
+        // echo '<pre>';print_r($id);die;
         $this->repository->delete($id);
         $this->flashmessenger()->addMessage("Work on Holiday Request Successfully Cancelled!!!");
         return $this->redirect()->toRoute('workOnHoliday');

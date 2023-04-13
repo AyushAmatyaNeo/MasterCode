@@ -28,6 +28,7 @@ class JobHistoryRepository implements RepositoryInterface {
             $history['TO_SALARY'] = 0;
         }
         $this->tableGateway->insert($history);
+
         $this->updateEmployeeProfile($history['JOB_HISTORY_ID']);
     }
 
@@ -67,8 +68,6 @@ class JobHistoryRepository implements RepositoryInterface {
     }
 
     public function filter($fromDate, $toDate, $employeeId, $serviceEventTypeId = null, $companyId = null, $branchId = null, $departmentId = null, $designationId = null, $positionId = null, $serviceTypeId = null, $employeeTypeId = null, $functionalTypeId = null) {
-        $boundedParams = [];
-
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -95,58 +94,41 @@ class JobHistoryRepository implements RepositoryInterface {
 
         if ($fromDate != null) {
             $select->where([
-                "H.START_DATE>= :fromDate"
+                "H.START_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')"
             ]);
-            $boundedParams['fromDate'] = $fromDate;
         }
 
         if ($toDate != null) {
             $select->where([
-                "H.END_DATE<= :toDate"
+                "H.END_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')"
             ]);
-            $boundedParams['toDate'] = $toDate;
         }
 
         if ($employeeTypeId != null && $employeeTypeId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($employeeTypeId, "E.EMPLOYEE_TYPE", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($employeeTypeId, "E.EMPLOYEE_TYPE", "")
             ]);
         }
 
         if ($employeeId != -1 && $employeeId != null) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($employeeId, "E.EMPLOYEE_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($employeeId, "E.EMPLOYEE_ID", "")
             ]);
         }
 
         if ($serviceEventTypeId != null && $serviceEventTypeId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($serviceEventTypeId, "H.SERVICE_EVENT_TYPE_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($serviceEventTypeId, "H.SERVICE_EVENT_TYPE_ID", "")
             ]);
         }
         if ($companyId != null && $companyId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($companyId, "E.COMPANY_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($companyId, "E.COMPANY_ID", "")
             ]);
         }
         if ($branchId != null && $branchId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($branchId, "E.BRANCH_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($branchId, "E.BRANCH_ID", "")
             ]);
         }
         if ($departmentId != null && $departmentId != -1) {
@@ -161,48 +143,34 @@ class JobHistoryRepository implements RepositoryInterface {
   FROM (SELECT EXCEPTIONAL  FROM  HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN  (INVALUES))
    CONNECT BY  REGEXP_SUBSTR(EXCEPTIONAL, '[^,]+', 1, LEVEL) IS NOT NULL
                         )";
-            $conditonDetail = EntityHelper::conditionBuilderBounded($departmentId, "E.DEPARTMENT_ID", "", false, $parentQuery);
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($departmentId, "E.DEPARTMENT_ID", "", false, $parentQuery)
             ]);
         }
         if ($designationId != null && $designationId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($designationId, "E.DESIGNATION_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($designationId, "E.DESIGNATION_ID", "")
             ]);
         }
         if ($positionId != null && $positionId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($positionId, "E.POSITION_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($positionId, "E.POSITION_ID", "")
             ]);
         }
         if ($serviceTypeId != null && $serviceTypeId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($serviceTypeId, "E.SERVICE_TYPE_ID", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($serviceTypeId, "E.SERVICE_TYPE_ID", "")
             ]);
         }
         if ($functionalTypeId != null && $functionalTypeId != -1) {
-            $conditonDetail = EntityHelper::conditionBuilderBounded($functionalTypeId, "E.functional_type_id", "");
-            $conditon =$conditonDetail['sql'];
-            $boundedParams=array_merge($boundedParams,$conditonDetail['parameter']);
             $select->where([
-                $conditon
+                EntityHelper::conditionBuilder($functionalTypeId, "E.functional_type_id", "")
             ]);
         }
         $select->order("E.FIRST_NAME,H.START_DATE ASC");
         $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute($boundedParams);
+        // echo '<pre>';print_r($statement);die;
+        $result = $statement->execute();
         return $result;
     }
 
@@ -242,21 +210,15 @@ class JobHistoryRepository implements RepositoryInterface {
 
                 WHERE EMPLOYEE_ID=$empId
                 AND JOB_HISTORY_ID NOT IN
-                  (SELECT JOB_HISTORY_ID FROM HRIS_SALARY_DETAIL WHERE EMPLOYEE_ID=:empId
+                  (SELECT JOB_HISTORY_ID FROM HRIS_SALARY_DETAIL WHERE EMPLOYEE_ID=$empId
                   )";
-
-        $boundedParameter = [];
-        $boundedParameter['empId'] = $empId;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // $result = Helper::extractDbData($result);
-        // return $result;
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        $result = Helper::extractDbData($result);
+        return $result;
     }
 
     function fetchLatestJobHistory($employeeId) {
-        $boundedParams = [];
-        $boundedParams['employeeId'] = $employeeId;
         return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, " 
                         SELECT TO_BRANCH_ID,
                           TO_DEPARTMENT_ID,
@@ -274,16 +236,14 @@ class JobHistoryRepository implements RepositoryInterface {
                             TO_COMPANY_ID,
                             INITCAP(TO_CHAR(START_DATE,'DD-MON-YYYY')) AS START_DATE_FORMATTED
                           FROM HRIS_JOB_HISTORY
-                          WHERE EMPLOYEE_ID = :employeeId
+                          WHERE EMPLOYEE_ID ={$employeeId}
                           AND STATUS        ='E'
                           ORDER BY START_DATE DESC
                           )
-                        WHERE ROWNUM=1", $boundedParams));
+                        WHERE ROWNUM=1"));
     }
 
     function fetchBeforeJobHistory($historyId) {
-        $boundedParams = [];
-        $boundedParams['historyId'] = $historyId;
         return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, "
                     SELECT INITCAP(TO_CHAR(H.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
                       INITCAP(TO_CHAR(H.END_DATE, 'DD-MON-YYYY'))        AS END_DATE,
@@ -296,15 +256,14 @@ class JobHistoryRepository implements RepositoryInterface {
                       H.TO_POSITION_ID                                   AS TO_POSITION_ID,
                       H.TO_SERVICE_TYPE_ID                               AS TO_SERVICE_TYPE_ID
                     FROM HRIS_JOB_HISTORY H,
-                      (SELECT START_DATE FROM HRIS_JOB_HISTORY WHERE JOB_HISTORY_ID= :historyId
+                      (SELECT START_DATE FROM HRIS_JOB_HISTORY WHERE JOB_HISTORY_ID={$historyId}
                       ) PH
                     WHERE H.START_DATE<PH.START_DATE
-                    AND ROWNUM        =1", $boundedParams));
+                    AND ROWNUM        =1"));
     }
 
     function fetchAfterJobHistory($historyId) {
-        $boundedParams = [];
-        $boundedParams['historyId'] = $historyId;
+
         return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, "
                 SELECT INITCAP(TO_CHAR(H.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
                   INITCAP(TO_CHAR(H.END_DATE, 'DD-MON-YYYY'))        AS END_DATE,
@@ -317,15 +276,13 @@ class JobHistoryRepository implements RepositoryInterface {
                   H.TO_POSITION_ID                                   AS TO_POSITION_ID,
                   H.TO_SERVICE_TYPE_ID                               AS TO_SERVICE_TYPE_ID
                 FROM HRIS_JOB_HISTORY H,
-                  (SELECT START_DATE FROM HRIS_JOB_HISTORY WHERE JOB_HISTORY_ID= :historyId
+                  (SELECT START_DATE FROM HRIS_JOB_HISTORY WHERE JOB_HISTORY_ID={$historyId}
                   ) PH
                 WHERE H.START_DATE>PH.START_DATE
-                AND ROWNUM        =1", $boundedParams));
+                AND ROWNUM        =1"));
     }
 
     function fetchAfterStartDate($date) {
-        $boundedParams = [];
-        $boundedParams['date'] = $date;
         return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, "
             SELECT INITCAP(TO_CHAR(H.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
               INITCAP(TO_CHAR(H.END_DATE, 'DD-MON-YYYY'))        AS END_DATE,
@@ -338,14 +295,12 @@ class JobHistoryRepository implements RepositoryInterface {
               H.TO_POSITION_ID                                   AS TO_POSITION_ID,
               H.TO_SERVICE_TYPE_ID                               AS TO_SERVICE_TYPE_ID
             FROM HRIS_JOB_HISTORY H
-            WHERE H.START_DATE> :date
-            AND ROWNUM        =1", $boundedParams));
+            WHERE H.START_DATE>{$date}
+            AND ROWNUM        =1"));
     }
 
     function fetchBeforeStartDate($date, $employeeId) {
-        $boundedParams = [];
-        $boundedParams['date'] = $date;
-        $boundedParams['employeeId'] = $employeeId;
+        // echo '<pre>';print_r($date);die;
         $result = EntityHelper::rawQueryResult($this->adapter, "
             SELECT * FROM
             (SELECT INITCAP(TO_CHAR(H.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
@@ -363,17 +318,15 @@ class JobHistoryRepository implements RepositoryInterface {
               H.RETIRED_FLAG,
               H.DISABLED_FLAG
             FROM HRIS_JOB_HISTORY H
-            WHERE H.START_DATE< :date
-            AND H.EMPLOYEE_ID = :employeeId
+            WHERE H.START_DATE<{$date}
+            AND H.EMPLOYEE_ID = {$employeeId}
             ORDER BY H.START_DATE DESC)
-            WHERE ROWNUM        =1", $boundedParams);
+            WHERE ROWNUM        =1");
 
         return $result->current();
     }
 
     function fetchByEmployeeId($employeeId) {
-        $boundedParams = [];
-        $boundedParams['employeeId']= $employeeId;
         $result = EntityHelper::rawQueryResult($this->adapter, "
             SELECT INITCAP(TO_CHAR(H.START_DATE, 'YYYY-MM-DD')) AS START_DATE,
               INITCAP(TO_CHAR(H.END_DATE, 'YYYY-MM-DD'))        AS END_DATE,
@@ -402,24 +355,32 @@ class JobHistoryRepository implements RepositoryInterface {
             JOIN HRIS_DESIGNATIONS DES ON (H.TO_DESIGNATION_ID = DES.DESIGNATION_ID)
             JOIN HRIS_POSITIONS P ON (H.TO_POSITION_ID = P.POSITION_ID)
             JOIN HRIS_SERVICE_TYPES ST ON (H.TO_SERVICE_TYPE_ID = ST.SERVICE_TYPE_ID)
-            WHERE H.EMPLOYEE_ID = :employeeId
-            ORDER BY H.START_DATE DESC", $boundedParams);
+            WHERE H.EMPLOYEE_ID = {$employeeId}
+            ORDER BY H.START_DATE DESC");
 
         return Helper::extractDbData($result);
     }
 
     function updateEmployeeProfile($jobHistoryId) {
-        $boundedParams = [];
-        $boundedParams['jobHistoryId'] = $jobHistoryId;
-        $salary = isset($j->toSalary) ? $j->toSalary : 0;
+        // $salary = isset($j->toSalary) ? $j->toSalary : 0;
         EntityHelper::rawQueryResult($this->adapter, "
             BEGIN
-              HRIS_UPDATE_EMPLOYEE_SERVICE(:jobHistoryId);
-            END;", $boundedParams);
+              HRIS_UPDATE_EMPLOYEE_SERVICE({$jobHistoryId});
+            END;");
     }
 
     function displayAutoNotification() {
         EntityHelper::rawQueryResult($this->adapter, "");
     }
+
+    // public function updateUser($empId,$isDisabledFlag)
+    // {
+    //     $sql="
+    //     UPDATE HRIS_USERS SET STATUS='D' WHERE EMPLOYEE_ID= $empId and '$isDisabledFlag'='Y'";
+    //     $statement = $this->adapter->query($sql);
+    //     // echo '<pre>';print_r($sql);die;
+    //     $result = $statement->execute();
+    //     return $result;
+    // }
 
 }

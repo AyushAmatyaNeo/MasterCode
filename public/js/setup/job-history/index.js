@@ -40,7 +40,7 @@
                         <i class="fa fa-trash-o"></i></a>
                         </a>`}
         ];
-        app.initializeKendoGrid($table, columns, null, null, null, 'Employee Service History.xlsx');
+        app.initializeKendoGrid($table, columns, null, null, null, 'Job History.xlsx');
         app.searchTable('jobHistoryTable', ['FULL_NAME', 'EMPLOYEE_CODE', 'START_DATE', 'SERVICE_EVENT_TYPE_NAME', 'TO_SERVICE_NAME', 'TO_BRANCH_NAME', 'TO_DEPARTMENT_NAME', 'TO_DESIGNATION_TITLE', 'TO_POSITION_NAME']);
 
         var exportKV = {

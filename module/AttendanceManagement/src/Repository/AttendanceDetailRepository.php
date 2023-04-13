@@ -767,7 +767,7 @@ class AttendanceDetailRepository implements RepositoryInterface
                 END;";
         }
         // echo '<pre>';
-        // print_r($action);
+        // print_r($sql);
         // die;
         $statement = $this->adapter->query($sql);
         $statement->execute();
