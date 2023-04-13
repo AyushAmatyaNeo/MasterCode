@@ -13,6 +13,8 @@ class TravelExpenseClass extends Model{
     const STATUS="STATUS";
     const CREATED_DT="CREATED_DT";
     const CREATED_BY="CREATED_BY";
+    const MODIFIED_DT="MODIFIED_DT";
+    const MODIFIED_BY="MODIFIED_BY";
    
 
     public $id;
@@ -21,6 +23,8 @@ class TravelExpenseClass extends Model{
     public $status;
     public $createdDt;
     public $createdBy;
+    public $modifiedDt;
+    public $modifiedBy;
     
 
     public $mappings=[
@@ -30,8 +34,8 @@ class TravelExpenseClass extends Model{
         'status'=>self::STATUS,
         'createdDt'=>self::CREATED_DT,
         'createdBy'=>self::CREATED_BY,
-       
-
+        'modifiedDt'=>self::MODIFIED_DT,
+        'modifiedBy'=>self::MODIFIED_BY,
     ];
 }
 

@@ -2,15 +2,14 @@
     'use strict';
     $(document).ready(function () {
         $('select').select2();
-        var $positionId=$('#positionId');
-        var $dailyAllowance=$('#dailyAllowance');
-        var $advanceAmount=$('#advanceAmount');
+        var $categoryName=$('#categoryName');
+        var $allowancePercentage=$('#allowancePercentage');
         var $submit=$('#submit');
-        var $travelCategoryForm=$('#travelCategoryForm');
+        var $travelClassForm=$('#travelClassForm');
 
       
         $submit.on('click',function(){
-            if($("#travelCategoryForm").valid()){
+            if($("#travelClassForm").valid()){
                 travelCategory(this);
             }
         })
@@ -18,21 +17,21 @@
             var $this=$(obj);
             app.pullDataById(document.editTravelCategoryLink,{
 
-                'positionId':$positionId.val(),
-                'dailyAllowance':$dailyAllowance.val(),
-                'advanceAmount':$advanceAmount.val(),}).then(function(response){
-                app.showMessage("Travel Category Created Successfully.");
-                window.location.href = '../../travelCategory';
+                'categoryName':$categoryName.val(),
+                'allowancePercentage':$allowancePercentage.val(),
+                }).then(function(response){
+                // app.showMessage("Travel Class Updated Successfully.");
+                // window.location.href = '../travelExpenseClass';
             },function(error){
     
             });
         }
-        var validate =  $travelCategoryForm.validate({
+        var validate =  $travelClassForm.validate({
             rules: {
-                positionId: {
+                categoryName: {
                     required: true
                 },
-                dailyAllowance:{
+                allowancePercentage:{
                     required: true
                 },
                 advanceAmount:{
