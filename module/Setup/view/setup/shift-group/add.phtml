@@ -63,6 +63,7 @@ $form->prepare();
                     <div class="col-sm-4">
                         <div class="form-group <?= empty($caseName->getMessages()) ? "" : "has-error" ?>" >
                             <?php print $this->formLabel($caseName); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($caseName); ?>
                             <?php print $this->formElementErrors()->render($caseName, ['class' => 'help-block']); ?>
                         </div>
@@ -71,7 +72,8 @@ $form->prepare();
                     <div class="col-sm-4">
                         <div class="form-group">
                             <label>Shifts</label>
-                            <select multiple class="form-control" name="shifts[]" id="shifts">
+                            <span class="required" aria-required="true">*</span>
+                            <select required multiple class="form-control" name="shifts[]" id="shifts">
                                     <?php foreach($shiftList as $key => $value ){?>
                                     <option value='<?=$key?>'><?=$value?></option>
                                     <?php  }?>
@@ -110,6 +112,7 @@ $form->prepare();
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <?php print $this->formLabel($endDate); ?>
+                                    <span class="required" aria-required="true">*</span>
                                     <?php print $this->formElement($endDate); ?>
                                     <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block']); ?>
                                 </div>
