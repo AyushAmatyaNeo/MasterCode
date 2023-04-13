@@ -596,7 +596,7 @@ class EntityHelper {
         }
         
         if ($preference['orderByPosition']=='Y' && $position!=null) {
-            $orderByString.=(empty($orderByString))?' '.$position.'  ASC':','.$position.'  ASC';
+            $orderByString.=(empty($orderByString))?' '.$position.'  DESC':','.$position.'  DESC';
         }
         if ($preference['orderByJoinDate']=='Y' && $joinDate!=null) {
             $orderByString.=(empty($orderByString))?' '.$joinDate.'  ASC':','.$joinDate.'  ASC';
@@ -941,5 +941,12 @@ class EntityHelper {
         /* end of search values */
         // echo '<pre>';print_r($searchValues);die;
         return $searchValues;
+    }
+
+    public static function getPreferenceValue($adapter, $key){
+
+        $sql = "select value from hris_preferences where key = '{$key}'";
+
+        return $adapter->query($sql)->execute()->current()['VALUE'];
     }
 }

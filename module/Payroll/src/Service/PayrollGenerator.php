@@ -89,7 +89,6 @@ class PayrollGenerator {
         $this->formattedMonthlyvalueList = [];
         foreach ($monthlyValueList as $monthlyValue) {
             $this->formattedMonthlyvalueList["[M:".$this->sanitizeString($monthlyValue['MTH_EDESC'])."]"] = $monthlyValue['MTH_ID'];
-//            $this->formattedMonthlyvalueList[$monthlyValue['MTH_ID']] = "[M:{$this->sanitizeString($monthlyValue['MTH_EDESC'])}]";
         }
         $this->formattedFlatValueList = [];
         foreach ($flatValuesList as $flatValue) {
@@ -130,7 +129,7 @@ class PayrollGenerator {
         $previousSumValData=$this->ruleRepo->fetchPreviousSumVal($employeeId, $monthId) ;
         $previousSumValList=[];
         foreach($previousSumValData as $prevSumDtl){
-        $previousSumValList[$prevSumDtl['PAY_EDESC']]=$prevSumDtl['VALUE'];
+            $previousSumValList[$prevSumDtl['PAY_EDESC']]=$prevSumDtl['VALUE'];
         }
         // for previous sum data end
 		
@@ -155,6 +154,7 @@ class PayrollGenerator {
             $salaryTypeId=$ruleDetail['SALARY_TYPE_ID'];
             $salaryTypeFlag=$ruleDetail['TYPE_FLAG'];
             $salaryTypeFormula=$ruleDetail['TYPE_FORMULA'];
+
             if ($salaryTypeId != 1  && ( $salaryTypeFlag!==null OR $salaryTypeFlag == 'Y')) {
                 $formula = $salaryTypeFormula;
             }else if($salaryTypeId != 1 && ($salaryTypeFlag!==null OR $salaryTypeFlag != 'Y')){
@@ -163,27 +163,29 @@ class PayrollGenerator {
             // to override formula end
             $q = ['MONTH_ID' => $this->monthId, 'PAY_ID' => $ruleId, 'EMPLOYEE_ID' => $this->employeeId , 'SALARY_TYPE_ID' => $salaryTypeId];
             $ruleValue = $this->sspvmRepo->fetch($q);
+
             if ($ruleValue == null) {
                 $refRules = $this->ruleRepo->fetchReferencingRules($ruleId);
                 
             $monthlyValCheck = strpos($formula, "M:");
+
             if ($monthlyValCheck ) {
                 while($monthlyValCheck){
                 $startPos = strpos($formula, '[M:');
                 $endPos= strpos($formula, ' ', $startPos);
                 if(!$endPos){
-                $endPos= strlen($formula);
+                    $endPos= strlen($formula);
                 }
                 $length = abs($endPos - $startPos);
                 $monthlyValue = substr($formula, $startPos, $length);
                 $monthlyKey=$this->formattedMonthlyvalueList[$monthlyValue];
                 if($monthlyKey){
-                $formula = $this->convertMonthlyToValue($formula, $monthlyKey, $monthlyValue);
+                    $formula = $this->convertMonthlyToValue($formula, $monthlyKey, $monthlyValue);
                     $monthlyValCheck = strpos($formula, "M:");
                 }else{
                     $monthlyValCheck=false;
                 }
-                }
+            }
                 
                 
 //                foreach ($this->formattedMonthlyvalueList as $monthlyKey => $monthlyValue) {

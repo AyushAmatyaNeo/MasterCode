@@ -28,6 +28,15 @@
         var rowCount = "";
         var requireDocument = "";
         var leaveName = "";
+
+        // Check if previous month leave is allowed
+        if(document.allowPrevMnthLeave == 'N'){
+            // Calculate first day of the month
+            var date = new Date();
+            let monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+
+            $startDate.datepicker('setStartDate', monthStart);
+        }
         
         var applyLimit;
         var substituteEmp = {

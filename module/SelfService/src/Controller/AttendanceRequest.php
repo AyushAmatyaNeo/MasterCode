@@ -3,6 +3,7 @@
 namespace SelfService\Controller;
 
 use Application\Controller\HrisController;
+use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use AttendanceManagement\Repository\AttendanceDetailRepository;
 use Exception;
@@ -21,9 +22,12 @@ class AttendanceRequest extends HrisController {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(AttendanceRequestRepository::class);
         $this->initializeForm(AttendanceRequestForm::class);
+        $this->initializeMiddleware('ALLOW_SYSTEM_ATTENDANCE', 'System attendance request is disabled');
     }
 
     public function indexAction() {
+        $this->middleware();
+
         $statusSE = $this->getStatusSelectElement(['name' => 'attendanceStatus', "id" => "attendanceRequestStatusId", "class" => "form-control", 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
                     'attendanceStatus' => $statusSE,
@@ -46,6 +50,8 @@ class AttendanceRequest extends HrisController {
     }
 
     public function addAction() {
+        $this->middleware();
+
         $id = (int) $this->params()->fromRoute("id", 0);
         if ($id !== 0) {
             $attendanceDetailRepo = new AttendanceDetailRepository($this->adapter);
@@ -93,6 +99,8 @@ class AttendanceRequest extends HrisController {
     }
 
     public function editAction() {
+        $this->middleware();
+
         $id = (int) $this->params()->fromRoute("id");
         if ($id === 0) {
             return $this->redirect()->toRoute("attendancerequest");
@@ -123,6 +131,8 @@ class AttendanceRequest extends HrisController {
     }
 
     public function deleteAction() {
+        $this->middleware();
+
         $id = (int) $this->params()->fromRoute("id");
 
         if (!$id) {
@@ -134,6 +144,8 @@ class AttendanceRequest extends HrisController {
     }
 
     public function viewAction() {
+        $this->middleware();
+
         $id = (int) $this->params()->fromRoute('id', 0);
         if ($id === 0) {
             return $this->redirect()->toRoute("attedanceapprove");
@@ -164,6 +176,8 @@ class AttendanceRequest extends HrisController {
     }
     
     public function checkInAction() {
+        $this->middleware();
+        
         $id = (int) $this->params()->fromRoute("id", 0);
         if ($id !== 0) {
             $attendanceDetailRepo = new AttendanceDetailRepository($this->adapter);
@@ -206,6 +220,8 @@ class AttendanceRequest extends HrisController {
     }
     
     public function checkOutAction() {
+        $this->middleware();
+
         $id = (int) $this->params()->fromRoute("id", 0);
         if ($id !== 0) {
             $attendanceDetailRepo = new AttendanceDetailRepository($this->adapter);

@@ -35,6 +35,7 @@ class InstituteForm {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Telephone"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"min":"10"}}) 
      * @Annotation\Attributes({ "id":"form-telephone", "placeholder":"xxx-xxxxxxx", "pattern":"^\(?\d{2,3}\)?[- ]?\d{7}$", "class":"form-control","title"="Enter your mobile number(xx-xxxxxxx)"})
      */
     public $telephone;
@@ -44,13 +45,13 @@ class InstituteForm {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email"})
-     * @Annotation\Attributes({ "id":"email", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"email", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"})
      */
     public $email;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Textarea")
-     * @Annotation\Required(true)
+     * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
      * @Annotation\Options({"label":"Remarks"})
      * @Annotation\Attributes({"id":"remarks","class":"form-control"})

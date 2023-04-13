@@ -13,14 +13,13 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/attendance-reque
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('class', 'attendanceByHr-form');
+$form->setAttribute('id', 'requestForm');
 
 $attendanceDt = $form->get('attendanceDt');
 $inTime = $form->get('inTime');
 $outTime = $form->get('outTime');
 $inRemarks = $form->get('inRemarks');
-$inRemarks->setAttributes(['required' => 'true']);
 $outRemarks = $form->get('outRemarks');
-$outRemarks->setAttributes(['required' => 'true']);
 $totalHour = $form->get('totalHour');
 $totalHour->setAttributes(['readonly' => "readonly"]);
 
@@ -118,7 +117,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                                     </div>
                                 </div>
                                 <?php print $this->formElementErrors()->render($outTime, ['class' => 'help-block error']); ?>
-                                <label><input type="checkbox" value="Y" name='nextDay'>Next Day</label>
+                                <label><input type="checkbox" value="Y" name='nextDay' id="nextDay">Next Day</label>
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group <?= empty($totalHour->getMessages()) ? "" : "error" ?>">

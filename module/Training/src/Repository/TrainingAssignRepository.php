@@ -153,6 +153,8 @@ class TrainingAssignRepository extends HrisRepository implements RepositoryInter
                 $boundedParameter['trainingId'] = $search['trainingId'];
             }
         }
+
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
  
         $sql = "SELECT TA.TRAINING_ID,
                   TMS.TRAINING_CODE,
@@ -180,8 +182,12 @@ class TrainingAssignRepository extends HrisRepository implements RepositoryInter
                 ON (TA.TRAINING_ID= TMS.TRAINING_ID)
                 LEFT JOIN HRIS_EMPLOYEES E
                 ON (TA.EMPLOYEE_ID=E.EMPLOYEE_ID)
+                LEFT JOIN HRIS_POSITIONS P
+                ON E.POSITION_ID=P.POSITION_ID
+                LEFT JOIN HRIS_DESIGNATIONS DES
+                ON E.DESIGNATION_ID=DES.DESIGNATION_ID
                 WHERE 1=1 AND TA.STATUS='E' 
-                {$condition['sql']} ORDER BY TMS.TRAINING_NAME,E.FULL_NAME";
+                {$condition['sql']} {$orderByString}";
 
         return $this->rawQuery($sql, $boundedParameter);
     }

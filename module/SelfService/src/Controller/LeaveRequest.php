@@ -6,6 +6,7 @@ use Application\Controller\HrisController;
 use Application\Custom\CustomViewModel;
 use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
+use Application\Model\Preference;
 use Exception;
 use LeaveManagement\Form\LeaveApplyForm;
 use LeaveManagement\Model\LeaveApply;
@@ -173,8 +174,9 @@ class LeaveRequest extends HrisController {
             $subLeaveMaxDays = $this->preference['subLeaveMaxDays'];
         }
         $selfBranch="branch_id=(select branch_id from hris_employees where employee_id=".$this->employeeId.")";
-        //$aa = $this->repository->getLeaveList($this->employeeId,'Y');
-		//echo ($this->employeeId); die;
+
+        $allowPrevMnthLeave = EntityHelper::getPreferenceValue($this->adapter, Preference::ENABLE_PREV_MTH_LEAVE_REQ);
+
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'employeeId' => $this->employeeId,
@@ -182,7 +184,8 @@ class LeaveRequest extends HrisController {
                     'customRenderer' => Helper::renderCustomView(),
                     'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true),
                     'subLeaveReference' => $subLeaveReference,
-                    'subLeaveMaxDays' => $subLeaveMaxDays
+                    'subLeaveMaxDays' => $subLeaveMaxDays,
+                    'allowPrevMnthLeave' => $allowPrevMnthLeave
         ]);
     }
 

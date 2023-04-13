@@ -62,15 +62,18 @@ class FlatValueDetailRepo extends HrisRepository implements RepositoryInterface 
 
         $boundedParameter = [];
         $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
+        
+        $empQuery = "SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 {$searchCondition['sql']} ";
 
-        $empQuery = "SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 {$searchCondition['sql']}";
         $sql = "SELECT  FVD.*,EE.EMPLOYEE_CODE FROM HRIS_FLAT_VALUE_DETAIL FVD
-    LEFT JOIN HRIS_EMPLOYEES EE on (EE.EMPLOYEE_ID=FVD.EMPLOYEE_ID)  WHERE FVD.FLAT_ID = :flatValueId AND FVD.FISCAL_YEAR_ID = :fiscalYearId AND FVD.EMPLOYEE_ID IN ({$empQuery})";
+                LEFT JOIN HRIS_EMPLOYEES EE on (EE.EMPLOYEE_ID=FVD.EMPLOYEE_ID)  
+                WHERE FVD.FLAT_ID = :flatValueId AND FVD.FISCAL_YEAR_ID = :fiscalYearId AND FVD.EMPLOYEE_ID IN ({$empQuery})
+                ";
 
       $boundedParameter['fiscalYearId'] = $fiscalYearId;
       $boundedParameter['flatValueId'] = $flatValueId;
 
-      echo '<pre>';print_r($sql);die;
+
       return $this->rawQuery($sql, $boundedParameter);
         // $statement = $this->adapter->query($sql);
         // return $statement->execute();

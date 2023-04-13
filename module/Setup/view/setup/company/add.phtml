@@ -14,6 +14,23 @@ $address = $form->get('address');
 $telephone = $form->get('telephone');
 $fax = $form->get('fax');
 $swift = $form->get('swift');
+$linkTravelToSynergy = $form->get('linkTravelToSynergy');
+$formCode = $form->get('formCode');
+$drAccCode = $form->get('drAccCode');
+$crAccCode = $form->get('crAccCode');
+$excessCrAccCode = $form->get('excessCrAccCode');
+$lessDrAccCode = $form->get('lessDrAccCode');
+$equalCrAccCode = $form->get('equalCrAccCode');
+$advanceDrAccCode = $form->get('advanceDrAccCode');
+$advanceCrAccCode = $form->get('advanceCrAccCode');
+$formCodeFac = $form->get('formCodeFac');
+$drAccCodeFac = $form->get('drAccCodeFac');
+$crAccCodeFac = $form->get('crAccCodeFac');
+$excessCrAccCodeFac = $form->get('excessCrAccCodeFac');
+$lessDrAccCodeFac = $form->get('lessDrAccCodeFac');
+$equalCrAccCodeFac = $form->get('equalCrAccCodeFac');
+$advanceDrAccCodeFac = $form->get('advanceDrAccCodeFac');
+$advanceCrAccCodeFac = $form->get('advanceCrAccCodeFac');
 
 //custom validatin message
 if (key($telephone->getMessages()) == "regexNotMatch") {
@@ -41,6 +58,7 @@ $form->prepare();
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.wsFileUpload = '<?= $this->url('company', ["action" => "fileUpload"]) ?>';
     document.imageData =<?php echo json_encode($imageData); ?>;
+    document.companyId = null;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\Company')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -84,6 +102,7 @@ $form->prepare();
                             <?php print $this->formElement($companyCode); ?>
                             <?php print $this->formElementErrors()->render($companyCode, ['class' => 'help-block']); ?>
                             <span class="errorMsg" style="font-size:11px; color:red;"></span>
+                            <span id="codeError" style="color:red; display:none;">Company Code already exists</span>
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -129,9 +148,132 @@ $form->prepare();
                             <?php print $this->formElementErrors()->render($swift, ['class' => 'help-block']); ?>
                         </div>
                     </div>
+
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($linkTravelToSynergy); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($linkTravelToSynergy); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($linkTravelToSynergy, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($formCode); ?>
+                            <?php print $this->formElement($formCode); ?>
+                            <?php print $this->formElementErrors()->render($formCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($drAccCode); ?>
+                            <?php print $this->formElement($drAccCode); ?>
+                            <?php print $this->formElementErrors()->render($drAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($crAccCode); ?>
+                            <?php print $this->formElement($crAccCode); ?>
+                            <?php print $this->formElementErrors()->render($crAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($excessCrAccCode); ?>
+                            <?php print $this->formElement($excessCrAccCode); ?>
+                            <?php print $this->formElementErrors()->render($excessCrAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($lessDrAccCode); ?>
+                            <?php print $this->formElement($lessDrAccCode); ?>
+                            <?php print $this->formElementErrors()->render($lessDrAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($equalCrAccCode); ?>
+                            <?php print $this->formElement($equalCrAccCode); ?>
+                            <?php print $this->formElementErrors()->render($equalCrAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($advanceDrAccCode); ?>
+                            <?php print $this->formElement($advanceDrAccCode); ?>
+                            <?php print $this->formElementErrors()->render($advanceDrAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($advanceCrAccCode); ?>
+                            <?php print $this->formElement($advanceCrAccCode); ?>
+                            <?php print $this->formElementErrors()->render($advanceCrAccCode, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($formCodeFac); ?>
+                            <?php print $this->formElement($formCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($formCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($drAccCodeFac); ?>
+                            <?php print $this->formElement($drAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($drAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($crAccCodeFac); ?>
+                            <?php print $this->formElement($crAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($crAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($excessCrAccCodeFac); ?>
+                            <?php print $this->formElement($excessCrAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($excessCrAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($lessDrAccCodeFac); ?>
+                            <?php print $this->formElement($lessDrAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($lessDrAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($equalCrAccCodeFac); ?>
+                            <?php print $this->formElement($equalCrAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($equalCrAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($advanceDrAccCodeFac); ?>
+                            <?php print $this->formElement($advanceDrAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($advanceDrAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($advanceCrAccCodeFac); ?>
+                            <?php print $this->formElement($advanceCrAccCodeFac); ?>
+                            <?php print $this->formElementErrors()->render($advanceCrAccCodeFac, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
                 </div>
 
                 <?php print $this->formSubmit($submit); ?>
+                <span id="imgError" style="color:red;">Please Upload Image</span>
                 <?php
                 print $this->form()->closeTag($form);
                 ?>

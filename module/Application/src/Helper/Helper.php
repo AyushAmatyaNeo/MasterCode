@@ -332,4 +332,5 @@ class Helper {
     public static function encryptPassword($password) {
         return new Expression("FN_ENCRYPT_PASSWORD('$password')");
     }
+    
 }

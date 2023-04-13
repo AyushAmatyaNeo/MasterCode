@@ -36,6 +36,9 @@ class HrisController extends AbstractActionController {
         'CP' => 'Cancel Pending',
         'CR' => 'Cancel Recommended'
     ];
+    protected $preferenceKey;
+    protected $preferenceMessage;
+    protected $middlewareRedirect;
 
     function __construct(AdapterInterface $adapter, StorageInterface $storage) {
         $this->adapter = $adapter;
@@ -243,6 +246,32 @@ class HrisController extends AbstractActionController {
                  ORDER BY SENIORITY_LEVEL ASC";
         $list = EntityHelper::rawQueryResult($this->adapter, $sql);
         return iterator_to_array($list, false);
+    }
+
+    /**
+     * prefenceKey = preference key to check database and use it as a middleware
+     * preferenceMessage = message to display when redirect
+     * middlrewareRedirect = Redirect url if preference is disabled
+     */
+    public function initializeMiddleware($preferenceKey, $preferenceMessage, $middlewareRedirect = 'dashboard'){
+        $this->preferenceMessage = $preferenceMessage;
+        $this->middlewareRedirect = $middlewareRedirect;
+        $this->preferenceKey = $preferenceKey;
+    }
+
+    /**
+     * Function to redirect if the preference key doesn't matches
+     */
+    public function middleware(){
+
+        if($this->preferenceKey == null){
+            throw new Exception('Middleware has not been initialized, initialize middleware on constructor');
+        }
+
+        if(EntityHelper::getPreferenceValue($this->adapter, $this->preferenceKey) == 'N'){
+            $this->flashmessenger()->addMessage($this->preferenceMessage);
+            $this->redirect()->toRoute($this->middlewareRedirect);
+        }
     }
 
 }

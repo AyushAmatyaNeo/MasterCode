@@ -8,6 +8,14 @@
             minuteStep: 1
         });
 
+        var $attendanceDt = $("#attendanceDt");
+        
+        app.getServerDate().then(function (response) {
+            $attendanceDt.datepicker('setEndDate', app.getSystemDate(response.data.serverDate));
+        }, function (error) {
+            console.log("error=>getServerDate", error);
+        });
+
         app.datePickerWithNepali("attendanceDt", "nepaliDate");
 
         let $employeeId = $('#employeeId');

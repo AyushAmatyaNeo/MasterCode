@@ -23,6 +23,8 @@ class LeaveSubBypassRepository extends HrisRepository {
         $boundedParameter = [];
         $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
 
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+
         $sql = "SELECT 
                   E.FULL_NAME,
                   ELA.LEAVE_ID ,
@@ -51,7 +53,7 @@ class LeaveSubBypassRepository extends HrisRepository {
                 WHERE 1            =1 
                  AND E.STATUS ='E'
                 {$condition['sql']}
-                ORDER BY E.FULL_NAME";
+                {$orderByString}";
 
                 return $this->rawQuery($sql, $boundedParameter);
         // $statement = $this->adapter->query($sql);

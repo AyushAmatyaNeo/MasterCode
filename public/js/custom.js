@@ -1261,6 +1261,70 @@ window.app = (function ($, toastr, App) {
         kendo.saveAs({dataURI: workbook.toDataURL(), fileName: fileName});
     };
 
+    var excelExportModified = function ($table, col, fileName, exportType = {}) {
+        if (!checkForFileExt(fileName)) {
+            fileName = fileName + ".xlsx";
+        }
+        var header = [];
+        var cellWidths = [];
+        $.each(col, function (key, value) {
+            header.push({value: value});
+            cellWidths.push({autoWidth: true});
+        });
+        var rows = [{
+            cells: header
+        }];
+
+        var data = [];
+        if (Array.isArray($table)) {
+            data = $table;
+        } else {
+            var dataSource = $table.data("kendoGrid").dataSource;
+            var filteredDataSource = new kendo.data.DataSource({
+                data: dataSource.data(),
+                filter: dataSource.filter()
+            });
+            filteredDataSource.read();
+            var data = filteredDataSource.view();
+        }
+
+        for (var i = 0; i < data.length; i++) {
+            var dataItem = data[i];
+            var row = [];
+            $.each(col, function (key, value) {
+                if (dataItem[key] != null && dataItem[key] != '') {
+                    if (exportType[key]) {
+                        if (exportType[key] == 'STRING') {
+                            row.push({value: dataItem[key]});
+                        }
+                    } else {
+                        if (isNaN(dataItem[key])) {
+                            row.push({value: dataItem[key]});
+                        } else {
+                            row.push({value: parseFloat(dataItem[key])});
+                        }
+                    }
+                } else {
+                    row.push({value: dataItem[key]});
+                }
+            });
+            rows.push({
+                cells: row
+            });
+        }
+        var workbook = new kendo.ooxml.Workbook({
+            sheets: [
+                {
+                    columns: cellWidths,
+                    title: fileName,
+                    rows: rows
+                }
+            ]
+        });
+
+        kendo.saveAs({dataURI: workbook.toDataURL(), fileName: fileName});
+    };
+
     var checkForFileExt = function (file) {
         return (file.indexOf('.') >= 0);
     };
@@ -2042,6 +2106,55 @@ window.app = (function ($, toastr, App) {
         
     }
 
+    /**
+     * Validates unique data for certain table. If it is not unique data, it displays error label and disables submit button 
+     */
+    var checkUniqueValue = function (inputId, id, errorMessage, disableButton, tableName, columnName, idColumn) {
+        $(inputId).on('change', function(e){
+
+            document.body.style.cursor='wait';
+
+            // Code validate url is in layout.phtml inside application module
+            pullDataById(document.codeValidateUrl, {
+                'code': $(inputId).val(),
+                'id': id,
+                'tableName': tableName,
+                'columnName': columnName,
+                'idColumn': idColumn
+            }).then(function (response) {
+                document.body.style.cursor='default';
+                if(response.validated){
+                    $(errorMessage).hide();
+                    $(disableButton).attr('disabled', false);
+                }else{
+                    $(disableButton).attr('disabled', true);
+                    $(errorMessage).show();
+                }
+            }, function (error) {
+                showMessage(error, 'error');
+            });
+
+        });
+    }
+
+    /**
+     * Function for english and nepali date with restriction
+     */
+    var datePickerWithNepaliRestrictDate = function (englishDateId, nepaliDateId){
+        var $englishDate = $("#"+englishDateId);
+        
+        if (!($englishDate.is('[readonly]'))) {
+            app.datePickerWithNepali(englishDateId, nepaliDateId);
+            app.getServerDate().then(function (response) {
+                $englishDate.datepicker('setEndDate', app.getSystemDate(response.data.serverDate));
+            }, function (error) {
+                console.log("error=>getServerDate", error);
+            });
+        } else {
+            app.datePickerWithNepali(englishDateId, nepaliDateId);
+        }
+    }
+
     return {
         filterExportColumns : filterExportColumns,
         format: format,
@@ -2092,5 +2205,8 @@ window.app = (function ($, toastr, App) {
         setLeaveMonth: setLeaveMonth,
         exportToPDFPotrait : exportToPDFPotrait,
         exportTableToExcel : exportTableToExcel,
+        checkUniqueValue: checkUniqueValue,
+        datePickerWithNepaliRestrictDate: datePickerWithNepaliRestrictDate,
+        excelExportModified: excelExportModified,
     };
 })(window.jQuery, window.toastr, window.App);

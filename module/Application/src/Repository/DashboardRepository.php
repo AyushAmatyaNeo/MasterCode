@@ -2,6 +2,7 @@
 
 namespace Application\Repository;
 
+use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Zend\Authentication\AuthenticationService;
 use Zend\Db\Adapter\AdapterInterface;
@@ -427,6 +428,9 @@ FROM HRIS_ATTENDANCE_DETAIL ad
     }
 
     public function fetchAllEmployee($employeeId = null) {
+      $orderByString = EntityHelper::getOrderBy(
+            'EMP.FULL_NAME ASC', null, 'EMP.SENIORITY_LEVEL', 'HP.LEVEL_NO', 'EMP.JOIN_DATE', 'DSG.ORDER_NO', 'EMP.FULL_NAME');
+
         $sql = "SELECT EMP.EMPLOYEE_ID,
                   EMP.EMPLOYEE_CODE,
                   EMP.FIRST_NAME,
@@ -441,6 +445,7 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 JOIN HRIS_DESIGNATIONS DSG ON (EMP.DESIGNATION_ID = DSG.DESIGNATION_ID)
                 JOIN HRIS_DEPARTMENTS DPT ON (EMP.DEPARTMENT_ID = DPT.DEPARTMENT_ID)
                 LEFT JOIN HRIS_RECOMMENDER_APPROVER RA ON (EMP.EMPLOYEE_ID=RA.EMPLOYEE_ID)
+                LEFT JOIN HRIS_POSITIONS HP ON EMP.POSITION_ID = HP.POSITION_ID
                 WHERE 1 = 1
                 AND EMP.STATUS = 'E'
                 AND EMP.RETIRED_FLAG = 'N'";
@@ -450,7 +455,7 @@ FROM HRIS_ATTENDANCE_DETAIL ad
         }
 
         $sql .= " AND EMP.IS_ADMIN='N'
-                ORDER BY UPPER(EMP.FULL_NAME)";
+                 {$orderByString}";
 
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();

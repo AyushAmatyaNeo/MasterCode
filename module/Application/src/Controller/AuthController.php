@@ -249,7 +249,8 @@ class AuthController extends AbstractActionController {
         if (!($this->preference->forcePasswordRenew == 'Y')) {
             return false;
         }
-        $maxPasswordDays = $this->preference->forcePasswordRenewDay || 0;
+
+        $maxPasswordDays = $this->preference->forcePasswordRenewDay;
         $loginRepo = new LoginRepository($this->adapter);
         $result = $loginRepo->checkPasswordExpire($userName,$pwd);
         $createdDays = $result['CREATED_DAYS'];
@@ -321,10 +322,12 @@ class AuthController extends AbstractActionController {
         if (!($this->preference->allowAccountLock == 'Y')) {
             return;
         }
-        $tryCount = $this->preference->accountLockTryNumber || 0;
-        $withIn = $this->preference->accountLockTrySecond || 0;
+        
+        $tryCount = $this->preference->accountLockTryNumber;
+        $withIn = $this->preference->accountLockTrySecond;
         $loginRepo = new LoginRepository($this->adapter);
         $userValid = $loginRepo->fetchByUserName($cookie_name);
+
         if ($userValid && ($userValid->IS_LOCKED == 'Y')) {
             $this->flashmessenger()->clearCurrentMessages();
             $this->flashmessenger()->addMessage("The account {$cookie_name} has been locked Please contact the Admin");
@@ -333,20 +336,24 @@ class AuthController extends AbstractActionController {
         }
 
         if ($userValid) {
+            
             $cookie_value = isset($_COOKIE[$cookie_name]) ? $_COOKIE[$cookie_name] : 0;
             $cookie_value++;
             $atteptLeft = $tryCount - $cookie_value;
             setcookie($cookie_name, $cookie_value, time() + $withIn, "/");
+
             $this->flashmessenger()->clearCurrentMessages();
             $this->flashmessenger()->addMessage("Incorrect password for {$cookie_name}. After {$atteptLeft} unsuccessful attempt, account will be locked");
             $this->getAuthService()->clearIdentity();
-            if ($cookie_value === $tryCount) {
+
+            if ($atteptLeft == 0) {
                 $loginRepo->updateByUserName($cookie_name);
                 setcookie($cookie_name, '', 1, "/");
                 $this->flashmessenger()->clearCurrentMessages();
                 $this->flashmessenger()->addMessage("The account {$cookie_name} has been locked Please contact the Admin");
                 $this->getAuthService()->clearIdentity();
             }
+
         }
     }
     

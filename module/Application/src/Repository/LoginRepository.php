@@ -63,6 +63,7 @@ class LoginRepository implements RepositoryInterface {
             $where.=" AND FN_DECRYPT_PASSWORD(PASSWORD)=:pwd";
         }
         $sql = "select EMPLOYEE_ID,USER_NAME,ROLE_ID,STATUS,CREATED_DT,MODIFIED_DT,IS_LOCKED,TRUNC(SYSDATE) AS CURRENTDATE,TRUNC(SYSDATE)-CREATED_DT AS CREATED_DAYS,TRUNC(SYSDATE)-MODIFIED_DT AS MODIFIED_DAYS from hris_users where status='E' " . $where;
+
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParameter)->current();
         return $result;

@@ -70,7 +70,7 @@ class BranchForm {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email"})
-     * @Annotation\Attributes({ "id":"email", "class":"form-control" })
+     * @Annotation\Attributes({ "id":"email", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" })
      */
     public $email;
 

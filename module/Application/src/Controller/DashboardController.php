@@ -37,6 +37,7 @@ class DashboardController extends AbstractActionController {
     }
 
     public function indexAction() {
+
         $dashboardRepo = new DashboardRepository($this->adapter);
         $companyId=$this->auth->getStorage()->read()['employee_detail']['COMPANY_ID'];
         $calenderType='N';

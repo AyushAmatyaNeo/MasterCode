@@ -50,6 +50,7 @@ class MonthlyValueDetailRepo {
         $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
         $boundedParameter['monthlyValueId'] = $monthlyValueId;
         $boundedParameter['fiscalYearId'] = $fiscalYearId;
+
         $empQuery = "SELECT E.EMPLOYEE_ID FROM HRIS_EMPLOYEES E WHERE 1=1 {$searchCondition['sql']}";
         $sql = "SELECT MVD.*,EE.FULL_NAME,EE.EMPLOYEE_CODE FROM HRIS_MONTHLY_VALUE_DETAIL MVD
                 LEFT JOIN HRIS_EMPLOYEES EE on (EE.EMPLOYEE_ID=MVD.EMPLOYEE_ID)  

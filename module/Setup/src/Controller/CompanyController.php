@@ -64,11 +64,14 @@ class CompanyController extends HrisController {
                 $imageData = $this->getFileInfo($this->adapter, $postedData['logo']);
             }
         }
+
         return new ViewModel(Helper::addFlashMessagesToArray(
                         $this, [
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages(),
-                    'imageData' => $imageData
+                    'imageData' => $imageData,
+                    'customRenderer' => Helper::renderCustomView(),
+                    'existingCodes' => $existingCodes
                         ]
                 )
         );
@@ -128,6 +131,7 @@ class CompanyController extends HrisController {
                     'id' => $id,
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
+                    'companyId' => $company->companyId
                         ]
         );
     }
