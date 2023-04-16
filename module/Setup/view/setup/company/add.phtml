@@ -41,7 +41,7 @@ $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
 
 $form->setAttribute('action', $this->url('company', ['action' => 'add']));
-
+$form->setAttribute('enctype', 'multipart/form-data');
 
 if ($this->messages) {
     print '<ul class="help-block bg-danger" style="background:#f3e250;">';
@@ -50,7 +50,6 @@ if ($this->messages) {
     }
     print '</ul>';
 }
-
 
 $form->prepare();
 ?>
@@ -273,7 +272,7 @@ $form->prepare();
                 </div>
 
                 <?php print $this->formSubmit($submit); ?>
-                <span id="imgError" style="color:red;">Please Upload Image</span>
+                <!-- <span id="imgError" style="color:red;">Please Upload Image</span> -->
                 <?php
                 print $this->form()->closeTag($form);
                 ?>

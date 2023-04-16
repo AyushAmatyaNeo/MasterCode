@@ -41,7 +41,7 @@ if (key($telephone->getMessages()) == "regexNotMatch") {
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
-
+$form->setAttribute('enctype', 'multipart/form-data');
 $form->setAttribute('action', $this->url('company', ['action' => 'edit', 'id' => $id]));
 
 
@@ -272,7 +272,7 @@ $form->prepare();
                 <?php
                 print $this->formSubmit($submit);
                 ?>
-                <span id="imgError" style="color:red;">Please Upload Image</span>
+                <!-- <span id="imgError" style="color:red;">Please Upload Image</span> -->
                 <?php
                 print $this->form()->closeTag($form);
                 ?>

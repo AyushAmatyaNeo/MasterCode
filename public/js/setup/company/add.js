@@ -10,31 +10,6 @@
         var checkColumnName = "COMPANY_ID";
         var $logo = $("#form-logo");
         var selfId = $("#companyId").val();
-
-        /**
-         * Function to change state of uploaded file variable
-         * If file is not uploaded disable submit button
-         */
-        var uploadedFile = 0;
-
-        function setUploadedVal(value){
-            uploadedFile = value;
-
-            if(value){
-                $("#submit").attr('disabled', false);
-                $("#imgError").hide();
-            }else{
-                $("#submit").attr('disabled', true);
-                $("#imgError").show();
-            }
-        }
-
-        if(document.imageData){
-            setUploadedVal(1);
-        }else{
-            setUploadedVal(0);
-        }
-
         if (typeof (selfId) == "undefined") {
             selfId = 0;
         }
@@ -87,7 +62,6 @@
                 this.on('success', function (file, success) {
                     imageData = success.data;
                     $logo.val(imageData.fileCode);
-                    setUploadedVal(1);
                     toggle();
                 });
             }
@@ -95,26 +69,10 @@
         $('#uploadFile').on('click', function () {
             if ($(this).text() == "Edit") {
                 imageData.fileName = null;
-                setUploadedVal(0);
                 toggle();
             } else {
                 dropZone.processQueue();
             }
         });
-
-        $("#company-form").on('submit', function(e){
-
-            document.body.style.cursor = 'default';
-
-            if(uploadedFile == 0){
-                e.preventDefault();
-                app.showMessage('Please upload image', 'error');
-            }
-
-        });
-
-        // Validate if company code exists
-        app.checkUniqueValue("#companyCode", document.companyId, "#codeError", "#submit", tableName, 'COMPANY_CODE', checkColumnName);
-
     });
 })(window.jQuery, window.app);

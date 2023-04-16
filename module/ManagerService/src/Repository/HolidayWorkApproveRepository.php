@@ -45,7 +45,7 @@ class HolidayWorkApproveRepository {
                     V_FROM_DATE,
                     V_TO_DATE,
                     V_EMPLOYEE_ID
-                  FROM HRIS_EMPLOYEE_WORK_DAYOFF
+                  FROM HRIS_EMPLOYEE_WORK_HOLIDAY
                   WHERE ID                                    = {$id};
                   IF(V_STATUS IN ('AP','C','R') and V_FROM_DATE <= trunc(SYSDATE)) THEN
                     HRIS_REATTENDANCE(V_FROM_DATE,V_EMPLOYEE_ID,V_TO_DATE);
@@ -183,6 +183,7 @@ class HolidayWorkApproveRepository {
     }
 
     public function wohReward($wohId) {
+      // echo '<pre>';print_r($wohId);die;
         EntityHelper::rawQueryResult($this->adapter, "
                     BEGIN
                       HRIS_WOH_REWARD({$wohId});

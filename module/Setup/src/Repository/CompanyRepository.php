@@ -44,6 +44,7 @@ class CompanyRepository implements RepositoryInterface {
                 Company::STATUS => EntityHelper::STATUS_ENABLED
             ]);
         });
+        // echo '<pre>';print_r($rowset);die;
         return $rowset->current();
     }
 
