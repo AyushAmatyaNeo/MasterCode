@@ -95,6 +95,7 @@ print $this->form()->openTag($form);
                     <div class="col-sm-4">
                         <div class="form-group <?= empty($defaultDays->getMessages()) ? "" : "error" ?>">
                             <?php print $this->formLabel($defaultDays); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($defaultDays); ?>
                             <span class="errorMsg" style="font-size:11px; color:red;"></span>
                         </div>
