@@ -75,14 +75,16 @@ class LeaveRequest extends HrisController {
     public function fileUploadAction() {
         $request = $this->getRequest();
         $responseData = []; 
-        $files = $request->getFiles()->toArray();  
+        $files = $request->getFiles()->toArray(); 
         try {
             if (sizeof($files) > 0) {
                 $ext = pathinfo($files['file']['name'], PATHINFO_EXTENSION);
                 $fileName = pathinfo($files['file']['name'], PATHINFO_FILENAME);
                 $unique = Helper::generateUniqueName();
                 $newFileName = $unique . "." . $ext;
+                // $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/leave_documents/" . $newFileName);
                 $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/leave_documents/" . $newFileName);
+                // echo '<pre>';print_r($success);die; 
                 if (!$success) {
                     throw new Exception("Upload unsuccessful.");
                 }
