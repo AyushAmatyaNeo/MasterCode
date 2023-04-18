@@ -346,7 +346,11 @@ class LeaveRequest extends HrisController {
                 $postedData = $request->getPost();
                 $leaveRequestRepository = new LeaveRequestRepository($this->adapter);
                 $error = $leaveRequestRepository->validateLeaveRequest($postedData['startDate'], $postedData['endDate'], $postedData['employeeId']);
-                return new CustomViewModel(['success' => true, 'data' => $error, 'error' => '']);
+                $travelError = $this->repository->validateLeaveTravelRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                // echo '<pre>';print_r($travelError);die;
+                return new CustomViewModel(['success' => true, 'data' => $error, 'error' => '',
+                'travelError'=>$travelError]);
+                // return new CustomViewModel(['success' => true, 'data' => $error, 'error' => '']);
             } else {
                 throw new Exception("The request should be of type post");
             }

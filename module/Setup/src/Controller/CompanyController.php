@@ -46,22 +46,17 @@ class CompanyController extends HrisController {
     public function addAction() {
         $request = $this->getRequest();
         $imageData = null;
-        $company = new Company();
-        if (!$request->isPost()) {
-            // $company->exchangeArrayFromDB($this->repository->fetchById($id)->getArrayCopy());
-            $this->prepareForm();
-            $this->form->bind($company);
-        } else {
+        if ($request->isPost()) {
             $postedData = $request->getPost();
             $this->form->setData($postedData);
             if ($this->form->isValid()) {
+                $company = new Company();
                 $company->exchangeArrayFromForm($this->form->getData());
                 $company->createdDt = Helper::getcurrentExpressionDate();
                 $company->createdBy = $this->employeeId;
                 $company->companyId = ((int) Helper::getMaxId($this->adapter, Company::TABLE_NAME, Company::COMPANY_ID)) + 1;
                 $company->logo = $postedData['logo'];
                 $company->status = 'E';
-                // echo '<pre>';print_r($company);die;
                 $this->repository->add($company);
                 $this->flashmessenger()->addMessage("Company Successfully added.");
                 return $this->redirect()->toRoute("company");
@@ -69,14 +64,12 @@ class CompanyController extends HrisController {
                 $imageData = $this->getFileInfo($this->adapter, $postedData['logo']);
             }
         }
-
         return new ViewModel(Helper::addFlashMessagesToArray(
                         $this, [
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages(),
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
-                    'existingCodes' => $existingCodes
                         ]
                 )
         );
@@ -85,6 +78,7 @@ class CompanyController extends HrisController {
     private function getFileInfo(AdapterInterface $adapter, $fileId) {
         $fileRepo = new EmployeeFile($adapter);
         $fileDetail = $fileRepo->fetchById($fileId);
+
         if ($fileDetail == null) {
             $imageData = [
                 'fileCode' => null,
@@ -112,7 +106,6 @@ class CompanyController extends HrisController {
         if (!$request->isPost()) {
             $company->exchangeArrayFromDB($this->repository->fetchById($id)->getArrayCopy());
             $this->prepareForm($company->companyCode);
-            // echo '<pre>';print_r($this->form->bind($company));die;
             $this->form->bind($company);
         } else {
             $postedData = $request->getPost();
@@ -127,15 +120,15 @@ class CompanyController extends HrisController {
                 return $this->redirect()->toRoute("company");
             }
         }
+
         $imageData = $this->getFileInfo($this->adapter, $company->logo);
-        // echo '<pre>';print_r($imageData);die;
+
         return Helper::addFlashMessagesToArray(
                         $this, [
                     'form' => $this->form,
                     'id' => $id,
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
-                    'companyId' => $company->companyId
                         ]
         );
     }
@@ -199,7 +192,6 @@ class CompanyController extends HrisController {
         try {
             $request = $this->getRequest();
             $files = $request->getFiles()->toArray();
-            // echo '<pre>';print_r($files);die;
             if (sizeof($files) > 0) {
                 $ext = pathinfo($files['file']['name'], PATHINFO_EXTENSION);
                 $fileName = pathinfo($files['file']['name'], PATHINFO_FILENAME);

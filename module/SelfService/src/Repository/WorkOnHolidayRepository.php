@@ -161,4 +161,10 @@ END;";
         return $result;
     }
 
+    public function validateWOHRequest($fromDate, $toDate, $employeeId) {
+        // echo '<pre>';print_r($employeeId);die;
+        $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_VALIDATE_WOH_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
+        return $rawResult->current();
+    }
+
 }

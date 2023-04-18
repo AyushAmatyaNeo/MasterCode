@@ -47,7 +47,7 @@ class Payroll extends HrisController
                 //                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
                 //                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
                 //                ]);
-                // echo '<pre>';print_r($data['pay-detail']);die;
+                // echo '<pre>';print_r($data['emp-detail']);die;
                 return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);

@@ -96,4 +96,20 @@ class WorkOnDayoff extends HrisController {
         ]);
     }
 
+    public function validateWODRequestAction() {
+        try {
+            $request = $this->getRequest();
+            if ($request->isPost()) {
+                $postedData = $request->getPost();
+                $error = $this->repository->validateWODRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                // echo '<pre>';print_r($error);die;
+                return new JsonModel(['success' => true, 'data' => $error, 'error' => '']);
+            } else {
+                throw new Exception("The request should be of type post");
+            }
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
+    }
+
 }

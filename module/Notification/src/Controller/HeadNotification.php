@@ -492,19 +492,19 @@ class HeadNotification {
                 $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
                 $title = "Travel Approval";
                 $desc = "Travel Approval {$status}";
-                // self::sendEmail($notification, 11, $adapter, $url);
+                self::sendEmail($notification, 11, $adapter, $url);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST :
                 $notification->route = json_encode(["route" => "newtravelrequest", "action" => "expenseView", "id" => $request->travelId]);
                 $title = "Expense Reimbursement";
                 $desc = "Expense Reimbursement {$status}";
-                // self::sendEmail($notification, 46, $adapter, $url);
+                self::sendEmail($notification, 46, $adapter, $url);
                 break;
             default:
                 $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
                 $title = "Travel Approval";
                 $desc = "Travel Approval {$status}";
-                // self::sendEmail($notification, 11, $adapter, $url);
+                self::sendEmail($notification, 11, $adapter, $url);
                 break;
         }
         // echo '<pre>';print_r($notification);die;
@@ -802,7 +802,7 @@ class HeadNotification {
         $desc = "Event Request of $notification->fromName from $notification->fromDate to $notification->toDate";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        // self::sendEmail($notification, 22, $adapter, $url);
+        self::sendEmail($notification, 22, $adapter, $url);
     }
 
     private static function trainingRecommend(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -856,7 +856,7 @@ class HeadNotification {
                 . " to $notification->toDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        // self::sendEmail($notification, 23, $adapter, $url);
+        self::sendEmail($notification, 23, $adapter, $url);
     }
 
     private static function trainingApprove(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -914,7 +914,7 @@ class HeadNotification {
                 . " to $notification->toDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        // self::sendEmail($notification, 24, $adapter, $url);
+        self::sendEmail($notification, 24, $adapter, $url);
     }
 
     private static function leaveSubstituteApplied(LeaveApply $request, AdapterInterface $adapter, Url $url) {

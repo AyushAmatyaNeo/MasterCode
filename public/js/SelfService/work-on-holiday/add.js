@@ -13,6 +13,7 @@
         var $holidayId = $('#holidayId');
         var $fromDate = $("#fromDate");
         var $toDate = $("#toDate");
+        var $employee = $('#employeeId');
 
         app.populateSelect($holidayId, document.holidayList, 'HOLIDAY_ID', 'HOLIDAY_ENAME', "Select a holiday", null);
         var holidayChange = function ($this) {
@@ -33,8 +34,29 @@
             $fromDate.datepicker('setDate', startDate);
             $toDate.datepicker('setDate', endDate);
 
-        };
+            var employeeId = $employee.val();
+            checkForErrors(document.holidayList[value]["START_DATE"], document.holidayList[value]["END_DATE"], employeeId); 
 
+
+        };
+        var $form = $('#workOnHoliday-form');
+        var checkForErrors = function (startDateStr, endDateStr, employeeId) {
+            app.pullDataById(document.wsValidateWOHRequest, {startDate: startDateStr, endDate: endDateStr, employeeId: employeeId}).then(function (response) {
+                if (response.data['ERROR'] === null) {
+                    $form.prop('valid', 'true');
+                    $form.prop('error-message', '');
+                    $('#request').attr("disabled", false);
+                }
+                else{
+                    $form.prop('valid', 'false');
+                    $form.prop('error-message', response.data['ERROR']);
+                    app.showMessage(response.data['ERROR'], 'error');
+                    $('#request').attr('disabled', 'disabled');
+                }
+            }, function (error) {
+                app.showMessage(error, 'error');
+            });
+        }
         $holidayId.on('change', function () {
             holidayChange($(this));
         });

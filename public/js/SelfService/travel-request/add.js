@@ -1,7 +1,16 @@
 (function ($, app) {
     'use strict';
     $(document).ready(function () {
-        app.startEndDatePickerWithNepali('nepaliStartDate1', 'form-fromDate', 'nepaliEndDate1', 'form-toDate')
+        app.startEndDatePickerWithNepali('nepaliStartDate1', 'form-fromDate', 'nepaliEndDate1', 'form-toDate',function (startDate, endDate, startDateStr, endDateStr){
+            var employeeId = $('#employeeId').val();
+            if (typeof employeeId === 'undefined' || employeeId === null || employeeId === '' || employeeId === -1) {
+                var employeeId = $('#form-employeeId').val();
+                if (typeof employeeId === 'undefined' || employeeId === null || employeeId === '' || employeeId === -1) {
+                    return;
+                }
+            }
+            checkForErrors(startDateStr, endDateStr, employeeId);
+        });
         app.setLoadingOnSubmit("travelRequest-form");
         $('select#form-transportType').select2();
         $('select#travelSubstitute').select2();
@@ -14,6 +23,31 @@
         $print.on('click', function () {
             app.exportDomToPdf('printableArea', document.urlCss);
         });
+        
+        var $form = $('#travelRequest-form');
+        var checkForErrors = function (startDateStr, endDateStr, employeeId) {
+            //console.log('asdf');
+            app.pullDataById(document.wsValidateTravelRequest, {startDate: startDateStr, endDate: endDateStr, employeeId: employeeId}).then(function (response) {
+                if (response.data['ERROR'] === null && response.leaveError['ERROR'] ===null) {
+                    $form.prop('valid', 'true');
+                    $form.prop('error-message', '');
+                    $('#request').attr("disabled", false);
+                } else if(response.data['ERROR'] != null){
+                    $form.prop('valid', 'false');
+                    $form.prop('error-message', response.data['ERROR']);
+                    app.showMessage(response.data['ERROR'], 'error');
+                    $('#request').attr('disabled', 'disabled');
+                }
+                else{
+                    $form.prop('valid', 'false');
+                    $form.prop('error-message', response.leaveError['ERROR']);
+                    app.showMessage(response.leaveError['ERROR'], 'error');
+                    $('#request').attr('disabled', 'disabled');
+                }
+            }, function (error) {
+                app.showMessage(error, 'error');
+            });
+        }
         
         var $noOfDays = $('#noOfDays');
         var $fromDate = $('#form-fromDate');

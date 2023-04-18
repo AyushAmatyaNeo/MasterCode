@@ -22,6 +22,7 @@ use Notification\Model\WorkOnHolidayNotificationModel;
 use Notification\Repository\EmailTemplateRepo;
 use Zend\Authentication\AuthenticationService;
 use Zend\Db\Adapter\AdapterInterface;
+use Notification\Model\ExpenseReqNotificationModel;
 use Zend\Mvc\Controller\AbstractActionController;
 
 class EmailController extends AbstractActionController {
@@ -75,6 +76,9 @@ class EmailController extends AbstractActionController {
         42 => "Leave_Cancel",
         43 => "Leave_Cancel_Recommend",
         44 => "Leave_Cancel_Approve",
+        45 => "Expense_Request",
+        46 => "Expense_Approval",
+        47 => "Expense_Recommendation"
     ];
 
     private function getVariables() {
@@ -118,6 +122,9 @@ class EmailController extends AbstractActionController {
 
         $type13 = new AppraisalNotificationModel();
         $type13ObjVars = $type13->getObjectAttrs();
+
+        $type14 = new ExpenseReqNotificationModel();
+        $type14ObjVars = $type14->getObjectAttrs();
 
         $overtimeNotiModel = new OvertimeReqNotificationModel();
         $overtimeNotiModelOA = $overtimeNotiModel->getObjectAttrs();
@@ -169,7 +176,10 @@ class EmailController extends AbstractActionController {
             41 => $birthdayWishOA,
             42 => $type1ObjVars,
             43 => $type1ObjVars,
-            44 => $type1ObjVars
+            44 => $type1ObjVars,
+            45 => $type14ObjVars,
+            46 => $type14ObjVars,
+            47 => $type14ObjVars,
         ];
     }
 

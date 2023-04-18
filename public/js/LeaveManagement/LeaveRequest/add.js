@@ -126,13 +126,21 @@
             var $form = $('#leaveApply');
             var checkForErrors = function (startDateStr, endDateStr, employeeId) {
                 app.pullDataById(document.wsValidateLeaveRequest, {startDate: startDateStr, endDate: endDateStr, employeeId: employeeId}).then(function (response) {
-                    if (response.data['ERROR'] === null) {
+                    if (response.data['ERROR'] === null && response.travelError['ERROR'] ===null) {
                         $form.prop('valid', 'true');
                         $form.prop('error-message', '');
-                    } else {
+                        $('#request').attr("disabled", false);
+                    } else if(response.data['ERROR'] != null){
                         $form.prop('valid', 'false');
                         $form.prop('error-message', response.data['ERROR']);
                         app.showMessage(response.data['ERROR'], 'error');
+                        $($request).attr('disabled', 'disabled');
+                    }
+                    else{
+                        $form.prop('valid', 'false');
+                        $form.prop('error-message', response.travelError['ERROR']);
+                        app.showMessage(response.travelError['ERROR'], 'error');
+                        $('#request').attr('disabled', 'disabled');
                     }
                 }, function (error) {
                     app.showMessage(error, 'error');

@@ -73,10 +73,7 @@ class AttendanceApproveRepository extends HrisRepository {
         ]);
         $select->order("E.FIRST_NAME ASC");
         $statement = $sql->prepareStatementForSqlObject($select);
-        
-//        echo $statement->getSql();
-//        die();
-        
+    // echo '<pre>';print_r($boundedParams);die;    
         $result = $statement->execute($boundedParams);
         return $result;
     }

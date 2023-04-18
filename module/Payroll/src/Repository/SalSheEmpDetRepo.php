@@ -17,30 +17,33 @@ class SalSheEmpDetRepo extends HrisRepository {
     
     public function fetchOneByWithEmpDetailsNew($monthId,$employeeId,$salaryTypeId){
         $sql="SELECT 
-        SSD.*
-        ,E.ID_PROVIDENT_FUND_NO
-        ,E.ID_PAN_NO
-        ,E.ID_RETIREMENT_NO
-        ,E.ID_ACCOUNT_NO
-        ,sd.val as USE_PRESENT
-        ,fd.flat_value as Allowance
-        ,ssd.total_days - sd.val as USE_ABSENT
-        FROM HRIS_SALARY_SHEET_EMP_DETAIL SSD
-        LEFT JOIN HRIS_EMPLOYEES E ON SSD.EMPLOYEE_ID=E.EMPLOYEE_ID
-        left join hris_salary_sheet ss on (ssd.sheet_no = ss.sheet_no and approved='Y')
-        left join hris_salary_sheet_detail sd on (ssd.employee_id = sd.employee_id and sd.sheet_no = ssd.sheet_no)
-        left join hris_flat_value_detail fd on (fd.employee_id=ssd.employee_id and fd.flat_id=2 and fiscal_year_id in(select fiscal_year_id  from hris_month_code where month_id=:monthId))
-        WHERE
-        SS.MONTH_ID=:monthId AND SSD.EMPLOYEE_ID=:employeeId and
-        sd.pay_id = 3 
-        and ss.salary_type_id =:salaryTypeId";
+        SSD.*,
+        E.ID_PROVIDENT_FUND_NO,
+        E.ID_PAN_NO,
+        E.ID_RETIREMENT_NO,
+        E.ID_ACCOUNT_NO,
+        SD.VAL AS USE_PRESENT,
+        FD2.FLAT_VALUE AS ALLOWANCE,
+        FD1.FLAT_VALUE AS MONTHLY_SALARY,
+        SSD.TOTAL_DAYS - SD.VAL AS USE_ABSENT
+    FROM HRIS_SALARY_SHEET_EMP_DETAIL SSD
+    LEFT JOIN HRIS_EMPLOYEES E ON SSD.EMPLOYEE_ID = E.EMPLOYEE_ID
+    LEFT JOIN HRIS_SALARY_SHEET SS ON (SSD.SHEET_NO = SS.SHEET_NO AND APPROVED = 'Y')
+    LEFT JOIN HRIS_SALARY_SHEET_DETAIL SD ON (SSD.EMPLOYEE_ID = SD.EMPLOYEE_ID AND SD.SHEET_NO = SSD.SHEET_NO)
+    LEFT JOIN HRIS_FLAT_VALUE_DETAIL FD1 ON (FD1.EMPLOYEE_ID = SSD.EMPLOYEE_ID AND FD1.FLAT_ID = 18 AND FD1.FISCAL_YEAR_ID IN (SELECT FISCAL_YEAR_ID FROM HRIS_MONTH_CODE WHERE MONTH_ID = :monthId))
+    LEFT JOIN HRIS_FLAT_VALUE_DETAIL FD2 ON (FD2.EMPLOYEE_ID = SSD.EMPLOYEE_ID AND FD2.FLAT_ID = 2 AND FD2.FISCAL_YEAR_ID IN (SELECT FISCAL_YEAR_ID FROM HRIS_MONTH_CODE WHERE MONTH_ID = :monthId))
+    WHERE SS.MONTH_ID = :monthId
+        AND SSD.EMPLOYEE_ID = :employeeId 
+        AND SD.PAY_ID = 3 
+        AND SS.SALARY_TYPE_ID = :salaryTypeId
+    ";
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $statement = $this->adapter->query($sql);
-        // echo '<pre>';print_r($sql);die;
         $result=$statement->execute($boundedParameter);
+                // echo '<pre>';print_r($statement->execute($boundedParameter));die;
         return $result->current();
     }
 	

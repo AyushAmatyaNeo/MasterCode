@@ -6,7 +6,7 @@ $this->headScript()
         ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
         ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
-$this->headScript()->appendFile($this->basePath('js/SelfService/work-on-holiday/add.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/work-on-holiday/add.js?1'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'workOnHoliday-form');
@@ -19,6 +19,8 @@ $remarks = $form->get('remarks');
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
+$submit->setAttribute('id', 'request');
+
 
 $form->setAttribute('action', $this->url('workOnHoliday', ['action' => 'add']));
 
@@ -28,6 +30,7 @@ $form->prepare();
 <script>
     document.holidayList =<?= json_encode($holidayObjList) ?>;
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.wsValidateWOHRequest = '<?= $this->url("workOnHoliday", ["action" => "validateWOHRequest"]) ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\workOnHoliday')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>

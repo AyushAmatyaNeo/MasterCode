@@ -356,4 +356,36 @@ class TravelRequestRepository extends HrisRepository implements RepositoryInterf
         $boundedParameter['id'] = $id;
         return $this->rawQuery($sql, $boundedParameter)[0]["ALLOW_EDIT"];
     }
+
+    public function validateTravelRequest($fromDate, $toDate, $employeeId) {
+        // echo '<pre>';print_r($fromDate);die;
+        $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_VALIDATE_TRAVEL_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
+        return $rawResult->current();
+    }
+
+    public function validateTravelLeaveRequest($fromDate, $toDate, $employeeId) {
+        $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_TRAVEL_LEAVE_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
+        // echo '<pre>';print_r($rawResult);die;
+        return $rawResult->current();
+    }
+
+    public function addFiles($data)
+    {
+        $this->fileGateway->insert($data);
+    }
+
+    public function updateFiles($data)
+    {         
+        $fileId=$data['FILE_ID'];     
+        $fileName=$data['FILE_NAME'];   
+        $filePath=$data['FILE_IN_DIR_NAME'];  
+        $fileDate=$data['UPLOADED_DATE'];        
+        $travelId=$data['TRAVEL_ID'];   
+        $sql = "DELETE FROM  HRIS_TRAVEL_FILES WHERE TRAVEL_ID=$travelId";
+        $statement = $this->adapter->query($sql);
+        $statement->execute(); 
+        $sql = "INSERT INTO  HRIS_TRAVEL_FILES (FILE_ID,FILE_NAME,FILE_IN_DIR_NAME,UPLOADED_DATE,TRAVEL_ID) VALUES ($fileId,'$fileName','$filePath','$fileDate',$travelId)";
+        $statement = $this->adapter->query($sql);
+        return Helper::extractDbData($statement->execute());
+    }
 }

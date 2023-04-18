@@ -158,4 +158,9 @@ if ($result['STATUS']=='C') {
         return $result;
     }
 
+    public function validateWODRequest($fromDate, $toDate, $employeeId) {
+        $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_VALIDATE_WOD_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
+        return $rawResult->current();
+    }
+
 }

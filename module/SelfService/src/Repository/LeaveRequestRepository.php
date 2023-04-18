@@ -791,5 +791,10 @@ and Sub_Ref_Id is not null
 			return 0;
 		}
     }
+
+    public function validateLeaveTravelRequest($fromDate, $toDate, $employeeId) {
+        $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_LEAVE_TRAVEL_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
+        return $rawResult->current();
+    }
     
 }

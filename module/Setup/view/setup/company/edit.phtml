@@ -41,7 +41,7 @@ if (key($telephone->getMessages()) == "regexNotMatch") {
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
-$form->setAttribute('enctype', 'multipart/form-data');
+
 $form->setAttribute('action', $this->url('company', ['action' => 'edit', 'id' => $id]));
 
 
@@ -60,8 +60,6 @@ $form->prepare();
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.wsFileUpload = '<?= $this->url('company', ["action" => "fileUpload"]) ?>';
     document.imageData =<?php echo json_encode($imageData); ?>;
-    document.validateCompanyCode = '<?= $this->url('company', ["action" => "validateCompanyCode"]) ?>';
-    document.companyId = <?php echo $companyId; ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\Company')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -101,7 +99,6 @@ $form->prepare();
                             <?php print $this->formElement($companyCode); ?>
                             <?php print $this->formElementErrors()->render($companyCode, ['class' => 'help-block']); ?>
                             <span class="errorMsg" style="font-size:11px; color:red;"></span>
-                            <span id="codeError" style="color:red; display:none;">Company Code already exists</span>
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -154,7 +151,7 @@ $form->prepare();
                         </div>
                         <?php print $this->formElementErrors()->render($linkTravelToSynergy, ['class' => 'help-block error']); ?>
                     </div>
-                    <div class="col-sm-4">
+                    <!-- <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($formCode); ?>
                             <?php print $this->formElement($formCode); ?>
@@ -265,15 +262,12 @@ $form->prepare();
                             <?php print $this->formElement($advanceCrAccCodeFac); ?>
                             <?php print $this->formElementErrors()->render($advanceCrAccCodeFac, ['class' => 'help-block error']); ?>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 </div>
 
                 <?php
                 print $this->formSubmit($submit);
-                ?>
-                <!-- <span id="imgError" style="color:red;">Please Upload Image</span> -->
-                <?php
                 print $this->form()->closeTag($form);
                 ?>
             </div>

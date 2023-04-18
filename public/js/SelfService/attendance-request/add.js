@@ -56,10 +56,14 @@
         $("#requestForm").on('submit', function(e){
 
             if(!$('#nextDay').is(':checked')){
+                // if($('#inTime').val() > $('#outTime').val()){
                 if($('#inTime').val() > $('#outTime').val()){
+                    // e.preventDefault();
+                    // app.showMessage('In time cannot be greater than out time', 'error');
+                } else{
                     e.preventDefault();
                     app.showMessage('In time cannot be greater than out time', 'error');
-                }    
+                }
             }
 
         });
