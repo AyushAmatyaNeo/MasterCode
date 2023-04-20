@@ -141,7 +141,11 @@ class TrainingRequestRepository implements RepositoryInterface {
     }
 
     public function edit(Model $model, $id) {
-        
+      $sql="Delete from HRIS_EMPLOYEE_TRAINING_REQUEST where REQUEST_ID=$id";
+      $statement = $this->adapter->query($sql);
+      $statement->execute()->current();
+      // echo '<pre>';print_r($model);die;
+      $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
     public function fetchAll() {
@@ -165,6 +169,7 @@ class TrainingRequestRepository implements RepositoryInterface {
             new Expression("BS_DATE(TO_CHAR(TR.END_DATE, 'DD-MON-YYYY')) AS END_DATE_BS"),
             new Expression("TR.TRAINING_ID AS TRAINING_ID"),
             new Expression("TR.TITLE AS TITLE"),
+            new Expression("TR.DAILY_TRAINING_HOUR AS DAILY_TRAINING_HOUR"),
             new Expression("TR.DESCRIPTION AS DESCRIPTION"),
             new Expression("TR.DURATION AS DURATION"),
             new Expression("TR.TRAINING_TYPE AS TRAINING_TYPE"),

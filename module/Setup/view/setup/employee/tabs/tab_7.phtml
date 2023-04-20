@@ -30,39 +30,39 @@ $expToDate = $formSeven->get('toDate');
                     </tr>
                     <tr ng-repeat="experience in experienceFormList">
                         <td>
-                            <select select2 name="organizationType" ng-model="experience.organizationTypeId" ng-options="organizationTypeList.name for organizationTypeList in organizationType track by organizationTypeList.id" required="required" id="organizationType" class="form-control">
+                            <select select2 name="organizationType" ng-model="experience.organizationTypeId" ng-options="organizationTypeList.name for organizationTypeList in organizationType track by organizationTypeList.id"  id="organizationType" class="form-control">
                             </select>
                         </td>
                         <td>
-                            <input type="text" ng-model="experience.organizationName" name="organizationName_{{experience.checkbox}}" required="required" id="organizationName" class="form-control" value="">
+                            <input type="text" ng-model="experience.organizationName" name="organizationName_{{experience.checkbox}}"  id="organizationName" class="form-control" value="">
                             <div ng-show="employeeExperienceForm.$submitted || employeeExperienceForm.organizationName_{{experience.checkbox}}.$touched">
-                                <ul ng-show="employeeExperienceForm.organizationName_{{experience.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeExperienceForm.organizationName_{{experience.checkbox}}.$error.required" class="help-block error">
                                     <li>Organization Name is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input type="text" ng-model="experience.position" name="position_{{experience.checkbox}}" required="required" id="position" class="form-control" value="">
+                            <input type="text" ng-model="experience.position" name="position_{{experience.checkbox}}"  id="position" class="form-control" value="">
                             <div ng-show="employeeExperienceForm.$submitted || employeeExperienceForm.position_{{experience.checkbox}}.$touched">
-                                <ul ng-show="employeeExperienceForm.position_{{experience.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeExperienceForm.position_{{experience.checkbox}}.$error.required" class="help-block error">
                                     <li>Position is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input dvalue="{{experience.fromDate}}" datepicker type="text" ng-model="experience.fromDate" name="fromDate_{{experience.checkbox}}" required="required" class="form-control" id="expfromDate_{{experience.checkbox}}" value="">
+                            <input dvalue="{{experience.fromDate}}" datepicker type="text" ng-model="experience.fromDate" name="fromDate_{{experience.checkbox}}"  class="form-control" id="expfromDate_{{experience.checkbox}}" value="">
                             <div ng-show="employeeExperienceForm.$submitted || employeeExperienceForm.fromDate_{{experience.checkbox}}.$touched">
-                                <ul ng-show="employeeExperienceForm.fromDate_{{experience.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeExperienceForm.fromDate_{{experience.checkbox}}.$error.required" class="help-block error">
                                     <li>From Date is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input dvalue="{{experience.toDate}}" datepicker type="text" ng-model="experience.toDate" name="toDate_{{experience.checkbox}}" required="required" class="form-control" id="exptoDate_{{experience.checkbox}}" value="">
+                            <input dvalue="{{experience.toDate}}" datepicker type="text" ng-model="experience.toDate" name="toDate_{{experience.checkbox}}" class="form-control" id="exptoDate_{{experience.checkbox}}" value="">
                             <div ng-show="employeeExperienceForm.$submitted || employeeExperienceForm.toDate_{{experience.checkbox}}.$touched">
-                                <ul ng-show="employeeExperienceForm.toDate_{{experience.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeExperienceForm.toDate_{{experience.checkbox}}.$error.required" class="help-block error">
                                     <li>To Date is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td width="1%" style="padding:15px;" class="checkboxgap">

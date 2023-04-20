@@ -20,18 +20,19 @@
                     <i class="fa fa-times"></i>
                 </a>
                 #}#
-                #if(ALLOW_EXPENSE_APPLY=='Y'){#
-                <a  class="btn btn-icon-only blue" href="${document.expenseAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
-                    <i class="fa fa-arrow-right"></i>
-                </a>
-                #}#
-                #if(ALLOW_ADVANCE_ITR=='Y'){#
-                    <a  class="btn btn-icon-only blue" href="${document.advanceInterAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
-                        <i class="fa fa-arrow-right"></i>
-                    </a>
-                    #}#
+              
             </div>
         `;
+        // #if(ALLOW_EXPENSE_APPLY=='Y'){#
+        //     <a  class="btn btn-icon-only blue" href="${document.expenseAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
+        //         <i class="fa fa-arrow-right"></i>
+        //     </a>
+        //     #}#
+        //     #if(ALLOW_ADVANCE_ITR=='Y'){#
+        //         <a  class="btn btn-icon-only blue" href="${document.advanceInterAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
+        //             <i class="fa fa-arrow-right"></i>
+        //         </a>
+        //         #}#
         app.initializeKendoGrid($table, [
             {title: "Start Date",
                 columns: [{

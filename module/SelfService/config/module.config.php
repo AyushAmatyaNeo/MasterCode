@@ -908,6 +908,11 @@ return [
                         'action' => 'add',
                     ],
                     [
+                        'label' => 'Edit',
+                        'route' => 'trainingRequest',
+                        'action' => 'edit',
+                    ],
+                    [
                         'label' => 'Detail',
                         'route' => 'trainingRequest',
                         'action' => 'view',
@@ -965,6 +970,11 @@ return [
                         'label' => 'Detail',
                         'route' => 'overtimeRequest',
                         'action' => 'view',
+                    ],
+                    [
+                        'label' => 'Edit',
+                        'route' => 'overtimeRequest',
+                        'action' => 'edit',
                     ],
                 ],
             ],

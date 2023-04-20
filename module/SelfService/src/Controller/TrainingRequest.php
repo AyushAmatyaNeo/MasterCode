@@ -127,4 +127,38 @@ class TrainingRequest extends HrisController {
         return $this->trainingList;
     }
 
+    public function editAction() {
+        $id = (int) $this->params()->fromRoute("id");
+        if ($id === 0) {
+            return $this->redirect()->toRoute('trainingRequest');
+        }
+        $request = $this->getRequest();
+        $model = new TrainingRequestModel();
+        $detail = $this->repository->fetchById($id);
+        if ($request->isPost()) {
+            $this->form->setData($request->getPost());
+            if ($this->form->isValid()) {
+                $model->exchangeArrayFromForm($this->form->getData());
+                $model->modifiedDate = Helper::getcurrentExpressionDate();
+                $model->requestId = ((int) Helper::getMaxId($this->adapter, TrainingRequestModel::TABLE_NAME, TrainingRequestModel::REQUEST_ID)) + 1;
+                $model->status='RQ';
+                $model->employeeId = $this->employeeId;
+                $model->requestedDate = Helper::getcurrentExpressionDate();
+                $this->repository->edit($model, $id);
+                $this->flashmessenger()->addMessage("Training Request Successfully Updated!!!");
+                return $this->redirect()->toRoute("trainingRequest");
+            }
+        }
+        $model->exchangeArrayFromDb($detail);
+        $this->form->bind($model);
+        $this->prepareForm($id);
+        $trainings = $this->getTrainingList($this->employeeId);
+
+        return ['form' => $this->form,
+         'id' => $id,
+         'trainingList' => $trainings['trainingList'],
+         'customRenderer' => Helper::renderCustomView(),
+         'detail' => $detail,];
+    }
+
 }

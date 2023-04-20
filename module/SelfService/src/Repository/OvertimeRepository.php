@@ -76,6 +76,7 @@ class OvertimeRepository implements RepositoryInterface {
         $select->order("OT.REQUESTED_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
+        // echo '<pre>';print_r($result->current());die;
         return $result->current();
     }
 

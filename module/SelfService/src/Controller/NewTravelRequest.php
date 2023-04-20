@@ -786,7 +786,7 @@ class NewTravelRequest extends HrisController {
                     $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
                     $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
                     $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
-                    echo '<pre>';print_r('fdsn');die;
+                    // echo '<pre>';print_r('fdsn');die;
                     $this->repository->add($reqModel);
                 }
             }

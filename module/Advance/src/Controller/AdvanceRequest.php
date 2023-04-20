@@ -62,7 +62,7 @@ class AdvanceRequest extends HrisController {
                 $advanceRequestModel->status = "RQ";
 
                 $this->flashmessenger()->addMessage("Advance Request Successfully added!!!");
-
+                // echo '<pre>';print_r($advanceRequestModel);die;
                 $this->repository->add($advanceRequestModel);
                 try {
                     HeadNotification::pushNotification(NotificationEvents::ADVANCE_APPLIED, $advanceRequestModel, $this->adapter, $this);
