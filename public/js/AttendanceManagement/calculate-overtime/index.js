@@ -16,8 +16,8 @@
         }
         var resetDate = function () {
             $("#calculateOvertimeForm").trigger('reset');
-            $("#fromDate1").val('').datepicker('remove').datepicker();
-            $("#toDate1").val('').datepicker('remove').datepicker();
+            $("#fromDate1").val('');
+            $("#toDate1").val('');
             setEndDate();
         }
 
