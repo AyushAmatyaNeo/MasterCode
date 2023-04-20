@@ -25,6 +25,14 @@ class NewsStatusController extends AbstractActionController {
         $this->employeeId = $auth->getStorage()->read()['employee_id'];
     }
 
+    public function indexAction() {
+        $result = $this->repository->fetchAll();
+        $list = Helper::extractDbData($result);
+        return Helper::addFlashMessagesToArray($this, [
+                    'news' => $list
+        ]);
+    }
+
     public function viewAction() {
         $id = $this->params()->fromRoute('id');
 
