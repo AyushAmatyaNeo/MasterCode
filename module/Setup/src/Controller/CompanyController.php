@@ -219,6 +219,19 @@ class CompanyController extends HrisController {
         }
     }
 
+    public function validateCmpCodeAction(){
+        $request=$this->getRequest();
+        if($request->isPost()){
+            try{
+            $postData=$request->getPost();
+            $checkCmpCode=$this->repository->validateCmpCode($postData['companyCode']);
+            // echo '<pre>';print_r($checkCmpCode['COMPANY_EXIST']);die;
+            return new CustomViewModel(['success'=>true, 'data'=>$checkCmpCode['COMPANY_EXIST'], 'error'=>'']);
+        }catch(Exception $e){
+            return new CustomViewModel(['success'=>false,'data'=>[],'error'=>$e->getMessage()]);
+        }
+      }
+    }
 }
 
 ?>

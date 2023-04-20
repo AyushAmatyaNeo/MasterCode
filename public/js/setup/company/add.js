@@ -74,5 +74,21 @@
                 dropZone.processQueue();
             }
         });
+
+        $('#companyCode').on('keyup', function () {
+            var companyCode=$(this).val();
+            app.pullDataById(document.wsvalidateCmpCode,{
+                companyCode:companyCode
+            }).then (function(response){
+                if(response.data == 1){
+                    $(".errorMsgC").text("Company Code already exist.");
+                    $("#submit").prop("disabled",true);
+                }else{
+                    $(".errorMsgC").text("");
+                    $("#submit").prop("disabled",false);
+                }
+            })
+        });
     });
 })(window.jQuery, window.app);
+

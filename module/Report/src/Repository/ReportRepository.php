@@ -871,6 +871,7 @@ EOT;
               A.DAYOFF,
               A.PRESENT,
               A.HOLIDAY,
+              A.EVENT_CONFERENCE,
               A.LEAVE,
               A.PAID_LEAVE,
               A.UNPAID_LEAVE,
@@ -892,7 +893,7 @@ EOT;
                 END) AS DAYOFF,
                 SUM(
                 CASE
-                  WHEN A.OVERALL_STATUS IN ('PR','BA','LA','TV','VP','TN','TP','LP')
+                  WHEN A.OVERALL_STATUS IN ('PR','BA','LA','EC','TV','VP','TN','TP','LP')
                   THEN (
                     CASE
                       WHEN A.OVERALL_STATUS = 'LP'
@@ -908,6 +909,12 @@ EOT;
                   THEN 1
                   ELSE 0
                 END) AS HOLIDAY,
+                SUM(
+                  CASE
+                    WHEN A.OVERALL_STATUS IN ('EC')
+                    THEN 1
+                    ELSE 0
+                  END) AS EVENT_CONFERENCE,
                 SUM(
                 CASE
                   WHEN A.OVERALL_STATUS IN ('LV','LP')
@@ -1018,6 +1025,7 @@ GROUP BY
               D.DEPARTMENT_NAME,
               E.FULL_NAME 
 EOT;
+// echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
         return Helper::extractDbData($result);

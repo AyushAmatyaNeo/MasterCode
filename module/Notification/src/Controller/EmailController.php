@@ -15,6 +15,7 @@ use Notification\Model\OvertimeReqNotificationModel;
 use Notification\Model\SalaryReviewNotificationModel;
 use Notification\Model\TrainingReqNotificationModel;
 use Notification\Model\EventReqNotificationModel;
+use Notification\Model\EventNotificationModel;
 use Notification\Model\TravelReqNotificationModel;
 use Notification\Model\TravelSubNotificationModel;
 use Notification\Model\WorkOnDayoffNotificationModel;
@@ -78,7 +79,11 @@ class EmailController extends AbstractActionController {
         44 => "Leave_Cancel_Approve",
         45 => "Expense_Request",
         46 => "Expense_Approval",
-        47 => "Expense_Recommendation"
+        47 => "Expense_Recommendation",
+        48 => "Event_Assign",
+        49 => "Event_Request",
+        50 => "Event_Recommend",
+        51 => "Event_Approval",
     ];
 
     private function getVariables() {
@@ -132,6 +137,12 @@ class EmailController extends AbstractActionController {
         $birthdayWish = new BirthdayNotificationModel();
         $birthdayWishOA = $birthdayWish->getObjectAttrs();
 
+        $type48 = new EventNotificationModel();
+        $type48ObjVars = $type48->getObjectAttrs();
+
+        $type49 = new EventReqNotificationModel();
+        $type49ObjVars = $type49->getObjectAttrs();
+
         return [
             1 => $type1ObjVars,
             2 => $type1ObjVars,
@@ -180,6 +191,10 @@ class EmailController extends AbstractActionController {
             45 => $type14ObjVars,
             46 => $type14ObjVars,
             47 => $type14ObjVars,
+            48 => $type48ObjVars,
+            49 => $type49ObjVars,
+            50 => $type49ObjVars,
+            51 => $type49ObjVars,
         ];
     }
 

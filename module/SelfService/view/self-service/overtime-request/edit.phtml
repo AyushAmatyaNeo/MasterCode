@@ -7,7 +7,7 @@ $this->headScript()
         ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 $this->headScript()->appendFile($this->basePath('js/angular.min.js'));
 $this->headScript()->appendFile($this->basePath('js/SelfService/overtime-request/add.js?1'))
-        ->appendFile($this->basePath('js/SelfService/overtime-request/detailController.js'));
+        ->appendFile($this->basePath('js/SelfService/overtime-request/edit.js?1'));
 
 
 $form->setAttribute('role', 'form');
@@ -46,7 +46,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 }
 ?>
 <script>
-    document.validateAttendanceLink = '<?= $this->url("overtimeRequest", ["action" => "validateAttendance"]) ?>';
+    // document.validateAttendanceLink = '<?= $this->url("overtimeRequest", ["action" => "validateAttendance"]) ?>';
 </script>
 <?php if ($this->messages) { ?>
     <script>
@@ -54,8 +54,8 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
     </script>
 <?php } ?>
 <script>
-    document.urlOvertime = '<?= $this->url("overtimeRequest", ["action" => "index"]) ?>';</script>
-<div class="row margin-top-20" ng-app="hris" ng-controller="detailController">
+    document.urlOvertime = '<?= $this->url("overtimeRequest", ["action" => "overtimeDetails"]) ?>';</script>
+<div class="row margin-top-20" ng-app="hris" ng-controller="edit">
     <div class="col-sm-12">
         <div class="portlet box custom-box">
             <div class="portlet-title">
@@ -68,13 +68,12 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="portlet-body">
                 <div class="form-group">
-                    <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>"/>
                 </div>
 
                 <?php
                 print $this->form()->openTag($form);
                 ?>
-                <!-- <input type="hidden" id="overtimeId" value="0"/> -->
+                <input type="hidden" id="overtimeId" value="<?php echo $id; ?>"/>
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="form-group <?= empty($overtimeDate->getMessages()) ? "" : "error" ?>">
@@ -117,13 +116,13 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             </tr>
                             <tr ng-repeat="(index,overtimeDetail) in overtimeDetailList" height="30"> 
                                 <td width="45%" style="padding-right:5px;">
-                                    <input  timepicker type="text" size="3" class="form-control" value="<?= $overtimeDetails[0]['START_TIME']; ?>" name="startTime[]" ng-model="overtimeDetail.startTime" value="" required="required" readonly="readonly"/>
+                                    <input  timepicker type="text" size="3" class="form-control"  name="startTime[]" ng-model="overtimeDetail.startTime" value="" required="required" readonly="readonly"/>
                                 </td>
                                 <td width="45%" style="padding:5px;">
-                                    <input  timepicker type="text" size="3"  class="form-control"  value="<?= $overtimeDetails[0]['END_TIME']; ?>"  name="endTime[]" ng-model="overtimeDetail.endTime" value="" required="required" readonly="readonly"/>
+                                    <input  timepicker type="text" size="3"  class="form-control"    name="endTime[]" ng-model="overtimeDetail.endTime" value="" required="required" readonly="readonly"/>
                                 </td>
                                 <td width="45%" style="padding:5px;">
-                                    <input type="text" size="3" class="form-control" name="totalHour[]" value="{{calculateHour(overtimeDetail.startTime, overtimeDetail.endTime)}}" value="<?= $overtimeDetails[0]['TOTAL_HOUR']; ?>"   required="required" readonly="readonly"/> 
+                                    <input type="text" size="3" class="form-control" name="totalHour[]" value="{{calculateHour(overtimeDetail.startTime, overtimeDetail.endTime)}}"   required="required" readonly="readonly"/> 
                              <!-- FOR SHIVAM CEMENT -->  
                              <!--   <input dvalue="{{overtimeDetail.totalHour}}" type="text" size="3" class="form-control" name="totalHour[]" ng-model="overtimeDetail.totalHour" required="required" /> -->
                                 </td>

@@ -3,7 +3,7 @@ $this->headLink()
         ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
 
 $this->headScript()->appendFile($this->basePath('dropzone/dropzone.min.js'));
-$this->headScript()->appendFile($this->basePath('js/setup/company/add.js'));
+$this->headScript()->appendFile($this->basePath('js/setup/company/add.js?1'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'company-form');
@@ -41,6 +41,7 @@ $form->prepare();
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.wsFileUpload = '<?= $this->url('company', ["action" => "fileUpload"]) ?>';
+    document.wsvalidateCmpCode='<?=$this->url('company',["action"=>"validateCmpCode"])?>';
     document.imageData =<?php echo json_encode($imageData); ?>;
 </script>
 <div class="page-bar">
@@ -84,7 +85,7 @@ $form->prepare();
                             <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($companyCode); ?>
                             <?php print $this->formElementErrors()->render($companyCode, ['class' => 'help-block']); ?>
-                            <span class="errorMsg" style="font-size:11px; color:red;"></span>
+                            <span class="errorMsgC" style="font-size:11px; color:red;"></span>
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -106,7 +107,8 @@ $form->prepare();
                             <?php print $this->formElementErrors()->render($address, ['class' => 'help-block']); ?>
                         </div>
                     </div>
-
+                </div>
+                <div class=" row">
                     <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($telephone); ?>
