@@ -8,9 +8,9 @@
             {field: "PREVIOUS_YEAR_BAL", title: "Previous"},
             {field: "TOTAL_DAYS", title: "Total Days"},
             {field: "LEAVE_TAKEN", title: "Leave taken"},
-            {field: "ENCASHED", title: "Encashed"},
-            {field: "LEAVE_DEDUCTED", title: "Leave Deducted"},
-            {field: "LEAVE_ADDED", title: "Leave Added"},
+            // {field: "ENCASHED", title: "Encashed"},
+            // {field: "LEAVE_DEDUCTED", title: "Leave Deducted"},
+            // {field: "LEAVE_ADDED", title: "Leave Added"},
             {field: "BALANCE", title: "Available Days"}
         ], null, null, null, 'Leave Balance List');
 
@@ -28,9 +28,9 @@
             'LEAVE_ENAME': 'Leave',
             'PREVIOUS_YEAR_BAL': 'Previous',
             'TOTAL_DAYS': 'Total Days',
-            'LEAVE_TAKEN': 'Leave Taken',
-            'LEAVE_DEDUCTED': 'Leave Deducted',
-            'LEAVE_ADDED': 'Leave Added',
+            // 'LEAVE_TAKEN': 'Leave Taken',
+            // 'LEAVE_DEDUCTED': 'Leave Deducted',
+            // 'LEAVE_ADDED': 'Leave Added',
             'BALANCE': 'Available Days'
         };
         $('#excelExport').on('click', function () {

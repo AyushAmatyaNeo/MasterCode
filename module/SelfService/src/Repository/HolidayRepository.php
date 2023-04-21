@@ -65,8 +65,9 @@ class HolidayRepository implements RepositoryInterface {
         $select->from(['H' => Holiday::TABLE_NAME])
                 ->join(['EH' => EmployeeHoliday::TABLE_NAME], "EH.HOLIDAY_ID=H.HOLIDAY_ID", ['EMPLOYEE_ID'], "left");
         $select->where(["H.STATUS" => 'E', "EH.EMPLOYEE_ID" => $employeeId,]);
-        $select->order(["H.START_DATE" => Select::ORDER_ASCENDING]);
+        $select->order(["H.START_DATE" => Select::ORDER_DESCENDING]);
         $statement = $sql->prepareStatementForSqlObject($select);
+        // echo '<pre>';print_r($statement);die;
         $result = $statement->execute();
         return $result;
     }
