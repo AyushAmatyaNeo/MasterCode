@@ -5,6 +5,7 @@ namespace Loan\Repository;
 use Application\Model\Model;
 use Application\Repository\RepositoryInterface;
 use Loan\Model\LoanClosing AS LoanClosingModel;
+
 use Setup\Model\HrEmployees;
 use Setup\Model\Loan;
 use Zend\Db\Adapter\AdapterInterface;
@@ -20,11 +21,16 @@ class LoanClosingRepository implements RepositoryInterface {
     public function __construct(AdapterInterface $adapter) {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(LoanClosingModel::TABLE_NAME, $adapter);
+
+       
+
     }
 
     public function add(Model $model) {
         $this->tableGateway->insert($model->getArrayCopyForDB());
     }
+
+    
  
     public function delete($id) {
         $this->tableGateway->update([LoanClosingModel::STATUS => 'C'], [LoanClosingModel::LOAN_REQ_ID => $id]);
@@ -51,27 +57,31 @@ class LoanClosingRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function updateLoanStatus($loanReqId){
-        $sql = "UPDATE HRIS_EMPLOYEE_LOAN_REQUEST SET LOAN_STATUS = 'CLOSED' WHERE LOAN_REQUEST_ID  = $loanReqId";
+    public function updateLoanStatus($loan_id, $eid){
+        $sql = "UPDATE HRIS_EMPLOYEE_LOAN_REQUEST SET LOAN_STATUS = 'CLOSED' WHERE LOAN_ID = $loan_id and EMPLOYEE_ID = $eid";
         $statement = $this->adapter->query($sql);
         $statement->execute();
     }
 
-    public function getRemainingAmount($old_loan_req_id, $paymentAmount){
+    public function getRemainingAmount($loan_id, $eid, $paymentAmount){
         $sql = "SELECT 
-        ROUND(SUM(AMOUNT)-$paymentAmount) AS REMAINING_AMOUNT 
+        ROUND(SUM(AMOUNT) ,2) AS REMAINING_AMOUNT 
         FROM HRIS_LOAN_PAYMENT_DETAIL 
-        WHERE PAID_FLAG = 'N' AND LOAN_REQUEST_ID = $old_loan_req_id";
+        WHERE PAID_FLAG = 'N' AND LOAN_REQUEST_ID IN (SELECT LOAN_REQUEST_ID FROM HRIS_EMPLOYEE_LOAN_REQUEST
+		WHERE LOAN_ID = $loan_id AND EMPLOYEE_ID = $eid AND LOAN_STATUS = 'OPEN')";
+		//echo $sql; die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;
     }
 
-    public function getUnpaidAmount($old_loan_req_id){
+    public function getUnpaidAmount($loan_id, $eid){
         $sql = "SELECT 
-        ROUND(SUM(AMOUNT)) AS UNPAID_AMOUNT 
-        FROM HRIS_LOAN_PAYMENT_DETAIL 
-        WHERE PAID_FLAG = 'N' AND LOAN_REQUEST_ID = $old_loan_req_id";
+        ROUND(SUM(AMOUNT)) AS UNPAID_AMOUNT FROM HRIS_LOAN_PAYMENT_DETAIL 
+        WHERE PAID_FLAG = 'N' AND LOAN_REQUEST_ID IN (SELECT LOAN_REQUEST_ID FROM HRIS_EMPLOYEE_LOAN_REQUEST
+		WHERE LOAN_ID = $loan_id AND EMPLOYEE_ID = $eid AND LOAN_STATUS = 'OPEN')
+		AND (TO_DATE >= TRUNC(SYSDATE) OR FROM_DATE >= TRUNC(SYSDATE))";
+		
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;
@@ -79,6 +89,13 @@ class LoanClosingRepository implements RepositoryInterface {
 
     public function getRateByLoanReqId($loanReqId){
         $sql = "SELECT INTEREST_RATE FROM HRIS_EMPLOYEE_LOAN_REQUEST WHERE LOAN_REQUEST_ID = $loanReqId";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result;
+    }
+	
+	public function getRateByLoanId($loanId){
+        $sql = "SELECT INTEREST_RATE FROM HRIS_LOAN_MASTER_SETUP WHERE LOAN_ID = $loanId";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;

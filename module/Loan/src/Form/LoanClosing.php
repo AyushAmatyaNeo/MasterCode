@@ -3,7 +3,7 @@ namespace Loan\Form;
 
 use Zend\Form\Annotation;
 /**
- * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
+ * @Annotation\Hydrator("Zend\Hydrator\ObjectProperty")
  * @Annotation\Name("LoanClosing")
  */
  
@@ -14,7 +14,7 @@ class LoanClosing{
      * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Paid Amount (Principal)"})
-     * @Annotation\Attributes({ "id":"principlePaid","min":"0", "readonly":"readonly", "class":"form-paidAmount form-control"})
+     * @Annotation\Attributes({ "id":"principlePaid","min":"0", "readonly":"readonly", "class":"form-paidAmount form-control", "step":"0.01" })
      */
     public $paymentAmount;
     /**
@@ -30,7 +30,7 @@ class LoanClosing{
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Paid Amount (Total)"})
-     * @Annotation\Attributes({ "id":"totalPaid","min":"0", "class":"form-totalPaid form-control" })
+     * @Annotation\Attributes({ "id":"totalPaid","min":"0", "class":"form-totalPaid form-control", "step":"0.01" })
      */
     public $totalPaid;
      /**

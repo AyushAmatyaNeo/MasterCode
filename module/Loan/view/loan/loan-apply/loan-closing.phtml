@@ -22,13 +22,12 @@ $remarks = $form->get('remarks');
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
 
-$form->setAttribute('action', $this->url('loanApply', ['action' => 'loanClosing', 'id' => $id]));
+$form->setAttribute('action', $this->url('loanApply', ['action' => 'loanClosing', 'id' => $id, 'eid' => $eid]));
 
 $form->prepare();
 ?>
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
-    document.rate = <?=json_encode($rate)?>;
     document.pullLoanListLink = '<?= $this->url("loanRequest", ["action" => "pullLoanList"]) ?>';
 </script>
 

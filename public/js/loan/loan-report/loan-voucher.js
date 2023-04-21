@@ -2,11 +2,19 @@
     'use strict';
     $(document).ready(function () {
         $("select").select2();
-        //$('select').select2();
+        $('select').select2();
         // app.datePickerWithNepali("fromDate","nepaliFromDate");
         // $('#form-paidDate').datepicker("setStartDate", new Date());
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, false);
-        var $tableContainer = $("#loanRequestStatusTable");
+        var monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var d = new Date();
+        d.getMonth() <= 6 ? $("#fromDate").val("17-Jul-" + (d.getFullYear()-1)) : $("#fromDate").val(("0" + d.getDate()).slice(-2) + "-Jul-" + d.getFullYear()) ;
+        $("#nepaliFromDate").val(window.nepaliDatePickerExt.fromEnglishToNepali($("#fromDate").val()));
+        $("#toDate").val(("0" + d.getDate()).slice(-2) + "-" + monthShortNames[(d.getMonth())] + "-" +d.getFullYear());
+        $("#nepaliToDate").val(window.nepaliDatePickerExt.fromEnglishToNepali($("#toDate").val()));
+        app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, false);
+        var $tableContainer = $("#loanRequestStatusTable"); 
         var $search = $('#search');
 
         var columns = [

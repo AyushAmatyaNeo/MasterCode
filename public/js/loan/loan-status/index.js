@@ -48,19 +48,8 @@
             <a class="btn btn-icon-only btn-success" href="${document.editLink}/#: LOAN_REQUEST_ID #" style="height:17px;" title="edit">
                 <i class="fa fa-edit"></i>
             </a>
-        </span>
-          <span> 
-            <a class="btn btn-icon-only btn-success" href="${document.loanClosing}/#: LOAN_REQUEST_ID #" style="height:17px;" title="Loan Closing">
-                <i class="fa fa-money"></i>
-            </a>
-        </span>
-            #} if(ALLOW_CORRECTION == 'Y'){#
-            <span> 
-            <a class="btn btn-icon-only btn-success" href="${document.rectifyLink}/#: LOAN_REQUEST_ID #" style="height:17px;" title="rectify">
-                <i class="fa fa-money"></i>
-            </a>
-        </span>
-        # } #`
+			</span>
+			# } #`
             , width: 120}
         ];
 
@@ -78,7 +67,8 @@
             'RECOMMENDED_DATE': 'Recommended Date',
             'APPROVED_REMARKS': 'Approved Remarks',
             'APPROVED_DATE': 'Approved Date'
-        }
+        };
+		
         app.initializeKendoGrid($tableContainer, columns, null, null, null, 'Loan Status Report.xlsx');
         app.searchTable($tableContainer, ['FULL_NAME']);
 

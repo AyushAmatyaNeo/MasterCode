@@ -7,8 +7,6 @@ $this->headScript()
         ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
 $this->headScript()->appendFile($this->basePath('js/SelfService/loan-request/add.js'));
-$this->headScript()->appendFile($this->basePath('js/angular.min.js'));
-$this->headScript()->appendFile($this->basePath('js/SelfService/loan-request/loanController.js'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'loan-form');
@@ -74,7 +72,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <div class=" row">
                     <div class="col-sm-4">
                         <div class="form-group">
-                            <label for="employeeid">Employee</label>
+                            <label for="employeeId">Employee</label>
                             <span class="required" aria-required="true">*</span>
                             <select name="employeeId" id="employeeId" required="required"  ng-model="employeeId" ng-change="employeeChange()" class="form-control">
                                 <option value="" disabled="" selected="" class="ng-binding">Please select</option>                           
@@ -90,8 +88,14 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         <div class="form-group">
                             <?php print $this->formLabel($loanId); ?>
                             <span class="required" aria-required="true">*</span>
-                            <select name="loanId" required="required" ng-options="value for (key,value) in loanList track by key" ng-model="loanId" id="loanId" class="form-control">
+                            <!-- <select name="loanId" required="required" ng-options="value for (key,value) in loanList track by key" ng-model="loanId" id="loanId" class="form-control">
                                 <option style="display:none" value="" disabled="" selected>select a type</option>
+                            </select> -->
+							<select name="loanId" id="loanId" required="required" class="form-control">
+                                <option value="" disabled="" selected="">select a type</option>                           
+                                <?php foreach ($loans as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option> 
+                                <?php } ?>
                             </select>
                             <?php print $this->formElementErrors()->render($loanId, ['class' => 'help-block']); ?>
                         </div>               
