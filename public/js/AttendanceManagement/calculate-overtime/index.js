@@ -3,7 +3,6 @@
     $(document).ready(function () {
         $("select").select2();
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
-
         app.startEndDatePickerWithNepali('nepaliFromDate1', 'fromDate1', 'nepaliToDate1', 'toDate1', null, true);
 
         var setEndDate = function () {
@@ -16,8 +15,8 @@
         }
         var resetDate = function () {
             $("#calculateOvertimeForm").trigger('reset');
-            $("#fromDate1").val('').datepicker('remove').datepicker();
-            $("#toDate1").val('').datepicker('remove').datepicker();
+            $("#fromDate1").val('');
+            $("#toDate1").val('');
             setEndDate();
         }
         $('.calculateOvertimeFormModal').on('hidden.bs.modal', function (e)
