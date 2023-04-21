@@ -228,6 +228,7 @@
                     });
                 };
                 $scope.addDocument = function () {
+
                     var modalInstance = $uibModal.open({
                         ariaLabelledBy: 'modal-title',
                         ariaDescribedBy: 'modal-body',
@@ -243,6 +244,7 @@
                                     $scope.valid = false;
                                     return;
                                 }
+
                                 document.fileTypeCode = $scope.fileTypeCode;
                                 document.fileTypeName = $scope.fileTypeName;
                                 document.myDropzone.processQueue();
@@ -258,6 +260,7 @@
                     });
                     console.log("modalInstance", modalInstance);
                     modalInstance.rendered.then(function () {
+
                         document.myDropzone = new Dropzone("#dropZoneContainer", {
                             url: document.restfulUrl,
                             autoProcessQueue: false,
@@ -281,6 +284,37 @@
                         });
                     });
                     modalInstance.result.then(function (selectedItem) {
+
+                        // File validation
+                        let ext = selectedItem.oldFileName.split('.')[1].toLowerCase();
+                        let error = false;
+
+                        switch($scope.fileTypes[selectedItem.fileTypeCode]){
+                            case 'JPEG':
+                                if(ext != 'jpg' && ext != 'jpeg'){
+                                    alert(ext);
+                                    error = true;
+                                }
+                            break;
+
+                            case 'DOCX':
+                                if(ext != 'docx'){
+                                    error = true;
+                                }
+                            break;
+
+                            case 'DOC':
+                                if(ext != 'doc'){
+                                    error = true;
+                                }
+                            break;
+                        }
+
+                        if(error){
+                            app.showMessage('Invalid document format', 'error');
+                            return;
+                        }
+
                         window.app.pullDataById(document.pushEmployeeDocumentLink, {
                             'fileTypeCode': selectedItem.fileTypeCode,
                             'filePath': selectedItem.fileName,
@@ -305,6 +339,7 @@
                         console.log("Modal Action Cancelled");
                     });
                 };
+
                 window.app.pullDataById(document.pullEmployeeFileByEmpIdLink, {
                     'employeeId': document.employeeId
                 }).then(function (success) {

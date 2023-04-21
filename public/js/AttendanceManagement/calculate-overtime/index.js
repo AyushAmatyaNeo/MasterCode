@@ -3,7 +3,6 @@
     $(document).ready(function () {
         $("select").select2();
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
-
         app.startEndDatePickerWithNepali('nepaliFromDate1', 'fromDate1', 'nepaliToDate1', 'toDate1', null, true);
 
         var setEndDate = function () {
