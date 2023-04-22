@@ -30,6 +30,7 @@ class OvertimeRequest extends HrisController {
 
     public function overtimeDetail($overtimeId) {
         $rawList = $this->detailRepository->fetchByOvertimeId($overtimeId);
+        // echo '<pre>';print_r($rawList );die;
         return Helper::extractDbData($rawList);
     }
 
@@ -44,6 +45,7 @@ class OvertimeRequest extends HrisController {
                     $item['DETAILS'] = $detail;
                     array_push($list, $item);
                 }
+                // echo '<pre>';print_r($list);die;
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -124,7 +126,7 @@ class OvertimeRequest extends HrisController {
 
         $overtimeDetailResult = $this->detailRepository->fetchByOvertimeId($detail['OVERTIME_ID']);
         $overtimeDetails = Helper::extractDbData($overtimeDetailResult);
-
+        // echo '<pre>';print_r($detail);die;
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'employeeName' => $detail['FULL_NAME'],
@@ -144,4 +146,56 @@ class OvertimeRequest extends HrisController {
         $result = $this->detailRepository->getAttendanceOvertimeValidation($employeeId, $date);
         return new JSONModel(["validation" => $result["VALIDATION"]]);
     }
+
+    public function editAction() {
+        $id = (int) $this->params()->fromRoute("id");
+        if ($id === 0) {
+            return $this->redirect()->toRoute('overtimeRequest');
+        }
+        $request = $this->getRequest();
+        $overtimeDetailModel = new OvertimeDetail();
+        if ($request->isPost()) {
+            $this->form->setData($request->getPost());
+            if ($this->form->isValid()) {
+                $overtimeDetailModel->exchangeArrayFromForm($this->form->getData());
+                $overtimeDetailModel->modifiedDate = Helper::getcurrentExpressionDate();
+                $overtimeDetailModel->status='RQ';
+                $overtimeDetailModel->modifiedBy = $this->employeeId;
+                $this->repository->edit($overtimeDetailModel, $id);
+                $this->flashmessenger()->addMessage("Overtime Request Successfully Updated!!!");
+                return $this->redirect()->toRoute("overtimeRequest");
+            }
+        }
+        $overtimeModel = new Overtime();
+        $detail = $this->repository->fetchById($id);
+
+        $overtimeModel->exchangeArrayFromDB($detail);
+        $this->form->bind($overtimeModel);
+
+        $overtimeDetailResult = $this->detailRepository->fetchByOvertimeId($detail['OVERTIME_ID']);
+        $overtimeDetails = Helper::extractDbData($overtimeDetailResult);
+        // echo '<pre>';print_r($overtimeDetails);die;
+        return Helper::addFlashMessagesToArray($this, [
+            'form' => $this->form,
+            'id'=>$id,
+            'overtimeDetails' => $overtimeDetails,
+            'totalHour' => $detail['TOTAL_HOUR_DETAIL']
+]);
+    }
+
+    public function overtimeDetailsAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postData=$request->getPost();
+                // echo '<pre>';print_r($postData['overtimeId']);die;
+                $overtimeDetailResult = $this->detailRepository->fetchByOvertimeId($postData['overtimeId']);
+                return new JsonModel(['success' => true, 'data' => $overtimeDetailResult, 'error' => '']);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+            }
+        }
+        return new ViewModel();
+    }
+
 }

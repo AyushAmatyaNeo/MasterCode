@@ -61,6 +61,7 @@ $form->prepare();
                     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" >
                         <div class="form-group">
                             <?php print $this->formLabel($advanceEname); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($advanceEname); ?>
                             <?php print $this->formElementErrors()->render($advanceEname, ['class' => 'help-block']); ?>
                         </div>
@@ -93,6 +94,7 @@ $form->prepare();
                     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" >
                         <div class="form-group">
                             <?php print $this->formLabel($maxSalaryRate); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($maxSalaryRate); ?>
                             <?php print $this->formElementErrors()->render($maxSalaryRate, ['class' => 'help-block']); ?>
                         </div>
@@ -101,6 +103,7 @@ $form->prepare();
                     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" >
                         <div class="form-group">
                             <?php print $this->formLabel($maxAdvanceMonth); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($maxAdvanceMonth); ?>
                             <?php print $this->formElementErrors()->render($maxAdvanceMonth, ['class' => 'help-block']); ?>
                         </div>
@@ -111,6 +114,7 @@ $form->prepare();
                     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" >
                         <div class="form-group">
                             <?php print $this->formLabel($deductionRate); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($deductionRate); ?>
                             <?php print $this->formElementErrors()->render($deductionRate, ['class' => 'help-block']); ?>
                         </div>
@@ -119,6 +123,7 @@ $form->prepare();
                     <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" >
                         <div class="form-group">
                             <?php print $this->formLabel($deductionIn); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($deductionIn); ?>
                             <?php print $this->formElementErrors()->render($deductionIn, ['class' => 'help-block']); ?>
                         </div>

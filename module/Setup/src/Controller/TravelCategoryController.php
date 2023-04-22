@@ -128,7 +128,7 @@ class TravelCategoryController extends AbstractActionController{
         ]);
      }
 
-     public function viewAction(){
+    public function viewAction(){
         $id = (int) $this->params()->fromRoute("id");
         if ($id === 0) {
             return $this->redirect()->toRoute('travelCategory');

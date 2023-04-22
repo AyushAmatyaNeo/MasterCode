@@ -77,7 +77,44 @@ class TravelExpClassController extends AbstractActionController {
 
   }
 
-  public function deleteAction(){
+public function editAction(){
+        $id = (int) $this->params()->fromRoute("id");
+        if ($id === 0) {
+            return $this->redirect()->toRoute('travelExpenseClass');
+        }
+        $request = $this->getRequest();
+        // echo '<pre>'; print_r($request);die;
+
+        if($request->isPost()){
+            $travelExpClass = new TravelExpenseClass();
+            $data = $request->getPost();
+            $travelExpClass->categoryName = $data['categoryName'];
+            $travelExpClass->allowancePercentage = $data['allowancePercentage'];
+            $travelExpClass->createdBy = $this->employeeId;
+            $travelExpClass->createdDt= Helper::getcurrentExpressionDate();
+            $travelExpClass->modifiedBy = $this->employeeId;
+            $travelExpClass->modifiedDt= Helper::getcurrentExpressionDate();
+            $travelExpClass->status = 'E';
+
+            // echo '<pre>'; print_r($id);die;
+
+            $this->repository->edit($travelExpClass,$id);
+            $this->flashmessenger()->addMessage("Travel  Successfully Updated!!!");
+            return $this->redirect()->toRoute('travelExpenseClass');
+            return new CustomViewModel(['success' => true,'error' => '']);
+
+        }
+        $detail=$this->repository->fetchById($id);
+        // echo '<pre>';print_r($detail);die;
+        return Helper::addFlashMessagesToArray($this, [
+            'acl' => $this->acl,
+            'detail' => $detail,
+            'id' => $id
+
+        ]);
+     }
+
+public function deleteAction(){
    
 if (!ACLHelper::checkFor(ACLHelper::DELETE, $this->acl, $this)) {
     return;

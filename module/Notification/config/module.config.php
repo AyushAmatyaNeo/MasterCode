@@ -179,6 +179,11 @@ return [
                         'route' => 'news-status',
                         'action' => 'allNewsTypeList',
                     ],
+                    [
+                        'label' => 'List',
+                        'route' => 'news-status',
+                        'action' => 'index',
+                    ],
                         [
                         'label' => 'View',
                         'route' => 'news-status',

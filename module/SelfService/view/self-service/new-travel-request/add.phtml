@@ -28,6 +28,7 @@ $noOfDays = $form->get('noOfDays');
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
+$submit->setAttribute('id', 'request');
 
 $form->setAttribute('action', $this->url('newtravelrequest', ['action' => 'add']));
 $form->setAttribute('enctype', 'multipart/form-data');
@@ -37,6 +38,7 @@ $form->prepare();
  <?php  $all_data = json_encode(file_get_contents("https://gist.githubusercontent.com/aaronhayes/5fef481815ac75f771d37b16d16d35c9/raw/edbec8eea5cc9ace57a79409cc390b7b9bcf24f6/currencies.json")); ?>
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.wsValidateTravelRequest = '<?= $this->url("travelApply", ["action" => "validateTravelRequest"]) ?>';
     document.currencyList = <?php echo json_decode($all_data) ?>;
 </script>
 <div class="page-bar">

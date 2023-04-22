@@ -85,8 +85,10 @@ class HolidayWorkApproveController extends HrisController {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
+            // echo '<pre>';print_r($postData);die;
             $this->makeDecision($postData['id'], $postData['role'], $postData['btnAction'] == "btnApprove");
             if (in_array($postData['role'], [3, 4]) && $postData['btnAction'] == "btnApprove") {
+                // echo '<pre>';print_r($postData['id']);die;
                 $this->repository->wohReward($postData['id']);
             }
             return new JsonModel(['success' => true, 'data' => null]);
@@ -138,6 +140,7 @@ class HolidayWorkApproveController extends HrisController {
                 break;
         }
         $this->repository->edit($model, $id);
+        $this->repository->wohReward($id);
         if ($enableFlashNotification) {
             $this->flashmessenger()->addMessage($message);
         }

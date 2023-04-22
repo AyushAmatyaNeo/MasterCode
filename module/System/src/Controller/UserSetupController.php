@@ -77,7 +77,7 @@ class UserSetupController extends HrisController {
                 $userSetup->modifiedDt = Helper::getcurrentExpressionDate();
                 $userSetup->modifiedBy = $this->employeeId;
                 $userSetup->password = Helper::encryptPassword($userSetup->password);
-
+                // echo '<pre>';print_r($userSetup);die;
                 $this->repository->edit($userSetup, $id);
                 $this->flashmessenger()->addMessage("User Successfully Updated!!!");
                 return $this->redirect()->toRoute("usersetup");
@@ -114,9 +114,8 @@ class UserSetupController extends HrisController {
             $request = $this->getRequest();
             $userName = $request->getPost('userName');
             $userId = $request->getPost('userId');
-            
             $returnData = $this->repository->checkUserNameAvailability($userName,$userId);
-
+                        // echo '<pre>';print_r($returnData);die;
             $availability = 'YES';
             if ($returnData) {
                 $availability = 'NO';

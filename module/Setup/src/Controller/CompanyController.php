@@ -64,14 +64,12 @@ class CompanyController extends HrisController {
                 $imageData = $this->getFileInfo($this->adapter, $postedData['logo']);
             }
         }
-
         return new ViewModel(Helper::addFlashMessagesToArray(
                         $this, [
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages(),
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
-                    'existingCodes' => $existingCodes
                         ]
                 )
         );
@@ -131,7 +129,6 @@ class CompanyController extends HrisController {
                     'id' => $id,
                     'imageData' => $imageData,
                     'customRenderer' => Helper::renderCustomView(),
-                    'companyId' => $company->companyId
                         ]
         );
     }
@@ -222,6 +219,19 @@ class CompanyController extends HrisController {
         }
     }
 
+    public function validateCmpCodeAction(){
+        $request=$this->getRequest();
+        if($request->isPost()){
+            try{
+            $postData=$request->getPost();
+            $checkCmpCode=$this->repository->validateCmpCode($postData['companyCode']);
+            // echo '<pre>';print_r($checkCmpCode['COMPANY_EXIST']);die;
+            return new CustomViewModel(['success'=>true, 'data'=>$checkCmpCode['COMPANY_EXIST'], 'error'=>'']);
+        }catch(Exception $e){
+            return new CustomViewModel(['success'=>false,'data'=>[],'error'=>$e->getMessage()]);
+        }
+      }
+    }
 }
 
 ?>

@@ -200,4 +200,25 @@ class TravelApply extends HrisController {
         ]);
     }
 
+    public function validateTravelRequestAction() {
+        try {
+            $request = $this->getRequest();
+            
+            if ($request->isPost()) {
+                
+                $postedData = $request->getPost();
+                //  print_r($postedData);die;
+                $TravelRequestRepository = new TravelRequestRepository($this->adapter);
+                $error = $TravelRequestRepository->validateTravelRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                $leaveError = $TravelRequestRepository->validateTravelLeaveRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                // echo '<pre>';print_r($leaveError);die;
+                return new JsonModel(['success' => true, 'data' => $error, 'leaveError'=>$leaveError,'error' => '']);
+            } else {
+                throw new Exception("The request should be of type post");
+            }
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
+    }
+
 }

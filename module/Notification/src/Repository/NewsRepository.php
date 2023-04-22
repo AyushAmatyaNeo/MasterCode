@@ -53,7 +53,7 @@ class NewsRepository extends HrisRepository implements RepositoryInterface {
 
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
-
+        // echo '<pre>';print_r($statement);die;
         return $result;
     }
 

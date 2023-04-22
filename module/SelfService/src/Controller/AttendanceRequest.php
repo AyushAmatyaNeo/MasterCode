@@ -67,6 +67,7 @@ class AttendanceRequest extends HrisController {
         if ($request->isPost()) {
             $this->form->setData($request->getPost());
             if ($this->form->isValid()) {
+                // print_r('dhvdfh');die;
                 $model = new AttendanceRequestModel();
                 $model->exchangeArrayFromForm($this->form->getData());
                 $model->employeeId = $this->employeeId;

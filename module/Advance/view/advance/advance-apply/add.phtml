@@ -23,7 +23,7 @@ $this->headScript()
         ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
         ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
-$this->headScript()->appendFile($this->basePath('js/advance/advance-apply/add.js'));
+$this->headScript()->appendFile($this->basePath('js/advance/advance-apply/add.js?1'));
 ?>
 
 
@@ -95,6 +95,7 @@ print $this->form()->openTag($form);
                     <div class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($advanceId); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($advanceId); ?>
                             <?php print $this->formElementErrors()->render($advanceId, ['class' => 'help-block']); ?>
                         </div>
@@ -103,6 +104,7 @@ print $this->form()->openTag($form);
                     <div class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($requestedAmount); ?>
+                            <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($requestedAmount); ?>
                             <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
                         </div>
@@ -129,18 +131,6 @@ print $this->form()->openTag($form);
                         </div> 
                         
                     </div>
-
-                    <div class="col-sm-12 col-md-6 col-lg-4" >
-                        <div class="form-group">
-                            <?php print $this->formLabel($reason); ?>
-                            <?php print $this->formElement($reason); ?>
-                            <?php print $this->formElementErrors()->render($reason, ['class' => 'help-block']); ?>
-                        </div>
-                    </div>
-
-
-
-
                     <div id="deductionRateDiv" class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($deductionRate); ?>
@@ -165,12 +155,19 @@ print $this->form()->openTag($form);
                         </div>
                     </div>
 
-
                     <div id="overrideApproverDiv" class="col-sm-12 col-md-6 col-lg-4" >
                         <div class="form-group">
                             <?php print $this->formLabel($overrideApproverId); ?>
                             <?php print $this->formElement($overrideApproverId); ?>
                             <?php print $this->formElementErrors()->render($overrideApproverId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4" >
+                        <div class="form-group">
+                            <?php print $this->formLabel($reason); ?>
+                            <?php print $this->formElement($reason); ?>
+                            <?php print $this->formElementErrors()->render($reason, ['class' => 'help-block']); ?>
                         </div>
                     </div>
 

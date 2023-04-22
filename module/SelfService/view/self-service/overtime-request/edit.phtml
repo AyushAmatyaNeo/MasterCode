@@ -1,0 +1,171 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('js/angular.min.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/overtime-request/add.js?1'))
+        ->appendFile($this->basePath('js/SelfService/overtime-request/edit.js?1'));
+
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('class', 'overtimeRequest-form');
+$form->setAttribute('id', 'overtimeRequest-form');
+
+$overtimeDate = $form->get('overtimeDate');
+$startTime = $form->get('startTime');
+$startTime->setValue("10:00 AM");
+$startTime->setAttributes(['readonly' => "readonly"]);
+$endTime = $form->get('endTime');
+$endTime->setValue("5:00 PM");
+$endTime->setAttributes(['readonly' => "readonly"]);
+$description = $form->get('description');
+$remarks = $form->get('remarks');
+$totalHour = $form->get('allTotalHour');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+$submit->setAttribute('id', 'submit');
+$form->setAttribute('action', $this->url('overtimeRequest', ['action' => 'edit', 'id' => $id]));
+
+
+$form->prepare();
+?>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\overtimeRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<script>
+    // document.validateAttendanceLink = '<?= $this->url("overtimeRequest", ["action" => "validateAttendance"]) ?>';
+</script>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<script>
+    document.urlOvertime = '<?= $this->url("overtimeRequest", ["action" => "overtimeDetails"]) ?>';</script>
+<div class="row margin-top-20" ng-app="hris" ng-controller="edit">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Update
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="form-group">
+                </div>
+
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+                <input type="hidden" id="overtimeId" value="<?php echo $id; ?>"/>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($overtimeDate->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($overtimeDate); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($overtimeDate); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($overtimeDate, ['class' => 'help-block error']); ?>
+                    </div>     
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="nepaliDate">&nbsp;</label>
+                            <input placeholder="Overtime Date Nepali" type="text" name="nepaliDate" id="nepaliDate"
+                                   class="form-control" value="">
+                        </div>
+                    </div>  
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($description->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($description); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($description); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($description, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>     
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <table width='100%'>
+                            <tr>
+                                <td class="col-sm-4" style="padding:0px;">
+                                    <label>Start Time</label>
+                                    <span class="required" aria-required="true">*</span></td>
+                                <td class="col-sm-4" style="padding:0px;">
+                                    <label>End Time</label>
+                                    <span class="required" aria-required="true">*</span>
+                                </td>
+                                <td><label>Total Hour</label></td>
+                                <td></td>
+                            </tr>
+                            <tr ng-repeat="(index,overtimeDetail) in overtimeDetailList" height="30"> 
+                                <td width="45%" style="padding-right:5px;">
+                                    <input  timepicker type="text" size="3" class="form-control"  name="startTime[]" ng-model="overtimeDetail.startTime" value="" required="required" readonly="readonly"/>
+                                </td>
+                                <td width="45%" style="padding:5px;">
+                                    <input  timepicker type="text" size="3"  class="form-control"    name="endTime[]" ng-model="overtimeDetail.endTime" value="" required="required" readonly="readonly"/>
+                                </td>
+                                <td width="45%" style="padding:5px;">
+                                    <input type="text" size="3" class="form-control" name="totalHour[]" value="{{calculateHour(overtimeDetail.startTime, overtimeDetail.endTime)}}"   required="required" readonly="readonly"/> 
+                             <!-- FOR SHIVAM CEMENT -->  
+                             <!--   <input dvalue="{{overtimeDetail.totalHour}}" type="text" size="3" class="form-control" name="totalHour[]" ng-model="overtimeDetail.totalHour" required="required" /> -->
+                                </td>
+                                <td width="47">
+                                    <a href="javascript:;" class="btn btn-icon-only default" ng-click="delete(index)" id="plushIcon">
+                                        <i class="fa fa-trash-o"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr height="30">
+                                <td width="45%" style="padding:5px;">
+                                    <label class="pull-right">Total Hour:</label>
+                                </td>
+                                <td width="45%" style="padding:5px;"> 
+                                    <input size="3" class="form-control" type="text" name="allTotalHour" id="sumAllTotal" step="0.01" min="0"   readonly="readonly"  value="{{sumAllTotalHour(overtimeDetailList)}}"  />
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+                                    <a href="javascript:;" class="btn btn-icon-only default"  ng-click="addOvertimeDetail()" id="plushIcon">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($remarks->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+                <div class="">
+                    <?php
+                    print $this->formSubmit($submit);
+                    print $this->form()->closeTag();
+                    ?>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

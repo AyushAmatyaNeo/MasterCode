@@ -371,38 +371,36 @@ print $this->form()->openTag($form);
                 }
                 ?>
 
-                <?php if ($role == 2) { ?>
-                    <div
-                        class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
-                            <?php print $this->formLabel($recommendedRemarks); ?>
-                            <?php print $this->formElement($recommendedRemarks); ?>
-                    </div>
-                <?php } ?>
-                <?php if ($role == 2 && ($status == 'AP' || ($status == 'R' && $approvedDT != null))) { ?>
-                    <div
-                        class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
-                        <label>Reason for action [From Approver]</label>
+<?php if ($role == 3 || $role == 4) { ?>
+                <?php $recommendedRemarks->setAttributes(['disabled' => 'disabled']); ?>
+                <div
+                    class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                        <?php print $this->formLabel($recommendedRemarks); ?>
+                        <?php print $this->formElement($recommendedRemarks); ?>
+                </div>
+                <div
+                    class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                    <label>Reason for action [From Approver]</label>
+                    <span class="required" aria-required="true">*</span>
+                    <?php print $this->formElement($approvedRemarks); ?>
+                </div>
+            <?php } ?>
+ 
+            <?php if ($role == 2) { ?>
+                <?php $approvedRemarks->setAttributes(['disabled' => 'disabled']); ?>
+                <div
+                    class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                    <label>Reason for action [From Recommender]</label>
+                    <span class="required" aria-required="true">*</span>
+                    <span <?= empty($recommendedRemarks->getMessages()) ? "" : "*" ?> class="required" aria-required="true"></span>
+                    <?php print $this->formElement($recommendedRemarks); ?>
+                </div>
+                <div
+                    class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                        <?php print $this->formLabel($approvedRemarks); ?>
                         <?php print $this->formElement($approvedRemarks); ?>
-                    </div>
-                <?php } ?>
-
-                <?php
-                if ($role == 3 || $role == 4) {
-                    $recommendedRemarks->setAttributes(['disabled' => 'disabled']);
-                    ?>
-                    <?php if ($role != 4) { ?>
-                        <div
-                            class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
-                            <label>Reason for action [From Recommender]</label>
-                            <?php print $this->formElement($recommendedRemarks); ?>
-                        </div>
-                    <?php } ?>
-                    <div
-                        class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
-                            <?php print $this->formLabel($approvedRemarks); ?>
-                            <?php print $this->formElement($approvedRemarks); ?>
-                    </div>
-                <?php } ?>
+                </div>
+            <?php } ?>
                 <div class="form-group">
                     <?php
                     if ((($role==2||$role==4) && $status == 'RQ' && $employeeId == $recommendedBy) || (($role==3||$role==4)  && $status == 'RC' && $employeeId != $recommendedBy) || ($status == 'CP' && $employeeId == $recommendedBy) || ($status == 'CR' && $employeeId != $recommendedBy) ) {

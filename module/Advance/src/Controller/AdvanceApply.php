@@ -44,6 +44,7 @@ class AdvanceApply extends HrisController {
                 $advanceRequestModel->deductionType = $postData['deductionType'];
                 $advanceRequestModel->advanceRequestId = (int) Helper::getMaxId($this->adapter, AdvanceRequestModel::TABLE_NAME, AdvanceRequestModel::ADVANCE_REQUEST_ID) + 1;
                 $advanceRequestModel->status = "RQ";
+                // echo '<pre>';print_r($advanceRequestModel);die;
 
                 $this->repository->add($advanceRequestModel);
                 $this->flashmessenger()->addMessage("Advance Request Successfully added!!!");
@@ -56,11 +57,14 @@ class AdvanceApply extends HrisController {
                 return $this->redirect()->toRoute("advanceStatus");
             }
         }
+        $advanceRepo = new AdvanceRequestRepository($this->adapter);
+        $advanceList = $advanceRepo->fetchAvailableAdvacenList($this->employeeId);
 
         $employeeListWithCode= EntityHelper::rawQueryResult($this->adapter, "SELECT EMPLOYEE_ID,EMPLOYEE_CODE||'-'||FULL_NAME AS FULL_NAME,SALARY FROM HRIS_EMPLOYEES WHERE STATUS='E' AND RETIRED_FLAG='N'"); 
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
-                    'advance' => EntityHelper::getTableList($this->adapter, AdvanceSetupModel::TABLE_NAME, ['*'], [AdvanceSetupModel::STATUS => 'E']),
+                    'advance' => $advanceList,
+                    // 'advance' => EntityHelper::getTableList($this->adapter, AdvanceSetupModel::TABLE_NAME, ['*'], [AdvanceSetupModel::STATUS => 'E']),
                     'customRenderer' => Helper::renderCustomView(),
                     'employeeList' => Helper::extractDbData($employeeListWithCode),
         ]);

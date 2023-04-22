@@ -14,44 +14,44 @@ $traToDate = $formEight->get('toDate');
                 <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
                 <table class="table table-striped table-bordered table-hover no-footer customtbl" id="qualificationTbl">
                     <tr>
-                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($traName); ?></td>
-                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($traDescription); ?></td>
-                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($traFromDate); ?></td>
-                        <td><span class="required" aria-required="true">*</span><?php print $this->formLabel($traToDate); ?></td>
+                        <td><span class="required" aria-required="true"></span><?php print $this->formLabel($traName); ?></td>
+                        <td><span class="required" aria-required="true"></span><?php print $this->formLabel($traDescription); ?></td>
+                        <td><span class="required" aria-required="true"></span><?php print $this->formLabel($traFromDate); ?></td>
+                        <td><span class="required" aria-required="true"></span><?php print $this->formLabel($traToDate); ?></td>
 
                         <td width="1%"></td>
                     </tr>
                     <tr ng-repeat="training in trainingFormList">
                         <td>
-                            <input type="text" ng-model="training.trainingName" name="trainingName_{{training.checkbox}}" required="required" id="trainingName" class="form-control" value="">
+                            <input type="text" ng-model="training.trainingName" name="trainingName_{{training.checkbox}}"  id="trainingName" class="form-control" value="">
                             <div ng-show="employeeTrainingForm.$submitted || employeeTrainingForm.trainingName_{{training.checkbox}}.$touched">
-                                <ul ng-show="employeeTrainingForm.trainingName_{{training.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeTrainingForm.trainingName_{{training.checkbox}}.$error.required" class="help-block error">
                                     <li>Training Name is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input type="text" ng-model="training.description" name="description_{{training.checkbox}}" required="required" id="description" class="form-control" value="">
+                            <input type="text" ng-model="training.description" name="description_{{training.checkbox}}"  id="description" class="form-control" value="">
                             <div ng-show="employeeTrainingForm.$submitted || employeeTrainingForm.description_{{training.checkbox}}.$touched">
-                                <ul ng-show="employeeTrainingForm.description_{{training.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeTrainingForm.description_{{training.checkbox}}.$error.required" class="help-block error">
                                     <li>Description is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input dvalue="{{training.fromDate}}" datepicker type="text" ng-model="training.fromDate" name="fromDate_{{training.checkbox}}" required="required" class="form-control" id="expfromDate_{{training.checkbox}}" value="">
+                            <input dvalue="{{training.fromDate}}" datepicker type="text" ng-model="training.fromDate" name="fromDate_{{training.checkbox}}"  class="form-control" id="expfromDate_{{training.checkbox}}" value="">
                             <div ng-show="employeeTrainingForm.$submitted || employeeTrainingForm.fromDate_{{training.checkbox}}.$touched">
-                                <ul ng-show="employeeTrainingForm.fromDate_{{training.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeTrainingForm.fromDate_{{training.checkbox}}.$error.required" class="help-block error">
                                     <li>From Date is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td>
-                            <input dvalue="{{training.toDate}}" datepicker type="text" ng-model="training.toDate" name="toDate_{{training.checkbox}}" required="required" class="form-control" id="exptoDate_{{training.checkbox}}" value="">
+                            <input dvalue="{{training.toDate}}" datepicker type="text" ng-model="training.toDate" name="toDate_{{training.checkbox}}"  class="form-control" id="exptoDate_{{training.checkbox}}" value="">
                             <div ng-show="employeeTrainingForm.$submitted || employeeTrainingForm.toDate_{{training.checkbox}}.$touched">
-                                <ul ng-show="employeeTrainingForm.toDate_{{training.checkbox}}.$error.required" class="help-block error">
+                                <!-- <ul ng-show="employeeTrainingForm.toDate_{{training.checkbox}}.$error.required" class="help-block error">
                                     <li>To Date is required.</li>
-                                </ul>
+                                </ul> -->
                             </div>
                         </td>
                         <td width="1%" style="padding:15px;" class="checkboxgap">

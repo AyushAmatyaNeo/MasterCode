@@ -19,6 +19,7 @@
             $("#toDate1").val('');
             setEndDate();
         }
+
         $('.calculateOvertimeFormModal').on('hidden.bs.modal', function (e)
         {
             resetDate();

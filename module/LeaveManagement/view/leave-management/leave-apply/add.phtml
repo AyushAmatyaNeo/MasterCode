@@ -10,7 +10,7 @@ $this->headScript()
         ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
         ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
-$this->headScript()->appendFile($this->basePath('js/LeaveManagement/LeaveRequest/add.js'))
+$this->headScript()->appendFile($this->basePath('js/LeaveManagement/LeaveRequest/add.js?1'))
         ->appendFile($this->basePath('dropzone/dropzone.min.js'));
 ?>
  
@@ -43,7 +43,8 @@ print $this->form()->openTag($form);
     document.wsPullLeaveDetailWidEmployeeId = '<?= $this->url("leaveapply", ["action" => "pullLeaveDetailWidEmployeeId"]) ?>';
     document.wsPullLeaveDetail = '<?= $this->url("leaveapply", ["action" => "pullLeaveDetail"]) ?>';
     document.wsFetchAvailableDays = '<?= $this->url("leaveapply", ["action" => "fetchAvailableDays"]) ?>';
-    document.wsValidateLeaveRequest = '<?= $this->url("leaveapply", ["action" => "validateLeaveRequest"]) ?>';
+    // document.wsValidateLeaveRequest = '<?= $this->url("leaveapply", ["action" => "validateLeaveRequest"]) ?>';
+    document.wsValidateLeaveRequest = '<?= $this->url("leaverequest", ["action" => "validateLeaveRequest"]) ?>';
     document.subLeaveReference = '<?=$subLeaveReference?>';
     document.subLeaveMaxDays = '<?=$subLeaveMaxDays?>';
 </script>

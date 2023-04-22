@@ -72,10 +72,10 @@ class EventRequest extends HrisController {
                 }
                 return $this->redirect()->toRoute("eventRequest");
             }
-			// print_r ($trainings['eventList']);die();
         }
         $this->prepareForm();
         $events = $this->geteventList($this->employeeId);
+    //    echo '<pre>';print_r ($events['eventList']);die();
         return Helper::addFlashMessagesToArray($this, [
                     'form' => $this->form,
                     'eventList' => $events['eventList'],

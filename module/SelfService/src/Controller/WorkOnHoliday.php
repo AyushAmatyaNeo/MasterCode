@@ -76,6 +76,7 @@ class WorkOnHoliday extends HrisController {
         if ($id === 0) {
             return $this->redirect()->toRoute('workOnHoliday');
         }
+        // echo '<pre>';print_r($id);die;
         $this->repository->delete($id);
         $this->flashmessenger()->addMessage("Work on Holiday Request Successfully Cancelled!!!");
         return $this->redirect()->toRoute('workOnHoliday');
@@ -117,6 +118,25 @@ class WorkOnHoliday extends HrisController {
             $holidayObjList[$holidayRow['HOLIDAY_ID']] = $holidayRow;
         }
         return ['holidayKVList' => $holidayList, 'holidayList' => $holidayObjList];
+    }
+
+
+    
+    public function validateWOHRequestAction() {
+        try {
+            $request = $this->getRequest();
+            if ($request->isPost()) {
+                $postedData = $request->getPost();
+                // echo '<pre>';print_r($postedData);die;
+                $error = $this->repository->validateWOHRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                                // echo '<pre>';print_r($error);die;
+                return new JsonModel(['success' => true, 'data' => $error, 'error' => '']);
+            } else {
+                throw new Exception("The request should be of type post");
+            }
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
     }
 
 }

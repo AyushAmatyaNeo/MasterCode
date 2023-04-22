@@ -44,6 +44,7 @@ class CompanyRepository implements RepositoryInterface {
                 Company::STATUS => EntityHelper::STATUS_ENABLED
             ]);
         });
+        // echo '<pre>';print_r($rowset);die;
         return $rowset->current();
     }
 
@@ -53,6 +54,24 @@ class CompanyRepository implements RepositoryInterface {
                 ], [
             Company::COMPANY_ID => $id
         ]);
+    }
+
+    public function validateCmpCode($cmpCode){
+        $sql="SELECT
+        CASE
+            WHEN COUNT(*) > 0 THEN
+                1
+            ELSE
+                0
+        END AS company_exist
+    FROM
+        hris_company
+    WHERE
+        company_code = '$cmpCode'";
+        $statement=$this->adapter->query($sql);
+        $result=$statement->execute()->current();
+        // echo '<pre>';print_r($sql);die;
+        return $result;
     }
 
 }

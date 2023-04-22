@@ -48,8 +48,9 @@ class TravelExpenseClassRepository implements RepositoryInterface {
 
     public function fetchById($id) {
         $sql="SELECT * FROM hris_travels_expenses_category where STATUS='E' AND ID=$id ";
-        return $this->rawQuery($sql);
-
+        $statement = $this->adapter->query($sql);
+        $result =$statement->execute();
+        return $result->current();
     }
 
 }
