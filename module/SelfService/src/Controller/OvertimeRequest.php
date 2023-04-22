@@ -62,6 +62,7 @@ class OvertimeRequest extends HrisController {
             $postData = $request->getPost();
             $this->form->setData($postData);
             if ($this->form->isValid()) {
+                
                 $postDataArray = $postData->getArrayCopy();
                 $model->exchangeArrayFromForm($this->form->getData());
                 $model->overtimeId = ((int) Helper::getMaxId($this->adapter, Overtime::TABLE_NAME, Overtime::OVERTIME_ID)) + 1;
@@ -157,11 +158,13 @@ class OvertimeRequest extends HrisController {
         if ($request->isPost()) {
             $this->form->setData($request->getPost());
             if ($this->form->isValid()) {
+
                 $overtimeDetailModel->exchangeArrayFromForm($this->form->getData());
                 $overtimeDetailModel->modifiedDate = Helper::getcurrentExpressionDate();
                 $overtimeDetailModel->status='RQ';
                 $overtimeDetailModel->modifiedBy = $this->employeeId;
                 $this->repository->edit($overtimeDetailModel, $id);
+
                 $this->flashmessenger()->addMessage("Overtime Request Successfully Updated!!!");
                 return $this->redirect()->toRoute("overtimeRequest");
             }
