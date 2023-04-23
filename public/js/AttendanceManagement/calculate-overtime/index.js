@@ -14,19 +14,13 @@
                 console.log("error=>getServerDate", error);
             });
         }
-        // var resetDate = function () {
-        //     $("#calculateOvertimeForm").trigger('reset');
-        //     $("#fromDate1").val('').datepicker('remove').datepicker();
-        //     $("#toDate1").val('').datepicker('remove').datepicker();
-        //     setEndDate();
-        // }
-
         var resetDate = function () {
             $("#calculateOvertimeForm").trigger('reset');
-            $("#fromDate1").val('').datepicker('destroy').removeAttr('readonly');
-            $("#toDate1").val('').datepicker('destroy').removeAttr('readonly');
+            $("#fromDate1").val('');
+            $("#toDate1").val('');
             setEndDate();
         }
+
         $('.calculateOvertimeFormModal').on('hidden.bs.modal', function (e)
         {
             resetDate();

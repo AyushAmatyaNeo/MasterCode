@@ -114,6 +114,7 @@ class HeadNotification {
     }
 
     private static function sendEmail(NotificationModel $model, int $type, AdapterInterface $adapter, Url $url) {
+        // echo '<pre>';print_r($model);die;
         $isValidEmail = function ($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
         };
@@ -550,17 +551,17 @@ class HeadNotification {
         $notification->startDate = $events->startDate;
         $notification->instructorName = $events->instructorName;
 //        $notification->eventsCode = $events->eventsCode;
-        $notification->eventsName = $events->eventName;
-        $notification->eventsType = $events->eventType;
+        $notification->eventName = $events->eventName;
+        $notification->eventType = $events->eventType;
         $notification->status = $type;
 
 
         $notification->route = json_encode(["route" => "eventList", "action" => "view", "employeeId" => $request->employeeId, "eventId" => $request->eventId]);
         $title = "Event $type";
         $desc = "Event $type";
-
+        
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 12, $adapter, $url);
+        self::sendEmail($notification, 48, $adapter, $url);
     }
 
 
@@ -772,12 +773,12 @@ class HeadNotification {
 
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
-        $notification->fromDate = $trainingRequestDetail['START_DATE'];
-        $notification->toDate = $trainingRequestDetail['END_DATE'];
+        $notification->startDate = $trainingRequestDetail['START_DATE'];
+        $notification->endDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
 
         $title = "Training Request";
-        $desc = "Training Request of $notification->fromName from $notification->fromDate to $notification->toDate";
+        $desc = "Training Request of $notification->fromName from $notification->startDate to $notification->endDate";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 22, $adapter, $url);
@@ -796,15 +797,15 @@ class HeadNotification {
 
         $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
         $notification->eventName = $eventReqDetail['TITLE'];
-        $notification->fromDate = $eventReqDetail['START_DATE'];
-        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->startDate = $eventReqDetail['START_DATE'];
+        $notification->endDate = $eventReqDetail['END_DATE'];
         $notification->duration = $eventReqDetail['DURATION'];
 
         $title = "Event Request";
-        $desc = "Event Request of $notification->fromName from $notification->fromDate to $notification->toDate";
+        $desc = "Event Request of $notification->fromName from $notification->startDate to $notification->endDate";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 22, $adapter, $url);
+        self::sendEmail($notification, 49, $adapter, $url);
     }
 
     private static function trainingRecommend(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -818,8 +819,8 @@ class HeadNotification {
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
 //        $notification->trainingCode = $trainingRequestDetail['TRAINING_CODE'];
-        $notification->fromDate = $trainingRequestDetail['START_DATE'];
-        $notification->toDate = $trainingRequestDetail['END_DATE'];
+        $notification->startDate = $trainingRequestDetail['START_DATE'];
+        $notification->endDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -827,8 +828,8 @@ class HeadNotification {
         $notification->route = json_encode(["route" => "trainingRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Training Recommendation";
         $desc = "Recommendation of Training Request by"
-                . " $notification->fromName from $notification->fromDate"
-                . " to $notification->toDate is $notification->status";
+                . " $notification->fromName from $notification->startDate"
+                . " to $notification->endDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 23, $adapter, $url);
@@ -845,8 +846,8 @@ class HeadNotification {
         $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
         $notification->eventName = $eventReqDetail['TITLE'];
 //        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
-        $notification->fromDate = $eventReqDetail['START_DATE'];
-        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->startDate = $eventReqDetail['START_DATE'];
+        $notification->endDate = $eventReqDetail['END_DATE'];
         $notification->duration = $eventReqDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -854,11 +855,11 @@ class HeadNotification {
         $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Event Recommendation";
         $desc = "Recommendation of Event Request by"
-                . " $notification->fromName from $notification->fromDate"
-                . " to $notification->toDate is $notification->status";
+                . " $notification->fromName from $notification->startDate"
+                . " to $notification->endDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 23, $adapter, $url);
+        self::sendEmail($notification, 50, $adapter, $url);
     }
 
     private static function trainingApprove(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status) {
@@ -874,8 +875,8 @@ class HeadNotification {
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
 //        $notification->trainingCode = $trainingRequestDetail['TRAINING_CODE'];
-        $notification->fromDate = $trainingRequestDetail['START_DATE'];
-        $notification->toDate = $trainingRequestDetail['END_DATE'];
+        $notification->startDate = $trainingRequestDetail['START_DATE'];
+        $notification->endDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -883,8 +884,8 @@ class HeadNotification {
         $notification->route = json_encode(["route" => "trainingRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Training Approval";
         $desc = "Approval of Training Request by"
-                . " $notification->fromName from $notification->fromDate"
-                . " to $notification->toDate is $notification->status";
+                . " $notification->fromName from $notification->startDate"
+                . " to $notification->endDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 24, $adapter, $url);
@@ -903,8 +904,8 @@ class HeadNotification {
         $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
         $notification->eventName = $eventReqDetail['TITLE'];
 //        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
-        $notification->fromDate = $eventReqDetail['START_DATE'];
-        $notification->toDate = $eventReqDetail['END_DATE'];
+        $notification->startDate = $eventReqDetail['START_DATE'];
+        $notification->endDate = $eventReqDetail['END_DATE'];
         $notification->duration = $eventReqDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -912,11 +913,11 @@ class HeadNotification {
         $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Event Approval";
         $desc = "Approval of Event Request by"
-                . " $notification->fromName from $notification->fromDate"
-                . " to $notification->toDate is $notification->status";
+                . " $notification->fromName from $notification->startDate"
+                . " to $notification->endDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 24, $adapter, $url);
+        self::sendEmail($notification, 51, $adapter, $url);
     }
 
     private static function leaveSubstituteApplied(LeaveApply $request, AdapterInterface $adapter, Url $url) {
@@ -1709,17 +1710,17 @@ class HeadNotification {
                 self::leaveCancelled($model, $adapter, $url, self::RECOMMENDER);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_RECOMMEND_ACCEPTED:
-                self::leaveCancelRecommend($model, $adapter, $url, self::CANCELLED_ACCEPTED);
+                self::leaveCancelRecommend($model, $adapter, $url, self::ACCEPTED);
                 self::leaveCancelled($model, $adapter, $url, self::APPROVER);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_RECOMMEND_REJECTED:
-                self::leaveCancelRecommend($model, $adapter, $url, self::CANCELLED_REJECTED);
+                self::leaveCancelRecommend($model, $adapter, $url, self::REJECTED);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_APPROVE_ACCEPTED:
-                self::leaveCancelApprove($model, $adapter, $url, self::CANCELLED_ACCEPTED);
+                self::leaveCancelApprove($model, $adapter, $url, self::ACCEPTED);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_APPROVE_REJECTED:
-                self::leaveCancelApprove($model, $adapter, $url, self::CANCELLED_REJECTED);
+                self::leaveCancelApprove($model, $adapter, $url, self::REJECTED);
                 break;
             case NotificationEvents::TRAVEL_EXPENSE_APPLIED:
                 self::travelApplied($model, $adapter, $url, self::RECOMMENDER);

@@ -58,7 +58,7 @@ class LeaveRepository extends HrisRepository {
         //echo $sql; die;
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
-        
+        // echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         return $statement->execute($boundedParameter);
     }

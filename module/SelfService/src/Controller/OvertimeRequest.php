@@ -30,6 +30,7 @@ class OvertimeRequest extends HrisController {
 
     public function overtimeDetail($overtimeId) {
         $rawList = $this->detailRepository->fetchByOvertimeId($overtimeId);
+        // echo '<pre>';print_r($rawList );die;
         return Helper::extractDbData($rawList);
     }
 
@@ -44,6 +45,7 @@ class OvertimeRequest extends HrisController {
                     $item['DETAILS'] = $detail;
                     array_push($list, $item);
                 }
+                // echo '<pre>';print_r($list);die;
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -175,9 +177,25 @@ class OvertimeRequest extends HrisController {
         // echo '<pre>';print_r($overtimeDetails);die;
         return Helper::addFlashMessagesToArray($this, [
             'form' => $this->form,
+            'id'=>$id,
             'overtimeDetails' => $overtimeDetails,
             'totalHour' => $detail['TOTAL_HOUR_DETAIL']
 ]);
+    }
+
+    public function overtimeDetailsAction() {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postData=$request->getPost();
+                // echo '<pre>';print_r($postData['overtimeId']);die;
+                $overtimeDetailResult = $this->detailRepository->fetchByOvertimeId($postData['overtimeId']);
+                return new JsonModel(['success' => true, 'data' => $overtimeDetailResult, 'error' => '']);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+            }
+        }
+        return new ViewModel();
     }
 
 }
