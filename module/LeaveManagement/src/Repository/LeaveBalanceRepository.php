@@ -352,7 +352,6 @@ and (select to_date from hris_leave_month_code where leave_year_month_no = {$sea
         left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
     ";
 }
-    // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 

@@ -6,6 +6,7 @@ use Application\Helper\EntityHelper;
 use Application\Model\Model;
 use Application\Repository\RepositoryInterface;
 use Exception;
+use Application\Helper\Helper;
 use HolidayManagement\Model\EmployeeHoliday;
 use HolidayManagement\Model\Holiday;
 use Zend\Authentication\AuthenticationService;
@@ -163,6 +164,26 @@ class HolidayRepository implements RepositoryInterface {
 
     public function holidayAssign(int $holidayId) {
         EntityHelper::rawQueryResult($this->adapter, "BEGIN HRIS_HOLIDAY_ASSIGN_AUTO({$holidayId}); END;");
+        $sql="SELECT
+        hr.start_date,
+        hr.end_date,
+        he.employee_id
+    FROM
+        hris_holiday_master_setup hr
+        left join hris_employee_holiday he on (hr.holiday_id=he.holiday_id)
+    WHERE
+        hr.holiday_id = $holidayId";
+        $statement=$this->adapter->query($sql);
+        $result=Helper::extractDbData($statement->execute());
+        $length=count($result);
+        for ( $j = 0; $j < $length; $j++) {
+            $sql="BEGIN 
+              HRIS_REATTENDANCE('{$result[$j]['START_DATE']}',{$result[$j]['EMPLOYEE_ID']},'{$result[$j]['END_DATE']}');
+                 END; ";
+                //  echo '<pre>';print_r($sql);die;
+                EntityHelper::rawQueryResult($this->adapter, $sql);
+        }
+        
     }
 
 }

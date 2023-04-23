@@ -1,5 +1,7 @@
 (function ($, app) {
     'use strict';
+    let counter = 0;
+    let listCounter = 0;
     angular.module('hris', [])
             .controller('edit', function ($scope, $http, $window) {
                 $scope.overtimeDetailList = [];
@@ -54,6 +56,7 @@
                     startTime: "",
                     endTime: "",
                 };
+                
                 var overtimeId = parseInt(angular.element(document.getElementById('overtimeId')).val());
                 if (overtimeId !== 0) {
                     window.app.pullDataById(document.urlOvertime, {
@@ -62,13 +65,21 @@
                         $scope.$apply(function () {
                             var overtimeDetailList = success.data;
                             var num=success.data.length;
+                            
                             if (num > 0) {
                                 $scope.counter = num;
-                                    $scope.overtimeDetailList.push(angular.copy({
-                                        detailId: overtimeDetailList[0].DETAIL_ID,
-                                        startTime: overtimeDetailList[0].START_TIME,
-                                        endTime: overtimeDetailList[0].END_TIME,
-                                    }));
+
+                                for (let i = 0; i < num; i++) {
+                                    
+                                    $scope.overtimeDetailList.push({
+                                        detailId: overtimeDetailList[i].DETAIL_ID,
+                                        startTime: overtimeDetailList[i].START_TIME,
+                                        endTime: overtimeDetailList[i].END_TIME,
+                                    });
+
+                                    console.log($scope.overtimeDetailList);
+                                }
+
                             } else {
                                 $scope.overtimeDetailList.push(angular.copy($scope.overtimeDetailTemplate));
                             }
@@ -114,8 +125,21 @@
             restrict: "A",
             require: "ngModel",
             link: function (scope, elem, attrs, ngModelCtrl) {
-                $(elem).val(attrs.dvalue);
-                app.addTimePicker($(elem));
+
+                let startTime = scope.overtimeDetailList[listCounter].startTime;
+                let endTime = scope.overtimeDetailList[listCounter].endTime;
+
+                counter++;
+
+                if(counter % 2 == 0){
+                    $(elem).val(endTime);
+                    listCounter++;
+                }else{
+                    $(elem).val(startTime);
+                }
+
+                app.otTimePicker($(elem));
+
             }
         }
     });
