@@ -186,7 +186,7 @@ class FlatValue extends HrisController {
             $positionId = $postedData['positionId'];
             $flatId = $postedData['flatId'];
             $assignedValue = $postedData['assignedValue'];
-
+// echo '<pre>';print_r($assignedValue);die;
             $detailRepo = new PositionFlatValueRepo($this->adapter);
             $detailRepo->setPositionFlatValue($fiscalYearId, $positionId, $flatId, $assignedValue);
 
