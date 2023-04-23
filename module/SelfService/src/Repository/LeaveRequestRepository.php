@@ -245,16 +245,16 @@ CASE
                 WHEN max_balance < 0 THEN
                     0
                 ELSE
-                    -- max_balance
-                    ACTUAL_BALANCE
+                    max_balance
+                    -- ACTUAL_BALANCE
             END
     ELSE
         CASE
             WHEN ( total_days+ previous_balance - leave_taken_till_this_month ) < 0 THEN
                     0
             ELSE
-                -- ( total_days - leave_taken_till_this_month + previous_balance)
-                ACTUAL_BALANCE
+                ( total_days - leave_taken_till_this_month + previous_balance)
+                -- ACTUAL_BALANCE
         END
 END AS balance,
 fiscal_year,
@@ -296,7 +296,7 @@ and  leave_id={$leaveId} and employee_id={$employeeId})                  AS ACTU
             FROM
                 hris_employee_leave_request
             WHERE
-                status IN ( 'AP')
+                status IN ( 'AP','RQ','RC')
                 AND leave_id = {$leaveId}
                 AND employee_id = {$employeeId}
                 and start_date <= (select to_date from hris_leave_month_code where {$date} between from_date and to_date))

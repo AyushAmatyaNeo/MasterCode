@@ -76,7 +76,8 @@
                     
                     if (balanceDiff > availableDays) {
                         $errorMsg.html("* Applied days can't be more than available days.");
-                        $request.prop("disabled", true);
+                        // $request.prop("disabled", true);
+                        $($request).attr('disabled', 'disabled');
                     } else if (balanceDiff === 0) {
                         $errorMsg.html("* Applied days can't be 0 day.");
                         $request.prop("disabled", true);
@@ -129,18 +130,18 @@
                     if (response.data['ERROR'] === null && response.travelError['ERROR'] ===null) {
                         $form.prop('valid', 'true');
                         $form.prop('error-message', '');
-                        $('#request').attr("disabled", false);
+                        // $('#request').attr("disabled", false);
                     } else if(response.data['ERROR'] != null){
                         $form.prop('valid', 'false');
                         $form.prop('error-message', response.data['ERROR']);
                         app.showMessage(response.data['ERROR'], 'error');
-                        $($request).attr('disabled', 'disabled');
+                        // $($request).attr('disabled', 'disabled');
                     }
                     else{
                         $form.prop('valid', 'false');
                         $form.prop('error-message', response.travelError['ERROR']);
                         app.showMessage(response.travelError['ERROR'], 'error');
-                        $('#request').attr('disabled', 'disabled');
+                        // $('#request').attr('disabled', 'disabled');
                     }
                 }, function (error) {
                     app.showMessage(error, 'error');
@@ -241,7 +242,7 @@
     
                     var noOfDays = parseFloat($noOfDays.val());
     
-                    if ((availableDays != "" && noOfDays != "") && noOfDays > availableDays) {
+                    if (noOfDays > availableDays) {
                         $("#errorMsg").html("* Applied days can't be more than available days");
                         $("#request").attr("disabled", "disabled");
                     } else if ((availableDays != "" && noOfDays != "") && (noOfDays <= availableDays)) {
