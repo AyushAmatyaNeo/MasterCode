@@ -35,7 +35,7 @@ class LoanStatus extends HrisController {
         //$this->employeeId = $auth->getStorage()->read()['employee_id'];
     }
 
-    public function initializeForm($class) {
+    public function initializeForm(String $class = null) {
         $builder = new AnnotationBuilder();
         $form = new LoanRequestForm();
         $this->form = $builder->createForm($form);
@@ -68,7 +68,9 @@ class LoanStatus extends HrisController {
                     'loans' => $loanFormElement,
                     'loanStatus' => $loanStatusFormElement,
                     'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference
+                    'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
+					'preference' => $this->preference
         ]);
     }
 
@@ -99,7 +101,9 @@ class LoanStatus extends HrisController {
                     'loans' => $loanFormElement,
                     'loanStatus' => $loanStatusFormElement,
                     'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference
+                    'acl' => $this->acl,
+					'employeeDetail' => $this->storageData['employee_detail'],
+					'preference' => $this->preference
         ]);
     }
 
@@ -258,9 +262,9 @@ class LoanStatus extends HrisController {
         $loanFormElement->setLabel("Loan Type");
 
         $loanStatus = [
-            'B' => 'BOTH',
-            'O' => 'OPEN',
-            'C' => 'CLOSED'
+            'BOTH' => 'BOTH',
+            'OPEN' => 'OPEN',
+            'CLOSED' => 'CLOSED'
         ];
         $loanStatusFormElement = new Select();
         $loanStatusFormElement->setName("loanStatus");

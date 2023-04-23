@@ -8,14 +8,14 @@
         var principlePaid, interestPaid = 0, totalPaid;
         
         $("#totalPaid").on('change paste input',function(){
-            totalPaid = parseInt($("#totalPaid").val());
+            totalPaid = parseFloat($("#totalPaid").val());
             principlePaid = totalPaid - interestPaid;
             totalPaid != '' ? $("#principlePaid").val(principlePaid) : $("#principlePaid").val('') ;
         });
 
         $("#interestPaid").on('change paste input',function(){
-            interestPaid = parseInt($("#interestPaid").val());
-            totalPaid = parseInt($("#totalPaid").val());
+            interestPaid = parseFloat($("#interestPaid").val());
+            totalPaid = parseFloat($("#totalPaid").val());
             principlePaid = totalPaid - interestPaid;
             totalPaid != '' ? $("#principlePaid").val(principlePaid) : $("#principlePaid").val('') ;
         });
@@ -29,7 +29,7 @@
         $('#calculate-interest').on('click', function(){
             var days = $("#days").val();
             var rate = $("#rate").val();
-            interestPaid = parseInt(($('#unpaidTotal').val()*rate/100)/365*days);
+            interestPaid = parseFloat(($('#unpaidTotal').val()*rate/100)/365*days);
             $("#interestPaid").val(interestPaid||'');
             totalPaid = $("#totalPaid").val();
             principlePaid = totalPaid - interestPaid;
@@ -39,8 +39,8 @@
         //$('#paidDate').datepicker("setStartDate", new Date());
 
         $('#cash-payment').on('submit', function(){ 
-            principlePaid = parseInt($('#principlePaid').val());
-            var unpaidTotal = parseInt($('#unpaidTotal').val());
+            principlePaid = parseFloat($('#principlePaid').val());
+            var unpaidTotal = parseFloat($('#unpaidTotal').val());
             var remainingAmount = unpaidTotal - principlePaid;
             if(remainingAmount > 0){
                 var repaymentmonths = prompt("Sum of " + remainingAmount + " is still remaining. This sum will be treated as a new loan. Please specify its repayment months.");

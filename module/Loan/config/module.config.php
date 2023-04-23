@@ -27,7 +27,7 @@ return [
             'loanApply' => [
                 'type' => Segment::class,
                 'options' => [
-                    'route' => '/loan/apply[/:action[/:id]]',
+                    'route' => '/loan/apply[/:action[/:id[/:eid]]]',
                     'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id' => '[0-9]+',

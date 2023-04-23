@@ -126,6 +126,11 @@
                             htmlData += '<tr><td style="vertical-align : middle;">' + data[i].DT + '</td><td>' + data[i].PARTICULARS + '</td><td>' + parseFloat(data[i].DEBIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].CREDIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].BALANCE).toFixed(2) + '</td></tr>';
                             continue;
                         }
+                        if(data[i].PARTICULARS == 'Cash Amount Paid'){
+                            span = false;
+                            htmlData += '<tr><td style="vertical-align : middle;">' + data[i].DT + '</td><td>' + data[i].PARTICULARS + '</td><td>' + parseFloat(data[i].DEBIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].CREDIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].BALANCE).toFixed(2) + '</td></tr>';
+                            continue;
+                        }
                         if(span == true){
                             span = false;
                             htmlData += '<tr><td style="vertical-align : middle;" rowspan="3">' + data[i].DT + '</td><td>' + data[i].PARTICULARS + '</td><td>' + parseFloat(data[i].DEBIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].CREDIT_AMOUNT).toFixed(2) + '</td><td>' + parseFloat(data[i].BALANCE).toFixed(2) + '</td></tr>';
@@ -167,8 +172,8 @@
         $("#excelExport").click(function () {
             $tableContainer.table2excel({
                 exclude: ".noExl",
-                name: "loan-journal-voucher",
-                filename: "loan-journal-voucher"
+                name: "loan-journal-voucher.xls",
+                filename: "loan-journal-voucher.xls"
             });
         });
 

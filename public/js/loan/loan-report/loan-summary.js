@@ -17,6 +17,11 @@
 
         function loadKendo(data){
             $table.kendoGrid({
+				toolbar: ["excel"],
+                excel: {
+                    fileName: "Employee Statement.xlsx",
+                    filterable: false
+                },
                 dataSource: {
                     data: data,
                     schema: {
@@ -53,16 +58,17 @@
         }
 
         var columns = [
+		{field: "EMPLOYEE_CODE", title: "Emp ID", width: 150},
             {field: "EMPLOYEE", title: "Employee", width: 150},
-            {field: "OPENING_BALANCE", title: "Opening", width: 120, aggregates: ["sum"], footerTemplate: "#=sum#"},
-            {field: "DR_SALARY", title: "Dr. Salary", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#=sum#"},
-            {field: "DR_INTEREST", title: "Dr. Interest", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#=sum#"},
-            {field: "CR_SALARY", title: "Cr. Salary", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#=sum#"},
-            {field: "CR_INTEREST", title: "Cr. Interest", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#=sum#"},
-            {field: "BALANCE", title: "Balance", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#=sum#"}
+            {field: "OPENING_BALANCE", title: "Opening", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"},
+            {field: "DR_SALARY", title: "Dr. Salary", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"},
+            {field: "DR_INTEREST", title: "Dr. Interest", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"},
+            {field: "CR_SALARY", title: "Cr. Salary", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"},
+            {field: "CR_INTEREST", title: "Cr. Interest", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"},
+            {field: "BALANCE", title: "Balance", width: 120, format: "{0:0.##}", aggregates: ["sum"], footerTemplate: "#= kendo.toString(sum, '0.00')#"}
         ];
 
-        //app.initializeKendoGrid($table, columns);
+       // app.initializeKendoGrid($table, columns);
         app.searchTable($table, ['EMPLOYEE']);
 
         $search.on('click', function () {
@@ -72,11 +78,13 @@
             var loanType = $("#account").val();
             var employeeOptions = $("#employeeId option");
 
-            if(employee == null || employee.length == 0){
-                employee = $.map(employeeOptions ,function(option) {
-                    return option.value;
-                });
-            }
+           // if(employee == null || employee.length == 0){
+               // employee = $.map(employeeOptions ,function(option) {
+                   // return option.value;
+             //   });
+           // }
+
+
             
             if(fromDate == "" || toDate == ""){
                 alert("From date and To Date are required");

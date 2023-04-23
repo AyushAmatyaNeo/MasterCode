@@ -19,6 +19,8 @@ $this->headScript()
     document.acl =<?php echo json_encode($acl); ?>;
     document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
     document.pullLoanListLink = '<?= $this->url("loanStatus", ["action" => "list"]) ?>';
+	document.loanClosing = '<?= $this->url("loanApply", ["action" => "loanClosing"]) ?>';
+    document.changeInstallment = '<?= $this->url("loanApply", ["action" => "changeInstallment"]) ?>';
     document.preference =<?php echo json_encode($preference) ?>;
 </script>
 <div class="page-bar">
@@ -140,7 +142,6 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <input type="text" id="nepaliFromDate" name="nepaliFromDate"  class="form-control reset-field" placeholder="From Date Nepali"/>
-
             </div>
             <div class="col-sm-2">
                 <input type="text"  id="toDate" name="toDate"  class="form-control reset-field" placeholder="To Date"/>
@@ -149,9 +150,9 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <input type="text"  id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
             </div>
 
-            <div class="col-sm-2 ">
-                <?php print $this->formElement($loanStatus); ?>
-            </div>
+            <!-- <div class="col-sm-2 ">
+                <?php //print $this->formElement($loanStatus); ?>
+            </div> -->
 
         </div>
 

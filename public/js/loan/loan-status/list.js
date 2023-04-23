@@ -10,10 +10,21 @@
             {field: "EMPLOYEE_CODE", title: "Emp. Code", width: 150},
             {field: "FULL_NAME", title: "Employee", width: 150},
             {field: "LOAN_NAME", title: "Loan", width: 120},
-            {field: "REQUESTED_AMOUNT", title: "Total Amount", width: 150},
-            {field: "PAID", title: "Paid", width: 150},
-            {field: "BALANCE", title: "Balance", width: 150},
-            {field: "STATUS", title: "Status", width: 90}
+            //{field: "TOTAL_AMOUNT", title: "Total Amount", width: 150},
+            //{field: "PAID", title: "Paid", width: 150},
+            {field: "BALANCE", title: "Unpaid Balance", width: 150},
+			{field: "LOAN_ID", title: "Action", template: `
+          <span> 
+            <a class="btn btn-icon-only btn-success" href="${document.loanClosing}/#: LOAN_ID #/#: EMPLOYEE_ID #" style="height:17px;" title="Pay Cash">
+                <i class="fa fa-money"></i>
+            </a>
+        </span>
+        <span> 
+            <a class="btn btn-icon-only btn-success" href="${document.changeInstallment}/#: LOAN_ID #/#: EMPLOYEE_ID #" style="height:17px;" title="Change Installment">
+                <i class="fa fa-edit"></i>
+            </a>
+        </span>`
+            , width: 120}
         ];
 
         var map = {
@@ -23,14 +34,9 @@
             'REQUESTED_DATE_BS': 'Request Date(BS)',
             'LOAN_DATE_AD': 'Loan Date(AD)',
             'LOAN_DATE_BS': 'Loan Date(BS)',
-            'REQUESTED_AMOUNT': 'Reqest Amt',
-            'STATUS': 'Status',
-            'REASON': 'Reason',
-            'RECOMMENDED_REMARKS': 'Recommended Remarks',
-            'RECOMMENDED_DATE': 'Recommended Date',
-            'APPROVED_REMARKS': 'Approved Remarks',
-            'APPROVED_DATE': 'Approved Date'
-        }
+            'REQUESTED_AMOUNT': 'Requested Amt'
+        };
+		
         app.initializeKendoGrid($tableContainer, columns, null, null, null, 'Loan Status Report.xlsx');
         app.searchTable($tableContainer, ['FULL_NAME']);
 
