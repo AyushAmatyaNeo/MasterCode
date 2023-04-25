@@ -115,6 +115,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <?php print $this->formLabel($startDate); ?>
+                                    <span aria-required="true" class="required">*</span>
                                     <?php print $this->formElement($startDate) ?>
                                     <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block']); ?>
                                 </div>
@@ -129,22 +130,26 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         </div>     
                         <div class="form-group companyToggle">
                             <?php print $this->formLabel($toCompanyId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toCompanyId); ?>
                             <?php print $this->formElementErrors()->render($toCompanyId, ['class' => 'help-block']); ?>
                         </div>
                         <div class="form-group">
                             <?php print $this->formLabel($toDepartmentId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toDepartmentId); ?>
                             <?php print $this->formElementErrors()->render($toDepartmentId, ['class' => 'help-block']); ?>
                         </div>
 
                         <div class="form-group">
                             <?php print $this->formLabel($toPositionId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toPositionId); ?>
                             <?php print $this->formElementErrors()->render($toPositionId, ['class' => 'help-block']); ?>
                         </div>
                         <div class="form-group">
                             <?php print $this->formLabel($toSalary); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toSalary); ?>
                             <?php print $this->formElementErrors()->render($toSalary, ['class' => 'help-block']); ?>
                         </div>
@@ -153,6 +158,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <div class="col-sm-6">
                         <div class="form-group">
                             <?php print $this->formLabel($serviceEventTypeId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($serviceEventTypeId); ?>
                             <?php print $this->formElementErrors()->render($serviceEventTypeId, ['class' => 'help-block']); ?>
                         </div>
@@ -161,6 +167,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <?php print $this->formLabel($endDate); ?>
+                                    <span aria-required="true" class="required">*</span>
                                     <?php print $this->formElement($endDate) ?>
                                     <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block']); ?>
                                 </div>
@@ -175,16 +182,19 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         </div>        
                         <div class="form-group">
                             <?php print $this->formLabel($toBranchId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toBranchId); ?>
                             <?php print $this->formElementErrors()->render($toBranchId, ['class' => 'help-block']); ?>
                         </div>
                         <div class="form-group">
                             <?php print $this->formLabel($toDesignationId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toDesignationId); ?>
                             <?php print $this->formElementErrors()->render($toDesignationId, ['class' => 'help-block']); ?>
                         </div>
                         <div class="form-group">
                             <?php print $this->formLabel($toServiceTypeId); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($toServiceTypeId); ?>
                             <?php print $this->formElementErrors()->render($toServiceTypeId, ['class' => 'help-block']); ?>
                         </div>

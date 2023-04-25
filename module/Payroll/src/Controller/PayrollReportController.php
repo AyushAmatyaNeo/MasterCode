@@ -208,7 +208,6 @@ class PayrollReportController extends HrisController
                 // $defaultColumnsList = $this->repository->getDefaultColumns('S');
                 $defaultColumnsList = $this->repository->getDefaultColumnsNew('S', $data['monthId'], $data['groupId'], $data['salaryTypeId']);
                 $resultData = $this->repository->getGroupReport('S', $data);
-                // echo '<pre>';print_r($defaultColumnsList);die;
             } elseif ($reportType == "GD") {
                 $defaultColumnsList = $this->repository->getVarianceDetailColumns($groupVariable);
                 $resultData = $this->repository->getGroupDetailReport($data);
@@ -919,11 +918,7 @@ class PayrollReportController extends HrisController
                 } else {
                     $companyDetail = null;
                 }
-            } elseif ($this->employeeId == 7001422) {
-                $companyDetail = $ruleRepo->getCompanyId($this->employeeId);
-                $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
-                $resultData = $this->repository->getBankWiseEmployeeNet($data);
-            } else {
+            }else {
                 $data['companyId'] = $data['companyId'];
                 $resultData = $this->repository->getBankWiseEmployeeNet($data);
             }

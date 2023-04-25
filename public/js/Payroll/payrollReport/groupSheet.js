@@ -319,7 +319,7 @@ grandTotalHideUnHide=JSON.parse(JSON.stringify(grandTotal));
             q['orderBy'] = $orderBy.val();
 			q['sheetNo'] = $allSheetId.val();
             q['groupId'] = $groupId.val();
-
+			console.log(document.pullGroupSheetLink);
             app.serverRequest(document.pullGroupSheetLink, q).then(function (response) {
                 if (response.success) {
                     salaryData=response.data;

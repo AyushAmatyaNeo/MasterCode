@@ -128,6 +128,7 @@ class LoanApproveRepository implements RepositoryInterface {
         HRIS_LOAN_PAYMENT_DETAILS({$id});
         END;
         ";
+        // echo '<pre>';print_r($model);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;

@@ -687,6 +687,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
                   FUNL.FUNCTIONAL_LEVEL_EDESC                                       AS FUNCTIONAL_LEVEL_EDESC,
                   E.SALARY                                                          AS SALARY,
                   E.SALARY_PF                                                       AS SALARY_PF,
+                  E.SSF_NO                                                          AS SSF_NO,
+                  (CASE WHEN E.MARITAL_STATUS='M' THEN 'Married' ELSE 'Unmarried' END)AS MARITAL_STATUS,
                   E.REMARKS                                                         AS REMARKS,
                   E.Allowance                                                       AS ALLOWANACE,
                   EF.FILE_PATH
