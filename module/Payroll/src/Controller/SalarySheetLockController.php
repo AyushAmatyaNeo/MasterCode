@@ -97,7 +97,7 @@ class SalarySheetLockController extends HrisController {
         if($action == 'UL'){ $col = 'LOCKED'; $val = 'N'; }
         foreach ($data as $key) {
             $checkData = $this->salarySheetRepo->checkApproveLock($key);
-            if($checkData[0]['LOCKED'] == 'Y'){ continue; }
+            // if($checkData[0]['LOCKED'] == 'Y'){ continue; }
             $this->salarySheetRepo->bulkApproveLock($key, $col, $val);
         }
         return new JSONModel(['success' => true]);

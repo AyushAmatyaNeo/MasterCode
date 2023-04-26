@@ -3,20 +3,18 @@
     $(document).ready(function () {
         if (document.employeeId == document.selfEmployeeId) {
             app.lockField(true, [
-			'employeeCode', 'telephoneNo', 'socialActivity', 'addrTempStreetAddress',
-			'genderId', 'extensionNo', 'emailPersonal', 'socialNetwork', 'addrTempZoneId',
-			'countryId', 'addrPermWardNo', 'addrPermStreetAddress', 'addrTempWardNo', 'addrTempDistrictId',
-			'religionId', 'addrPermVdcMunicipalityId', 'addrPermZoneId', 'addrPermDistrictId',  
-			'emailOfficial', 'addrTempVdcMunicipality', 'emergContactName', 'emergContactRelationship', 
-			'MobileNo', 'emergContactAddress', 'emergContactNo', 'addrTempHouseNo', 
-			'bloodGroupId',
-            'addrPermHouseNo',
-			'birthdate', 'firstName', 'middleName', 'lastName', 'nameNepali', 'nepaliBirthDate', 'companyId', 'idCardNo', 'idThumbId', 'idLbrf'
+			'employeeCode', 'telephoneNo', 'socialActivity',
+			'genderId', 'extensionNo', 'emailPersonal', 'socialNetwork',
+			'countryId',
+			'religionId',  
+			'emailOfficial', 'emergContactName', 'emergContactRelationship', 
+			'MobileNo', 'emergContactAddress', 'emergContactNo',
+			,
+			, 'firstName', 'middleName', 'lastName', 'nameNepali', 'nepaliBirthDate', 'companyId', 'idCardNo', 'idThumbId', 'idLbrf'
                         , 'tab1'
                         , 'tab2'
-                        , 'tab3'
+                        , 'idThumbId','idCardNo','idPassportExpiry','ssfNo','idBarCode','idPassportNo','idCitizenshipIssueDate','idCitizenshipNo','idCitizenshipIssueDate','idProvidentFundNo','idPanNo',
                         , 'tab4'
-                        , 'tab5'
                         , 'tab7'
                         , 'tab8'
                         , 'tab9'

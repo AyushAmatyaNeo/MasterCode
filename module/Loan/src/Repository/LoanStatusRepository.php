@@ -401,7 +401,7 @@ class LoanStatusRepository implements RepositoryInterface {
             l.loan_id = s.loan_id
     )) order by l.employee_id";
 		
-		//echo $sql; die;
+// echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;

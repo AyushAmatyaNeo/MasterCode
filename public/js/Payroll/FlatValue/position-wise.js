@@ -5,7 +5,7 @@
         var fiscalYears = document.fiscalYears;
         var flatValues = document.flatValues;
         var positions = document.positions;
-
+        // console.log(flatValues);
         var $fiscalYearId = $("#fiscalYearId");
 
         var $assignFlatValueBtn = $('#assignFlatValueBtn');
@@ -14,9 +14,11 @@
         var $header = $('#flatValuesDetailHeader');
         var $table = $('#flatValueDetailTable');
         var $footer = $('#flatValueDetailFooter');
+        var $flatId = $('#flatId');
 
 
         app.populateSelect($fiscalYearId, fiscalYears, "FISCAL_YEAR_ID", "FISCAL_YEAR_NAME", "Select Fiscal Year");
+        app.populateSelect($flatId, flatValues, "FLAT_ID", "FLAT_EDESC", "Select Flat Value");
 
         var pullData = function (fiscalYearId, fn) {
             app.pullDataById(document.getPositionFlatLink, {fiscalYearId: fiscalYearId}).then(function (response) {

@@ -5,7 +5,7 @@ namespace Setup\Form;
 use Zend\Form\Annotation;
 
 /**
- * @Annotation\Hydrator("Zend\Hydrator\ObjectProperty")
+ * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("JobHistoryForm")
  */
 class JobHistoryForm {
@@ -37,27 +37,27 @@ class JobHistoryForm {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
-     * @Annotation\Options({"label":"Service Event Type Name"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Service Event Type Name"})
      * @Annotation\Attributes({ "id":"serviceEventTypeId","class":"form-control"})
      */
     public $serviceEventTypeId;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
-     * @Annotation\Options({"label":"To Service Type Name"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"To Service Type Name"})
      * @Annotation\Attributes({ "id":"toServiceTypeId","class":"form-control"})
      */
     public $toServiceTypeId;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
-     * @Annotation\Options({"label":"To Branch Name"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"To Branch Name"})
      * @Annotation\Attributes({ "id":"toBranchId","class":"form-control"})
      */
     public $toBranchId;
@@ -73,7 +73,7 @@ class JobHistoryForm {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
      * @Annotation\Options({"disable_inarray_validator":"true","label":"To Designation Name"})
      * @Annotation\Attributes({ "id":"toDesignationId","class":"form-control"})
@@ -82,9 +82,9 @@ class JobHistoryForm {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required({"required":"true"})
      * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
-     * @Annotation\Options({"label":"To Position Name"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"To Position Name"})
      * @Annotation\Attributes({ "id":"toPositionId","class":"form-control"})
      */
     public $toPositionId;
@@ -100,7 +100,7 @@ class JobHistoryForm {
 
     /**
      * @Annotion\Type("Zend\Form\Element\Number")
-     * @Annotation\Required(false)
+     * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"To Salary"})
      * @Annotation\Attributes({ "id":"toSalary", "class":"form-control" })
