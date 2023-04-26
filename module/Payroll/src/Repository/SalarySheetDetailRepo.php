@@ -138,7 +138,6 @@ class SalarySheetDetailRepo extends HrisRepository {
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['employeeId'] = $employeeId;
-                    // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 

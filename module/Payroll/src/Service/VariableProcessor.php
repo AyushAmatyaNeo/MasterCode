@@ -228,7 +228,53 @@ class VariableProcessor {
              */ 
             case PayrollGenerator::VARIABLES[32]:
                    $processedValue = $this->payrollRepo->getMonthlyOTHours($this->employeeId, $this->sheetNo,$this->monthId);
-                   break;   
+                   break; 
+                   
+                   
+                    /*
+             * HB_LOAN_AMT
+             */
+            case PayrollGenerator::VARIABLES[33]:
+                $processedValue = $this->payrollRepo->getHbLoanAmt($this->employeeId,$this->monthId);
+                break;
+            
+            /*
+             * HB_INTEREST_AMT
+             */
+            case PayrollGenerator::VARIABLES[34]:
+                $processedValue = $this->payrollRepo->getHbIntAmt($this->employeeId,$this->monthId);
+                break;
+            
+            /*
+             * WL_LOAN_AMT
+             */
+            case PayrollGenerator::VARIABLES[35]:
+                $processedValue = $this->payrollRepo->getWLLoanAmt($this->employeeId,$this->monthId);
+                break;
+            
+            /*
+             * WL_INTEREST_AMT
+             */
+            case PayrollGenerator::VARIABLES[36]:
+                $processedValue = $this->payrollRepo->getWLIntAmt($this->employeeId,$this->monthId);
+                break;
+            
+            /*
+             * SHL_LOAN_AMT
+             */
+            case PayrollGenerator::VARIABLES[37]:
+                $processedValue = $this->payrollRepo->getSHLLoanAmt($this->employeeId,$this->monthId);
+                break;
+            
+            /*
+             * SHL_INTEREST_AMT
+             */
+            case PayrollGenerator::VARIABLES[38]:
+                $processedValue = $this->payrollRepo->getSHLIntAmt($this->employeeId,$this->monthId);
+                break;
+
+
+           
             
             default:
                 break;
