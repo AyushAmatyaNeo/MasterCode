@@ -246,15 +246,15 @@ CASE
                     0
                 ELSE
                     max_balance
-                    -- ACTUAL_BALANCE
+                -- ACTUAL_BALANCE
             END
     ELSE
         CASE
-            WHEN ( total_days+ previous_balance - leave_taken_till_this_month ) < 0 THEN
+            WHEN ( total_days + previous_balance - leave_taken_till_this_month ) < 0 THEN
                     0
             ELSE
-                ( total_days - leave_taken_till_this_month + previous_balance)
-                -- ACTUAL_BALANCE
+                ( total_days - leave_taken_till_this_month + previous_balance )
+            -- ACTUAL_BALANCE
         END
 END AS balance,
 fiscal_year,
@@ -284,28 +284,49 @@ end
 from hris_employee_leave_request where status in ('RQ','RC') 
 and  leave_id={$leaveId} and employee_id={$employeeId})                  AS ACTUAL_BALANCE,
 (SELECT
-                nvl(SUM(
-                    CASE
-                        WHEN half_day IN('F', 'S') THEN
-                            no_of_days / 2
-                        ELSE
-                            no_of_days
-                    END
-                ),
-                    0)
+            nvl(SUM(
+                CASE
+                    WHEN half_day IN('F', 'S') THEN
+                        no_of_days / 2
+                    ELSE
+                        no_of_days
+                END
+            ),
+                0)
+        FROM
+            hris_employee_leave_request
+        WHERE
+            status IN ( 'AP','RQ','RC')
+            AND leave_id = {$leaveId}
+            AND employee_id = {$employeeId}
+            and start_date <= (select to_date from hris_leave_month_code where {$date} between from_date and to_date))
+            AS leave_taken_till_this_month,
+(SELECT
+                MAX(la.balance)
             FROM
-                hris_employee_leave_request
+                hris_employee_leave_assign la
+                left join hris_leave_master_setup l on (l.leave_id=la.leave_id)
             WHERE
-                status IN ( 'AP','RQ','RC')
-                AND leave_id = {$leaveId}
-                AND employee_id = {$employeeId}
-                and start_date <= (select to_date from hris_leave_month_code where {$date} between from_date and to_date))
-                AS leave_taken_till_this_month,
-(select max(balance) from hris_employee_leave_assign where employee_id = {$employeeId} and leave_id = {$leaveId}
-and fiscal_year_month_no <= 
-(select leave_year_month_no from hris_leave_month_code where 
-case when 
-trunc(to_date({$date})) <= trunc(sysdate) then trunc(sysdate) else trunc(to_date({$date})) end between from_date and to_date)) 
+                    la.employee_id =  {$employeeId}
+                AND la.leave_id = {$leaveId}
+                AND (la.fiscal_year_month_no <= (
+CASE
+    WHEN l.is_monthly = 'Y' THEN
+        (
+            SELECT
+                leave_year_month_no
+            FROM
+                hris_leave_month_code
+            WHERE
+                CASE
+                    WHEN trunc(TO_DATE(trunc(sysdate))) <= trunc(sysdate) THEN
+                        trunc(sysdate)
+                    ELSE
+                        trunc(TO_DATE(trunc(sysdate)))
+                END BETWEEN from_date AND to_date
+        )
+END 
+) OR la.fiscal_year_month_no IS NULL)) 
 as max_balance,
 LA.total_days as total_days,
 LA.previous_year_bal    AS previous_balance,

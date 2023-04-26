@@ -219,6 +219,7 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
         $sql=" 
         BEGIN 
         hris_recalculate_leave({$employeeId},{$leaveId});
+        commit;
         END;
         ";
         $statement =$this->adapter->query($sql);
@@ -238,6 +239,7 @@ class SystemUtilityRepository extends HrisRepository implements RepositoryInterf
         $sql=" 
         BEGIN 
         hris_recalc_monthly_leaves({$employeeId},{$leaveId});
+        commit;
         END;
         ";
 

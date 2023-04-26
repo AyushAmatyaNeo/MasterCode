@@ -126,7 +126,6 @@ class SalarySheetDetailRepo extends HrisRepository {
                       AND SALARY_TYPE_ID=:salaryTypeId
                   )
                 AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
-
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
