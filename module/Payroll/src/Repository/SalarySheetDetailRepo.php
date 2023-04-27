@@ -133,12 +133,11 @@ class SalarySheetDetailRepo extends HrisRepository {
                       AND SALARY_TYPE_ID=:salaryTypeId  AND APPROVED='Y'
                   )
                 AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
-
+        // echo '<pre>';print_r($sql);die;
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['employeeId'] = $employeeId;
-                    // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 

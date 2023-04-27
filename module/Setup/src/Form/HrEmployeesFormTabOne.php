@@ -12,7 +12,6 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Employee Code"})
-     * @Annotation\Validator({"name":"Digits"})
      * @Annotation\Validator({"name":"StringLength", "options":{"max":"15"}})
      * @Annotation\Attributes({ "id":"employeeCode", "class":"form-control" })
      */
@@ -32,7 +31,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"First Name"})
-     * @Annotation\Attributes({ "id":"firstName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters"})
+     * @Annotation\Attributes({ "id":"firstName", "class":"form-control" })
      */
     public $firstName;
 
@@ -41,7 +40,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Middle Name"})
-     * @Annotation\Attributes({ "id":"middleName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters" })
+     * @Annotation\Attributes({ "id":"middleName", "class":"form-control" })
      */
     public $middleName;
 
@@ -50,7 +49,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(true)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Last Name"})
-     * @Annotation\Attributes({ "id":"lastName", "class":"form-control", "pattern":"^[a-zA-Z]+$", "title": "No numbers, no space and special characters" })
+     * @Annotation\Attributes({ "id":"lastName", "class":"form-control" })
      */
     public $lastName;
 
@@ -141,7 +140,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Type("Zend\Form\Element\Email")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email Official"})
-     * @Annotation\Attributes({ "id":"emailOfficial", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" })
+     * @Annotation\Attributes({ "id":"emailOfficial", "class":"form-control" })
      */
     public $emailOfficial;
 
@@ -150,7 +149,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"Email Personal"})
-     * @Annotation\Attributes({ "id":"emailPersonal", "class":"form-control", "pattern":"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" })
+     * @Annotation\Attributes({ "id":"emailPersonal", "class":"form-control" })
      */
     public $emailPersonal;
 

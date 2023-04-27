@@ -146,6 +146,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($remarks); ?>
+                            <span aria-required="true" class="required">*</span>
                             <?php print $this->formElement($remarks); ?>
                             <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
                         </div>

@@ -60,7 +60,14 @@ class PayrollGenerator {
         "IS_REMOTE_BRANCH",
 		"AGE",
 		"SALARY_DAYS",
-		"OT_WORKED_HOURS"
+		"OT_WORKED_HOURS",
+        "HB_LOAN_AMT",
+        "HB_INTEREST_AMT",
+        "WL_LOAN_AMT",
+        "WL_INTEREST_AMT",
+        "SHL_LOAN_AMT",
+        "SHL_INTEREST_AMT"
+        
     ];
     const SYSTEM_RULE = [
         "TOTAL_ANNUAL_AMOUNT",

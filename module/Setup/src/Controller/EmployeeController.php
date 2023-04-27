@@ -968,7 +968,7 @@ class EmployeeController extends HrisController {
             $data = $request->getPost();
 
             $list = $this->repository->fetchBy($data);
-           // echo '<pre>';print_r($list);die;
+
             return new JsonModel(['success' => true, 'data' => $list, 'message' => null]);
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);

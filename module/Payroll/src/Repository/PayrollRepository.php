@@ -379,6 +379,95 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['BRANCH_ID'];
     }
 
+    public function getHbLoanAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(LPD.AMOUNT,0) AS HB_LOAN_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 3
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;            
+        }
+        return $resultList[0]['HB_LOAN_AMT'];
+    }
+
+    public function getHbIntAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(LPD.interest_amount,0) AS HB_INTEREST_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 3
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}
+        ";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['HB_INTEREST_AMT'];
+    }
+
+    public function getWLLoanAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(LPD.AMOUNT,0) AS WL_LOAN_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 4
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['WL_LOAN_AMT'];
+    }
+
+    public function getWLIntAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(lpd.interest_amount,0) AS WL_INTEREST_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 4
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['WL_INTEREST_AMT'];
+    }
+
+    public function getSHLLoanAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(lpd.AMOUNT,0) AS SHL_LOAN_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 5 AND ELR.LOAN_STATUS = 'OPEN'
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}
+				and lpd.status ='E'";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['SHL_LOAN_AMT'];
+    }
+
+    public function getSHLIntAmt($employeeId, $monthId) {
+        $sql = "SELECT nvl(lpd.interest_amount,0) AS SHL_INTEREST_AMT FROM hris_employee_loan_request ELR 
+        LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
+        WHERE ELR.LOAN_ID = 5 AND ELR.LOAN_STATUS = 'OPEN'
+        AND LPD. FROM_DATE between (SELECT FROM_DATE FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and (SELECT to_date FROM HRIS_MONTH_CODE WHERE MONTH_ID  = {$monthId} AND STATUS = 'E')
+                and ELR.EMPLOYEE_ID = {$employeeId}
+				and lpd.status ='E'";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['SHL_INTEREST_AMT'];
+    }
+
+
+
     public function getCafeMealPrevious($employeeId, $monthId){
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;

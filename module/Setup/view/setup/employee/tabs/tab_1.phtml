@@ -71,10 +71,6 @@ $formOne->setAttribute("name", "employeeForm");
 $formOne->prepare();
 ?>
 
-<script>
-    document.employeeId = <?php echo $id; ?>;
-</script>
-
 <div class="tab-pane active" id="tab1" style="min-height: 400px;">
     <?php print $this->form()->openTag($formOne); ?>
     <div class="personal-info">
@@ -92,7 +88,6 @@ $formOne->prepare();
                         <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                             <?php print $this->formElement($employeeCode) ?>
                             <?php print $this->formElementErrors()->render($employeeCode, ['class' => 'error']) ?>
-                            <span id="codeError" style="color:red; display:none;">Employee Code already exists</span>
                         </div>
                     </div>
                 </div>

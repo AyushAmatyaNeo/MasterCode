@@ -30,8 +30,9 @@ class WorkOnDayoffRepository implements RepositoryInterface {
         if ($addData['STATUS']=='AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
             $sql = "BEGIN 
             HRIS_REATTENDANCE('{$model->fromDate}',$model->employeeId,'{$model->toDate}');
+            commit;
                END; ";
-
+            // echo '<pre>';print_r($sql);die;
             EntityHelper::rawQueryResult($this->adapter, $sql);
         }
     }
