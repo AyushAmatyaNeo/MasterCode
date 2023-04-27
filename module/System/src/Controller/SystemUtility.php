@@ -144,7 +144,6 @@ class SystemUtility extends HrisController {
                 $data =$request->getPost();
 
                 $checkFlag=$this->repository->checkMonthlyFlag($data['LEAVE_ID']); 
-
                 if ($checkFlag['IS_MONTHLY']=='N'){
                     $this->repository->recalYearlyLeave($data['EMPLOYEE_ID'],$data['LEAVE_ID']);
                     return $this->redirect()->toRoute("");
