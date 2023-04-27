@@ -7,11 +7,7 @@
                 <a class="btn btn-icon-only green" href="${document.viewLink}/#:OVERTIME_ID#" style="height:17px;" title="View Detail">
                     <i class="fa fa-search"></i>
                 </a>
-                #if(ALLOW_EDIT=='Y'){#
-                <a class="btn btn-icon-only yellow" href="${document.editLink}/#:OVERTIME_ID#" style="height:17px;" title="Edit">
-                    <i class="fa fa-edit"></i>
-                </a>
-                #}#
+             
                 #if(ALLOW_DELETE=='Y'){#
                 <a  class="btn btn-icon-only red confirmation" href="${document.deleteLink}/#:OVERTIME_ID#" style="height:17px;" title="Cancel">
                     <i class="fa fa-times"></i>
@@ -19,6 +15,11 @@
                 #}#
             </div>
         `;
+        // #if(ALLOW_EDIT=='Y'){#
+        //     <a class="btn btn-icon-only yellow" href="${document.editLink}/#:OVERTIME_ID#" style="height:17px;" title="Edit">
+        //         <i class="fa fa-edit"></i>
+        //     </a>
+        //     #}#
         var columns = [
             {title: "Overtime Date",
                 columns: [
