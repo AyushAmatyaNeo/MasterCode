@@ -152,6 +152,34 @@ class SalarySheetDetailRepo extends HrisRepository
         return $this->rawQuery($sql, $boundedParameter);
     }
 
+    public function fetchEmployeePaySlipHR($monthId, $employeeId, $salaryTypeId = 1)
+    {
+        $sql = "SELECT 
+                ts.sheet_no,
+                ts.employee_id,
+                ts.pay_id,
+                CASE
+                WHEN ts.val = 0 THEN '0.00'
+                ELSE to_char(ts.val, '9,999,999.99')
+                END AS val,
+                  P.PAY_TYPE_FLAG,
+                  P.PAY_EDESC
+                FROM HRIS_SALARY_SHEET_DETAIL TS
+                LEFT JOIN HRIS_PAY_SETUP P
+                ON (TS.PAY_ID         =P.PAY_ID)
+                WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
+                AND TS.SHEET_NO       IN
+                  (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
+                      AND SALARY_TYPE_ID=:salaryTypeId 
+                  )
+                AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        $boundedParameter['employeeId'] = $employeeId;
+        return $this->rawQuery($sql, $boundedParameter);
+    }
+
     public function fetchEmployeeLoanAmt($monthId, $employeeId, $ruleId)
     {
         $sql = "select 
@@ -301,7 +329,8 @@ class SalarySheetDetailRepo extends HrisRepository
         return $resultList[0]['VALUE'];
     }
 
-    public function fetchEmployeePreviousMonthAmount($monthId,$employeeId,$ruleId) {
+    public function fetchEmployeePreviousMonthAmount($monthId, $employeeId, $ruleId)
+    {
         //         $sql="select 
         // nvl(sum(val),0) as value
         // from 

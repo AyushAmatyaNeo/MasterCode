@@ -344,9 +344,9 @@ class SalarySheetController extends HrisController
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetails($postedData['monthId'], $postedData['employeeId']);
                 if ($postedData['exchangeRate'] == 1) {
-                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHR($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                 } else {
-                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHR($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                     foreach ($data['pay-detail'] as &$row) {
                         $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
                         $val = str_replace(',', '', $row['VAL']);
