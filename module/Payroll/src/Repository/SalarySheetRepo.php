@@ -11,47 +11,74 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 
-class SalarySheetRepo extends HrisRepository {
+class SalarySheetRepo extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         parent::__construct($adapter, SalarySheet::TABLE_NAME);
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         return $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function delete($id) {
+    public function addSendPayslip($id, $employeeId)
+    {
+        $sql = "Insert into HRIS_PAYSLIP_EMAIL (id,employee_id) values ($id,$employeeId)";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        $result->current();
+    }
+
+    public function lastPayslipEmp()
+    {
+        $sql = "SELECT employee_id
+        FROM hris_payslip_email
+        WHERE id = (SELECT MAX(id) FROM hris_payslip_email)";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result->current();
+    }
+
+    public function delete($id)
+    {
         return $this->tableGateway->delete([SalarySheet::MONTH_ID => $id]);
     }
 
-    public function fetchAll() {
+    public function fetchAll()
+    {
         return $this->tableGateway->select(function (Select $select) {
-                    $select->columns(Helper::convertColumnDateFormat($this->adapter, new SalarySheet(), [
-                                'startDate',
-                                'endDate',
-                            ]), false);
-                });
+            $select->columns(Helper::convertColumnDateFormat($this->adapter, new SalarySheet(), [
+                'startDate',
+                'endDate',
+            ]), false);
+        });
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         return $this->tableGateway->select([SalarySheet::SHEET_NO => $id]);
     }
 
-    public function fetchByIds(array $ids) {
+    public function fetchByIds(array $ids)
+    {
         return $this->tableGateway->select($ids);
     }
 
-    public function fetchOneBy(array $ids) {
+    public function fetchOneBy(array $ids)
+    {
         return $this->tableGateway->select($ids)->current();
     }
 
-    public function joinWithMonth($monthId = null, $employeeJoinDate = null) {
+    public function joinWithMonth($monthId = null, $employeeJoinDate = null)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([]);
         $select->from(['S' => SalarySheet::TABLE_NAME])
-                ->join(['M' => Months::TABLE_NAME], 'S.' . SalarySheet::MONTH_ID . '=M.' . Months::MONTH_ID);
+            ->join(['M' => Months::TABLE_NAME], 'S.' . SalarySheet::MONTH_ID . '=M.' . Months::MONTH_ID);
         if ($monthId != null) {
             $select->where([Months::MONTH_ID => $monthId]);
         }
@@ -67,7 +94,8 @@ class SalarySheetRepo extends HrisRepository {
         return $result;
     }
 
-    public function generateSalShReport($sheetNo) {
+    public function generateSalShReport($sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['sheetNo'] = $sheetNo;
         $this->executeStatement("BEGIN
@@ -75,7 +103,8 @@ class SalarySheetRepo extends HrisRepository {
                         END;", $boundedParameter);
     }
 
-    public function updateLoanPaymentFlag($employeeId, $sheetNo) {
+    public function updateLoanPaymentFlag($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['sheetNo'] = $sheetNo;
         $boundedParameter['employeeId'] = $employeeId;
@@ -84,7 +113,8 @@ class SalarySheetRepo extends HrisRepository {
                         END;", $boundedParameter);
     }
 
-    public function fetchAllSalaryType() {
+    public function fetchAllSalaryType()
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(['*']);
@@ -94,14 +124,15 @@ class SalarySheetRepo extends HrisRepository {
         return $result;
     }
 
-    public function fetchEmployeeByGroup($monthId,$group,$salaryTypeId,$companyId) {
+    public function fetchEmployeeByGroup($monthId, $group, $salaryTypeId, $companyId)
+    {
         $boundedParameter = [];
 
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['monthId'] = $monthId;
         // echo '<pre>';print_r($companyId);die;
 
-        if ($companyId > 0){
+        if ($companyId > 0) {
             $sql = "SELECT 
             E.employee_id,E.employee_code,E.full_name,'Y' AS CHECKED_FLAG
             FROM HRIS_EMPLOYEES E
@@ -115,16 +146,15 @@ AND  E.JOIN_DATE<MC.TO_DATE
 AND GROUP_ID IN ({$group})
 ";
 
-        if($salaryTypeId>1){
-            $sql.=" and E.employee_id in (
+            if ($salaryTypeId > 1) {
+                $sql .= " and E.employee_id in (
             select distinct employee_id from HRIS_SS_PAY_VALUE_MODIFIED 
             where 
             month_id=:monthId
             and SALARY_TYPE_ID=:salaryTypeId
             )";
-        }
-        }
-        else{
+            }
+        } else {
             $sql = "SELECT 
             E.employee_id,E.employee_code,E.full_name,'Y' AS CHECKED_FLAG
             FROM HRIS_EMPLOYEES E
@@ -137,15 +167,15 @@ where SS.month_id=:monthId AND SS.SALARY_TYPE_ID=:salaryTypeId)
 AND  E.JOIN_DATE<MC.TO_DATE 
 AND GROUP_ID IN ({$group})";
 
-        if($salaryTypeId>1){
-            $sql.=" and E.employee_id in (
+            if ($salaryTypeId > 1) {
+                $sql .= " and E.employee_id in (
             select distinct employee_id from HRIS_SS_PAY_VALUE_MODIFIED 
             where 
             month_id=:monthId
             and SALARY_TYPE_ID=:salaryTypeId
             )";
+            }
         }
-    }
 
         $data = $this->rawQuery($sql, $boundedParameter);
         // echo '<pre>';print_r($data); die;
@@ -153,13 +183,14 @@ AND GROUP_ID IN ({$group})";
         return $data;
     }
 
-    public function fetchGeneratedSheetByGroup($monthId,$group,$salaryTypeId,$companyId){
+    public function fetchGeneratedSheetByGroup($monthId, $group, $salaryTypeId, $companyId)
+    {
         $boundedParameter = [];
 
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['monthId'] = $monthId;
-        if($companyId > 0){
-            $sql="select 
+        if ($companyId > 0) {
+            $sql = "select 
             ss.sheet_no,ssg.Group_Name,Mc.Month_Edesc,St.Salary_Type_Name,
             ss.approved, ss.locked 
             from HRIS_SALARY_SHEET ss 
@@ -168,8 +199,8 @@ AND GROUP_ID IN ({$group})";
             join HRIS_SALARY_TYPE st on (St.Salary_Type_Id=Ss.Salary_Type_Id)
             where ss.Month_Id=:monthId and ss.salary_type_id=:salaryTypeId  and ss.Group_Id in ($group) and ss.company_id=$companyId
             order by ss.sheet_no asc";
-        }else{
-            $sql="select 
+        } else {
+            $sql = "select 
             ss.sheet_no,ssg.Group_Name,Mc.Month_Edesc,St.Salary_Type_Name,
             ss.approved, ss.locked 
             from HRIS_SALARY_SHEET ss 
@@ -179,14 +210,14 @@ AND GROUP_ID IN ({$group})";
             where ss.Month_Id=:monthId and ss.salary_type_id=:salaryTypeId  and ss.Group_Id in ($group)
             order by ss.sheet_no asc";
         }
+        // echo '<pre>';print_r($sql);die;
 
         $data = $this->rawQuery($sql, $boundedParameter);
-        // echo '<pre>';print_r($sql);die
-
         return $data;
     }
 
-    public function insertPayrollEmp($empList,$monthId,$salaryTypeId) {
+    public function insertPayrollEmp($empList, $monthId, $salaryTypeId)
+    {
         $deleteSql = "delete from HRIS_PAYROLL_EMP_LIST";
         $this->executeStatement($deleteSql);
         $boundedParameter = [];
@@ -194,7 +225,7 @@ AND GROUP_ID IN ({$group})";
         $boundedParameter['monthId'] = $monthId;
         foreach ($empList as $employeeId) {
             $boundedParameter['employeeId'] = $employeeId;
-//            $tempSql = "INSERT INTO HRIS_PAYROLL_EMP_LIST VALUES ({$employeeId})";
+            //            $tempSql = "INSERT INTO HRIS_PAYROLL_EMP_LIST VALUES ({$employeeId})";
             $tempSql = "INSERT INTO HRIS_PAYROLL_EMP_LIST 
                     select * from (select :employeeId as employee_id from dual) 
 where employee_id not in (select employee_id from Hris_Salary_Sheet_Emp_Detail ssed
@@ -202,7 +233,7 @@ join HRIS_SALARY_SHEET ss on (ss.SHEET_NO=ssed.SHEET_NO)
 where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
             $this->executeStatement($tempSql, $boundedParameter);
         }
-        $toGenerateGroupSql="select  distinct group_id 
+        $toGenerateGroupSql = "select  distinct group_id 
                 from 
                  hris_employees where employee_id in
                  (select employee_id from HRIS_PAYROLL_EMP_LIST)";
@@ -210,8 +241,9 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         return $groupData;
     }
 
-    public function deleteSheetBySheetNo($sheetNo){
-        $sql="
+    public function deleteSheetBySheetNo($sheetNo)
+    {
+        $sql = "
         BEGIN            
         delete from HRIS_TAX_SHEET where sheet_no=:sheetNo;
         delete from HRIS_SALARY_SHEET_DETAIL where sheet_no=:sheetNo;
@@ -226,22 +258,24 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
     }
 
     //here for deleting individual salary
-	public function deleteEmployeeSalarySheet($sheetNo, $employeeId){
-       $sql="
+    public function deleteEmployeeSalarySheet($sheetNo, $employeeId)
+    {
+        $sql = "
        BEGIN
        delete from HRIS_TAX_SHEET where sheet_no=:sheetNo and employee_id = :employee_id;
        delete from HRIS_SALARY_SHEET_DETAIL where sheet_no=:sheetNo and employee_id = :employee_id;
        delete from HRIS_SALARY_SHEET_EMP_DETAIL where sheet_no=:sheetNo and employee_id = :employee_id;
        END;
 ";
-       $boundedParameter = [];
-       $boundedParameter['sheetNo'] = $sheetNo;
-       $boundedParameter['employee_id'] = $employeeId;
-       $this->executeStatement($sql, $boundedParameter);
-   }
-//here for deleting individual salary
+        $boundedParameter = [];
+        $boundedParameter['sheetNo'] = $sheetNo;
+        $boundedParameter['employee_id'] = $employeeId;
+        $this->executeStatement($sql, $boundedParameter);
+    }
+    //here for deleting individual salary
 
-    public function bulkApproveLock($sheetNo, $col, $val){
+    public function bulkApproveLock($sheetNo, $col, $val)
+    {
         $sql = "UPDATE HRIS_SALARY_SHEET set $col = :val where sheet_no=:sheetNo";
         $boundedParameter = [];
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -250,9 +284,10 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         $this->executeStatement($sql, $boundedParameter);
         return true;
     }
-	
-	public function pivot($sheetNum){
-        
+
+    public function pivot($sheetNum)
+    {
+
         $pivotColumnSql = "select listagg(pay_id,', ') within group(order by pay_id) csv
         from hris_pay_setup WHERE VOUCHER_IMPACT = 'Y'";
         //$pivotCol = $this->rawQuery($pivotColumnSql);
@@ -278,7 +313,8 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         //echo('<pre>');print_r($sql);die;
         return $this->rawQuery($sql);
     }
-    public function getAccCode($payId, $data, $branchCode){
+    public function getAccCode($payId, $data, $branchCode)
+    {
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
@@ -289,7 +325,8 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         $result = $statement->execute();
         return  $result->current()['ACC_CODE'];
     }
-    public function checkTF($employeeId,$branchCode, $accCode, $sheetNo){
+    public function checkTF($employeeId, $branchCode, $accCode, $sheetNo)
+    {
         // $getAccCodeSql = "select acc_code
         // from HRIS_ACC_CODE_MAP WHERE pay_id = $payId";
 
@@ -301,18 +338,19 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         where ss.sheet_no = {$sheetNo}";
 
         $checkSql = "select * from fa_sub_ledger_map SLM left join fa_chart_of_accounts_setup CAS ON (SLM.company_code = CAS.company_code) 
-        where SLM.sub_code = 'E' || '{$employeeId}' and SLM.deleted_flag = 'N' and SLM.acc_code = {$accCode} and cas.company_code=({$companyCode}) and cas.acc_code={$accCode}";//and CAS.branch_code = {$branchCode}
+        where SLM.sub_code = 'E' || '{$employeeId}' and SLM.deleted_flag = 'N' and SLM.acc_code = {$accCode} and cas.company_code=({$companyCode}) and cas.acc_code={$accCode}"; //and CAS.branch_code = {$branchCode}
         $statement = $this->adapter->query($checkSql);
         $result = $statement->execute();
         $check =  $result->current();
-        if($check == null){
+        if ($check == null) {
             $checkResult = false;
-        }else{
+        } else {
             $checkResult = true;
         }
         return $checkResult;
     }
-    public function getMapPayIdList($data,$branchCode, $groupId){
+    public function getMapPayIdList($data, $branchCode, $groupId)
+    {
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
@@ -321,7 +359,8 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         return $this->rawQuery($sql);
     }
 
-    public function checkApproveLock($sheetNo){
+    public function checkApproveLock($sheetNo)
+    {
         $sql = "SELECT SHEET_NO, APPROVED, LOCKED FROM HRIS_SALARY_SHEET WHERE SHEET_NO = :sheetNo";
         $boundedParameter = [];
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -329,7 +368,8 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         //return Helper::extractDbData($data);
     }
 
-    public function fetchSheetWiseEmployeeList($sheetNo){
+    public function fetchSheetWiseEmployeeList($sheetNo)
+    {
         $sql = "select SS.SHEET_NO,SS.MONTH_ID,SS.SALARY_TYPE_ID,SSED.EMPLOYEE_ID from HRIS_SALARY_SHEET SS
 JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SS.SHEET_NO=SSED.SHEET_NO)
 where SS.SHEET_NO=:sheetNo";
@@ -339,23 +379,25 @@ where SS.SHEET_NO=:sheetNo";
         //return Helper::extractDbData($data);
     }
 
-    public function fetchCompanyByGroup($groupId) {
+    public function fetchCompanyByGroup($groupId)
+    {
 
         $sql = "select company_id from HRIS_EMPLOYEES where GROUP_ID = :groupId  and ROWNUM = 1";
         $boundedParameter = [];
         $boundedParameter['groupId'] = $groupId;
         $data = $this->rawQuery($sql, $boundedParameter);
         return $data[0]['COMPANY_ID'];
-//        return $this->rawQuery($sql, $boundedParameter);
+        //        return $this->rawQuery($sql, $boundedParameter);
     }
-	
-	public function getDataForVoucherSubDetail($sheetNo,$employeeId,$accCode, $branchCode){
-		
+
+    public function getDataForVoucherSubDetail($sheetNo, $employeeId, $accCode, $branchCode)
+    {
+
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$sheetNo}";
 
-        $sql="select FN_NEW_VOUCHER_NO(({$companyCode}), 107, trunc(sysdate), 'FA_DOUBLE_VOUCHER') as VOUCHER_NO, 
+        $sql = "select FN_NEW_VOUCHER_NO(({$companyCode}), 107, trunc(sysdate), 'FA_DOUBLE_VOUCHER') as VOUCHER_NO, 
            A.pay_id,  
            acm.acc_code, 
            ps.pay_edesc, 
@@ -375,17 +417,17 @@ where SS.SHEET_NO=:sheetNo";
         left join fa_chart_of_accounts_setup fac on (fac.acc_code = ACM.acc_code and fac.company_code = acm.company_code)
         where fac.company_code = ({$companyCode}) and a.employee_id = {$employeeId} AND a.total <> 0 
         and acm.acc_code = {$accCode} and acm.branch_code = {$branchCode}";
-//echo('<pre>');print_r($sql);
+        //echo('<pre>');print_r($sql);
         $data = $this->rawQuery($sql);
-//print_r($data[0]);die;
-if($data){
-	return $data[0];
-}else{
-return;
-}
-        
+        //print_r($data[0]);die;
+        if ($data) {
+            return $data[0];
+        } else {
+            return;
+        }
     }
-    public function getBranchesFromCompany($data, $groupId){
+    public function getBranchesFromCompany($data, $groupId)
+    {
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
@@ -394,12 +436,13 @@ return;
         $data = $this->rawQuery($sql);
         return $data;
     }
-    public function getDataForDoubleVoucher($data, $branchCode, $groupId){
-		//print_r('adsf');die;
+    public function getDataForDoubleVoucher($data, $branchCode, $groupId)
+    {
+        //print_r('adsf');die;
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
-        
+
         $companyId = "select company_id from hris_company where company_code = ({$companyCode})";
 
         $sql = "
@@ -436,20 +479,22 @@ return;
         left join hris_variance v on (v.variance_id = vp.variance_id and v.variable_type = 'S')
         where v.status = 'E'
         order by  d.transaction_type desc ,v.order_no asc";
-		//echo '<pre>';print_r($sql);die;
+        //echo '<pre>';print_r($sql);die;
         $result = $this->rawQuery($sql);
         return $result;
     }
-    public function getDataForMasterTransection($voucher_no){
+    public function getDataForMasterTransection($voucher_no)
+    {
 
         $sql = "select voucher_no, sum(amount) as GROSS_AMOUNT, company_code, branch_code, form_code from fa_double_voucher where voucher_no = '{$voucher_no}' and transaction_type = 'CR'
         group by transaction_type, voucher_no, company_code, branch_code, form_code";
-//echo '<pre>';print_r($sql);die;
+        //echo '<pre>';print_r($sql);die;
         $data = $this->rawQuery($sql);
         return $data;
     }
-    public function insertIntoFaSubLedger($singleSubDetailData){
-        
+    public function insertIntoFaSubLedger($singleSubDetailData)
+    {
+
 
         $sql = "insert into fa_sub_ledger
         (TRANSACTION_NO, FORM_CODE, VOUCHER_DATE, VOUCHER_NO, SUB_CODE, ACC_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, BALANCE_AMOUNT, 
@@ -478,8 +523,9 @@ return;
         ";
         return $this->rawQuery($sql);
     }
-    public function insertIntoFaGeneralLedger($singleDoubleVoucherData,$generalVoucherblncAmt){
-        if($singleDoubleVoucherData['TRANSACTION_TYPE'] == 'CR'){
+    public function insertIntoFaGeneralLedger($singleDoubleVoucherData, $generalVoucherblncAmt)
+    {
+        if ($singleDoubleVoucherData['TRANSACTION_TYPE'] == 'CR') {
             $sql = "insert into fa_general_ledger
             (TRANSACTION_NO, FORM_CODE, VOUCHER_DATE, VOUCHER_NO, ACC_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, BALANCE_AMOUNT, 
             COMPANY_CODE, BRANCH_CODE, CREATED_BY, CREATED_DATE, DELETED_FLAG, SERIAL_NO, CURRENCY_CODE, EXCHANGE_RATE, PARTICULARS )
@@ -504,7 +550,7 @@ return;
             '{$singleDoubleVoucherData['PARTICULARS']}'
             )
             ";
-        }else{
+        } else {
             $sql = "insert into fa_general_ledger
             (TRANSACTION_NO, FORM_CODE, VOUCHER_DATE, VOUCHER_NO, ACC_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, BALANCE_AMOUNT, 
             COMPANY_CODE, BRANCH_CODE, CREATED_BY, CREATED_DATE, DELETED_FLAG, SERIAL_NO, CURRENCY_CODE, EXCHANGE_RATE, PARTICULARS )
@@ -530,13 +576,14 @@ return;
             )
             ";
         }
-        return $this->rawQuery($sql);        
+        return $this->rawQuery($sql);
     }
-    public function insertIntoVoucherSubDetail($data,$employeeId,$indiEmployee){
+    public function insertIntoVoucherSubDetail($data, $employeeId, $indiEmployee)
+    {
 
         $voucherNo = $data['VOUCHER_NO'];
         $accCode = $data['ACC_CODE'];
-        $serialNo = "select serial_no from fa_double_voucher where voucher_no = '{$voucherNo}' and acc_code = {$accCode}" ;
+        $serialNo = "select serial_no from fa_double_voucher where voucher_no = '{$voucherNo}' and acc_code = {$accCode}";
         $transactionType = $data['TRANSACTION_TYPE'];
         $amount = $data['TOTAL'];
         $formCode = $data['FORM_CODE'];
@@ -545,36 +592,40 @@ return;
         $createdBy = "select upper(SUBSTR(first_name, 0, 1)) || upper(LAST_NAME) from HRIS_EMPLOYEES where employee_id = {$indiEmployee}";
         $particulars = "select particulars from fa_double_voucher where voucher_no = '{$voucherNo}' and acc_code = '{$accCode}'";
 
-        if($transactionType == 'CR'){
-								//echo '<pre>';print_r($data);die;
+        if ($transactionType == 'CR') {
+            //echo '<pre>';print_r($data);die;
             $sql = "insert into fa_voucher_sub_detail 
             (VOUCHER_NO, COMPANY_CODE, BRANCH_CODE, FORM_CODE, SERIAL_NO, ACC_CODE, SUB_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, CREATED_BY, CREATED_DATE, DELETED_FLAG, CURRENCY_CODE, EXCHANGE_RATE, PARTICULARS) 
             values
             ('{$voucherNo}', '{$companyCode}','{$companyCode}'||'.01','{$formCode}', ({$serialNo}), '{$accCode}', 'E' || '{$indiEmployee}', '{$transactionType}', 0, {$amount}, ({$createdBy}), trunc(sysdate), 'N', 'NRS', 1, ({$particulars}))";
-        }else{
+        } else {
 
             $sql = "insert into fa_voucher_sub_detail 
             (VOUCHER_NO, COMPANY_CODE, BRANCH_CODE, FORM_CODE, SERIAL_NO, ACC_CODE, SUB_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, CREATED_BY, CREATED_DATE, DELETED_FLAG, CURRENCY_CODE, EXCHANGE_RATE) 
             values
             ('{$voucherNo}', '{$companyCode}','{$companyCode}'||'.01','{$formCode}', ({$serialNo}), '{$accCode}', 'E' || '{$indiEmployee}', '{$transactionType}', {$amount}, 0, ({$createdBy}), trunc(sysdate), 'N', 'NRS', 1 )";
-            }
-							//echo '<pre>';print_r($sql);die;
+        }
+        //echo '<pre>';print_r($sql);die;
 
         return $this->rawQuery($sql);
     }
-    public function getDataOfSubDetails($voucherNum){
+    public function getDataOfSubDetails($voucherNum)
+    {
         $sql = "select * from fa_voucher_sub_detail where voucher_no = '{$voucherNum}'";
         return $this->rawQuery($sql);
     }
-    public function getDataForPostedTransaction($voucherNum){
+    public function getDataForPostedTransaction($voucherNum)
+    {
         $sql = "select * from master_transaction where voucher_no = '{$voucherNum}'";
         return $this->rawQuery($sql);
     }
-    public function getDataOfDoubleVoucher($voucherNum){
+    public function getDataOfDoubleVoucher($voucherNum)
+    {
         $sql = "select * from fa_double_voucher where voucher_no = '{$voucherNum}'";
         return $this->rawQuery($sql);
     }
-    public function insertIntoDoubleVoucher($data, $employeeId, $sheetDetails){
+    public function insertIntoDoubleVoucher($data, $employeeId, $sheetDetails)
+    {
         $voucherNo = $data['VOUCHER_NO'];
         $accCode = $data['ACC_CODE'];
         $payEdesc = $data['PAY_EDESC'];
@@ -593,7 +644,8 @@ return;
         // print_r($sql);die;
         return $this->rawQuery($sql);
     }
-    public function insertIntoPostedTransaction($postedTransactioData){
+    public function insertIntoPostedTransaction($postedTransactioData)
+    {
         $sql = "insert into FA_POSTED_TRANSACTION
         (VOUCHER_NO, FORM_CODE, COMPANY_CODE, BRANCH_CODE, CREATED_BY, CREATED_DATE, DELETED_FLAG)
         values(
@@ -608,9 +660,10 @@ return;
         ";
         return $this->rawQuery($sql);
     }
-    public function insertIntoMasterTransaction($masterTransactionData, $employeeId){
+    public function insertIntoMasterTransaction($masterTransactionData, $employeeId)
+    {
 
-        $voucherNo = $masterTransactionData['VOUCHER_NO']; 
+        $voucherNo = $masterTransactionData['VOUCHER_NO'];
         $amount = $masterTransactionData['GROSS_AMOUNT'];
         $companyCode = $masterTransactionData['COMPANY_CODE'];
         $branchCode = $masterTransactionData['BRANCH_CODE'];
@@ -646,17 +699,19 @@ return;
             'N',
             'N'
         )";
-		//echo '<pre>';print_r($sql);die;
+        //echo '<pre>';print_r($sql);die;
 
         return $this->rawQuery($sql);
     }
-    public function getEmpName($empId){
+    public function getEmpName($empId)
+    {
         $sql = "select full_name from hris_employees where employee_id = {$empId}";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return Helper::extractDbData($result)[0]['FULL_NAME'];
     }
-    public function getAccDetails($accCode, $companyCode){
+    public function getAccDetails($accCode, $companyCode)
+    {
         $sql = "select fac.acc_edesc, 
                 case when ps.pay_type_flag = 'D' then 'CR'
                 else fac.transaction_type end as transaction_type
@@ -671,7 +726,8 @@ return;
         return $result->current();
     }
 
-    public function getCompanyCode($data){
+    public function getCompanyCode($data)
+    {
         $sql = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
@@ -682,7 +738,8 @@ return;
         return $result->current()['COMPANY_CODE'];
     }
 
-    public function getGroupId($data){
+    public function getGroupId($data)
+    {
         $sql = "select group_id from HRIS_SALARY_SHEET 
         where sheet_no = {$data}";
 
@@ -692,7 +749,8 @@ return;
         return $result->current()['GROUP_ID'];
     }
 
-    public function getSheetDetails($data){
+    public function getSheetDetails($data)
+    {
         $sql = "select hss.sheet_no, hst.salary_type_name, hmc.month_edesc, hfy.fiscal_year_name from hris_salary_sheet hss
         left join hris_salary_type hst on (hss.salary_type_id = hst.salary_type_id)
         left join hris_month_code hmc on (hss.month_id = hmc.month_id)
@@ -702,23 +760,25 @@ return;
         return $this->rawQuery($sql);
     }
 
-    public function checkValOfUnmapped($empId,$sheetNum,$payId){
+    public function checkValOfUnmapped($empId, $sheetNum, $payId)
+    {
         $sql = "select * from hris_salary_sheet_detail where sheet_no = {$sheetNum} and val <> 0 and employee_id = {$empId} and pay_id = {$payId}";
-        
+
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         $check =  $result->current();
-        
-        if ($check == null){
+
+        if ($check == null) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public function updateOtValue($detail,$empId){
+    public function updateOtValue($detail, $empId)
+    {
 
-        $sql="DELETE
+        $sql = "DELETE
         FROM
             hris_monthly_value_detail
         WHERE
@@ -726,10 +786,10 @@ return;
             AND fiscal_year_id = (select fiscal_year_id from hris_month_code where month_id=$detail[monthId])
             AND month_id = $detail[monthId]
             AND employee_id = $empId";
-                        // echo '<pre>';print_r($sql);die;
-            $statement=$this->adapter->query($sql);
-            $statement->execute();
-        $sql="INSERT INTO hris_monthly_value_detail (
+        // echo '<pre>';print_r($sql);die;
+        $statement = $this->adapter->query($sql);
+        $statement->execute();
+        $sql = "INSERT INTO hris_monthly_value_detail (
             mth_id,
             employee_id,
             mth_value,
@@ -739,8 +799,40 @@ return;
             month_id
         ) VALUES (
             12,$empId,$detail[overtime],trunc(sysdate),NULL,(SELECT fiscal_year_id FROM hris_month_code WHERE month_id = $detail[monthId]),$detail[monthId])";
-        $statement=$this->adapter->query($sql);
+        $statement = $this->adapter->query($sql);
         $statement->execute();
     }
 
+    public function fetchExchangeRateVal($monthId)
+    {
+        $sql = "SELECT 
+        CASE 
+          WHEN exchange_rate IS NULL THEN 0
+          ELSE exchange_rate
+        END AS exchange_rate
+      FROM hris_salary_sheet
+      WHERE month_id = $monthId";
+        $statement = $this->adapter->query($sql);
+        $data = $statement->execute()->current();
+        // echo '<pre>';print_r($sql);die;
+        return $data;
+    }
+
+    public function getPayslipData($sheetNo)
+    {
+        $sql = "select distinct(hssd.employee_id),hssed.month_id,hss.salary_type_id from hris_salary_sheet_detail hssd,hris_salary_sheet_emp_detail hssed,
+        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo  order by hssd.employee_id desc";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return Helper::extractDbData($result);
+    }
+
+    public function getPayslipDataRest($sheetNo, $empId)
+    {
+        $sql = "select distinct(hssd.employee_id),hssed.month_id,hss.salary_type_id from hris_salary_sheet_detail hssd,hris_salary_sheet_emp_detail hssed,
+        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo and hssd.employee_id<$empId order by hssd.employee_id desc";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return Helper::extractDbData($result);
+    }
 }

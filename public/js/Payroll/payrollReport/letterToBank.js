@@ -129,7 +129,7 @@
 
         var repTemplate = `
 <div style="padding:4%;"font-size:12px"><center><h1><b>{{COMPANY_NAME}}</b></h1>
-<h5><b> Jawalakhel , Lalitpur</b></h5></center>
+<h5><b>{{ADDRESS}}</b></h5></center>
 <br><br><div style="width:100%;text-align:right;"font-size:12px">Date: {{TODAY_DATE}}</div>
 <br><br>To,<br>
 The Branch Manager,<br>
@@ -187,9 +187,9 @@ For Bank Information :
                     </tr>
                 </table>
 <br>
-<b> Jawalakhel, Lalitpur
-<br>
-{{COMPANY_NAME}}</b>
+<b>{{COMPANY_NAME}}
+<br>{{ADDRESS}}
+</b>
                 </div>`;
 
         //        console.log(repTemplate);
@@ -227,12 +227,10 @@ For Bank Information :
                         response.data['FISCAL_YEAR_NAME'] = response.data.employees[index]['FISCAL_YEAR_NAME'];
 
                     });
-                    if (response.companyDetail == null) {
-                        response.data['COMPANY_NAME'] = "Jawalakhel Group of Industries";
-                    } else {
-                        response.data['COMPANY_NAME'] = response.companyDetail[0]['COMPANY_NAME'];
-                    }
-                    response.data['TOTAL'] = tempTotal.toLocaleString('en-IN',{ minimumFractionDigits: 2 });
+
+                    response.data['COMPANY_NAME'] = (response.companyDetail[0]) ? response.companyDetail[0]['COMPANY_NAME'] : response.preference['companyAddress'];
+                    response.data['ADDRESS'] = (response.companyDetail[0]) ? response.companyDetail[0]['ADDRESS'] : response.preference['companyAddress'];
+                    response.data['TOTAL'] = tempTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
                     console.log(response.data.employees);
                     var mustHtml = Mustache.to_html(repTemplate, response.data);
                     $('#table').html(mustHtml);

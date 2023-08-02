@@ -40,14 +40,18 @@ class Payroll extends HrisController
                 $postedData = $request->getPost();
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
-
-                //                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneBy([
-                //                    SalarySheetEmpDetail::MONTH_ID => $postedData['monthId'],
-                //                    SalarySheetEmpDetail::EMPLOYEE_ID => $postedData['employeeId']
-                //                ]);
-                // echo '<pre>';print_r($data['emp-detail']);die;
+                if ($postedData['exchangeRate'] == 1) {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                } else {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                    foreach ($data['pay-detail'] as &$row) {
+                        $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
+                        $val = str_replace(',', '', $row['VAL']);
+                        $result = $val * $exchangeRate['EXCHANGE_RATE'];
+                        $row['VAL'] = number_format($result, 2, '.', ',');
+                    }
+                }
                 return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);

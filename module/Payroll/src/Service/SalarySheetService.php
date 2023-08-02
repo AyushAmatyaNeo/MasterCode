@@ -94,7 +94,7 @@ class SalarySheetService {
         return $data == null ? null : $data[SalarySheetModel::SHEET_NO];
     }
 
-    public function newSalarySheet($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId) {
+    public function newSalarySheet($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId,$exchangeRate) {
         $sheetNo = $this->findSalarySheetNo($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId,$salaryTypeId);
         if ($sheetNo != null) {
             return $sheetNo;
@@ -112,7 +112,8 @@ class SalarySheetService {
         $salarySheetModal->companyId = $companyId;
         $salarySheetModal->groupId = $groupId;
         $salarySheetModal->salaryTypeId = $salaryTypeId;
-
+        $salarySheetModal->exchangeRate = $exchangeRate;
+        // echo '<pre>';print_r($salarySheetModal);die;
         $this->salarySheetRepo->add($salarySheetModal);
         return $salarySheetModal->sheetNo;
     }

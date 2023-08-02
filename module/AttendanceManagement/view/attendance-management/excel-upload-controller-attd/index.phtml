@@ -1,0 +1,78 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('assets/global/plugins/js-xlsx-master/dist/xlsx.full.min.js'))
+        ->appendFile($this->basePath('js/AttendanceManagement/excel-upload-attd/index.js'));
+?>
+
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<script>
+    document.insertAttendanceLink = '<?php echo $this->url("excelUploadAttd", ["action" => "insertAttendance"]); ?>';
+    document.acl =<?php echo json_encode($acl); ?>;
+</script>
+
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\flatValue')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div>
+    <div class="row">
+        <div class="col-sm-12 ">
+            <div class="portlet light bg-inverse">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="icon-paper-plane font-green-haze"></i>
+                        <span class="caption-subject bold font-green-haze uppercase"> Import From Excel</span>
+                    </div>
+                </div>
+                <div class="portlet-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label>Browse File:
+                            <input type="file" name="excelImport" id="excelImport">
+                            </label>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="row">
+                                <span>Based On:</span>
+                                <div class="col-sm-12">
+                                    <label>Employee Id</label>
+                                    <input type="radio" name="basedOn" checked="checked" id="employeeIdBased">
+                                </div>
+                                <div class="col-sm-12">
+                                    <label>Employee Code</label>
+                                    <input type="radio" name="basedOn" id="employeeCodeBased">
+                                </div>
+                                <div class="col-sm-12">
+                                    <label>Hikvision Excel</label>
+                                    <input type="radio" name="basedOn" id="hikvision">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <input type="button" name="submit" id="submit" value="Submit" class="btn btn-primary">
+                        </div>
+                        <div class="col-sm-10" style="margin-top:20px;">
+                            <p>Excel file should contain: <span style="color: green;">Employee ID/CODE, Name, Attendance Date (YYYY-MM-DD), In time (HH:MI AM), Out time </span>as in table below</p>
+                            <p style="color: blue;">Please put Single quote ' infront of attendance date, in-time and out-time in excel file </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="table"></div>
+
+
+

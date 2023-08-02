@@ -97,15 +97,20 @@ class SalarySheetController extends HrisController
         if ($this->acl['CONTROL_VALUES']) {
             if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
                 $companyId = $this->acl['CONTROL_VALUES'][0]['VAL'];
-                // echo '<pre>';print_r($valuesinCSV);die;
+                // echo '<pre>';
+                // print_r('ajnsd');
+                // die;
                 $salarySheetList = $salarySheetController->viewSalarySheetByGroupSheet($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId);
             } else {
             }
         } else {
+
             $companyId = 0;
             $salarySheetList = $salarySheetController->viewSalarySheetByGroupSheet($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId);
         }
-
+        // echo '<pre>';
+        // print_r($salarySheetList);
+        // die;
         return new JsonModel(['success' => true, 'data' => $salarySheetList, 'error' => '']);
     }
 
@@ -118,12 +123,11 @@ class SalarySheetController extends HrisController
             $request = $this->getRequest();
             $data = $request->getPost();
             $stage = $data['stage'];
-            if($data['overtime']!=null){
-                foreach ($data['empList'] as $empId){
-                    $this->salarySheetRepo->updateOtValue($data,$empId);
+            if ($data['overtime'] != null) {
+                foreach ($data['empList'] as $empId) {
+                    $this->salarySheetRepo->updateOtValue($data, $empId);
                 }
             }
-            // echo '<pre>';print_r($data);die;
             $returnData = null;
             switch ($stage) {
                 case 1:
@@ -136,6 +140,8 @@ class SalarySheetController extends HrisController
                     $groupIdList = $data['groupId'];
                     $salaryTypeId = $data['salaryTypeId'];
                     $empList = $data['empList'];
+                    $exchangeRate = $data['exchangeRate'];
+
                     /*  */
                     /*  */
                     $returnData = [];
@@ -149,7 +155,7 @@ class SalarySheetController extends HrisController
                     //                        foreach ($groupIdList as $groupId) {
                     foreach ($groupToGenerate as $groupId) {
                         $companyId = $this->salarySheetRepo->fetchCompanyByGroup($groupId);
-                        $sheetNo = $salarySheet->newSalarySheet($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId, $salaryTypeId);
+                        $sheetNo = $salarySheet->newSalarySheet($monthId, $year, $monthNo, $fromDate, $toDate, $companyId, $groupId, $salaryTypeId, $exchangeRate);
                         $this->salarySheetRepo->generateSalShReport($sheetNo);
                         //                            $salarySheetDetailRepo->delete($sheetNo);
                         //                            $taxSheetRepo->delete($sheetNo);
@@ -162,7 +168,7 @@ class SalarySheetController extends HrisController
                         $data['employeeList'] = $employeeList;
                         array_push($returnData, $data);
                     }
-                    //                    }
+                    //echo '<pre>';print_r($returnData);die;
                     break;
                 case 2:
 
@@ -171,9 +177,7 @@ class SalarySheetController extends HrisController
                     $sheetNo = $data['sheetNo'];
                     $payrollGenerator = new PayrollGenerator($this->adapter);
                     $returnData = $payrollGenerator->generate($employeeId, $monthId, $sheetNo);
-                    // echo '<pre>';
-                    // print_r($returnData);
-                    // die;
+
                     $salarySheetDetail = new SalarySheetDetail();
                     $salarySheetDetail->sheetNo = $sheetNo;
                     $salarySheetDetail->employeeId = $employeeId;
@@ -216,9 +220,9 @@ class SalarySheetController extends HrisController
             $employeeId = $data['employeeId'];
             $monthId = $data['monthId'];
             $sheetNo = $data['sheetNo'];
-            if($data['overtime']!=null){
-            //    echo '<pre>'; print_r($data['employeeId']);die;
-                    $this->salarySheetRepo->updateOtValue($data,$data['employeeId']);
+            if ($data['overtime'] != null) {
+                //    echo '<pre>'; print_r($data['employeeId']);die;
+                $this->salarySheetRepo->updateOtValue($data, $data['employeeId']);
             }
             $checkData = $this->salarySheetRepo->checkApproveLock($sheetNo);
             if ($checkData[0]['LOCKED'] == 'Y' || $checkData[0]['APPROVED'] == 'Y') {
@@ -338,9 +342,18 @@ class SalarySheetController extends HrisController
                 $postedData = $request->getPost();
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetails($postedData['monthId'], $postedData['employeeId']);
-                //echo '<pre>';print_r($data);die;
+                if ($postedData['exchangeRate'] == 1) {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                } else {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                    foreach ($data['pay-detail'] as &$row) {
+                        $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
+                        $val = str_replace(',', '', $row['VAL']);
+                        $result = $val * $exchangeRate['EXCHANGE_RATE'];
+                        $row['VAL'] = number_format($result, 2, '.', ',');
+                    }
+                }
                 return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -703,5 +716,23 @@ class SalarySheetController extends HrisController
             $searchValues = EntityHelper::getSearchDataCompanyWise($this->adapter, false, null);
         }
         return new JsonModel(['success' => true, 'data' => $searchValues, 'error' => '']);
+    }
+
+    public function getExchangeRateAction()
+    {
+        try {
+            $request = $this->getRequest();
+            if ($request->isPost()) {
+                $postedData = $request->getPost();
+                $monthId = $postedData['monthId'];
+                $data = $this->salarySheetRepo->fetchExchangeRateVal($monthId);
+                return new JsonModel(['success' => true, 'data' => $data['EXCHANGE_RATE'], 'error' => '']);
+                // return new CustomViewModel(['success' => true, 'data' => $error, 'error' => '']);
+            } else {
+                throw new Exception("The request should be of type post");
+            }
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
     }
 }

@@ -25,14 +25,16 @@ use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class EmployeeRepository extends HrisRepository implements RepositoryInterface {
+class EmployeeRepository extends HrisRepository implements RepositoryInterface
+{
 
     private $vdcGateway;
     private $districtGateway;
     private $zoneGateway;
     private $provinceGateway;
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         parent::__construct($adapter, HrEmployees::TABLE_NAME);
         $this->vdcGateway = new TableGateway('HRIS_VDC_MUNICIPALITIES', $adapter);
         $this->districtGateway = new TableGateway('HRIS_DISTRICTS', $adapter);
@@ -40,7 +42,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $this->provinceGateway = new TableGateway('HRIS_PROVINCES', $adapter);
     }
 
-    public function fetchAll() {
+    public function fetchAll()
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->from("HRIS_EMPLOYEES");
@@ -61,7 +64,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $tempArray;
     }
 
-    public function fetchSubstituteEmployees($employeeId = null, $excludeSelf = false, $excludeRecAndApp = false) {
+    public function fetchSubstituteEmployees($employeeId = null, $excludeSelf = false, $excludeRecAndApp = false)
+    {
         die();
         $condition = " WHERE 1=1 ";
         if ($employeeId != null && $excludeSelf && !$excludeRecAndApp) {
@@ -83,7 +87,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         exit;
     }
 
-    public function fetchAllForAttendance() {
+    public function fetchAllForAttendance()
+    {
         $sql = "SELECT E.* FROM HRIS_EMPLOYEES E
         JOIN HRIS_EMPLOYEE_SHIFT_ASSIGN ESA ON (E.EMPLOYEE_ID=ESA.EMPLOYEE_ID) JOIN HRIS_SHIFTS S ON (ESA.SHIFT_ID=S.SHIFT_ID) 
         WHERE  
@@ -108,71 +113,75 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $tempArray;
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $rowset = $this->tableGateway->select(function (Select $select) use ($id) {
             $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(HrEmployees::class, [HrEmployees::FULL_NAME, HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [
-                        HrEmployees::BIRTH_DATE,
-                        HrEmployees::FAM_SPOUSE_BIRTH_DATE,
-                        HrEmployees::FAM_SPOUSE_WEDDING_ANNIVERSARY,
-                        HrEmployees::ID_DRIVING_LICENCE_EXPIRY,
-                        HrEmployees::ID_CITIZENSHIP_ISSUE_DATE,
-                        HrEmployees::ID_PASSPORT_EXPIRY,
-                        HrEmployees::JOIN_DATE,
-                        HrEmployees::PERMANENT_DATE,
-                        HrEmployees::GRATUITY_DATE
-                    ]), false);
+                HrEmployees::BIRTH_DATE,
+                HrEmployees::FAM_SPOUSE_BIRTH_DATE,
+                HrEmployees::FAM_SPOUSE_WEDDING_ANNIVERSARY,
+                HrEmployees::ID_DRIVING_LICENCE_EXPIRY,
+                HrEmployees::ID_CITIZENSHIP_ISSUE_DATE,
+                HrEmployees::ID_PASSPORT_EXPIRY,
+                HrEmployees::JOIN_DATE,
+                HrEmployees::PERMANENT_DATE,
+                HrEmployees::GRATUITY_DATE
+            ]), false);
             $select->where(['EMPLOYEE_ID' => $id]);
         });
+
         return $rowset->current();
     }
 
-    public function getById($id) {
+    public function getById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $E = 'E';
         $columns = EntityHelper::getColumnNameArrayWithOracleFns(HrEmployees::class, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME, HrEmployees::FULL_NAME], [
-                    HrEmployees::BIRTH_DATE,
-                    HrEmployees::FAM_SPOUSE_BIRTH_DATE,
-                    HrEmployees::FAM_SPOUSE_WEDDING_ANNIVERSARY,
-                    HrEmployees::ID_DRIVING_LICENCE_EXPIRY,
-                    HrEmployees::ID_CITIZENSHIP_ISSUE_DATE,
-                    HrEmployees::ID_PASSPORT_EXPIRY,
-                    HrEmployees::JOIN_DATE
-                        ], NULL, NULL, NULL, $E);
+            HrEmployees::BIRTH_DATE,
+            HrEmployees::FAM_SPOUSE_BIRTH_DATE,
+            HrEmployees::FAM_SPOUSE_WEDDING_ANNIVERSARY,
+            HrEmployees::ID_DRIVING_LICENCE_EXPIRY,
+            HrEmployees::ID_CITIZENSHIP_ISSUE_DATE,
+            HrEmployees::ID_PASSPORT_EXPIRY,
+            HrEmployees::JOIN_DATE
+        ], NULL, NULL, NULL, $E);
         $select->columns($columns, false);
 
         $select->from(['E' => HrEmployees::TABLE_NAME]);
         $select
-                ->join(['B' => Branch::TABLE_NAME], "E." . HrEmployees::BRANCH_ID . "=B." . Branch::BRANCH_ID, ['BRANCH_NAME' => new Expression('(B.BRANCH_NAME)')], 'left')
-                ->join(['C' => Company::TABLE_NAME], "E." . HrEmployees::COMPANY_ID . "=C." . Company::COMPANY_ID, ['COMPANY_NAME' => new Expression('(C.COMPANY_NAME)')], 'left')
-                ->join(['G' => Gender::TABLE_NAME], "E." . HrEmployees::GENDER_ID . "=G." . Gender::GENDER_ID, ['GENDER_NAME' => new Expression('INITCAP(G.GENDER_NAME)')], 'left')
-                ->join(['BG' => "HRIS_BLOOD_GROUPS"], "E." . HrEmployees::BLOOD_GROUP_ID . "=BG.BLOOD_GROUP_ID", ['BLOOD_GROUP_CODE'], 'left')
-                ->join(['RG' => "HRIS_RELIGIONS"], "E." . HrEmployees::RELIGION_ID . "=RG.RELIGION_ID", ['RELIGION_NAME' => new Expression('INITCAP(RG.RELIGION_NAME)')], 'left')
-                ->join(['CN' => "HRIS_COUNTRIES"], "E." . HrEmployees::COUNTRY_ID . "=CN.COUNTRY_ID", ['COUNTRY_NAME' => new Expression('INITCAP(CN.COUNTRY_NAME)')], 'left')
-                ->join(['VM' => "HRIS_VDC_MUNICIPALITIES"], "E." . HrEmployees::ADDR_PERM_VDC_MUNICIPALITY_ID . "=VM.VDC_MUNICIPALITY_ID", ['VDC_MUNICIPALITY_NAME' => new Expression('INITCAP(VM.VDC_MUNICIPALITY_NAME)')], 'left')
-                ->join(['DI' => "HRIS_DISTRICTS"], "to_char(E." . HrEmployees::ID_CITIZENSHIP_ISSUE_PLACE . ")=to_char(DI.DISTRICT_ID)", ['CITIZENSHIP_ISSUE_PLACE' =>
-                    new Expression('case when regexp_like(ID_CITIZENSHIP_ISSUE_PLACE, \'^\d+(\.\d+)?$\') 
+            ->join(['B' => Branch::TABLE_NAME], "E." . HrEmployees::BRANCH_ID . "=B." . Branch::BRANCH_ID, ['BRANCH_NAME' => new Expression('(B.BRANCH_NAME)')], 'left')
+            ->join(['C' => Company::TABLE_NAME], "E." . HrEmployees::COMPANY_ID . "=C." . Company::COMPANY_ID, ['COMPANY_NAME' => new Expression('(C.COMPANY_NAME)')], 'left')
+            ->join(['G' => Gender::TABLE_NAME], "E." . HrEmployees::GENDER_ID . "=G." . Gender::GENDER_ID, ['GENDER_NAME' => new Expression('INITCAP(G.GENDER_NAME)')], 'left')
+            ->join(['BG' => "HRIS_BLOOD_GROUPS"], "E." . HrEmployees::BLOOD_GROUP_ID . "=BG.BLOOD_GROUP_ID", ['BLOOD_GROUP_CODE'], 'left')
+            ->join(['RG' => "HRIS_RELIGIONS"], "E." . HrEmployees::RELIGION_ID . "=RG.RELIGION_ID", ['RELIGION_NAME' => new Expression('INITCAP(RG.RELIGION_NAME)')], 'left')
+            ->join(['CN' => "HRIS_COUNTRIES"], "E." . HrEmployees::COUNTRY_ID . "=CN.COUNTRY_ID", ['COUNTRY_NAME' => new Expression('INITCAP(CN.COUNTRY_NAME)')], 'left')
+            ->join(['VM' => "HRIS_VDC_MUNICIPALITIES"], "E." . HrEmployees::ADDR_PERM_VDC_MUNICIPALITY_ID . "=VM.VDC_MUNICIPALITY_ID", ['VDC_MUNICIPALITY_NAME' => new Expression('INITCAP(VM.VDC_MUNICIPALITY_NAME)')], 'left')
+            ->join(['DI' => "HRIS_DISTRICTS"], "to_char(E." . HrEmployees::ID_CITIZENSHIP_ISSUE_PLACE . ")=to_char(DI.DISTRICT_ID)", ['CITIZENSHIP_ISSUE_PLACE' =>
+            new Expression('case when regexp_like(ID_CITIZENSHIP_ISSUE_PLACE, \'^\d+(\.\d+)?$\') 
                         then di.district_name
                         else ID_CITIZENSHIP_ISSUE_PLACE
                         end')], 'left')
-                ->join(['VM1' => "HRIS_VDC_MUNICIPALITIES"], "E." . HrEmployees::ADDR_TEMP_VDC_MUNICIPALITY_ID . "=VM1.VDC_MUNICIPALITY_ID", ['VDC_MUNICIPALITY_NAME_TEMP' => 'VDC_MUNICIPALITY_NAME'], 'left')
-                ->join(['D1' => Department::TABLE_NAME], "E." . HrEmployees::DEPARTMENT_ID . "=D1." . Department::DEPARTMENT_ID, ['DEPARTMENT_NAME' => new Expression('(D1.DEPARTMENT_NAME)')], 'left')
-                ->join(['DES1' => Designation::TABLE_NAME], "E." . HrEmployees::DESIGNATION_ID . "=DES1." . Designation::DESIGNATION_ID, ['DESIGNATION_TITLE' => new Expression('(DES1.DESIGNATION_TITLE)')], 'left')
-                ->join(['P1' => Position::TABLE_NAME], "E." . HrEmployees::POSITION_ID . "=P1." . Position::POSITION_ID, ['POSITION_NAME' => new Expression('(P1.POSITION_NAME)'), "LEVEL_NO" => "P1.LEVEL_NO"], 'left')
-                ->join(['S1' => ServiceType::TABLE_NAME], "E." . HrEmployees::SERVICE_TYPE_ID . "=S1." . ServiceType::SERVICE_TYPE_ID, ['SERVICE_TYPE_NAME' => new Expression('INITCAP(S1.SERVICE_TYPE_NAME)')], 'left')
-                ->join(['SE1' => ServiceEventType::TABLE_NAME], "E." . HrEmployees::SERVICE_EVENT_TYPE_ID . "=SE1." . ServiceEventType::SERVICE_EVENT_TYPE_ID, ['SERVICE_EVENT_TYPE_NAME' => new Expression('INITCAP(SE1.SERVICE_EVENT_TYPE_NAME)')], 'left');
+            ->join(['VM1' => "HRIS_VDC_MUNICIPALITIES"], "E." . HrEmployees::ADDR_TEMP_VDC_MUNICIPALITY_ID . "=VM1.VDC_MUNICIPALITY_ID", ['VDC_MUNICIPALITY_NAME_TEMP' => 'VDC_MUNICIPALITY_NAME'], 'left')
+            ->join(['D1' => Department::TABLE_NAME], "E." . HrEmployees::DEPARTMENT_ID . "=D1." . Department::DEPARTMENT_ID, ['DEPARTMENT_NAME' => new Expression('(D1.DEPARTMENT_NAME)')], 'left')
+            ->join(['DES1' => Designation::TABLE_NAME], "E." . HrEmployees::DESIGNATION_ID . "=DES1." . Designation::DESIGNATION_ID, ['DESIGNATION_TITLE' => new Expression('(DES1.DESIGNATION_TITLE)')], 'left')
+            ->join(['P1' => Position::TABLE_NAME], "E." . HrEmployees::POSITION_ID . "=P1." . Position::POSITION_ID, ['POSITION_NAME' => new Expression('(P1.POSITION_NAME)'), "LEVEL_NO" => "P1.LEVEL_NO"], 'left')
+            ->join(['S1' => ServiceType::TABLE_NAME], "E." . HrEmployees::SERVICE_TYPE_ID . "=S1." . ServiceType::SERVICE_TYPE_ID, ['SERVICE_TYPE_NAME' => new Expression('INITCAP(S1.SERVICE_TYPE_NAME)')], 'left')
+            ->join(['SE1' => ServiceEventType::TABLE_NAME], "E." . HrEmployees::SERVICE_EVENT_TYPE_ID . "=SE1." . ServiceEventType::SERVICE_EVENT_TYPE_ID, ['SERVICE_EVENT_TYPE_NAME' => new Expression('INITCAP(SE1.SERVICE_EVENT_TYPE_NAME)')], 'left');
         $select->where(["E." . HrEmployees::EMPLOYEE_ID => $id]);
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         return $result->current();
     }
 
-    public function fetchForProfileById($employeeId, $date = null) {
+    public function fetchForProfileById($employeeId, $date = null)
+    {
         $boundedParams = [];
         $boundedParams['employeeId'] = $employeeId;
         $boundedParams['date'] = $date;
-        $dateOn =  'TRUNC(SYSDATE)' ;
-        if($date != null) {
+        $dateOn =  'TRUNC(SYSDATE)';
+        if ($date != null) {
             $dateOn = ':date';
         }
         $sql = "SELECT EH.*,
@@ -352,7 +361,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $employeeData = $model->getArrayCopyForDB();
         // for hr with empower nbb bank start
         $employeeData['EMPLOYEE_STATUS'] = 'Working';
@@ -360,7 +370,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $this->tableGateway->insert($employeeData);
     }
 
-    public function delete($model) {
+    public function delete($model)
+    {
         $sql = "UPDATE HRIS_EMPLOYEES SET 
                 REMARKS=REMARKS||' THUMB_ID='||ID_THUMB_ID,
                 ID_THUMB_ID=NULL,
@@ -370,21 +381,23 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
                 WHERE EMPLOYEE_ID={$model->employeeId}";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
-//        $this->tableGateway->update(['STATUS' => 'D', 'DELETED_DATE' => $model->deletedDate, 'DELETED_BY' => $model->deletedBy], ['EMPLOYEE_ID' => $model->employeeId]);
+        //        $this->tableGateway->update(['STATUS' => 'D', 'DELETED_DATE' => $model->deletedDate, 'DELETED_BY' => $model->deletedBy], ['EMPLOYEE_ID' => $model->employeeId]);
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
         $tempArray = $model->getArrayCopyForDB();
-        if($tempArray['WOH_FLAG'] == null){
+        if ($tempArray['WOH_FLAG'] == null) {
             $tempArray['WOH_FLAG'] = $this->getWohRewardFromPosition($tempArray['POSITION_ID'])['WOH_FLAG'];
         }
         $this->tableGateway->update($tempArray, ['EMPLOYEE_ID' => $id]);
     }
 
-    public function getWohRewardFromPosition($positionId) {
+    public function getWohRewardFromPosition($positionId)
+    {
         $boundedParams = [];
         $boundedParams['positionId'] = $positionId;
-        if($positionId == null){
+        if ($positionId == null) {
             return;
         }
 
@@ -397,7 +410,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function branchEmpCount() {
+    public function branchEmpCount()
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
 
@@ -410,7 +424,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $statement->execute();
     }
 
-    public function filterRecords($employeeId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $getResult = null, $companyId = null, $employeeTypeId = null) {
+    public function filterRecords($employeeId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $getResult = null, $companyId = null, $employeeTypeId = null)
+    {
         $boundedParams = [];
         $condition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $boundedParams = array_merge($boundedParams, $condition['parameter']);
@@ -590,7 +605,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function fetchBy($by) {
+    public function fetchBy($by)
+    {
         $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
         $columIfSynergy = "";
         $joinIfSyngery = "";
@@ -600,9 +616,9 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
                 ON(FCAS.ACC_CODE=E.ID_ACC_CODE AND C.COMPANY_CODE=FCAS.COMPANY_CODE)";
         }
 
-        $boundedParameter=[];
+        $boundedParameter = [];
         $condition = EntityHelper::getSearchConditonBounded($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
-        $boundedParameter=array_merge($boundedParameter,$condition['parameter']);
+        $boundedParameter = array_merge($boundedParameter, $condition['parameter']);
         $sql = "SELECT 
             {$columIfSynergy}
                 E.ID_ACCOUNT_NO  AS ID_ACCOUNT_NO,
@@ -743,16 +759,17 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
                 WHERE 1                 =1 AND E.STATUS='E' 
                 {$condition['sql']}
                 {$orderByString}";
-                
+        //    echo '<pre>';print_r($sql);  
         return $this->rawQuery($sql, $boundedParameter);
     }
 
-    public function getEmployeeListOfBirthday() {
+    public function getEmployeeListOfBirthday()
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(HrEmployees::class, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [
-                    HrEmployees::BIRTH_DATE
-                ]), false);
+            HrEmployees::BIRTH_DATE
+        ]), false);
 
         $select->from("HRIS_EMPLOYEES");
         $select->where(["STATUS='E' AND RETIRED_FLAG='N'"]);
@@ -771,22 +788,26 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $employeeList;
     }
 
-    public function getVdcMunicipalityDtl($id) {
+    public function getVdcMunicipalityDtl($id)
+    {
         $result = $this->vdcGateway->select(['VDC_MUNICIPALITY_ID' => $id]);
         return $result->current();
     }
 
-    public function getDistrictDtl($id) {
+    public function getDistrictDtl($id)
+    {
         $result = $this->districtGateway->select(['DISTRICT_ID' => $id]);
         return $result->current();
     }
 
-    public function getZoneDtl($id) {
+    public function getZoneDtl($id)
+    {
         $result = $this->zoneGateway->select(['ZONE_ID' => $id]);
         return $result->current();
     }
-    
-    public function getProvinceDtl($id) {
+
+    public function getProvinceDtl($id)
+    {
         $boundedParams = [];
         $sql = "SELECT P1.PROVINCE_NAME AS PERM_PROVINCE,
                 P2.PROVINCE_NAME AS TEMP_PROVINCE
@@ -799,36 +820,38 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $boundedParams['id'] = $id;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
-        
+
         return $result->current();
     }
 
-    public function fetchByEmployeeTypeWidShift($employeeType, $currentDate = null) {
+    public function fetchByEmployeeTypeWidShift($employeeType, $currentDate = null)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(HrEmployees::class, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [
-                    HrEmployees::BIRTH_DATE
-                        ], null, null, null, 'E'), false);
+            HrEmployees::BIRTH_DATE
+        ], null, null, null, 'E'), false);
         $select->from(['E' => "HRIS_EMPLOYEES"])
-                ->join(['SA' => ShiftAssign::TABLE_NAME], "E." . HrEmployees::EMPLOYEE_ID . "=SA." . ShiftAssign::EMPLOYEE_ID, ['EMPLOYEE_ID', 'SHIFT_ID'], 'left')
-                ->join(['S' => ShiftSetup::TABLE_NAME], "SA." . ShiftAssign::SHIFT_ID . "=S." . ShiftSetup::SHIFT_ID, ['SHIFT_CODE',
-                    'SHIFT_ENAME' => new Expression('INITCAP(S.SHIFT_ENAME)'),
-                    'SHIFT_LNAME' => new Expression('INITCAP(S.SHIFT_LNAME)'),
-                    'START_DATE' => new Expression("INITCAP(TO_CHAR(S.START_DATE, 'DD-MON-YYYY'))"),
-                    'END_DATE' => new Expression("INITCAP(TO_CHAR(S.END_DATE, 'DD-MON-YYYY'))"),
-                    'START_TIME' => new Expression("TO_CHAR(S.START_TIME, 'HH:MI AM')"),
-                    'END_TIME' => new Expression("TO_CHAR(S.END_TIME, 'HH:MI AM')"),
-                    'HALF_TIME' => new Expression("TO_CHAR(S.HALF_TIME, 'HH:MI AM')"),
-                    'HALF_DAY_END_TIME' => new Expression("TO_CHAR(S.HALF_DAY_END_TIME, 'HH:MI AM')"),
-                    'LATE_IN' => new Expression("TO_CHAR(S.LATE_IN, 'HH24:MI')"),
-                    'EARLY_OUT' => new Expression("TO_CHAR(S.EARLY_OUT, 'HH24:MI')"),
-                    'TOTAL_WORKING_HR' => new Expression("TO_CHAR(S.TOTAL_WORKING_HR, 'HH24:MI')"),
-                    'ACTUAL_WORKING_HR' => new Expression("TO_CHAR(S.ACTUAL_WORKING_HR, 'HH24:MI')"),
-                        ], 'left')
-                ->join(['AD' => AttendanceDetail::TABLE_NAME], "E." . HrEmployees::EMPLOYEE_ID . "=AD." . AttendanceDetail::EMPLOYEE_ID, [
-                    'IN_TIME' => new Expression("TO_CHAR(AD.IN_TIME, 'HH:MI AM')"),
-                    'OUT_TIME' => new Expression("TO_CHAR(AD.OUT_TIME, 'HH:MI AM')"),
-                        ], "left");
+            ->join(['SA' => ShiftAssign::TABLE_NAME], "E." . HrEmployees::EMPLOYEE_ID . "=SA." . ShiftAssign::EMPLOYEE_ID, ['EMPLOYEE_ID', 'SHIFT_ID'], 'left')
+            ->join(['S' => ShiftSetup::TABLE_NAME], "SA." . ShiftAssign::SHIFT_ID . "=S." . ShiftSetup::SHIFT_ID, [
+                'SHIFT_CODE',
+                'SHIFT_ENAME' => new Expression('INITCAP(S.SHIFT_ENAME)'),
+                'SHIFT_LNAME' => new Expression('INITCAP(S.SHIFT_LNAME)'),
+                'START_DATE' => new Expression("INITCAP(TO_CHAR(S.START_DATE, 'DD-MON-YYYY'))"),
+                'END_DATE' => new Expression("INITCAP(TO_CHAR(S.END_DATE, 'DD-MON-YYYY'))"),
+                'START_TIME' => new Expression("TO_CHAR(S.START_TIME, 'HH:MI AM')"),
+                'END_TIME' => new Expression("TO_CHAR(S.END_TIME, 'HH:MI AM')"),
+                'HALF_TIME' => new Expression("TO_CHAR(S.HALF_TIME, 'HH:MI AM')"),
+                'HALF_DAY_END_TIME' => new Expression("TO_CHAR(S.HALF_DAY_END_TIME, 'HH:MI AM')"),
+                'LATE_IN' => new Expression("TO_CHAR(S.LATE_IN, 'HH24:MI')"),
+                'EARLY_OUT' => new Expression("TO_CHAR(S.EARLY_OUT, 'HH24:MI')"),
+                'TOTAL_WORKING_HR' => new Expression("TO_CHAR(S.TOTAL_WORKING_HR, 'HH24:MI')"),
+                'ACTUAL_WORKING_HR' => new Expression("TO_CHAR(S.ACTUAL_WORKING_HR, 'HH24:MI')"),
+            ], 'left')
+            ->join(['AD' => AttendanceDetail::TABLE_NAME], "E." . HrEmployees::EMPLOYEE_ID . "=AD." . AttendanceDetail::EMPLOYEE_ID, [
+                'IN_TIME' => new Expression("TO_CHAR(AD.IN_TIME, 'HH:MI AM')"),
+                'OUT_TIME' => new Expression("TO_CHAR(AD.OUT_TIME, 'HH:MI AM')"),
+            ], "left");
         if ($currentDate != null) {
             $startDate = " AND TO_DATE('" . $currentDate . "','DD-MON-YYYY') >= S.START_DATE AND TO_DATE('" . $currentDate . "','DD-MON-YYYY') <= S.END_DATE";
         } else {
@@ -837,22 +860,25 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $select->where(["E.STATUS='E' AND E.RETIRED_FLAG='N' AND S.STATUS='E' AND SA.STATUS='E'", "E." . HrEmployees::EMPLOYEE_TYPE . "='" . $employeeType . "'" . $startDate]);
         $select->where([AttendanceDetail::ATTENDANCE_DT . "=TO_DATE('" . $currentDate . "','DD-MON-YYYY')"]);
         $statement = $sql->prepareStatementForSqlObject($select);
-//        print_r($statement->getSql()); die();
+        //        print_r($statement->getSql()); die();
         $result = $statement->execute();
         return $result;
     }
 
-    public function fetchByAdminFlag() {
+    public function fetchByAdminFlag()
+    {
         $result = $this->tableGateway->select(["IS_ADMIN='Y'"]);
         return $result->current()->getArrayCopy();
     }
 
-    public function fetchByAdminFlagList() {
+    public function fetchByAdminFlagList()
+    {
         $result = $this->tableGateway->select(["IS_ADMIN='Y' AND STATUS='E'"]);
         return $result;
     }
 
-    public function fetchEmployeeFullNameList() {
+    public function fetchEmployeeFullNameList()
+    {
         $sql = "
             SELECT EMPLOYEE_ID AS EMPLOYEE_ID,
               INITCAP(CONCAT(CONCAT(CONCAT(LOWER(TRIM(FIRST_NAME)),' '),
@@ -868,7 +894,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return Helper::extractDbData($raw);
     }
 
-    public function vdcStringToId($districtId, $vdc) {
+    public function vdcStringToId($districtId, $vdc)
+    {
         $boundedParams = [];
         if (!isset($districtId) || $districtId == null || !isset($vdc) || $vdc == null) {
             return null;
@@ -893,7 +920,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function vdcIdToString($id) {
+    public function vdcIdToString($id)
+    {
         $boundedParams = [];
         if (!isset($id) || $id == null) {
             return null;
@@ -912,7 +940,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function fetchByHRFlagList() {
+    public function fetchByHRFlagList()
+    {
         $result = $this->tableGateway->select(["IS_HR='Y' AND STATUS='E'"]);
         $list = [];
         foreach ($result as $row) {
@@ -921,9 +950,10 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return (count($list) > 0) ? $list : [0];
     }
 
-    public function employeeDetailSession($id) {
+    public function employeeDetailSession($id)
+    {
         $boundedParams = [];
-        if(!$id){
+        if (!$id) {
             return [];
         }
         $sql = "
@@ -1073,7 +1103,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function setupEmployee($id) {
+    public function setupEmployee($id)
+    {
         $boundedParams = [];
         $sql = "BEGIN
                   HRIS_EMPLOYEE_SETUP_PROC(:id);
@@ -1083,7 +1114,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $statement->execute($boundedParams);
     }
 
-    public function updateJobHistory($employeeId) {
+    public function updateJobHistory($employeeId)
+    {
         $boundedParams = [];
         $sql = "BEGIN
                   HRIS_UPDATE_JOB_HISTORY(:employeeId);
@@ -1093,7 +1125,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $statement->execute($boundedParams);
     }
 
-    public function updateServiceStatus($data) {
+    public function updateServiceStatus($data)
+    {
         $boundedParams = [];
         $sql = "INSERT INTO HRIS_JOB_HISTORY (
                 JOB_HISTORY_ID,
@@ -1153,7 +1186,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         $statement->execute($boundedParams);
     }
 
-    public function fetchBankAccountList($companyCode = null): array {
+    public function fetchBankAccountList($companyCode = null): array
+    {
         $companyCode = ($companyCode == null) ? '01' : $companyCode;
         if ($this->checkIfTableExists("FA_CHART_OF_ACCOUNTS_SETUP")) {
             $sql = "SELECT ACC_CODE,
@@ -1170,7 +1204,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function fetchEmpowerCompany(): array {
+    public function fetchEmpowerCompany(): array
+    {
         if ($this->checkIfTableExists("COMPANY_SETUP")) {
             $sql = "select * from COMPANY_SETUP WHERE DELETED_FLAG='N'";
             return $this->rawQuery($sql);
@@ -1179,7 +1214,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function fetchEmpowerBranch($empowerCompanyCode): array {
+    public function fetchEmpowerBranch($empowerCompanyCode): array
+    {
         if ($this->checkIfTableExists("FA_BRANCH_SETUP")) {
             $sql = "SELECT * FROM FA_BRANCH_SETUP WHERE GROUP_SKU_FLAG='I' AND DELETED_FLAG='N' AND COMPANY_CODE='{$empowerCompanyCode}'";
             return $this->rawQuery($sql);
@@ -1188,21 +1224,24 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface {
         }
     }
 
-    public function checkIfTableExists($tableName): bool {
+    public function checkIfTableExists($tableName): bool
+    {
         return parent::checkIfTableExists($tableName);
     }
 
-    public function getCompanyCodeByEmpId($employeeId) {
+    public function getCompanyCodeByEmpId($employeeId)
+    {
         $boundedParams = [];
         $sql = "SELECT NVL(C.COMPANY_CODE,TO_CHAR(C.COMPANY_ID)) AS COMPANY_CODE FROM HRIS_EMPLOYEES E LEFT JOIN HRIS_COMPANY C ON (E.COMPANY_ID=C.COMPANY_ID) "
-                . "WHERE E.EMPLOYEE_ID= :employeeId";
+            . "WHERE E.EMPLOYEE_ID= :employeeId";
         $boundedParams['employeeId'] = $employeeId;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
         return $result->current();
     }
 
-    public function filterRecordsWithAR($employeeId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $getResult = null, $companyId = null, $employeeTypeId = null) {
+    public function filterRecordsWithAR($employeeId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $getResult = null, $companyId = null, $employeeTypeId = null)
+    {
         $boundedParams = [];
         $condition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $boundedParams = array_merge($boundedParams, $condition['parameter']);
@@ -1396,8 +1435,9 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
             return $tempArray;
         }
     }
-    
-    public function fetchResignedOrRetired($by) {
+
+    public function fetchResignedOrRetired($by)
+    {
         $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
         $columIfSynergy = "";
         $joinIfSyngery = "";
@@ -1540,11 +1580,12 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
                 WHERE 1=1 AND (E.RETIRED_FLAG = 'Y' OR E.RESIGNED_FLAG = 'Y' OR E.STATUS='D')
                 {$condition}
                 {$orderByString}";
-                
+
         return $this->rawQuery($sql);
     }
-    
-    public static function getSearchConditonforRetiredorResigned($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId = null, $locationId = null, $functionalTypeId = null) {
+
+    public static function getSearchConditonforRetiredorResigned($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId = null, $locationId = null, $functionalTypeId = null)
+    {
         $conditon = "";
         if ($companyId != null && $companyId != -1) {
             $conditon .= EntityHelper::conditionBuilder($companyId, "E.COMPANY_ID", "AND");
@@ -1574,7 +1615,7 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
         }
         if ($serviceTypeId != null && $serviceTypeId != -1) {
             $conditon .= EntityHelper::conditionBuilder($serviceTypeId, "E.SERVICE_TYPE_ID", "AND");
-        } 
+        }
         if ($serviceEventTypeId != null && $serviceEventTypeId != -1) {
             $conditon .= EntityHelper::conditionBuilder($serviceEventTypeId, "E.SERVICE_EVENT_TYPE_ID", "AND");
         }
@@ -1595,5 +1636,4 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
         }
         return $conditon;
     }
-
 }

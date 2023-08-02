@@ -20,6 +20,7 @@ class SalarySheet extends Model {
     const COMPANY_ID = "COMPANY_ID";
     const GROUP_ID = "GROUP_ID";
     const SALARY_TYPE_ID = "SALARY_TYPE_ID";
+    const EXCHANGE_RATE = "EXCHANGE_RATE";
 
     public $sheetNo;
     public $monthId;
@@ -34,6 +35,7 @@ class SalarySheet extends Model {
     public $companyId;
     public $groupId;
     public $salaryTypeId;
+    public $exchangeRate;
     public $mappings = [
         'sheetNo' => self::SHEET_NO,
         'monthId' => self::MONTH_ID,
@@ -48,6 +50,7 @@ class SalarySheet extends Model {
         'companyId' => self::COMPANY_ID,
         'groupId' => self::GROUP_ID,
         'salaryTypeId' => self::SALARY_TYPE_ID,
+        'exchangeRate' => self::EXCHANGE_RATE,
     ];
 
 }

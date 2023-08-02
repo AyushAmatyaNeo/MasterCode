@@ -5,6 +5,7 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
     document.getSearchDataLink = '<?php echo $this->url('salarySheet', ['action' => 'getSearchData']); ?>';
     document.salaryType =<?php echo $salaryType; ?>;
+    document.wsExchangeRate='<?php echo $this->url('salarySheet', ['action' => 'getExchangeRate']); ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -57,7 +58,20 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                 <select class="form-control" name="salaryType" id="salaryTypeId">
                 </select>
             </div>
-            <div class="col-sm-2 col-sm-offset-2">
+            <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
+                <label for="" class="radio-inline">
+                    <input type="radio" name="exchangeRate" value="1" checked>Dollar
+                </label>
+                <label for="" class="radio-inline">
+                    <input type="radio" name="exchangeRate" value="0">Nepali
+                </label>
+            </div>
+        </div>
+        <div  style="margin-top: 2rem;">
+            <div class="col-sm-2">
+                <input type="text" id="exchangeRateVal" disabled="disabled" class="form-control" placeholder="Exchange Rate" />
+            </div>
+            <div class="col-sm-2 col-sm-offset-7">
                 <button id="viewBtn" class="btn btn-info pull-right">View</button>
             </div>
         </div>
@@ -96,8 +110,8 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                 <tr>
                     <td>Position Name</td>
                     <td key="POSITION_NAME"></td>
-                    <td></td>
-                    <td> </td>
+                    <td>Exchange Rate</td>
+                    <td key="EXCHANGE_RATE"></td>
                 </tr>
             </table>
             <table class="table table-bordered">

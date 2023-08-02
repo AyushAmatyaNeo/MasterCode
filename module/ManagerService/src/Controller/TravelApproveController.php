@@ -108,8 +108,10 @@ class TravelApproveController extends HrisController {
             $action = $postedData['submit'];
             // if ((trim($detail['TRAVEL_TYPE']) == 'ITR') && $detail['REQUESTED_TYPE'] == 'ad') {
                     // echo '<pre>'; print_r($postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']]); die;
-             $this->makeDecision($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);//done for short time
-               // $this->makeDecision2($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks'] ], true);//3 level
+                if ($detail['REQUESTED_TYPE'] == 'ad') {
+                    // echo '<pre>'; print_r($postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']]); die;
+               $this->makeDecision($id, $role=3, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);//done for short time
+                // $this->makeDecision2($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks'] ], true);//3 level
                 // if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC') {
                 //     $this->makeDecision2($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks'] ], true);
                 // } elseif ($detail['STATUS'] == 'A2') {
@@ -118,18 +120,19 @@ class TravelApproveController extends HrisController {
                 //     $this->makeDecision4($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
                 // }else{
                 //     $this->makeDecision5($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
-                // }
-            // }
-            // else {
+                }
+            // }else {
             //     if ($detail['REQUESTED_TYPE'] == 'ep') {
             //         if(isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y'){
             //             $this->makeDecisionTravel($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
             //         }else{
-            //             $this->makeDecision($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
+
+                        // $this->makeDecision($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
             //         }
-            //     } else {
-            //         $this->makeDecision($id, $role, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
             //     }
+             else {
+                    $this->makeDecision($id, $role=4, $action, $postedData[$role == 2 ? $postedData['recommendedRemarks'] : $postedData['approvedRemarks']], true);
+                }
             // }
            
             return $this->redirect()->toRoute("travelApprove");
@@ -274,6 +277,7 @@ class TravelApproveController extends HrisController {
         $message = null;
         $model = new TravelRequest();
         $model->travelId = $id;
+        // echo '<pre>';print_r($role);die;
         switch ($role) {
             case 2:
                 // print_r('ab');die;

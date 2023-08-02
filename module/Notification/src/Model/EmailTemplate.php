@@ -4,7 +4,8 @@ namespace Notification\Model;
 
 use Application\Model\Model;
 
-class EmailTemplate extends Model {
+class EmailTemplate extends Model
+{
 
     const TABLE_NAME = "HRIS_EMAIL_TEMPLATE";
     const ID = "ID";
@@ -37,5 +38,4 @@ class EmailTemplate extends Model {
         'modifiedBy' => self::MODIFIED_BY,
         'modifiedDt' => self::MODIFIED_DT,
     ];
-
 }

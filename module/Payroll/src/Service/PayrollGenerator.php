@@ -66,7 +66,15 @@ class PayrollGenerator {
         "WL_LOAN_AMT",
         "WL_INTEREST_AMT",
         "SHL_LOAN_AMT",
-        "SHL_INTEREST_AMT"
+        "SHL_INTEREST_AMT",
+		"EXCHANGE_RATE",
+        "BONUS",
+        "ADVANCE_TAX",
+        "HOUSE_INSURANCE",
+        "LIFE_INSURANCE",
+        "MEDICAL_ALLOW",
+        "DONATION_AMT"
+
         
     ];
     const SYSTEM_RULE = [

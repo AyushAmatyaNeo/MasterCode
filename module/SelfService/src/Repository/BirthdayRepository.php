@@ -136,9 +136,18 @@ class BirthdayRepository implements RepositoryInterface{
         return $list[0];
     }
 
+    // public function checkMessagePosted($fromEmployee, $toEmployee) {
+    //     $sql = "SELECT count(*) as c FROM HRIS_BIRTHDAY_MESSAGES WHERE FROM_EMPLOYEE=$fromEmployee "
+    //             . "AND TO_EMPLOYEE=$toEmployee";
+    //     $statement = $this->adapter->query($sql);
+    //     $result = $statement->execute();
+    //     return $result->current();
+    // }
     public function checkMessagePosted($fromEmployee, $toEmployee) {
         $sql = "SELECT count(*) as c FROM HRIS_BIRTHDAY_MESSAGES WHERE FROM_EMPLOYEE=$fromEmployee "
-                . "AND TO_EMPLOYEE=$toEmployee";
+                . "AND TO_EMPLOYEE=$toEmployee and created_dt between (select start_date from hris_fiscal_years where fiscal_year_id=(select max(fiscal_year_id) from hris_fiscal_years))
+                and (select end_date from hris_fiscal_years where fiscal_year_id=(select max(fiscal_year_id) from hris_fiscal_years))";
+                // echo '<pre>';print_r($sql);die;
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result->current();

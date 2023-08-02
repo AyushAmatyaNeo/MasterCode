@@ -7,6 +7,8 @@ use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Exception;
 use System\Form\UserSetupForm;
+use Notification\Model\NotificationEvents;
+use Notification\Controller\HeadNotification;
 use System\Model\UserSetup;
 use System\Repository\UserSetupRepository;
 use Zend\Authentication\Storage\StorageInterface;
@@ -51,7 +53,11 @@ class UserSetupController extends HrisController {
 
 
                 $this->repository->add($userSetup);
-
+                try {
+                    HeadNotification::pushNotification(NotificationEvents::NEW_USER_CREATED, $userSetup, $this->adapter, $this);
+                } catch (Exception $e) {
+                    $this->flashmessenger()->addMessage($e->getMessage());
+                }
                 $this->flashmessenger()->addMessage("User Successfully Added!!!");
                 return $this->redirect()->toRoute("usersetup");
             }

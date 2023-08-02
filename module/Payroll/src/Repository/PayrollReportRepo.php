@@ -1434,7 +1434,7 @@ from hris_variance
                 CASE 
                     WHEN SUM(val) = 0 THEN '0.00'
                 ELSE 
-                    TO_CHAR(NVL(SUM(val),0),'99,99,999.99') END AS total
+                    TO_CHAR(NVL(SUM(val),0),'9,999,999.99') END AS total
                 FROM
                     hris_variance                    v
                     LEFT JOIN hris_variance_payhead            vp ON ( v.variance_id = vp.variance_id )

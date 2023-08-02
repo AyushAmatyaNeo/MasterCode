@@ -1,9 +1,11 @@
 <?php
+
 namespace Payroll\Model;
 
 use Application\Model\Model;
 
-class Rules extends Model {
+class Rules extends Model
+{
 
     const TABLE_NAME = "HRIS_PAY_SETUP";
     const PAY_ID = "PAY_ID";
@@ -63,5 +65,4 @@ class Rules extends Model {
         'includeFutureValue' => self::INCLUDE_FUTURE_VALUE,
         'deductionLimitFlag' => self::DEDUCTION_LIMIT_FLAG,
     ];
-
 }

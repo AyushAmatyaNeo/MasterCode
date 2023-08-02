@@ -918,8 +918,9 @@ class PayrollReportController extends HrisController
                 } else {
                     $companyDetail = null;
                 }
-            }else {
+            } else {
                 $data['companyId'] = $data['companyId'];
+                $companyDetail = $ruleRepo->getCompany($data['companyId']);
                 $resultData = $this->repository->getBankWiseEmployeeNet($data);
             }
             $result = [];
@@ -927,7 +928,7 @@ class PayrollReportController extends HrisController
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
             $result['companyDetail'] = $companyDetail;
-            // echo '<pre>';print_r($result);die;
+            $result['preference'] = $this->preference;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);

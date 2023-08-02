@@ -177,6 +177,19 @@ class PayrollRepository extends HrisRepository {
         }
         return $resultList[0]['IS_FEMALE'];
     }
+	
+	 public function getExchangeRate($monthId)
+    {
+        $sql="
+ select exchange_rate from hris_salary_sheet where month_id=$monthId ";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['EXCHANGE_RATE'];
+    }
+	
+	
 
     public function isMarried($employeeId, $sheetNo) {
         $boundedParameter = [];
@@ -189,6 +202,91 @@ class PayrollRepository extends HrisRepository {
             throw new Exception('Result not found.');
         }
         return $resultList[0]['IS_MARRIED'];
+    }
+	
+	 public function getBonus($employeeId, $monthId) {
+        $sql = "select nvl(SUM(MTH_VALUE),0) AS BONUS
+        from hris_monthly_value_detail MVD
+        left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
+         where MVD.MTH_ID = 2
+         AND MC.FISCAL_YEAR_MONTH_NO <> 1
+         AND EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['BONUS'];
+    }
+
+    public function getHouseInsurance($employeeId, $monthId) {
+        $sql = "select nvl(SUM(MTH_VALUE),0) AS HOUSE_INSURANCE
+        from hris_monthly_value_detail MVD
+        left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
+         where MVD.MTH_ID = 3
+         AND MC.FISCAL_YEAR_MONTH_NO <> 1
+         AND EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['HOUSE_INSURANCE'];
+    }
+
+    public function getLifeInsurance($employeeId, $monthId) {
+        $sql = "select nvl(SUM(MTH_VALUE),0) AS LIFE_INSURANCE
+        from hris_monthly_value_detail MVD
+        left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
+         where MVD.MTH_ID = 4
+         AND MC.FISCAL_YEAR_MONTH_NO <> 1
+         AND EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['LIFE_INSURANCE'];
+    }
+
+    public function getMedicalAllowance($employeeId, $monthId) {
+        $sql = "select nvl(SUM(MTH_VALUE),0) AS MEDICAL_ALLOW
+        from hris_monthly_value_detail MVD
+        left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
+         where MVD.MTH_ID = 5
+         AND MC.FISCAL_YEAR_MONTH_NO <> 1
+         AND EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['MEDICAL_ALLOW'];
+    }
+
+    public function getDonationAmt($employeeId, $monthId) {
+        $sql = "select nvl(SUM(MTH_VALUE),0) AS DONATION_AMT
+        from hris_monthly_value_detail MVD
+        left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
+         where MVD.MTH_ID = 6
+         AND MC.FISCAL_YEAR_MONTH_NO <> 1
+         AND EMPLOYEE_ID = {$employeeId}";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            throw new Exception('No Report Found.');
+        }
+        return $resultList[0]['DONATION_AMT'];
+    }
+
+
+
+    public function getPrevioudMthTax($employeeId, $monthId) {
+        $sql = "select nvl(sum(val),0) as PREV_TAX from hris_salary_sheet_detail ssd
+					left join hris_salary_sheet ss on (ssd.sheet_no = ss.sheet_no)
+					where ssd.pay_id = 59 and ssd.employee_id ={$employeeId}
+					and ss.sheet_no in (select sheet_no from hris_salary_sheet 
+					where month_id <> {$monthId})";
+        $resultList = $this->rawQuery($sql);
+        if (!(sizeof($resultList) == 1)) {
+            return 0;  
+        }
+        return $resultList[0]['PREV_TAX'];
     }
 
     public function isPermanent($employeeId, $sheetNo) {

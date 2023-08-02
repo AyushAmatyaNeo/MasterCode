@@ -16,9 +16,9 @@
         var groupList = [];
         var payrollProcess = null;
         var selectedSalarySheetList = [];
-//        
+        //        
         var selectedMonth = {};
-//
+        //
         var $fiscalYear = $('#fiscalYearId');
         var $month = $('#monthId');
         var $table = $('#table');
@@ -35,17 +35,17 @@
         var $allPayHeads = $('#allPayHeads');
         var $allPayHeads = $('#allPayHeads');
         var $overtime = $('input[name="overTime"]:checked').val();
-        $("input[name='overTime']").change(function() {
-             $overtime = $(this).val();
+        $("input[name='overTime']").change(function () {
+            $overtime = $(this).val();
         });
 
-		const deleteSalSheLink = data['links']['deleteEmpSalSheLink'];
+        const deleteSalSheLink = data['links']['deleteEmpSalSheLink'];
 
-console.log(data['ruleList']);
+        console.log(data['ruleList']);
 
         app.populateSelect($salaryTypeId, data['salaryType'], 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
         app.populateSelect($allPayHeads, data['ruleList'], 'PAY_ID', 'PAY_EDESC');
-//        
+        //        
         var loading_screen = null;
         var loadingMessage = "Payroll generation started.";
         var loadingHtml = '<div class="sk-spinner sk-spinner-wandering-cubes"><div class="sk-cube1"></div><div class="sk-cube2"></div></div>';
@@ -79,16 +79,16 @@ console.log(data['ruleList']);
             }
         });
 
-//
+        //
         (function ($companyId, link) {
             var onDataLoad = function (data) {
                 companyList = data['company'];
                 app.populateSelect($companyId, data['company'], 'COMPANY_ID', 'COMPANY_NAME', 'Select Company');
-				var acl = document.getAcl;
-                if(acl['CONTROL'] == 'C'){
+                var acl = document.getAcl;
+                if (acl['CONTROL'] == 'C') {
                     $companyId.val(acl['CONTROL_VALUES'][0]['VAL']);
                     document.getElementById("companyId").setAttribute("disabled", "disabled");
-                }else{
+                } else {
                     console.log('Role is not company wise');
                 }
             };
@@ -105,95 +105,87 @@ console.log(data['ruleList']);
             var onDataLoad = function (data) {
                 groupList = data;
                 app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-				var acl = document.getAcl;
+                var acl = document.getAcl;
                 console.log(acl);
-                if(acl['CONTROL'] == 'C'){
-					var groupListControl = [];
-					
+                if (acl['CONTROL'] == 'C') {
+                    var groupListControl = [];
+
                     var companyWiseGroup = document.getCompanyWiseGroup;
-                    if(companyWiseGroup[0]['GROUP_ID']){
+                    if (companyWiseGroup[0]['GROUP_ID']) {
                         $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    }     
+                    }
 
-					var totarrLength = (companyWiseGroup.length-1);
-					if(totarrLength == 0) 
-					{
-						document.getElementById("groupId").setAttribute("disabled", "disabled");
-					}
-					
-					if(totarrLength == 0) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 1) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 2) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 3) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
+                    var totarrLength = (companyWiseGroup.length - 1);
+                    if (totarrLength == 0) {
+                        document.getElementById("groupId").setAttribute("disabled", "disabled");
+                    }
 
-                    if(totarrLength == 4) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
+                    if (totarrLength == 0) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
 
-                    if(totarrLength == 5) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID ) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-                    if(totarrLength == 6) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-                    
-					
-					//console.log(groupListControl);
-					
-					app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME');
-					
-					//FOR selecting the group
-					if(companyWiseGroup[0]['GROUP_ID']){
+                    if (totarrLength == 1) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 2) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 3) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 4) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 5) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+                    if (totarrLength == 6) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+
+                    //console.log(groupListControl);
+
+                    app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME');
+
+                    //FOR selecting the group
+                    if (companyWiseGroup[0]['GROUP_ID']) {
                         $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    } 
+                    }
                     //document.getElementById("groupId").setAttribute("disabled", "disabled");
-                }else{
+                } else {
                     console.log('Role is not company wise');
                 }
             };
@@ -213,7 +205,7 @@ console.log(data['ruleList']);
         $salaryTypeId.select2();
         $allPayHeads.select2();
 
-//        $viewBtn.hide();
+        //        $viewBtn.hide();
 
         app.setFiscalMonth($fiscalYear, $month, function (years, months, currentMonth) {
             monthList = months;
@@ -235,27 +227,27 @@ console.log(data['ruleList']);
             selectedSalarySheetList = [];
             for (var i in salarySheetList) {
                 if (salarySheetList[i]['MONTH_ID'] == monthValue &&
-                        (companyValue == -1 || companyValue == salarySheetList[i]['COMPANY_ID'])
-                        && (groupValue == -1 || groupValue == salarySheetList[i]['GROUP_ID'])
-                        && (salaryType == -1 || salaryType == salarySheetList[i]['SALARY_TYPE_ID'])
+                    (companyValue == -1 || companyValue == salarySheetList[i]['COMPANY_ID'])
+                    && (groupValue == -1 || groupValue == salarySheetList[i]['GROUP_ID'])
+                    && (salaryType == -1 || salaryType == salarySheetList[i]['SALARY_TYPE_ID'])
 
-                        ) {
+                ) {
                     selectedSalarySheetList.push(salarySheetList[i]);
                     if (groupValue != '-1') {
                         break;
                     }
                 }
             }
-//            if (selectedSalarySheetList.length > 0) {
-//                $viewBtn.show();
-//            } else {
-//                $viewBtn.hide();
-//            }
+            //            if (selectedSalarySheetList.length > 0) {
+            //                $viewBtn.show();
+            //            } else {
+            //                $viewBtn.hide();
+            //            }
             $fromDate.val(selectedMonth['FROM_DATE']);
             $nepaliFromDate.val(nepaliDatePickerExt.fromEnglishToNepali(selectedMonth['FROM_DATE']));
             $toDate.val(selectedMonth['TO_DATE']);
             $nepaliToDate.val(nepaliDatePickerExt.fromEnglishToNepali(selectedMonth['TO_DATE']));
-            
+
             groupChangeFn();
 
         };
@@ -266,19 +258,19 @@ console.log(data['ruleList']);
         $companyId.on('change', function () {
             monthChangeAction();
         });
-        
+
         // salary sheet details start
-         var $sheetTable = $('#sheetTable');
-         
-         
-         var searchTable2 = function (kendoId, searchFields, isHidden) {
-        var $kendoId = null;
-        if (kendoId instanceof jQuery) {
-            $kendoId = kendoId;
-        } else {
-            $kendoId = $("#" + kendoId);
-        }
-        var $searchHtml = $(`
+        var $sheetTable = $('#sheetTable');
+
+
+        var searchTable2 = function (kendoId, searchFields, isHidden) {
+            var $kendoId = null;
+            if (kendoId instanceof jQuery) {
+                $kendoId = kendoId;
+            } else {
+                $kendoId = $("#" + kendoId);
+            }
+            var $searchHtml = $(`
             <div class='row search margin-bottom-5 margin-top-10' id='searchFieldDiv2'>
                 <div class='col-xs-12 col-sm-6 col-md-4 col-lg-3'>
                     <input class='form-control' placeholder='search here' type='text' id='kendoSearchField2' />
@@ -286,36 +278,36 @@ console.log(data['ruleList']);
             </div>`);
 
 
-        $searchHtml.insertBefore($kendoId);
+            $searchHtml.insertBefore($kendoId);
 
-        if (typeof isHidden !== "undefined" && isHidden) {
-            $("#searchFieldDiv2").hide();
-        }
-        $("#kendoSearchField2").keyup(function () {
-            var val = $(this).val();
-            var filters = [];
-            for (var i = 0; i < searchFields.length; i++) {
-                filters.push({
-                    field: searchFields[i],
-                    operator: "contains",
-                    value: val
-                });
+            if (typeof isHidden !== "undefined" && isHidden) {
+                $("#searchFieldDiv2").hide();
             }
+            $("#kendoSearchField2").keyup(function () {
+                var val = $(this).val();
+                var filters = [];
+                for (var i = 0; i < searchFields.length; i++) {
+                    filters.push({
+                        field: searchFields[i],
+                        operator: "contains",
+                        value: val
+                    });
+                }
 
-            $kendoId.data("kendoGrid").dataSource.filter({
-                logic: "or",
-                filters: filters
+                $kendoId.data("kendoGrid").dataSource.filter({
+                    logic: "or",
+                    filters: filters
+                });
             });
-        });
 
 
-    }
-         
-         
-         searchTable2($table, ['EMPLOYEE_ID','EMPLOYEE_CODE','BRANCH_NAME','POSITION_NAME','ID_ACCOUNT_NO','EMPLOYEE_NAME']);
-         
-         var actiontemplateConfigSheet = {
-             update: {
+        }
+
+
+        searchTable2($table, ['EMPLOYEE_ID', 'EMPLOYEE_CODE', 'BRANCH_NAME', 'POSITION_NAME', 'ID_ACCOUNT_NO', 'EMPLOYEE_NAME']);
+
+        var actiontemplateConfigSheet = {
+            update: {
                 'ALLOW_UPDATE': 'N',
                 'params': ["ADVANCE_ID"],
                 'url': ''
@@ -327,34 +319,36 @@ console.log(data['ruleList']);
             }
         };
         app.initializeKendoGrid($sheetTable, [
-            {field: "SHEET_NO", title: "Sheet", width: 80},
-            {field: "MONTH_EDESC", title: "Month", width: 130},
-            {field: "SALARY_TYPE_NAME", title: "Salary Type", width: 130},
-            {field: "GROUP_NAME", title: "Group", width: 130},
-//            {field: ["SHEET_NO"], title: "Action", width: 100,template: app.genKendoActionTemplate(actiontemplateConfigSheet)}
+            { field: "SHEET_NO", title: "Sheet", width: 80 },
+            { field: "MONTH_EDESC", title: "Month", width: 130 },
+            { field: "SALARY_TYPE_NAME", title: "Salary Type", width: 130 },
+            { field: "GROUP_NAME", title: "Group", width: 130 },
+            //            {field: ["SHEET_NO"], title: "Action", width: 100,template: app.genKendoActionTemplate(actiontemplateConfigSheet)}
         ]);
-        
-        
-        
-        // salary sheet details end
-        
-        
-        
 
-//        $groupId.on('change.select2', function () {
+
+
+        // salary sheet details end
+
+
+
+
+        //        $groupId.on('change.select2', function () {
         var $empTable = $('#employeeTable');
         app.searchTable($empTable, ['FULL_NAME', 'EMPLOYEE_CODE']);
         app.initializeKendoGrid($empTable, [
-            {field: "CHECKED_FLAG",
+            {
+                field: "CHECKED_FLAG",
                 headerTemplate: "<input type='checkbox' id='header-chb2' class='k-checkbox2 header-checkbox2'><label class='k-checkbox-label2' for='header-chb2'></label>",
-//                headerTemplate: "<input type='checkbox' id='header-chb'>",
+                //                headerTemplate: "<input type='checkbox' id='header-chb'>",
                 title: "Select", width: 50,
                 sortable: false,
                 filterable: false,
-                template: "<input type='checkbox' class='k-checkbox2 row-checkbox2' #if(CHECKED_FLAG == 'Y'){#checked#}#><label class='k-checkbox-label2'></label>"},
-//                template: '<input class="employeeCheck" type="checkbox" name="FLAG_#EMPLOYEE_CODE#" VALUE="Y" #if(CHECKED_FLAG == "Y"){#checked#}#>'},
-            {field: "EMPLOYEE_CODE", title: "Code", width: 80},
-            {field: "FULL_NAME", title: "Employee", width: 130}
+                template: "<input type='checkbox' class='k-checkbox2 row-checkbox2' #if(CHECKED_FLAG == 'Y'){#checked#}#><label class='k-checkbox-label2'></label>"
+            },
+            //                template: '<input class="employeeCheck" type="checkbox" name="FLAG_#EMPLOYEE_CODE#" VALUE="Y" #if(CHECKED_FLAG == "Y"){#checked#}#>'},
+            { field: "EMPLOYEE_CODE", title: "Code", width: 80 },
+            { field: "FULL_NAME", title: "Employee", width: 130 }
         ]);
 
         function grid_dataBound(e) {
@@ -374,9 +368,9 @@ console.log(data['ruleList']);
 
         $empTable.on("click", ".k-checkbox2", function () {
             var checked = this.checked,
-                    row = $(this).closest("tr"),
-                    grid = $empTable.data("kendoGrid"),
-                    dataItem = grid.dataItem(row);
+                row = $(this).closest("tr"),
+                grid = $empTable.data("kendoGrid"),
+                dataItem = grid.dataItem(row);
             if (checked) {
                 row.addClass("k-state-selected");
                 dataItem.CHECKED_FLAG = 'Y';
@@ -400,37 +394,37 @@ console.log(data['ruleList']);
                 }
             });
         });
-        
+
 
 
 
         $groupId.on("select2:select select2:unselect", function (event) {
             monthChangeAction();
-//            groupChangeFn();
+            //            groupChangeFn();
 
         });
-        
-        var groupChangeFn=function(){
+
+        var groupChangeFn = function () {
             let selectedGroups = $groupId.val();
-            
-            if(selectedGroups==null){
-                let allGroup=[];
+
+            if (selectedGroups == null) {
+                let allGroup = [];
                 $.each(groupList, function (key, value) {
-//                    console.log(value);
+                    //                    console.log(value);
                     allGroup.push(value['GROUP_ID']);
                 });
-                selectedGroups=allGroup;
+                selectedGroups = allGroup;
             }
             let selectedSalaryTypeId = $salaryTypeId.val();
-//            console.log('gval', $(this).val());
+            //            console.log('gval', $(this).val());
             if (selectedGroups !== null || selectedGroups !== '-1') {
                 app.serverRequest(document.pullGroupEmployeeLink, {
                     group: selectedGroups,
                     monthId: selectedMonth['MONTH_ID'],
                     salaryTypeId: selectedSalaryTypeId
                 }).then(function (response) {
-                    let empLoadData=[];
-                    
+                    let empLoadData = [];
+
                     if ($groupId.val() == null) {
                         $.each(response.data, function (index, value) {
                             value['CHECKED_FLAG'] = 'N';
@@ -439,9 +433,9 @@ console.log(data['ruleList']);
                     } else {
                         empLoadData = response.data;
                     }
-//                    console.log(empLoadData);
-                    
-//                    console.log(response);
+                    //                    console.log(empLoadData);
+
+                    //                    console.log(response);
                     app.populateSelect($allSheetId, response.sheetData, 'SHEET_NO', 'SHEET_NO', 'ALL', -1, -1);
                     app.renderKendoGrid($empTable, empLoadData);
                     app.renderKendoGrid($sheetTable, response.sheetData);
@@ -453,7 +447,7 @@ console.log(data['ruleList']);
             monthChangeAction();
         });
 
-        
+
         var employeeIdColumn = {
             field: "EMPLOYEE_ID",
             title: "Id",
@@ -498,32 +492,32 @@ console.log(data['ruleList']);
             employeeCodeColumn.locked = true;
             employeeBranchColumn.locked = true;
             employeePositionColumn.locked = true;
-//            employeeAccountColumn.locked = true;
+            //            employeeAccountColumn.locked = true;
         }
-        
-        var exportMap ;
-        
-        var generateCols =function(){
-            
+
+        var exportMap;
+
+        var generateCols = function () {
+
             exportMap = {
-            "EMPLOYEE_ID": "Employee Id",
-            "EMPLOYEE_CODE": "Employee Code",
-            "EMPLOYEE_NAME": "Employee",
-            "BRANCH_NAME": "Branch",
-            "POSITION_NAME": "Position",
-            "ID_ACCOUNT_NO": "Account No"
-        };
-        
-          var columns = [
-            employeeIdColumn,
-            employeeCodeColumn,
-            employeeNameColumn,
-            employeeBranchColumn,
-            employeePositionColumn,
-            employeeAccountColumn,
-            actionColumn
-        ];
-        
+                "EMPLOYEE_ID": "Employee Id",
+                "EMPLOYEE_CODE": "Employee Code",
+                "EMPLOYEE_NAME": "Employee",
+                "BRANCH_NAME": "Branch",
+                "POSITION_NAME": "Position",
+                "ID_ACCOUNT_NO": "Account No"
+            };
+
+            var columns = [
+                employeeIdColumn,
+                employeeCodeColumn,
+                employeeNameColumn,
+                employeeBranchColumn,
+                employeePositionColumn,
+                employeeAccountColumn,
+                actionColumn
+            ];
+
             let selectedPayheads = $allPayHeads.val();
 
             $.each(data.ruleList, function (key, value) {
@@ -544,55 +538,68 @@ console.log(data['ruleList']);
                 };
 
                 if (selectedPayheads == null) {
-                    columns.push({field: "P_" + value['PAY_ID'], title: value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")", width: 150});
+                    columns.push({ field: "P_" + value['PAY_ID'], title: value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")", width: 150 });
                     exportMap["P_" + value['PAY_ID']] = value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")";
                 } else {
                     if ($.inArray(value['PAY_ID'], selectedPayheads) >= 0) {
-                        columns.push({field: "P_" + value['PAY_ID'], title: value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")", width: 150});
+                        columns.push({ field: "P_" + value['PAY_ID'], title: value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")", width: 150 });
                         exportMap["P_" + value['PAY_ID']] = value['PAY_EDESC'] + "(" + signFn(value['PAY_TYPE_FLAG']) + ")";
                     }
                 }
             });
             app.initializeKendoGrid($table, columns);
         }
-        
-            generateCols();
-//        app.initializeKendoGrid($table, columns);
+
+        generateCols();
+        //        app.initializeKendoGrid($table, columns);
 
         $viewBtn.on('click', function () {
             $table.empty();
             generateCols();
-//            var sheetNoList = [];
-//            for (var i in selectedSalarySheetList) {
-//                sheetNoList.push(selectedSalarySheetList[i]['SHEET_NO']);
-//            }
+            //            var sheetNoList = [];
+            //            for (var i in selectedSalarySheetList) {
+            //                sheetNoList.push(selectedSalarySheetList[i]['SHEET_NO']);
+            //            }
 
-            let sheetNo=$allSheetId.val();
+            let sheetNo = $allSheetId.val();
             let selectedGroups = $groupId.val();
             let selectedSalaryTypeId = $salaryTypeId.val();
             let selectedMonthId = selectedMonth['MONTH_ID'];
-          
+
             if (selectedGroups !== null || selectedGroups !== '-1') {
-                
-            app.serverRequest(data['links']['viewLink'], {
-                monthId: selectedMonthId,
-                sheetNo: sheetNo,
-                groupId: selectedGroups,
-                salaryTypeId: selectedSalaryTypeId,
-     
-            }).then(function (response) {
-                app.renderKendoGrid($table, response.data);
-            });
-                
+
+                app.serverRequest(data['links']['viewLink'], {
+                    monthId: selectedMonthId,
+                    sheetNo: sheetNo,
+                    groupId: selectedGroups,
+                    salaryTypeId: selectedSalaryTypeId,
+
+                }).then(function (response) {
+                    app.renderKendoGrid($table, response.data);
+                });
+
             }
 
 
         });
-        
+
         $generateBtn.on('click', function () {
             payrollGeneration();
         });
 
+        var exchangeRate = $('#exchangeRate').val();
+        if (exchangeRate === null || exchangeRate === '') {
+            $('#error').text('Enter Exchange Rate');
+        }
+
+        $('#exchangeRate').keyup(function () {
+            var exchangeRate = $(this).val();
+            if (exchangeRate === null || exchangeRate === '') {
+                $('#error').text('Enter Exchange Rate');
+            } else {
+                $('#error').text('');
+            }
+        });
 
         var payrollGeneration = function () {
             var stage = 1;
@@ -602,7 +609,8 @@ console.log(data['ruleList']);
             var fromDate = selectedMonth['FROM_DATE'];
             var toDate = selectedMonth['TO_DATE'];
             var company = $companyId.val();
-            let overTime=$overtime;
+            var exchangeRate = $('#exchangeRate').val();
+            let overTime = $overtime;
             if (company === null || company === '-1') {
                 company = [];
                 $.each(companyList, function (key, value) {
@@ -619,10 +627,12 @@ console.log(data['ruleList']);
                     group.push(value['GROUP_ID']);
                 });
             }
-//            else {
-//                group = [group];
-//            }
-
+            //            else {
+            //                group = [group];
+            //            }
+            if (exchangeRate === null || exchangeRate === '') {
+                $('#error').text('Enter Exchange Rate');
+            }
             let empList = [];
 
             let empGridData = $empTable.data("kendoGrid").dataSource.data();
@@ -650,8 +660,9 @@ console.log(data['ruleList']);
                     companyId: company,
                     groupId: group,
                     salaryTypeId: salaryType,
-                    overtime :overTime,
-                    empList: empList
+                    overtime: overTime,
+                    empList: empList,
+                    exchangeRate: exchangeRate
                 }).then(function (response) {
                     stage2(response.data);
                 }, function (error) {
@@ -676,7 +687,7 @@ console.log(data['ruleList']);
                             monthNo: monthNo,
                             fromDate: fromDate,
                             toDate: toDate,
-                            overtime :overTime,
+                            overtime: overTime,
                             employeeId: employeeList[i]['EMPLOYEE_ID']
                         });
                     }
@@ -754,27 +765,27 @@ console.log(data['ruleList']);
             var $this = $(this);
             var employeeId = $this.attr('employee-id');
             var sheetNo = $this.attr('sheet-no');
-            var salarySheet = app.findOneBy(salarySheetList, {SHEET_NO: sheetNo});
+            var salarySheet = app.findOneBy(salarySheetList, { SHEET_NO: sheetNo });
             var monthId = salarySheet['MONTH_ID'];
-            let overTime=$overtime;
+            let overTime = $overtime;
             app.serverRequest(regenEmpSalSheLink, {
                 employeeId: employeeId,
                 monthId: monthId,
                 sheetNo: sheetNo,
-                overtime :overTime,
+                overtime: overTime,
             }).then(function (response) {
                 $viewBtn.trigger('click');
             }, function (error) {
 
             });
         });
-        
-		// here for deleting individual salary
+
+        // here for deleting individual salary
         $('#hris-page-content').on('click', '.hris-delete-salary', function () {
             var $this = $(this);
             var employeeId = $this.attr('employee-id');
             var sheetNo = $this.attr('sheet-no');
-            var salarySheet = app.findOneBy(salarySheetList, {SHEET_NO: sheetNo});
+            var salarySheet = app.findOneBy(salarySheetList, { SHEET_NO: sheetNo });
             var monthId = salarySheet['MONTH_ID'];
             app.serverRequest(deleteSalSheLink, {
                 employeeId: employeeId,
@@ -787,11 +798,11 @@ console.log(data['ruleList']);
             });
         });
         // here for deleting individual salary
-        
-        $('#hideEmpSheet').on('click',function(){
-           $("#employeeTableDiv").toggle(); 
+
+        $('#hideEmpSheet').on('click', function () {
+            $("#employeeTableDiv").toggle();
         });
-        
+
 
     });
 })(window.jQuery, window.app);

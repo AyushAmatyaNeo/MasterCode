@@ -272,6 +272,64 @@ class VariableProcessor {
             case PayrollGenerator::VARIABLES[38]:
                 $processedValue = $this->payrollRepo->getSHLIntAmt($this->employeeId,$this->monthId);
                 break;
+				
+				
+				 /*
+             * EXCHANGE_RATE	
+             */
+            case PayrollGenerator::VARIABLES[39]:
+                $processedValue = $this->payrollRepo->getExchangeRate($this->monthId);
+                break;
+
+				
+				   /*
+             * BONUS
+             */
+            case PayrollGenerator::VARIABLES[40]:
+                $processedValue = $this->payrollRepo->getBonus($this->employeeId,$this->monthId);
+                break;
+
+
+                
+				   /*
+             * PREV TAX
+             */
+            case PayrollGenerator::VARIABLES[41]:
+                $processedValue = $this->payrollRepo->getPrevioudMthTax($this->employeeId,$this->monthId);
+                break;
+
+                	   /*
+             * PREV TAX
+             */
+            case PayrollGenerator::VARIABLES[42]:
+                $processedValue = $this->payrollRepo->getHouseInsurance($this->employeeId,$this->monthId);
+                break;
+
+
+                	   /*
+             * PREV TAX
+             */
+            case PayrollGenerator::VARIABLES[43]:
+                $processedValue = $this->payrollRepo->getLifeInsurance($this->employeeId,$this->monthId);
+                break;
+
+
+                	   /*
+             * PREV TAX
+             */
+            case PayrollGenerator::VARIABLES[44]:
+                $processedValue = $this->payrollRepo->getMedicalAllowance($this->employeeId,$this->monthId);
+                break;
+
+
+                	   /*
+             * PREV TAX
+             */
+            case PayrollGenerator::VARIABLES[45]:
+                $processedValue = $this->payrollRepo->getDonationAmt($this->employeeId,$this->monthId);
+                break;
+
+
 
 
            

@@ -8,7 +8,21 @@ use Zend\Router\Http\Segment;
 return [
     'router' => [
         'routes' => [
-            'shiftassign' => [
+		'excelUploadAttd' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/attendance/excelUploadAttd[/:action[/:id]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => Controller\ExcelUploadControllerAttd::class,
+                        'action' => 'index',
+                    ]
+                ],
+            ],
+			'shiftassign' => [
                 'type' => Segment::class,
                 'options' => [
                     'route' => '/attendance/shiftassign[/:action[/:id]]',
@@ -374,7 +388,8 @@ return [
             Controller\Penalty::class => ControllerFactory::class,
             Controller\Roaster::class => ControllerFactory::class,
             Controller\GroupShiftAssign::class => ControllerFactory::class,
-            Controller\Whereabouts::class => ControllerFactory::class
+            Controller\Whereabouts::class => ControllerFactory::class,
+			 Controller\ExcelUploadControllerAttd::class => ControllerFactory::class
         ],
     ],
     'view_manager' => [

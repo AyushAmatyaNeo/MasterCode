@@ -4,7 +4,7 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
 ?>
 <script>
     document.getFiscalYearMonthLink = '<?php echo $this->url('payroll', ['action' => 'getFiscalYearMonth']); ?>';
-	document.salaryType =<?php echo $salaryType; ?>;
+    document.salaryType = <?php echo $salaryType; ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\payroll')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -21,16 +21,16 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                     <i class="fa fa-angle-down "></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li >
+                    <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -49,19 +49,31 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                 <select id="monthId">
                 </select>
             </div>
-			<div class="col-sm-2">
+            <div class="col-sm-2">
                 <!--<label>Salary Type</label>-->
                 <select class="form-control" name="salaryType" id="salaryTypeId">
                 </select>
             </div>
-            <div class="col-sm-2 col-sm-offset-6">
+            <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
+                <label for="" class="radio-inline">
+                    <input type="radio" name="exchangeRate" value="1" checked>Dollar
+                </label>
+                <label for="" class="radio-inline">
+                    <input type="radio" name="exchangeRate" value="0">Nepali
+                </label>
+            </div>
+            <div class="col-sm-2 col-sm-offset-9">
                 <button id="printBtn" class="btn btn-outline pull-right">Print</button>
                 <button id="viewBtn" class="btn btn-info pull-right">View</button>
             </div>
         </div>
         <div id="paySlipView" class="margin-top-10">
             <table class="table table-bordered" id="employee-detail">
-                <tr><td colspan="4"><h3><b><span id="yearMonthDetails"></span></b></h3>  </td> </tr>
+                <tr>
+                    <td colspan="4">
+                        <h3><b><span id="yearMonthDetails"></span></b></h3>
+                    </td>
+                </tr>
                 <tr>
                     <td>Employee Id</td>
                     <td key="EMPLOYEE_ID"></td>
@@ -86,13 +98,13 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                     <td>A/c No</td>
                     <td key="ID_ACCOUNT_NO"></td>
                 </tr>
-                
+
                 <tr>
                     <td>CIT No</td>
                     <td key="ID_RETIREMENT_NO"></td>
                     <td>Date of Join</td>
                     <td key="JOIN_DATE"></td>
-                    
+
                 </tr>
                 <tr>
                     <!-- <td>PF No</td>
@@ -101,7 +113,7 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                     <td key="ALLOWANCE"></td>
                     <td>PAN No</td>
                     <td key="ID_PAN_NO"></td>
-                    
+
                 </tr>
                 <!-- <tr>
                     <td>Paid Leave</td>
@@ -116,11 +128,17 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                     <td>Designation Name</td>
                     <td key="DESIGNATION_TITLE"></td>
                 </tr>
+                <tr>
+                    <td>Exchange Rate</td>
+                    <td key="EXCHANGE_RATE"></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
             <table class="table table-bordered">
                 <thead>
-                <th colspan="2" style="font-size: 14px"><b>Addition</b></th>
-                <th colspan="2" style="font-size: 14px"><b>Deduction</b></th>
+                    <th colspan="2" style="font-size: 14px"><b>Addition</b></th>
+                    <th colspan="2" style="font-size: 14px"><b>Deduction</b></th>
                 </thead>
                 <tbody id="paySlipBody">
                 </tbody>

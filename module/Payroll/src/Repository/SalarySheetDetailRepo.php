@@ -1,4 +1,5 @@
 <?php
+
 namespace Payroll\Repository;
 
 use Application\Helper\EntityHelper;
@@ -7,31 +8,38 @@ use Application\Repository\HrisRepository;
 use Payroll\Model\SalarySheetDetail;
 use Zend\Db\Adapter\AdapterInterface;
 
-class SalarySheetDetailRepo extends HrisRepository {
+class SalarySheetDetailRepo extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         if ($tableName == null) {
             $tableName = SalarySheetDetail::TABLE_NAME;
         }
         parent::__construct($adapter, $tableName);
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         return $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         return $this->tableGateway->delete([SalarySheetDetail::SHEET_NO => $id]);
     }
-    public function deleteBy($by) {
+    public function deleteBy($by)
+    {
         return $this->tableGateway->delete($by);
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         return $this->tableGateway->select($id);
     }
 
-    public function fetchSalarySheetDetail($sheetId) {
+    public function fetchSalarySheetDetail($sheetId)
+    {
         $in = $this->fetchPayIdsAsArray();
         $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
                 FROM
@@ -56,7 +64,8 @@ class SalarySheetDetailRepo extends HrisRepository {
         return $this->rawQuery($sql, $boundedParameter);
     }
 
-    public function fetchSalarySheetEmp($monthId, $employeeId) {
+    public function fetchSalarySheetEmp($monthId, $employeeId)
+    {
         $in = $this->fetchPayIdsAsArray();
         $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME
                 FROM
@@ -80,7 +89,8 @@ class SalarySheetDetailRepo extends HrisRepository {
         // return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 
-    public function fetchPayIdsAsArray() {
+    public function fetchPayIdsAsArray()
+    {
         $rawList = EntityHelper::rawQueryResult($this->adapter, "SELECT PAY_ID FROM HRIS_PAY_SETUP WHERE STATUS ='E'");
         $dbArray = "";
         foreach ($rawList as $key => $row) {
@@ -93,7 +103,8 @@ class SalarySheetDetailRepo extends HrisRepository {
         return $dbArray;
     }
 
-    public function fetchPrevSumPayValue($employeeId, $fiscalYearId, $fiscalYearMonthNo) {
+    public function fetchPrevSumPayValue($employeeId, $fiscalYearId, $fiscalYearMonthNo)
+    {
         $sql = "SELECT SSD.PAY_ID,
                   SUM(SSD.VAL) AS PREV_SUM_VAL
                 FROM HRIS_SALARY_SHEET_DETAIL SSD
@@ -105,7 +116,7 @@ class SalarySheetDetailRepo extends HrisRepository {
                 AND MC.FISCAL_YEAR_MONTH_NO <:fiscalYearMonthNo
                 AND SSD.EMPLOYEE_ID         =:employeeId
                 GROUP BY SSD.PAY_ID";
-        
+
         $boundedParameter = [];
         $boundedParameter['fiscalYearMonthNo'] = $fiscalYearMonthNo;
         $boundedParameter['fiscalYearId'] = $fiscalYearId;
@@ -113,14 +124,15 @@ class SalarySheetDetailRepo extends HrisRepository {
         return $this->rawQuery($sql, $boundedParameter);
     }
 
-    public function fetchEmployeePaySlip($monthId, $employeeId,$salaryTypeId=1) {
+    public function fetchEmployeePaySlip($monthId, $employeeId, $salaryTypeId = 1)
+    {
         $sql = "SELECT 
                 ts.sheet_no,
                 ts.employee_id,
                 ts.pay_id,
                 CASE
                 WHEN ts.val = 0 THEN '0.00'
-                ELSE to_char(ts.val, '99,99,999.99')
+                ELSE to_char(ts.val, '9,999,999.99')
                 END AS val,
                   P.PAY_TYPE_FLAG,
                   P.PAY_EDESC
@@ -133,7 +145,6 @@ class SalarySheetDetailRepo extends HrisRepository {
                       AND SALARY_TYPE_ID=:salaryTypeId  AND APPROVED='Y'
                   )
                 AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
-        // echo '<pre>';print_r($sql);die;
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
@@ -141,8 +152,9 @@ class SalarySheetDetailRepo extends HrisRepository {
         return $this->rawQuery($sql, $boundedParameter);
     }
 
-    public function fetchEmployeeLoanAmt($monthId,$employeeId,$ruleId) {
-        $sql="select 
+    public function fetchEmployeeLoanAmt($monthId, $employeeId, $ruleId)
+    {
+        $sql = "select 
         case when
         sum(AMOUNT) is not null 
         then sum(AMOUNT)
@@ -163,11 +175,11 @@ class SalarySheetDetailRepo extends HrisRepository {
         $boundedParameter['ruleId'] = $ruleId;
         $boundedParameter['employeeId'] = $employeeId;
         $resultList = $this->rawQuery($sql, $boundedParameter);
-        return ($resultList[0]['AMT'])?$resultList[0]['AMT']:0;
-        
+        return ($resultList[0]['AMT']) ? $resultList[0]['AMT'] : 0;
     }
-    public function fetchEmployeeLoanIntrestAmt($monthId,$employeeId,$ruleId) {
-        $sql="select 
+    public function fetchEmployeeLoanIntrestAmt($monthId, $employeeId, $ruleId)
+    {
+        $sql = "select 
         case when
         sum(INTEREST_AMOUNT) is not null 
         then sum(INTEREST_AMOUNT)
@@ -188,24 +200,24 @@ class SalarySheetDetailRepo extends HrisRepository {
         $boundedParameter['ruleId'] = $ruleId;
         $boundedParameter['employeeId'] = $employeeId;
         $resultList = $this->rawQuery($sql, $boundedParameter);
-        
-        return ($resultList[0]['AMT'])?$resultList[0]['AMT']:0;
-        
+
+        return ($resultList[0]['AMT']) ? $resultList[0]['AMT'] : 0;
     }
-    
-    public function fetchSalarySheetByGroupSheet($monthId,$groupId,$sheetNo,$salaryTypeId,$companyId) {
-        
-        
-           $sheetString = $sheetNo;
-        //    echo '<pre>';print_r($sheetNo );die;
+
+    public function fetchSalarySheetByGroupSheet($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId)
+    {
+
+
+        $sheetString = $sheetNo;
+
         if ($sheetNo == -1) {
-//            echo is_array($groupId);
+            //            echo is_array($groupId);
             if (is_array($groupId)) {
 
                 $valuesinCSV = "";
                 for ($i = 0; $i < sizeof($groupId); $i++) {
                     $value = $groupId[$i];
-//                $value = isString ? "'{$group[$i]}'" : $group[$i];
+                    //                $value = isString ? "'{$group[$i]}'" : $group[$i];
                     if ($i + 1 == sizeof($groupId)) {
                         $valuesinCSV .= "{$value}";
                     } else {
@@ -214,13 +226,14 @@ class SalarySheetDetailRepo extends HrisRepository {
                 }
 
                 $sheetString = "select sheet_no from HRIS_SALARY_SHEET where month_id={$monthId} and salary_type_id={$salaryTypeId} and group_id in ($valuesinCSV)";
-            }else{
+            } else {
                 $sheetString = "select sheet_no from HRIS_SALARY_SHEET where month_id={$monthId} and salary_type_id={$salaryTypeId}";
             }
         }
-
+        $exchangeRate = $this->getExchangeRate($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId);
+        $exchangeRt = $exchangeRate['EXCHANGE_RATE'];
         $in = $this->fetchPayIdsAsArray();
-        if ($companyId>0){
+        if ($companyId > 0) {
             $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
             FROM
               (SELECT *
@@ -228,7 +241,7 @@ class SalarySheetDetailRepo extends HrisRepository {
                 (SELECT SSED.SHEET_NO,
                   SSED.EMPLOYEE_ID,
                   SSD.PAY_ID,
-                  SSD.VAL
+                  SSD.VAL * $exchangeRt as val
                 FROM HRIS_SALARY_SHEET_DETAIL SSD
                 RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
                 WHERE SSED.SHEET_NO in ({$sheetString}) and SSED.company_id=$companyId
@@ -238,7 +251,7 @@ class SalarySheetDetailRepo extends HrisRepository {
             ON (P.EMPLOYEE_ID=E.EMPLOYEE_ID) 
             LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
             LEFT JOIN HRIS_POSITIONS PO ON (PO.POSITION_ID=E.POSITION_ID)";
-        }else{
+        } else {
             $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
                 FROM
                   (SELECT *
@@ -246,7 +259,7 @@ class SalarySheetDetailRepo extends HrisRepository {
                     (SELECT SSED.SHEET_NO,
                       SSED.EMPLOYEE_ID,
                       SSD.PAY_ID,
-                      SSD.VAL
+                      SSD.VAL * $exchangeRt as val
                     FROM HRIS_SALARY_SHEET_DETAIL SSD
                     RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
                     WHERE SSED.SHEET_NO in ({$sheetString}) 
@@ -257,13 +270,15 @@ class SalarySheetDetailRepo extends HrisRepository {
                 LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
                 LEFT JOIN HRIS_POSITIONS PO ON (PO.POSITION_ID=E.POSITION_ID)";
         }
-        
-// echo '<pre>';print_r($sql);die;
+        // echo '<pre>';
+        // print_r($sql);
+        // die;
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
-    
-    public function fetchEmployeePreviousSum($monthId,$employeeId,$ruleId) {
-                $sql="select 
+
+    public function fetchEmployeePreviousSum($monthId, $employeeId, $ruleId)
+    {
+        $sql = "select 
         nvl(sum(val),0) as value
         from 
         (
@@ -285,34 +300,37 @@ class SalarySheetDetailRepo extends HrisRepository {
         $resultList = $this->rawQuery($sql, $boundedParameter);
         return $resultList[0]['VALUE'];
     }
-    
+
     public function fetchEmployeePreviousMonthAmount($monthId,$employeeId,$ruleId) {
-                $sql="select 
-        nvl(sum(val),0) as value
-        from 
-        (
-        select 
-        case when cm.Fiscal_Year_Month_no=1 then 0 else Ssd.val end as val,
-        Mc.Fiscal_Year_Id,ssed.* 
-        from 
-        Hris_Salary_Sheet_Emp_Detail  ssed
-        join Hris_Month_Code mc on (mc.month_id=ssed.month_id AND EMPLOYEE_ID=:employeeId)
-        join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id and pay_id=:ruleId)
-         join (select * from Hris_Month_Code where Month_Id=:monthId) cm on (1=1) 
-        where 
-        ssed.month_id=(:monthId -1 )  
-        and Mc.Fiscal_Year_Id = (select fiscal_year_id from Hris_Month_Code where Month_Id=:monthId)
-        )";
-        $boundedParameter = [];
-        $boundedParameter['monthId'] = $monthId;
-        $boundedParameter['ruleId'] = $ruleId;
-        $boundedParameter['employeeId'] = $employeeId;
-        $resultList = $this->rawQuery($sql, $boundedParameter);
+        //         $sql="select 
+        // nvl(sum(val),0) as value
+        // from 
+        // (
+        // select 
+        // case when cm.Fiscal_Year_Month_no=1 then 0 else Ssd.val end as val,
+        // Mc.Fiscal_Year_Id,ssed.* 
+        // from 
+        // Hris_Salary_Sheet_Emp_Detail  ssed
+        // join Hris_Month_Code mc on (mc.month_id=ssed.month_id AND EMPLOYEE_ID={$employeeId})
+        // join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id and pay_id={$ruleId})
+        //  join (select * from Hris_Month_Code where Month_Id={$monthId}) cm on (1=1) 
+        // where 
+        // ssed.month_id=({$monthId} -1 )  
+        // and Mc.Fiscal_Year_Id = (select fiscal_year_id from Hris_Month_Code where Month_Id={$monthId})
+        // )";
+
+        $sql = "
+        select ROUND(nvl(sum(val),0), 2) as value from hris_salary_sheet_detail where employee_id = {$employeeId} and sheet_no in (
+            select sheet_no from hris_salary_sheet where salary_type_id = 1 and month_id < {$monthId} and month_id in 
+            (select month_id from hris_month_code where fiscal_year_id = (select fiscal_year_id from hris_month_code where month_id = {$monthId})))
+            and pay_id = {$ruleId}";
+        $resultList = $this->rawQuery($sql);
         return $resultList[0]['VALUE'];
     }
-    
-    public function fetchEmployeeGrade($monthId,$employeeId){
-        $sql="select 
+
+    public function fetchEmployeeGrade($monthId, $employeeId)
+    {
+        $sql = "select 
                     aa.*
                     ,case when (new_Grade=0  and aa.MONTH_CHECK=0 )
                     then 
@@ -356,16 +374,17 @@ class SalarySheetDetailRepo extends HrisRepository {
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['employeeId'] = $employeeId;
         $resultList = $this->rawQuery($sql, $boundedParameter);
-        if(!empty($resultList)){
-        return $resultList[0];
-        }else{
+        if (!empty($resultList)) {
+            return $resultList[0];
+        } else {
             return $resultList;
-        } 
+        }
     }
-    
-    
-     public function fetchEmployeeGratuityPercentage($monthId,$employeeId){
-        $sql="SELECT 
+
+
+    public function fetchEmployeeGratuityPercentage($monthId, $employeeId)
+    {
+        $sql = "SELECT 
  E.GRATUITY_DATE,MC.TO_DATE 
 , E.GRATUITY_DATE  + interval '10' year as ten_yrs
 , E.GRATUITY_DATE  + interval '15' year as fifteen_yrs
@@ -388,7 +407,30 @@ end as GRATUTITY_PERCENT
         $resultList = $this->rawQuery($sql, $boundedParameter);
         return $resultList[0]['GRATUTITY_PERCENT'];
     }
-    
-    
 
+    public function fetchExchangeRate($sheetNo)
+    {
+        $sql = "select exchange_rate from hris_salary_sheet where sheet_no=$sheetNo ";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
+    }
+
+    public function getExchangeRate($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId)
+    {
+
+        if ($sheetNo != -1) {
+            $sheetNoString = " and SHEET_NO=$sheetNo";
+        }
+        if ($groupId != null) {
+            $groupString = " and group_id in ($groupId)";
+        }
+        if ($companyId != 0) {
+            $groupString = " and company_id =$companyId";
+        }
+        $sql = "select exchange_rate from hris_salary_sheet where month_id={$monthId} and salary_type_id={$salaryTypeId} $sheetNoString  $groupString";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
+    }
 }

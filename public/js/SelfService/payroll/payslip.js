@@ -11,7 +11,11 @@
         var $paySlipBody = $('#paySlipBody');
         var $excelExport = $('#excelExport');
         var $pdfExport = $('#pdfExport');
-		var $salaryTypeId = $('#salaryTypeId');
+        var $salaryTypeId = $('#salaryTypeId');
+        var $exchangeRateVal = $('input[name="exchangeRate"]:checked').val();
+        $("input[name='exchangeRate']").change(function () {
+            $exchangeRateVal = $(this).val();
+        });
         app.populateSelect($salaryTypeId, document.salaryType, 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
 
         var employeeList = null;
@@ -27,15 +31,15 @@
             var deductionCounter = 0;
             var deductionSum = 0;
             var netSum = 0;
-            var net=0;
-            var add=0;
-            var sub=0;
+            var net = 0;
+            var add = 0;
+            var sub = 0;
             $.each($data, function (index, item) {
                 switch (item['PAY_TYPE_FLAG']) {
                     case 'A':
                         additionData[additionCounter] = item;
                         const myString = $.trim((item['VAL']));
-                        additionSum = additionSum +parseFloat(myString.replace(',', ''));
+                        additionSum = additionSum + parseFloat(myString.replace(',', ''));
                         additionCounter++;
                         break;
                     case 'D':
@@ -44,14 +48,14 @@
                         deductionSum = deductionSum + parseFloat(String.replace(',', ''));
                         deductionCounter++;
                         break;
-                       
+
                 }
-                        netSum = additionSum - deductionSum;
+                netSum = additionSum - deductionSum;
             });
-                add = (additionSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }));
-                sub = (deductionSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }));
-                net= (netSum.toLocaleString('en-IN',{ minimumFractionDigits: 2 }
-                ));
+            add = (additionSum.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+            sub = (deductionSum.toLocaleString('en-US', { minimumFractionDigits: 2 }));
+            net = (netSum.toLocaleString('en-US', { minimumFractionDigits: 2 }
+            ));
 
             var maxRows = (additionCounter > deductionCounter) ? additionCounter : deductionCounter;
             for (var i = 0; i < maxRows; i++) {
@@ -78,19 +82,21 @@
             }
         }
         $viewBtn.on('click', function () {
-            
-            var selectedYearText=$("#fiscalYearId option:selected" ).text();
-            var selectedMonthText=$("#monthId option:selected" ).text();
-            var displayYearMonthtext='Payslip for '+selectedMonthText+' '+selectedYearText;
+
+            var selectedYearText = $("#fiscalYearId option:selected").text();
+            var selectedMonthText = $("#monthId option:selected").text();
+            var displayYearMonthtext = 'Payslip for ' + selectedMonthText + ' ' + selectedYearText;
             $('#yearMonthDetails').html(displayYearMonthtext);
-            
+
             var monthId = $month.val();
             var employeeId = $employeeId.val();
-			var salaryTypeId =$salaryTypeId.val();
+            var salaryTypeId = $salaryTypeId.val();
+            var exchangeRate = $exchangeRateVal;
             app.serverRequest('', {
                 monthId: monthId,
                 employeeId: employeeId,
-				salaryTypeId: salaryTypeId
+                salaryTypeId: salaryTypeId,
+                exchangeRate: exchangeRate
             }).then(function (response) {
                 showPaySlip(response.data['pay-detail']);
                 showEmpDetail(response.data['emp-detail']);

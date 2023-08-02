@@ -13,7 +13,6 @@ $this->headScript()
     ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
     ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
     ->appendFile($this->basePath('js/Payroll/salary-sheet/index.js'));
-
 ?>
 <script>
     document.data = <?php echo $data; ?>;
@@ -84,6 +83,14 @@ $this->headScript()
                 <label>Sheet</label>
                 <select class="form-control" name="allSheetId" id="allSheetId">
                 </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Exchange Rate</label>
+                <span class="required" aria-required="true" style="color:red;">*</span>
+                <div class="form-group">
+                    <input type="text" id="exchangeRate" class="form-control" />
+                    <span id="error" style="font-size:11px; color:red;"></span>
+                </div>
             </div>
         </div>
         <div class="row margin-top-10">
