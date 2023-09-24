@@ -5,7 +5,8 @@ namespace Setup\Form;
 use Application\Model\Model;
 use Zend\Form\Annotation;
 
-class HrEmployeesFormTabFour extends Model {
+class HrEmployeesFormTabFour extends Model
+{
 
     /**
      * @Annotation\Required(true)
@@ -92,7 +93,7 @@ class HrEmployeesFormTabFour extends Model {
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required(False)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"disable_inarray_validator":"true","label":"Employee Type"})
      * @Annotation\Attributes({ "id":"employeeType","class":"form-control"})
@@ -127,10 +128,10 @@ class HrEmployeesFormTabFour extends Model {
     public $functionalLevelId;
     public $modifiedBy;
     public $modifiedDt;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
-     * @Annotation\Required(false)
+     * @Annotation\Required(False)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"disable_inarray_validator":"true","label":"Payroll Emp Type"})
      * @Annotation\Attributes({ "id":"payEmpType","class":"form-control"})
@@ -208,13 +209,13 @@ class HrEmployeesFormTabFour extends Model {
      * @Annotation\Validator({"name":"StringLength", "options":{"max":"9"}})
      * @Annotation\Attributes({ "id":"allowance", "class":"form-control","step":"1","min":"0"})
      */
-    public $allowance ;
+    public $allowance;
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
-     * @Annotation\Options({"disable_inarray_validator":"true","label":"Tax Base","value_options":{"":"---","U":"Unmarried","M":"Married"}})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Tax Base","value_options":{"U":"Unmarried","M":"Married"}})
      * @Annotation\Attributes({ "id":"taxBase","class":"form-control"})
      */
     public $taxBase;
@@ -246,6 +247,84 @@ class HrEmployeesFormTabFour extends Model {
      */
     public $disabledFlag;
 
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Level Name"})
+     * @Annotation\Attributes({ "id":"leveLId","class":"form-control"})
+     */
+    public $leveLId;
+
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Contract Expiry Date"})
+     * @Annotation\Attributes({"class":"form-control","id":"contractExpiryDt" })
+     */
+    public $contractExpiryDt;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Number")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Dearness Allowance"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"9"}})
+     * @Annotation\Attributes({ "id":"dearnessAllowance", "class":"form-control","step":"1","min":"0"})
+     */
+    public $dearnessAllowance;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Number")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Previous Salary"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"9"}})
+     * @Annotation\Attributes({ "id":"previousSalary", "class":"form-control","step":"0.001"})
+     */
+    public $previousSalary;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Number")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Current Salary"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"9"}})
+     * @Annotation\Attributes({ "id":"currentSalary", "class":"form-control","step":"0.01","min":"0"})
+     */
+    public $currentSalary;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Number")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Gratuity"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"9"}})
+     * @Annotation\Attributes({ "id":"gratuity", "class":"form-control","step":"0.01","min":"0"})
+     */
+    public $gratuity;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Payment Stop Date"})
+     * @Annotation\Attributes({"class":"form-control","id":"paymentDate" })
+     */
+    public $paymentDate;
+
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Required(false)
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Attendance Email Flag","value_options":{"Y":"Yes","N":"No"}})
+     * @Annotation\Attributes({"id":"attdEmailFlag","value":"N"})
+     */
+    public $attdEmailFlag;
+
     public $mappings = [
         'joinDate' => 'JOIN_DATE',
         'salary' => 'SALARY',
@@ -270,7 +349,17 @@ class HrEmployeesFormTabFour extends Model {
         'taxBase' => 'TAX_BASE',
         'permanentDate' => 'PERMANENT_DATE',
         'gratuityDate' => 'GRATUITY_DATE',
-        'disabledFlag' => 'DISABLED_FLAG'
-    ];
+        'disabledFlag' => 'DISABLED_FLAG',
+        'leveLId' => 'LEVEL_ID',
+        'contractExpiryDt' => 'CONTRACT_EXPIRY_DATE',
+        'gratuity' => 'GRATUITY',
+        'currentSalary' => 'CURRENT_SALARY',
+        'previousSalary' => 'PREVIOUS_SALARY',
+        'dearnessAllowance' => 'DEARNESS_ALLOWANCE',
+        'paymentDate' => 'PAYMENT_DATE',
+        'startDate' => 'START_DATE',
+        'endDate' => 'END_DATE',
+        'attdEmailFlag' => 'ATTD_EMAIL_FLAG'
 
+    ];
 }

@@ -36,9 +36,6 @@ $approvedRemarks = $form->get('approvedRemarks');
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
 $form->setAttribute('action', '');
-
-$form->setAttribute('enctype', 'multipart/form-data');
-
 $form->prepare();
 print $this->form()->openTag($form);
 ?>
@@ -49,7 +46,7 @@ print $this->form()->openTag($form);
     <div class="portlet box custom-box">
         <div class="portlet-title">
             <div class="caption">
-                <i class="fa fa-user"></i><?=($detail['REQUESTED_TYPE'] == 'ad')?'TRAVEL REQUEST DETAILS':'EXPENSE REIMBURSEMENT' ?>
+                <i class="fa fa-user"></i>Travel Request Detail
             </div>
             <div class="actions">
                 <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
@@ -207,7 +204,9 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($requestedType, ['class' => 'help-block']); ?>
                         </div>   
                     </div>
+                </div>
 
+                <div class=" row">
                     <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($transportType); ?>
@@ -223,10 +222,6 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
                         </div>
                     </div>
-                </div>
-
-                <div class=" row">
-                 
 
                     <div class="col-sm-4">
                         <div class="form-group">
@@ -244,19 +239,12 @@ print $this->form()->openTag($form);
                                     <div style="overflow: scroll; height:100px;" >
                                         <ul> 
                                             <?php foreach($files as $file){ ?>
-                                                <a target="_blank" href="<?='../../../uploads/documents/travel-documents/'.$file['FILE_NAME']?>">
+                                                <a target="_blank" href="<?='../../../uploads/travel_documents/'.$file['FILE_IN_DIR_NAME']?>">
                                                     <li><?=$file['FILE_NAME']?></li></a>
                                             <?php } ?>
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="col-sm-4" style="margin-left:3rem">
-        <div class="form-group">
-        <label for="file">Upload Files</label>
-        <input type="file" id="filesUpload" name="files[]" class="form-control" multiple>
-        <label for="file"><i>File should be below 8MB and supports doc,txt,pdf,jpg,png,docx,odt format.</i></label>
-        </div>
-      </div>
                         </div> 
                     <?php } ?>
 

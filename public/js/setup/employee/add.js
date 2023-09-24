@@ -8,11 +8,20 @@
         var addrTempZoneId = $('#addrTempZoneId');
         var addrTempDistrictId = $('#addrTempDistrictId');
         var addrTempVdcMunicipality = $('#addrTempVdcMunicipality');
-
-        var $serviceEventId  = $('#serviceEventId');
-
-        app.checkUniqueValue("#employeeCode", document.employeeId, "#codeError", "#submit", 'HRIS_EMPLOYEES', 'EMPLOYEE_CODE', 'EMPLOYEE_ID');
-
+        var previousSalary = document.previousSalary;
+        var empCode = document.employeeCode;
+        $('#employeeCode').val(empCode)
+        $('#employeeCode').prop('disabled', true);
+        // $('#contractExpiryDt').prop('disabled', true);
+        $('#previousSalary').prop('disabled', true);
+        // $('#contractExpiryDtNepali').prop('disabled', true);
+        $('#previousSalary').val(previousSalary);
+        var $serviceEventId = $('#serviceEventId');
+        /*
+         * 
+         */
+        app.datePickerWithNepali('paymentDate', 'nepalipaymentDate');
+        app.datePickerWithNepali('contractExpiryDt', 'contractExpiryDtNepali');
         app.populateSelectElement($('#idCitizenshipIssuePlace'), document.allDistrict, address['citizenshipIssuePlace']);
 
         var onChangePermZone = function (zoneId) {
@@ -21,7 +30,7 @@
                 onChangePermDistrict(null);
                 return;
             }
-            app.pullDataById(document.urlDistrict, {id: zoneId}).then(function (data) {
+            app.pullDataById(document.urlDistrict, { id: zoneId }).then(function (data) {
                 app.populateSelectElement(addrPermDistrictId, data, address['addrPermDistrictId']);
                 onChangePermDistrict(addrPermDistrictId.val());
             }, function (error) {
@@ -38,7 +47,7 @@
                 return;
             }
 
-            app.pullDataById(document.urlMunicipality, {id: districtId}).then(function (data) {
+            app.pullDataById(document.urlMunicipality, { id: districtId }).then(function (data) {
                 var nameList = [];
                 var value = "";
                 $.each(data, function (key, item) {
@@ -62,7 +71,7 @@
                 onChangeTempDistrict(null);
                 return;
             }
-            app.pullDataById(document.urlDistrict, {id: zoneId}).then(function (data) {
+            app.pullDataById(document.urlDistrict, { id: zoneId }).then(function (data) {
                 app.populateSelectElement(addrTempDistrictId, data, address['addrTempDistrictId']);
                 onChangeTempDistrict(addrTempDistrictId.val());
             }, function (error) {
@@ -79,7 +88,7 @@
                 return;
             }
 
-            app.pullDataById(document.urlMunicipality, {id: districtId}).then(function (data) {
+            app.pullDataById(document.urlMunicipality, { id: districtId }).then(function (data) {
                 var nameList = [];
                 var value = "";
                 $.each(data, function (key, item) {
@@ -127,6 +136,7 @@
 
 
         $('#finishBtn').on('click', function () {
+            console.log(document.urlEmployeeList);
             if (typeof document.urlEmployeeList !== 'undefined') {
                 location.href = document.urlSetupComplete;
             }
@@ -216,10 +226,10 @@
                 });
             });
         })([
-            {form: $modalDegree, url: document.addDegreeLink},
-            {form: $modalUniversity, url: document.addUniversityLink},
-            {form: $modalProgram, url: document.addProgramLink},
-            {form: $modalCourse, url: document.addCourseLink}
+            { form: $modalDegree, url: document.addDegreeLink },
+            { form: $modalUniversity, url: document.addUniversityLink },
+            { form: $modalProgram, url: document.addProgramLink },
+            { form: $modalCourse, url: document.addCourseLink }
         ]);
 
 
@@ -227,50 +237,68 @@
         $('#distributionBtn').confirmation({
             placement: 'right',
             onConfirm: function () {
-                app.serverRequest(document.addDistributionEmp,{id:document.employeeId}).then(
-                        function(success){
-                            app.showMessage('Sucessfully Created Employee for Distribution','success','succcess')
-                        });
+                app.serverRequest(document.addDistributionEmp, { id: document.employeeId }).then(
+                    function (success) {
+                        app.showMessage('Sucessfully Created Employee for Distribution', 'success', 'succcess')
+                    });
             },
             onCancel: function () {
                 console.log('cancel');
             },
-        
+
         });
-        
-        function enableAbroadAddress(countryId){
-            if(countryId!=168){
+
+        function enableAbroadAddress(countryId) {
+            if (countryId != 168) {
                 $('#permanentAddressDiv :input').attr("disabled", true);
                 $('#permanentAddressDiv').hide();
                 $('#abroadAddressDiv').show();
-            }else{
+            } else {
                 $('#permanentAddressDiv :input').attr("disabled", false);
                 $('#permanentAddressDiv').show();
                 $('#abroadAddressDiv').hide();
             }
         }
-        
-        $('#countryId').on('change',function(){
+
+        $('#countryId').on('change', function () {
             enableAbroadAddress($(this).val());
         });
-        
+
         enableAbroadAddress($('#countryId').val());
 
         // hide and unhide update service status div
         $serviceEventId.hide();
-        $('input[name=update]').change(function(){
-            if($(this).is(':checked')) {
+        $('input[name=update]').change(function () {
+            if ($(this).is(':checked')) {
                 $serviceEventId.show();
                 $('#serviceEventTypeId').prop('required', 'required');
                 $('#eventDate').prop('required', 'required');
                 $('#startDate').prop('required', 'required');
             } else {
-                 $serviceEventId.hide();
+                $serviceEventId.hide();
                 $('#serviceEventTypeId').prop('required', false);
                 $('#eventDate').prop('required', false);
                 $('#startDate').prop('required', false);
             }
         });
+
+        // $('#joinDate').on('change', function () {
+        //     var joinDateStr = $(this).val(); // get the value of the input field
+        //     var joinDate = new Date(joinDateStr); // create a new Date object from the string
+        //     joinDate.setMonth(joinDate.getMonth() + 6); // add 6 months to the date
+        //     var options = { day: '2-digit', month: 'short', year: 'numeric' }; // specify the desired format
+        //     var newJoinDateStr = joinDate.toLocaleDateString('en-GB', options).replace(',', '').replace(/ /g, '-'); // format the date as "dd-Mon-yyyy"
+        //     $('#contractExpiryDt').val(newJoinDateStr); // set the value of the input field to the new date string
+        //     var nepaliJoinDt = $('#nepalijoinDate').val();
+        //     var date = new Date(nepaliJoinDt);
+        //     date.setMonth(date.getMonth() + 6);
+        //     var year = date.getFullYear();
+        //     var month = String(date.getMonth() + 1).padStart(2, "0");
+        //     var day = String(date.getDate()).padStart(2, "0");
+        //     var newDateString = `${year}-${month}-${day}`;
+        //     $('#contractExpiryDtNepali').val(newDateString); // set the value of the input field to the new date string
+        //     alert('Your Contract Expiry Date is ' + newJoinDateStr + '.');
+        // });
 
     });
 

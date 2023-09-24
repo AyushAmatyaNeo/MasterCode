@@ -1,4 +1,5 @@
 <?php
+
 namespace LeaveManagement\Repository;
 
 use Application\Helper\EntityHelper;
@@ -6,35 +7,37 @@ use Application\Repository\HrisRepository;
 use LeaveManagement\Model\LeaveApply;
 use Setup\Model\HrEmployees;
 use Zend\Db\Sql\Expression;
-use Zend\Db\Sql\Sql; 
+use Zend\Db\Sql\Sql;
 
-class LeaveReportCardRepository extends HrisRepository {
+class LeaveReportCardRepository extends HrisRepository
+{
 
-  public function fetchLeaveReportCard($by){
-    $leaveId = $by['data']['leaveId'];
-    $leaveIdFilter = "";
-    $boundedParameter = [];
-    if($leaveId != '' && $leaveId != null){
-        $leaveData=$this->getBoundedForArray($leaveId,'leaveId');
-        $boundedParameter=array_merge($boundedParameter,$leaveData['parameter']);
-        $leaveIdFilter = " and l.leave_id IN ({$leaveData['sql']})";
-    }
-    
-    $employees = $by['data']['employeeId'];
-    $boundedParameter['employees']=$employees;
-    //$employees = implode(',', $employees);
-    
-    $leaveYear = $by['data']['leaveYear'];
-    
-    if ($leaveYear != null) {
-            $boundedParameter['leaveYear']=$leaveYear;
+    public function fetchLeaveReportCard($by)
+    {
+        $leaveId = $by['data']['leaveId'];
+        $leaveIdFilter = "";
+        $boundedParameter = [];
+        if ($leaveId != '' && $leaveId != null) {
+            $leaveData = $this->getBoundedForArray($leaveId, 'leaveId');
+            $boundedParameter = array_merge($boundedParameter, $leaveData['parameter']);
+            $leaveIdFilter = " and l.leave_id IN ({$leaveData['sql']})";
+        }
+
+        $employees = $by['data']['employeeId'];
+        $boundedParameter['employees'] = $employees;
+        //$employees = implode(',', $employees);
+
+        $leaveYear = $by['data']['leaveYear'];
+
+        if ($leaveYear != null) {
+            $boundedParameter['leaveYear'] = $leaveYear;
             $leaveYearStatusCondition = "( ( L.STATUS ='E' OR L.OLD_LEAVE='Y' ) AND L.LEAVE_YEAR= :leaveYear )";
         } else {
             $leaveYearStatusCondition = "L.STATUS ='E'";
         }
-    
 
-    $sql = "( SELECT
+
+        $sql = "( SELECT
     la.id                 AS id,
     e.employee_code       AS employee_id,
     e.employee_code       AS employee_code,
@@ -254,31 +257,32 @@ WHERE
 )
 ORDER BY
     requested_dt_ad asc
-";  
-//                            echo $sql; die;
-    return $this->rawQuery($sql,$boundedParameter);    
-  }
-
-  public function fetchLeaves($empId, $leaveId,$leaveYear){
-      $boundedParameter = [];
-    $leaveIdFilter = "";
-    if($leaveId != '' && $leaveId != null){
-        $leaveData=$this->getBoundedForArray($leaveId,'leaveId');
-        $boundedParameter=array_merge($boundedParameter,$leaveData['parameter']);
-        $leaveIdFilter = " and lms.leave_id IN ({$leaveData['sql']})";
+";
+        //                            echo $sql; die;
+        return $this->rawQuery($sql, $boundedParameter);
     }
-    
-    
-    if ($leaveYear != null) {
-        $boundedParameter['leaveYear']=$leaveYear;
+
+    public function fetchLeaves($empId, $leaveId, $leaveYear)
+    {
+        $boundedParameter = [];
+        $leaveIdFilter = "";
+        if ($leaveId != '' && $leaveId != null) {
+            $leaveData = $this->getBoundedForArray($leaveId, 'leaveId');
+            $boundedParameter = array_merge($boundedParameter, $leaveData['parameter']);
+            $leaveIdFilter = " and lms.leave_id IN ({$leaveData['sql']})";
+        }
+
+
+        if ($leaveYear != null) {
+            $boundedParameter['leaveYear'] = $leaveYear;
             $leaveYearStatusCondition = "( ( lms.STATUS ='E' OR lms.OLD_LEAVE='Y' ) AND lms.LEAVE_YEAR= :leaveYear )";
         } else {
             $leaveYearStatusCondition = "lms.STATUS ='E'";
         }
-        
-        $boundedParameter['empId']=$empId;
-    
-    $sql = "select 
+
+        $boundedParameter['empId'] = $empId;
+
+        $sql = "select 
     Lms.Leave_Ename,Lms.LEAVE_ID,
     la.Total_Days - 
     case when lms.is_monthly='Y' 
@@ -305,7 +309,7 @@ ORDER BY
                 OR la.FISCAL_YEAR_MONTH_NO IS NULL)
     {$leaveIdFilter}
     order by Lms.VIEW_ORDER asc";
-//    echo $sql; die;
-    return $this->rawQuery($sql,$boundedParameter);
-  }
-} 
+        //    echo $sql; die;
+        return $this->rawQuery($sql, $boundedParameter);
+    }
+}

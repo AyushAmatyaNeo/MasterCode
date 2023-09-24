@@ -9,7 +9,7 @@ $this->headScript()
     ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
     ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
     ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-    ->appendFile($this->basePath('js/SelfService/travel-request/index.js?1'));
+    ->appendFile($this->basePath('js/SelfService/new-travel-request/index.js?1'));
 
 ?>
 
@@ -36,7 +36,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
@@ -53,7 +53,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
         <div class="actions">
             <a href="<?= $this->url('newtravelrequest', ['action' => 'add']) ?>" class="btn default btn-sm">
                 <i class="fa fa-plus-square icon-black"></i> Apply For Travel </a>
-                <!-- <a href="<?= $this->url('newtravelrequest', ['action' => 'internationalTravelRequest']) ?>" class="btn default btn-sm">
+            <!-- <a href="<?= $this->url('newtravelrequest', ['action' => 'internationalTravelRequest']) ?>" class="btn default btn-sm">
                 <i class="fa fa-arrow-right icon-black"></i> International Travel Detail </a> -->
 
             <div class="btn-group">
@@ -64,14 +64,14 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <ul class="dropdown-menu pull-right">
                     <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -83,37 +83,34 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 
     <div class="portlet-body">
         <div class="row">
-            <div class="col-sm-2">
-                <?php print $this->formLabel($status); ?>
-                <?php print $this->formElement($status); ?>
-            </div>  
-            <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>"/>
+
+            <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
             <div class="col-sm-12">
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="fromDate">From Date</label>
-                            <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field"/>
+                            <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" />
                         </div>
 
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="nepaliFromDate">&nbsp;</label>
-                            <input type="text" id="nepaliFromDate" name="nepaliFromDate"  class="form-control reset-field"/>
+                            <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" />
                         </div>
 
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="toDate">To Date</label>
-                            <input type="text"  id="toDate" name="toDate"  class="form-control reset-field"/>
+                            <input type="text" id="toDate" name="toDate" class="form-control reset-field" />
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="nepaliToDate">&nbsp;</label>
-                            <input type="text"  id="nepaliToDate" name="nepaliToDate" class="form-control reset-field"/>
+                            <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" />
                         </div>
                     </div>
                     <div class="col-sm-3">
@@ -124,13 +121,13 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                                 <option value="19">2019</option>
                                 <option value="20">2020</option>
                                 <option value="21">2021</option>
-                                <option value="22" >2022</option>
+                                <option value="22">2022</option>
                                 <option value="23" selected>2023</option>
                             </select>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                    <div class="form-group">
+                        <div class="form-group">
                             <label for="travelType">Travel Type</label>
                             <select name="travelType" id="travelId">
                                 <option value="">-------------</option>
@@ -139,24 +136,28 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             </select>
                         </div>
                     </div>
+                    <div class="col-sm-2">
+                        <?php print $this->formLabel($status); ?>
+                        <?php print $this->formElement($status); ?>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-4 col-sm-offset-8">
-                <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
-                    Reset
-                    <i class="fa fa-refresh"></i>
-                </button>
-                <label height="45"></label>
-                <button  id="search" class="btn btn-default btn-sm pull-right">
-                    Search
-                    <i class="fa fa-search"></i>
-                </button>
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-8">
+                    <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                        Reset
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <label height="45"></label>
+                    <button id="search" class="btn btn-default btn-sm pull-right">
+                        Search
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<div class="margin-top-20">
-    <div id="table">
+    <div class="margin-top-20">
+        <div id="table">
+        </div>
     </div>
-</div> 

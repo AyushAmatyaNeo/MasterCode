@@ -28,6 +28,7 @@ use SelfService\Controller\NewTravelRequest;
 use SelfService\Controller\WorkOnDayoff;
 use SelfService\Controller\WorkOnHoliday;
 use SelfService\Controller\RoleTransfer;
+use SelfService\Controller\RoasterReport;
 use Zend\Router\Http\Segment;
 
 return [
@@ -57,6 +58,20 @@ return [
                     ],
                     'defaults' => [
                         'controller' => Holiday::class,
+                        'action' => 'index',
+                    ]
+                ],
+            ],
+            'roasterReport' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/selfservice/roasterReport[/:action[/:id]]',
+                    'constants' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id' => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => RoasterReport::class,
                         'action' => 'index',
                     ]
                 ],
@@ -434,6 +449,23 @@ return [
                         'label' => 'Edit',
                         'route' => 'holiday',
                         'action' => 'edit',
+                    ],
+                ],
+            ],
+        ],
+        'roasterReport' => [
+            [
+                'label' => 'Roaster Report',
+                'route' => 'roasterReport',
+            ],
+            [
+                'label' => 'Roaster Report',
+                'route' => 'roasterReport',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'roasterReport',
+                        'action' => 'index',
                     ],
                 ],
             ],
@@ -1069,6 +1101,7 @@ return [
             PaySlipPrevious::class => ControllerFactory::class,
             RoleTransfer::class => ControllerFactory::class,
             NewTravelRequest::class => ControllerFactory::class,
+            RoasterReport::class => ControllerFactory::class,
         ],
     ],
     'view_manager' => [

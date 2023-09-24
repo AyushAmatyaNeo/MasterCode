@@ -880,8 +880,10 @@ class PayrollReportController extends HrisController
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
         $bankType = $this->repository->getBankType();
-
-        $controlValue = $this->acl['CONTROL_VALUES'][0]['CONTROL'];
+        // echo '<pre>';
+        // print_r($this->acl['CONTROL'][0]);
+        // die;
+        $controlValue = $this->acl['CONTROL'][0];
 
         return Helper::addFlashMessagesToArray($this, [
             'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
@@ -923,12 +925,14 @@ class PayrollReportController extends HrisController
                 $companyDetail = $ruleRepo->getCompany($data['companyId']);
                 $resultData = $this->repository->getBankWiseEmployeeNet($data);
             }
+            $companyName = $ruleRepo->getCompanyName();
+
             $result = [];
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
             $result['companyDetail'] = $companyDetail;
-            $result['preference'] = $this->preference;
+            $result['preference'] = $companyName;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);

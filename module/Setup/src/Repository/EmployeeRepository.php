@@ -125,11 +125,12 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                 HrEmployees::ID_PASSPORT_EXPIRY,
                 HrEmployees::JOIN_DATE,
                 HrEmployees::PERMANENT_DATE,
+                HrEmployees::PAYMENT_DATE,
+                HrEmployees::CONTRACT_EXPIRY_DATE,
                 HrEmployees::GRATUITY_DATE
             ]), false);
             $select->where(['EMPLOYEE_ID' => $id]);
         });
-
         return $rowset->current();
     }
 
@@ -145,7 +146,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
             HrEmployees::ID_DRIVING_LICENCE_EXPIRY,
             HrEmployees::ID_CITIZENSHIP_ISSUE_DATE,
             HrEmployees::ID_PASSPORT_EXPIRY,
-            HrEmployees::JOIN_DATE
+            HrEmployees::JOIN_DATE,
+            HrEmployees::CONTRACT_EXPIRY_DATE
         ], NULL, NULL, NULL, $E);
         $select->columns($columns, false);
 
@@ -363,10 +365,13 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
 
     public function add(Model $model)
     {
+
         $employeeData = $model->getArrayCopyForDB();
         // for hr with empower nbb bank start
         $employeeData['EMPLOYEE_STATUS'] = 'Working';
         // for hr with empower nbb bank end
+
+        // echo '<pre>';print_r($employeeData );die;
         $this->tableGateway->insert($employeeData);
     }
 
@@ -384,10 +389,12 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
         //        $this->tableGateway->update(['STATUS' => 'D', 'DELETED_DATE' => $model->deletedDate, 'DELETED_BY' => $model->deletedBy], ['EMPLOYEE_ID' => $model->employeeId]);
     }
 
+
     public function edit(Model $model, $id)
     {
         $tempArray = $model->getArrayCopyForDB();
-        if ($tempArray['WOH_FLAG'] == null) {
+        if (isset($tempArray['WOH_FLAG']) && $tempArray['WOH_FLAG'] == null) {
+            // if ($tempArray['WOH_FLAG'] == null) {
             $tempArray['WOH_FLAG'] = $this->getWohRewardFromPosition($tempArray['POSITION_ID'])['WOH_FLAG'];
         }
         $this->tableGateway->update($tempArray, ['EMPLOYEE_ID' => $id]);
@@ -429,9 +436,6 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
         $boundedParams = [];
         $condition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $boundedParams = array_merge($boundedParams, $condition['parameter']);
-
-        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
-
         $sql = "SELECT E.EMPLOYEE_ID                                                AS EMPLOYEE_ID,
               E.COMPANY_ID                                                      AS COMPANY_ID,
               E.EMPLOYEE_CODE                                                   AS EMPLOYEE_CODE,
@@ -589,7 +593,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
             ON E.FUNCTIONAL_LEVEL_ID=FUNL.FUNCTIONAL_LEVEL_ID
             WHERE E.STATUS          ='E'
             {$condition['sql']}
-            {$orderByString}";
+            ORDER BY E.FIRST_NAME ASC";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute($boundedParams);
         if ($getResult != null) {
@@ -607,7 +611,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
 
     public function fetchBy($by)
     {
-        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'E.EMPLOYEE_CODE', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
         $columIfSynergy = "";
         $joinIfSyngery = "";
         if ($this->checkIfTableExists("FA_CHART_OF_ACCOUNTS_SETUP")) {
@@ -627,7 +631,6 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                   WHEN E.GENDER_ID = 2 AND E.MARITAL_STATUS = 'U' THEN 'MS.'
                   WHEN E.GENDER_ID = 2 AND E.MARITAL_STATUS = 'M' THEN 'MRS.' END) AS TITLE,
                   E.EMPLOYEE_CODE                                                   AS EMPLOYEE_CODE,
-                  U.USER_NAME   AS USER_NAME,
                   INITCAP(E.FULL_NAME)                                              AS FULL_NAME,
                   INITCAP(G.GENDER_NAME)                                            AS GENDER_NAME,
                   TO_CHAR(E.BIRTH_DATE, 'DD-MON-YYYY')                              AS BIRTH_DATE_AD,
@@ -682,7 +685,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                   INITCAP(TO_CHAR(E.ID_DRIVING_LICENCE_EXPIRY, 'DD-MON-YYYY'))      AS ID_DRIVING_LICENCE_EXPIRY,
                   E.ID_THUMB_ID                                                     AS ID_THUMB_ID,
                   E.ID_PAN_NO                                                       AS ID_PAN_NO,
-                  E.ID_ACCOUNT_NO                                                   AS ID_ACCOUNT_NO,
+                --   E.ID_ACCOUNT_NO                                                   AS ID_ACCOUNT_NO,
                   E.ID_RETIREMENT_NO                                                AS ID_RETIREMENT_NO,
                   E.ID_CITIZENSHIP_NO                                               AS ID_CITIZENSHIP_NO,
                   INITCAP(TO_CHAR(E.ID_CITIZENSHIP_ISSUE_DATE, 'DD-MON-YYYY'))      AS ID_CITIZENSHIP_ISSUE_DATE,
@@ -694,7 +697,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                   D.DEPARTMENT_NAME                                                 AS DEPARTMENT_NAME,
                   DES.DESIGNATION_TITLE                                             AS DESIGNATION_TITLE,
                   P.POSITION_NAME                                                   AS POSITION_NAME,
-                  P.LEVEL_NO                                                        AS LEVEL_NO,
+                  HL.LEVEL_NAME                                                     AS LEVEL_NAME,
                   INITCAP(ST.SERVICE_TYPE_NAME)                                     AS SERVICE_TYPE_NAME,
                   (CASE WHEN E.EMPLOYEE_TYPE='R' THEN 'REGULAR' ELSE 'WORKER' END)  AS EMPLOYEE_TYPE,
                   LOC.LOCATION_EDESC                                                AS LOCATION_EDESC,
@@ -703,8 +706,6 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                   FUNL.FUNCTIONAL_LEVEL_EDESC                                       AS FUNCTIONAL_LEVEL_EDESC,
                   E.SALARY                                                          AS SALARY,
                   E.SALARY_PF                                                       AS SALARY_PF,
-                  E.SSF_NO                                                          AS SSF_NO,
-                  (CASE WHEN E.MARITAL_STATUS='M' THEN 'Married' ELSE 'Unmarried' END)AS MARITAL_STATUS,
                   E.REMARKS                                                         AS REMARKS,
                   E.Allowance                                                       AS ALLOWANACE,
                   EF.FILE_PATH
@@ -719,6 +720,8 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                 ON E.DESIGNATION_ID=DES.DESIGNATION_ID
                 LEFT JOIN HRIS_POSITIONS P
                 ON E.POSITION_ID=P.POSITION_ID
+                LEFT JOIN HRIS_LEVELS HL ON
+                E.LEVEL_ID=HL.LEVEL_ID
                 LEFT JOIN HRIS_SERVICE_TYPES ST
                 ON E.SERVICE_TYPE_ID=ST.SERVICE_TYPE_ID
                 LEFT JOIN HRIS_GENDERS G
@@ -753,13 +756,16 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                 ON E.FUNCTIONAL_LEVEL_ID=FUNL.FUNCTIONAL_LEVEL_ID
                 LEFT JOIN HRIS_EMPLOYEE_FILE EF 
                 ON (EF.FILE_CODE=E.PROFILE_PICTURE_ID)
-                LEFT JOIN HRIS_USERS U 
-                ON (U.EMPLOYEE_ID=E.EMPLOYEE_ID)
                 {$joinIfSyngery}
-                WHERE 1                 =1 AND E.STATUS='E' 
+               WHERE 1                 =1 --AND ROWNUM <= 1500
+              AND E.STATUS='E' 
                 {$condition['sql']}
                 {$orderByString}";
-        //    echo '<pre>';print_r($sql);  
+        // echo '<pre>';
+        // print_r($boundedParameter);
+        // die;
+        //  echo '<pre>';print_r($this->rawQuery($sql, $boundedParameter));die;
+        // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 
@@ -1194,8 +1200,9 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
                   ACC_EDESC,
                   TRANSACTION_TYPE
                 FROM FA_CHART_OF_ACCOUNTS_SETUP
-                WHERE ACC_NATURE  = 'AC'
-                AND COMPANY_CODE  = '{$companyCode}'
+                WHERE 
+				--ACC_NATURE  = 'AC' AND 
+				COMPANY_CODE  = '{$companyCode}'
                 AND DELETED_FLAG  = 'N'
                 AND ACC_TYPE_FLAG = 'T'";
             return $this->rawQuery($sql);
@@ -1575,7 +1582,6 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
                 ON E.FUNCTIONAL_TYPE_ID=FUNT.FUNCTIONAL_TYPE_ID
                 LEFT JOIN HRIS_FUNCTIONAL_LEVELS FUNL
                 ON E.FUNCTIONAL_LEVEL_ID=FUNL.FUNCTIONAL_LEVEL_ID
-                
                 {$joinIfSyngery}
                 WHERE 1=1 AND (E.RETIRED_FLAG = 'Y' OR E.RESIGNED_FLAG = 'Y' OR E.STATUS='D')
                 {$condition}
@@ -1635,5 +1641,22 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
             $conditon .= EntityHelper::conditionBuilder($functionalTypeId, "E.FUNCTIONAL_TYPE_ID", "AND");
         }
         return $conditon;
+    }
+
+    public function getPreviousSalary($empId)
+    {
+        $sql = "
+         SELECT
+      val
+        FROM
+            hris_salary_sheet_detail
+        WHERE
+                pay_id = 27
+            AND employee_id = $empId and sheet_no in (select sheet_no from hris_salary_sheet_emp_detail
+            where employee_id=$empId and month_id in (select (month_id-1) from hris_month_code where trunc(sysdate)
+            between from_date and to_date))";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
     }
 }

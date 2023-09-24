@@ -10,23 +10,28 @@ use Exception;
 use ManagerService\Repository\AttendanceApproveRepository;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
+use AttendanceManagement\Form\AttendanceByHrForm;
 use SelfService\Form\AttendanceRequestForm;
 use SelfService\Model\AttendanceRequestModel;
 use SelfService\Repository\AttendanceRequestRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
+use AttendanceManagement\Repository\AttendanceRepository;
 use Zend\Form\Element\Select;
 use Zend\View\Model\JsonModel;
 
-class AttendanceApproveController extends HrisController {
+class AttendanceApproveController extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(AttendanceApproveRepository::class);
         $this->initializeForm(AttendanceRequestForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -40,7 +45,8 @@ class AttendanceApproveController extends HrisController {
         return $this->stickFlashMessagesTo([]);
     }
 
-    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false)
+    {
         $notificationEvent = null;
         $message = null;
         $model = new AttendanceRequestModel();
@@ -77,7 +83,8 @@ class AttendanceApproveController extends HrisController {
         }
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         $role = $this->params()->fromRoute('role');
 
@@ -92,9 +99,9 @@ class AttendanceApproveController extends HrisController {
         $model = new AttendanceRequestModel();
         $detail = $attendanceRequestRepository->fetchByIdWithEmployeeId($id, $this->employeeId);
 
-//        if ($this->employeeId != $detail['RECOMMENDER_ID'] && $this->employeeId != $detail['APPROVER_ID']) {
-//            return $this->redirect()->toRoute("attedanceapprove");
-//        }
+        //        if ($this->employeeId != $detail['RECOMMENDER_ID'] && $this->employeeId != $detail['APPROVER_ID']) {
+        //            return $this->redirect()->toRoute("attedanceapprove");
+        //        }
 
         $employeeId = $detail['EMPLOYEE_ID'];
         $employeeName = $detail['FULL_NAME'];
@@ -116,23 +123,24 @@ class AttendanceApproveController extends HrisController {
 
 
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'status' => $detail['STATUS'],
-                    'employeeName' => $employeeName,
-                    'employeeId' => $this->employeeId,
-                    'approver' => $authApprover,
-                    'requestedDt' => $detail['REQUESTED_DT'],
-                    'role' => $role,
-                    'recommender' => $authRecommender,
-                    'approver' => $authApprover,
-                    'recommendedBy' => $recommenderId,
-                    'approvedDT' => $approvedDT,
-                    'requestedEmployeeId' => $requestedEmployeeID,
+            'form' => $this->form,
+            'id' => $id,
+            'status' => $detail['STATUS'],
+            'employeeName' => $employeeName,
+            'employeeId' => $this->employeeId,
+            'approver' => $authApprover,
+            'requestedDt' => $detail['REQUESTED_DT'],
+            'role' => $role,
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'recommendedBy' => $recommenderId,
+            'approvedDT' => $approvedDT,
+            'requestedEmployeeId' => $requestedEmployeeID,
         ]);
     }
 
-    public function statusAction() {
+    public function statusAction()
+    {
         $attendanceStatus = [
             '-1' => 'All',
             'RQ' => 'Pending',
@@ -147,13 +155,14 @@ class AttendanceApproveController extends HrisController {
         $attendanceStatusFormElement->setLabel("Status");
 
         return Helper::addFlashMessagesToArray($this, [
-                    'attendanceStatus' => $attendanceStatusFormElement,
-                    'approverId' => $this->employeeId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'attendanceStatus' => $attendanceStatusFormElement,
+            'approverId' => $this->employeeId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }
 
-    public function batchApproveRejectAction() {
+    public function batchApproveRejectAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
@@ -164,7 +173,8 @@ class AttendanceApproveController extends HrisController {
         }
     }
 
-    public function pullAttendanceRequestStatusListAction() {
+    public function pullAttendanceRequestStatusListAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -188,4 +198,141 @@ class AttendanceApproveController extends HrisController {
         }
     }
 
+    public function checkInAction()
+    {
+        $request = $this->getRequest();
+        $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+        try {
+            if ($request->isPost()) {
+
+                $this->form->setData($request->getPost());
+                // if ($this->form->isValid()) {
+
+                $data = $request->getPost();
+                $data['requestId'] = ((int) Helper::getMaxId($this->adapter, AttendanceRequestModel::TABLE_NAME, "ID")) + 1;
+                $data['status'] = 'AP';
+                $data['approvedBy'] = $this->employeeId;
+                $data['approvedRemarks'] = 'Auto Approved By Manager';
+                $data['totalHour'] = null;
+                $attendanceRepository = new AttendanceRepository($this->adapter);
+                $attendanceRepository->insertAttendance($data);
+                $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
+                return $this->redirect()->toRoute("attedanceapprove", [
+                    'Controller' => 'AttendanceApproveController',
+                    'action' => 'status'
+                ]);
+                // }
+            }
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data'],
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                ]
+            );
+        } catch (Exception $e) {
+            $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
+            $this->flashmessenger()->addMessage($e->getMessage());
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data'],
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
+                ]
+            );
+        }
+    }
+
+    public function checkOutAction()
+    {
+        $request = $this->getRequest();
+        $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+        try {
+            if ($request->isPost()) {
+                $this->form->setData($request->getPost());
+                // if ($this->form->isValid()) {
+                $data = $request->getPost();
+                $data['requestId'] = ((int) Helper::getMaxId($this->adapter, AttendanceRequestModel::TABLE_NAME, "ID")) + 1;
+                $data['status'] = 'AP';
+                $data['approvedBy'] = $this->employeeId;
+                $data['approvedRemarks'] = 'Auto Approved By Manager';
+                $data['totalHour'] = null;
+                $attendanceRepository = new AttendanceRepository($this->adapter);
+                $attendanceRepository->insertAttendance($data);
+                $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
+                return $this->redirect()->toRoute("attedanceapprove", [
+                    'Controller' => 'AttendanceApproveController',
+                    'action' => 'status'
+                ]);
+                // }
+            }
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data'],
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                ]
+            );
+        } catch (Exception $e) {
+            $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
+            $this->flashmessenger()->addMessage($e->getMessage());
+            $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data'],
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
+                ]
+            );
+        }
+    }
+
+    public function addAction()
+    {
+        $request = $this->getRequest();
+        $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+        try {
+            if ($request->isPost()) {
+                $this->form->setData($request->getPost());
+                if ($this->form->isValid()) {
+                    $data = $request->getPost();
+                    $data['requestId'] = ((int) Helper::getMaxId($this->adapter, AttendanceRequestModel::TABLE_NAME, "ID")) + 1;
+                    $data['status'] = 'AP';
+                    $data['approvedBy'] = $this->employeeId;
+                    $data['approvedRemarks'] = 'Auto Approved By Manager';
+                    $attendanceRepository = new AttendanceRepository($this->adapter);
+                    $attendanceRepository->insertAttendance($data);
+                    $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
+                    return $this->redirect()->toRoute("attedanceapprove", [
+                        'Controller' => 'AttendanceApproveController',
+                        'action' => 'status'
+                    ]);
+                }
+            }
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data']
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                ]
+            );
+        } catch (Exception $e) {
+            $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
+            $this->flashmessenger()->addMessage($e->getMessage());
+            $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
+                    'form' => $this->form,
+                    'employees' => $employees['data'],
+                    // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
+                ]
+            );
+        }
+    }
 }

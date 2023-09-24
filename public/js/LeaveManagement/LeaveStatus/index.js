@@ -9,7 +9,10 @@
         var $bulkActionDiv = $('#bulkActionDiv');
         var $bulkBtns = $(".btnApproveReject");
         var $superpower = $("#super_power");
-        var $leaveYear = $('#leaveYear');
+        var $employeeId = $('#employeeId');
+
+
+        app.populateSelect($employeeId, document.employees, 'id', 'name', '--------', null, null, false);
 
         $.each(document.searchManager.getIds(), function (key, value) {
             $('#' + value).select2();
@@ -17,64 +20,78 @@
 
         $leave.select2();
         $status.select2();
-        $leaveYear.select2();
 
-        var columns = [ 
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "FULL_NAME", title: "Employee"},
-            {field: "LEAVE_ENAME", title: "Leave"},
-            {title: "Requested Date",
+        var columns = [
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "SAP_ID", title: "SAP ID" },
+            { field: "FULL_NAME", title: "Employee" },
+            { field: "LEAVE_ENAME", title: "Leave" },
+            {
+                title: "Requested Date",
                 columns: [{
-                        field: "APPLIED_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (APPLIED_DATE_AD == null) ? '-' : APPLIED_DATE_AD #</span>"},
-                    {field: "APPLIED_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (APPLIED_DATE_BS == null) ? '-' : APPLIED_DATE_BS #</span>"}]},
-            {title: "From Date",
+                    field: "APPLIED_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (APPLIED_DATE_AD == null) ? '-' : APPLIED_DATE_AD #</span>"
+                },
+                {
+                    field: "APPLIED_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (APPLIED_DATE_BS == null) ? '-' : APPLIED_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "From Date",
                 columns: [{
-                        field: "START_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (START_DATE_AD == null) ? '-' : START_DATE_AD #</span>"},
-                    {field: "START_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (START_DATE_BS == null) ? '-' : START_DATE_BS #</span>"}]},
-            {title: "To Date",
+                    field: "START_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (START_DATE_AD == null) ? '-' : START_DATE_AD #</span>"
+                },
+                {
+                    field: "START_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (START_DATE_BS == null) ? '-' : START_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "END_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (END_DATE_AD == null) ? '-' : END_DATE_AD #</span>"},
-                    {field: "END_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (END_DATE_BS == null) ? '-' : END_DATE_BS #</span>"}]},
-            {field: "NO_OF_DAYS", title: "Duration"},
-            {field: "HALF_DAY_DETAIL", title: "Type"},
-            {field: "STATUS", title: "Status"},
-            {field: "ID", title: "Action", template: `
-            <span class="clearfix">                             
+                    field: "END_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (END_DATE_AD == null) ? '-' : END_DATE_AD #</span>"
+                },
+                {
+                    field: "END_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (END_DATE_BS == null) ? '-' : END_DATE_BS #</span>"
+                }]
+            },
+            { field: "NO_OF_DAYS", title: "Duration" },
+            { field: "HALF_DAY_DETAIL", title: "Type" },
+            { field: "STATUS", title: "Status" },
+            {
+                field: "ID", title: "Action", template: `
+            <span>                                  
                 <a class="btn  btn-icon-only btn-success" href="${document.viewLink}/#: ID #" style="height:17px; width:13px" title="view">
                 <i class="fa fa-search-plus"></i>
-                </a> 
-                #if(SHOW_LEAVE_FORM =='Y'){#
-                <a class="btn  btn-icon-only btn-success" href="${document.lfcLink}/#: ID #" style="height:17px; width:13px" title="view">
-                <i class="fa fa-search"></i>
                 </a>
-                #}# 
             </span>`}
         ];
         columns = app.prependPrefColumns(columns);
         var pk = 'ID';
-        var grid = app.initializeKendoGrid($tableContainer, columns, null, {id: pk, atLast: false, fn: function (selected) {
+        var grid = app.initializeKendoGrid($tableContainer, columns, null, {
+            id: pk, atLast: false, fn: function (selected) {
                 if (selected) {
                     $bulkActionDiv.show();
                 } else {
                     $bulkActionDiv.hide();
                 }
-            }}, null, 'Leave Status Report.xlsx');
+            }
+        }, null, 'Leave Status Report.xlsx');
         app.searchTable($tableContainer, ["FULL_NAME", "EMPLOYEE_CODE"]);
-  
+
         var map = {
             'EMPLOYEE_CODE': 'Code',
+            'SAP_ID': 'SAP ID',
             'FULL_NAME': 'Name',
             'FUNCTIONAL_TYPE_EDESC': 'Functional Type',
             'LEAVE_ENAME': 'Leave',
@@ -105,8 +122,7 @@
             q['fromDate'] = $('#fromDate').val();
             q['toDate'] = $('#toDate').val();
             q['recomApproveId'] = $('#recomApproveId').val();
-            q['leaveYear'] = $leaveYear.val();
-            App.blockUI({target: "#hris-page-content"});
+            App.blockUI({ target: "#hris-page-content" });
             app.pullDataById(document.pullLeaveRequestStatusListLink, q).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 app.renderKendoGrid($tableContainer, success.data);
@@ -129,7 +145,7 @@
 
             var selectedValues = [];
             for (var i in list) {
-                selectedValues.push({id: list[i][pk], action: action, status: list[i]['STATUS'], super_power: superPower});
+                selectedValues.push({ id: list[i][pk], action: action, status: list[i]['STATUS'], super_power: superPower });
             }
             app.bulkServerRequest(document.bulkLink, selectedValues, function () {
                 $search.trigger('click');
@@ -137,14 +153,7 @@
 
             });
         });
-        
-        
-        $leaveYear.on('change', function () {
-            let selectedLeaveYear = $(this).val();
-            let leaveList = document.allLeaveForReport[selectedLeaveYear];
-            app.populateSelect($leave, leaveList, 'LEAVE_ID', 'LEAVE_ENAME', 'All Leaves', -1, -1);
-        });
-        
+
 
     });
 })(window.jQuery, window.app);

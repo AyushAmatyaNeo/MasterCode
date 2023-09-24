@@ -88,7 +88,7 @@ class AttendanceDetailRepository implements RepositoryInterface
             "A" => "'AB'",
             "H" => "'HD','WH'",
             "L" => "'LV','LP'",
-            "P" => "'PR','WD','WH','BA','LA','TP','LP','VP'",
+            "P" => "'PR','WD','WH','BA','LA','TP','LP','VP','EC','OT'",
             "T" => "'TN','TP'",
             "TVL" => "'TV','VP'",
             "WOH" => "'WH'",
@@ -176,6 +176,7 @@ class AttendanceDetailRepository implements RepositoryInterface
                   CASE
                     WHEN A.OVERALL_STATUS = 'DO'
                     THEN 'Day Off'
+                    
                     WHEN A.OVERALL_STATUS ='HD'
                     THEN 'On Holiday ('
                       ||H.HOLIDAY_ENAME
@@ -205,6 +206,30 @@ class AttendanceDetailRepository implements RepositoryInterface
                           ELSE ETN.TITLE
                         END)
                       END)  
+                      WHEN A.OVERALL_STATUS ='TV'
+                    THEN 'On Travel ('
+                      ||TVL.DESTINATION
+                      ||')'
+                    WHEN A.OVERALL_STATUS ='EC'
+                    THEN (CASE 
+                        WHEN EMS.SHOW_AS_EVENT = 'Y' 
+                        THEN 'On Event ('
+                        || (CASE
+                          WHEN A.EVENT_TYPE = 'A'
+                          THEN EMS.EVENT_NAME
+                          ELSE EEN.TITLE
+                            END)
+                        ||')'
+                    ELSE
+                    'On Event (' ||(CASE
+                    WHEN A.EVENT_TYPE = 'A'
+                    THEN EMS.EVENT_NAME
+                    ELSE EEN.TITLE
+                  END)
+                 ||')'
+                      END)  
+                      WHEN A.OVERALL_STATUS = 'OT'
+                    THEN 'On Overtime'
                     WHEN A.OVERALL_STATUS ='WD'
                     THEN 'Work On Dayoff'
                     WHEN A.OVERALL_STATUS ='WH'
@@ -274,6 +299,10 @@ class AttendanceDetailRepository implements RepositoryInterface
                 ON (A.TRAINING_ID=T.TRAINING_ID AND A.TRAINING_TYPE='A')
                 LEFT JOIN HRIS_EMPLOYEE_TRAINING_REQUEST ETN
                 ON (ETN.REQUEST_ID=A.TRAINING_ID AND A.TRAINING_TYPE ='R')
+                LEFT JOIN HRIS_EVENT_MASTER_SETUP EMS
+                ON (A.EVENT_ID=EMS.EVENT_ID AND A.EVENT_TYPE='A')
+                LEFT JOIN HRIS_EMPLOYEE_EVENT_REQUEST EEN
+                ON (EEN.EVENT_ID=A.EVENT_ID AND A.EVENT_TYPE ='R')
                 LEFT JOIN HRIS_EMPLOYEE_TRAVEL_REQUEST TVL
                 ON A.TRAVEL_ID      =TVL.TRAVEL_ID
                 LEFT JOIN HRIS_SHIFTS S

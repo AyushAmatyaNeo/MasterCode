@@ -12,22 +12,25 @@ use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 use Application\Helper\Helper;
 
-class WorkOnDayoffRepository implements RepositoryInterface {
+class WorkOnDayoffRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(WorkOnDayoff::TABLE_NAME, $adapter);
     }
 
-    public function add(Model $model) {
-        $addData=$model->getArrayCopyForDB();
+    public function add(Model $model)
+    {
+        $addData = $model->getArrayCopyForDB();
         $this->tableGateway->insert($addData);
-        
 
-        if ($addData['STATUS']=='AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
+
+        if ($addData['STATUS'] == 'AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
             $sql = "BEGIN 
             HRIS_REATTENDANCE('{$model->fromDate}',$model->employeeId,'{$model->toDate}');
             commit;
@@ -37,39 +40,41 @@ class WorkOnDayoffRepository implements RepositoryInterface {
         }
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $sql = "BEGIN
 UPDATE HRIS_EMPLOYEE_WORK_DAYOFF SET STATUS='C',MODIFIED_DATE=TRUNC(SYSDATE) WHERE ID={$id};
 DELETE FROM HRIS_EMPLOYEE_LEAVE_ADDITION WHERE WOD_ID={$id};
 DELETE FROM HRIS_OVERTIME_DETAIL WHERE WOD_ID= {$id};
 DELETE FROM HRIS_OVERTIME WHERE WOD_ID = {$id};
 END;";
-EntityHelper::rawQueryResult($this->adapter, $sql);
+        EntityHelper::rawQueryResult($this->adapter, $sql);
 
-$sql="select * from HRIS_EMPLOYEE_WORK_DAYOFF where id={$id}";
-$statement = $this->adapter->query($sql);
-$result = $statement->execute()->current();
-// echo '<pre>';print_r($result);die;
+        $sql = "select * from HRIS_EMPLOYEE_WORK_DAYOFF where id={$id}";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        // echo '<pre>';print_r($result);die;
 
-if ($result['STATUS']=='C') {
-    $sql = "BEGIN 
+        if ($result['STATUS'] == 'C') {
+            $sql = "BEGIN 
     HRIS_REATTENDANCE('{$result['FROM_DATE']}',{$result['EMPLOYEE_ID']},'{$result['FROM_DATE']}');
        END; ";
-// echo '<pre>';print_r($sql);die;
+            // echo '<pre>';print_r($sql);die;
 
-    EntityHelper::rawQueryResult($this->adapter, $sql);
-}
+            EntityHelper::rawQueryResult($this->adapter, $sql);
+        }
     }
 
-    public function edit(Model $model, $id) {
-        
+    public function edit(Model $model, $id)
+    {
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -89,25 +94,26 @@ if ($result['STATUS']=='C') {
             new Expression("INITCAP(TO_CHAR(WD.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
             new Expression("WD.APPROVED_REMARKS AS APPROVED_REMARKS"),
             new Expression("INITCAP(TO_CHAR(WD.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
-                ], true);
+        ], true);
 
         $select->from(['WD' => WorkOnDayoff::TABLE_NAME])
-                ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=WD.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=WD.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
         $select->where([
             "WD.ID=" . $id
         ]);
-        $select->order("WD.REQUESTED_DATE DESC");
+        $select->order("WD.FROM_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         return $result->current();
     }
 
-    public function getAllByEmployeeId($employeeId) {
+    public function getAllByEmployeeId($employeeId)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -132,15 +138,15 @@ if ($result['STATUS']=='C') {
             new Expression("INITCAP(TO_CHAR(WD.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
             new Expression("(CASE WHEN WD.STATUS = 'XX' THEN 'Y' ELSE 'N' END) AS ALLOW_EDIT"),
             new Expression("(CASE WHEN WD.STATUS IN ('RQ','RC','AP') THEN 'Y' ELSE 'N' END) AS ALLOW_DELETE"),
-                ], true);
+        ], true);
 
         $select->from(['WD' => WorkOnDayoff::TABLE_NAME])
-                ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=WD.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=WD.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
         $select->where([
             "E.EMPLOYEE_ID=" . $employeeId
@@ -153,15 +159,15 @@ if ($result['STATUS']=='C') {
                         ELSE 365
                       END)"
         ]);
-        $select->order("WD.REQUESTED_DATE DESC");
+        $select->order("WD.FROM_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         return $result;
     }
 
-    public function validateWODRequest($fromDate, $toDate, $employeeId) {
+    public function validateWODRequest($fromDate, $toDate, $employeeId)
+    {
         $rawResult = EntityHelper::rawQueryResult($this->adapter, "SELECT HRIS_VALIDATE_WOD_REQUEST({$fromDate},{$toDate},{$employeeId}) AS ERROR FROM DUAL");
         return $rawResult->current();
     }
-
 }

@@ -11,33 +11,36 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class AttendanceRepository implements RepositoryInterface {
+class AttendanceRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->tableGateway = new TableGateway(AttendanceDetail::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
-    public function add(Model $model) {
-        
+    public function add(Model $model)
+    {
     }
 
-    public function edit(Model $model, $id) {
-        
+    public function edit(Model $model, $id)
+    {
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
-        
+    public function fetchById($id)
+    {
     }
 
-    public function fetchByEmpId($id) {
+    public function fetchByEmpId($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -49,9 +52,9 @@ class AttendanceRepository implements RepositoryInterface {
             new Expression("A.IN_REMARKS AS IN_REMARKS"),
             new Expression("A.OUT_REMARKS AS OUT_REMARKS"),
             new Expression("A.TOTAL_HOUR AS TOTAL_HOUR")
-                ], true);
+        ], true);
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
-                ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression("INITCAP(E.FIRST_NAME)")], "left");
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression("INITCAP(E.FIRST_NAME)")], "left");
         $select->where(['A.EMPLOYEE_ID' => $id]);
         $select->order("A.ATTENDANCE_DT DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
@@ -59,23 +62,24 @@ class AttendanceRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function recordFilter($fromDate, $toDate, $employeeId, $status, $onlyMisPunch) {
+    public function recordFilter($fromDate, $toDate, $employeeId, $status, $onlyMisPunch)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
 
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceDetail::class, NULL, [
-                    AttendanceDetail::ATTENDANCE_DT
-                        ], [
-                    AttendanceDetail::IN_TIME,
-                    AttendanceDetail::OUT_TIME
-                        ], NULL, NULL, 'A'), false);
+            AttendanceDetail::ATTENDANCE_DT
+        ], [
+            AttendanceDetail::IN_TIME,
+            AttendanceDetail::OUT_TIME
+        ], NULL, NULL, 'A'), false);
 
         $select->from(['A' => AttendanceDetail::TABLE_NAME])
-                ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)'), "MIDDLE_NAME" => new Expression('INITCAP(E.MIDDLE_NAME)'), "LAST_NAME" => new Expression('INITCAP(E.LAST_NAME)')], "left")
-                ->join(['H' => 'HRIS_HOLIDAY_MASTER_SETUP'], 'A.HOLIDAY_ID=H.HOLIDAY_ID', ["HOLIDAY_ENAME" => 'HOLIDAY_ENAME'], "left")
-                ->join(['L' => 'HRIS_LEAVE_MASTER_SETUP'], 'A.LEAVE_ID=L.LEAVE_ID', ["LEAVE_ENAME" => 'LEAVE_ENAME'], "left")
-                ->join(['T' => 'HRIS_TRAINING_MASTER_SETUP'], 'A.TRAINING_ID=T.TRAINING_ID', ["TRAINING_NAME" => 'TRAINING_NAME'], "left")
-                ->join(['TVL' => 'HRIS_EMPLOYEE_TRAVEL_REQUEST'], 'A.TRAVEL_ID=TVL.TRAVEL_ID', ["TRAVEL_DESTINATION" => 'DESTINATION'], "left");
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FIRST_NAME" => new Expression('INITCAP(E.FIRST_NAME)'), "MIDDLE_NAME" => new Expression('INITCAP(E.MIDDLE_NAME)'), "LAST_NAME" => new Expression('INITCAP(E.LAST_NAME)')], "left")
+            ->join(['H' => 'HRIS_HOLIDAY_MASTER_SETUP'], 'A.HOLIDAY_ID=H.HOLIDAY_ID', ["HOLIDAY_ENAME" => 'HOLIDAY_ENAME'], "left")
+            ->join(['L' => 'HRIS_LEAVE_MASTER_SETUP'], 'A.LEAVE_ID=L.LEAVE_ID', ["LEAVE_ENAME" => 'LEAVE_ENAME'], "left")
+            ->join(['T' => 'HRIS_TRAINING_MASTER_SETUP'], 'A.TRAINING_ID=T.TRAINING_ID', ["TRAINING_NAME" => 'TRAINING_NAME'], "left")
+            ->join(['TVL' => 'HRIS_EMPLOYEE_TRAVEL_REQUEST'], 'A.TRAVEL_ID=TVL.TRAVEL_ID', ["TRAVEL_DESTINATION" => 'DESTINATION'], "left");
 
         $select->from(['A' => AttendanceDetail::TABLE_NAME]);
         if ($fromDate != null) {
@@ -90,7 +94,7 @@ class AttendanceRepository implements RepositoryInterface {
         }
         $select->where([
             'A.EMPLOYEE_ID=' . $employeeId .
-            $startDate . $endDate
+                $startDate . $endDate
         ]);
 
         if ($status != "All") {
@@ -140,7 +144,8 @@ class AttendanceRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function attendanceReport($employeeId, $fromDate, $toDate, $status, $presentStatus) {
+    public function attendanceReport($employeeId, $fromDate, $toDate, $status, $presentStatus)
+    {
         $employeeCondition = " AND A.EMPLOYEE_ID = {$employeeId}";
         $fromDateCondition = "";
         $toDateCondition = "";
@@ -159,7 +164,7 @@ class AttendanceRepository implements RepositoryInterface {
             "A" => "'AB'",
             "H" => "'HD','WH'",
             "L" => "'LV','LP'",
-            "P" => "'PR','WD','WH','BA','LA','TP','LP','VP'",
+            "P" => "'PR','WD','WH','BA','LA','TP','LP','VP','EC','OT'",
             "T" => "'TN','TP'",
             "TVL" => "'TV','VP'",
             "WOH" => "'WH'",
@@ -257,6 +262,26 @@ class AttendanceRepository implements RepositoryInterface {
                           ELSE ETN.TITLE
                         END)
                       END)
+                      WHEN A.OVERALL_STATUS ='EC'
+                    THEN (CASE 
+                        WHEN EMS.SHOW_AS_EVENT = 'Y' 
+                        THEN 'On Event ('
+                        || (CASE
+                          WHEN A.EVENT_TYPE = 'A'
+                          THEN EMS.EVENT_NAME
+                          ELSE EEN.TITLE
+                            END)
+                        ||')'
+                    ELSE
+                    'On Event (' ||(CASE
+                    WHEN A.EVENT_TYPE = 'A'
+                    THEN EMS.EVENT_NAME
+                    ELSE EEN.TITLE
+                  END)
+                 ||')'
+                      END)  
+                      WHEN A.OVERALL_STATUS = 'OT'
+                    THEN 'On Overtime'
                     WHEN A.OVERALL_STATUS ='WD'
                     THEN 'Work On Dayoff'
                     WHEN A.OVERALL_STATUS ='WH'
@@ -301,6 +326,10 @@ class AttendanceRepository implements RepositoryInterface {
                 ON (A.TRAINING_ID=T.TRAINING_ID AND A.TRAINING_TYPE='A')
                 LEFT JOIN HRIS_EMPLOYEE_TRAINING_REQUEST ETN
                 ON (ETN.REQUEST_ID=A.TRAINING_ID AND A.TRAINING_TYPE ='R')
+                LEFT JOIN HRIS_EVENT_MASTER_SETUP EMS
+                ON (A.EVENT_ID=EMS.EVENT_ID AND A.EVENT_TYPE='A')
+                LEFT JOIN HRIS_EMPLOYEE_EVENT_REQUEST EEN
+                ON (EEN.EVENT_ID=A.EVENT_ID AND A.EVENT_TYPE ='R')
                 LEFT JOIN HRIS_EMPLOYEE_TRAVEL_REQUEST TVL
                 ON A.TRAVEL_ID      =TVL.TRAVEL_ID
                 LEFT JOIN HRIS_SHIFTS SS ON (A.SHIFT_ID=SS.SHIFT_ID)
@@ -315,11 +344,12 @@ class AttendanceRepository implements RepositoryInterface {
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 
-    public function delete($id) {
-        
+    public function delete($id)
+    {
     }
 
-    public function getCurrentNeplaiMonthStartDateEndDate() {
+    public function getCurrentNeplaiMonthStartDateEndDate()
+    {
         $sql = "SELECT FISCAL_YEAR_ID,
                   MONTH_ID,
                   MONTH_EDESC,
@@ -331,5 +361,4 @@ class AttendanceRepository implements RepositoryInterface {
         $result = $statement->execute();
         return $result->current();
     }
-
 }

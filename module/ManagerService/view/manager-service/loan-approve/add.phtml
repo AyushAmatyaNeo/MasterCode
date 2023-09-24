@@ -1,0 +1,176 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('js/SelfService/loan-request/add.js'));
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('id', 'loan-form');
+
+$employeeId = $form->get('employeeId');
+$employeeId->setValueOptions($employees);
+$loanId = $form->get('loanId');
+$paymentMonths = $form->get('repaymentMonths');
+$interestRate = $form->get('interestRate');
+
+$loanId->setValueOptions($loans);
+$requestedAmount = $form->get('requestedAmount');
+
+$loanDate = $form->get('loanDate');
+$reason = $form->get('reason');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+
+$form->setAttribute('action', $this->url('loanApprove', ['action' => 'add']));
+
+$form->prepare();
+?>
+<script>
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.pullLoanListLink = '<?= $this->url("loanRequest", ["action" => "pullLoanList"]) ?>';
+    document.rateDetails = <?= json_encode($rateDetails) ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\loanApply')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<div class="row margin-top-20" ng-app="hris" ng-controller="loanController">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>New Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="employeeId">Employee</label>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="employeeId" id="employeeId" required="required" ng-model="employeeId" ng-change="employeeChange()" class="form-control">
+                                <option value="" disabled="" selected="" class="ng-binding">Please select</option>
+                                <?php foreach ($employees as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($loanId); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <!-- <select name="loanId" required="required" ng-options="value for (key,value) in loanList track by key" ng-model="loanId" id="loanId" class="form-control">
+                                <option style="display:none" value="" disabled="" selected>select a type</option>
+                            </select> -->
+                            <select name="loanId" id="loanId" required="required" class="form-control">
+                                <option value="" disabled="" selected="">select a type</option>
+                                <?php foreach ($loans as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php print $this->formElementErrors()->render($loanId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($requestedAmount); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($requestedAmount); ?>
+                            <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($loanDate); ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($loanDate); ?>
+                                    <?php print $this->formElementErrors()->render($loanDate, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliDate" id="nepaliDate" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($paymentMonths); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($paymentMonths); ?>
+                            <?php print $this->formElementErrors()->render($paymentMonths, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($interestRate); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($interestRate); ?>
+                            <?php print $this->formElementErrors()->render($interestRate, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($reason); ?>
+                            <?php print $this->formElement($reason); ?>
+                            <?php print $this->formElementErrors()->render($reason, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                    </div>
+                </div>
+
+
+
+                <?php
+                print $this->formSubmit($submit);
+                print $this->form()->closeTag();
+                ?>
+            </div>
+
+        </div>
+    </div>
+</div>

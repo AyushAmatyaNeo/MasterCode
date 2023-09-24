@@ -18,6 +18,7 @@ use Payroll\Repository\SalarySheetRepo;
 use Application\Helper\Helper;
 use Application\Helper\EntityHelper;
 use Application\Model\Months;
+use Payroll\Repository\PayrollRepository;
 use Zend\Form\Element\Month;
 
 class Payroll extends HrisController
@@ -33,6 +34,9 @@ class Payroll extends HrisController
 
     public function payslipAction()
     {
+        $payRepo = new PayrollRepository($this->adapter);
+        $ExchangeRate = $payRepo->getExchnageRate();
+        $allowExchangeRate = $ExchangeRate['VALUE'];
         $salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
         $request = $this->getRequest();
         if ($request->isPost()) {
@@ -40,9 +44,10 @@ class Payroll extends HrisController
                 $postedData = $request->getPost();
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
-                if ($postedData['exchangeRate'] == 1) {
-                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                if ($postedData['exchangeRate'] == 1 && $allowExchangeRate == 'N') {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipNep($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                 } else {
                     $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                     foreach ($data['pay-detail'] as &$row) {
@@ -57,7 +62,7 @@ class Payroll extends HrisController
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
-        return ['employeeId' => $this->employeeId, 'salaryType' => json_encode($salaryType)];
+        return ['employeeId' => $this->employeeId, 'salaryType' => json_encode($salaryType), 'allowExchangeRate' => $allowExchangeRate];
     }
 
     public function taxslipAction()

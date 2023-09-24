@@ -11,35 +11,40 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class OvertimeRepository implements RepositoryInterface {
+class OvertimeRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(Overtime::TABLE_NAME, $adapter);
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $this->tableGateway->insert($model->getArrayCopyForDB());
         return 1;
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $currentDate = Helper::getcurrentExpressionDate();
         $this->tableGateway->update([Overtime::STATUS => 'C', Overtime::MODIFIED_DATE => $currentDate], [Overtime::OVERTIME_ID => $id]);
     }
 
-    public function edit(Model $model, $id) {
-        
+    public function edit(Model $model, $id)
+    {
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -65,22 +70,23 @@ class OvertimeRepository implements RepositoryInterface {
             new Expression("OT.APPROVED_REMARKS AS APPROVED_REMARKS")
         ]);
         $select->from(['OT' => Overtime::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+            ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
         $select->where(["OT.OVERTIME_ID" => $id]);
-        $select->order("OT.REQUESTED_DATE DESC");
+        $select->order("OT.OVERTIME_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         // echo '<pre>';print_r($result->current());die;
         return $result->current();
     }
 
-    public function getAllByEmployeeId($employeeId, $overtimeDate = null, $status = null) {
+    public function getAllByEmployeeId($employeeId, $overtimeDate = null, $status = null)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -104,14 +110,14 @@ class OvertimeRepository implements RepositoryInterface {
             new Expression("OT.APPROVED_REMARKS AS APPROVED_REMARKS"),
             new Expression("(CASE WHEN OT.STATUS = 'RQ' THEN 'Y' ELSE 'N' END) AS ALLOW_EDIT"),
             new Expression("(CASE WHEN OT.STATUS IN ('RQ','RC','AP') THEN 'Y' ELSE 'N' END) AS ALLOW_DELETE"),
-                ], true);
+        ], true);
         $select->from(['OT' => Overtime::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+            ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
         $select->where(["E.EMPLOYEE_ID" => $employeeId]);
         if ($overtimeDate != null) {
@@ -132,20 +138,22 @@ class OvertimeRepository implements RepositoryInterface {
                         ELSE 365
                       END)"
         ]);
-        $select->order("OT.REQUESTED_DATE DESC");
+        $select->order("OT.OVERTIME_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         return $result;
     }
 
-    public function executeProcedure($overtimeDate) {
+    public function executeProcedure($overtimeDate)
+    {
         $dbAdapter = $this->tableGateway->getAdapter();
         $stmt = $dbAdapter->createStatement();
         $stmt->prepare("CALL HRIS_OVERTIME_AUTOMATION(TRUNC(TO_DATE('" . $overtimeDate . "','DD-MON-YYYY')))");
         $stmt->execute();
     }
 
-    public function fetchAttendanceDetail($employeeId, $date) {
+    public function fetchAttendanceDetail($employeeId, $date)
+    {
         $sql = "SELECT 
         TO_CHAR(IN_TIME, 'HH:MI AM')   AS IN_TIME,
         TO_CHAR(OUT_TIME, 'HH:MI AM')  AS OUT_TIME,
@@ -160,5 +168,4 @@ class OvertimeRepository implements RepositoryInterface {
         $boundedParameter['date'] = $date;
         return $this->rawQuery($sql, $boundedParameter);
     }
-
 }

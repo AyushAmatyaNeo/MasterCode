@@ -102,6 +102,15 @@ class SalarySheetRepo extends HrisRepository
                             HRIS_GEN_SAL_SH_REPORT(:sheetNo);
                         END;", $boundedParameter);
     }
+    public function updateAdvancePaymentFlag($employeeId, $sheetNo)
+    {
+        $boundedParameter = [];
+        $boundedParameter['sheetNo'] = $sheetNo;
+        $boundedParameter['employeeId'] = $employeeId;
+        $this->executeStatement("BEGIN
+        hris_advance_payment_flag(:employeeId,:sheetNo);
+                        END;", $boundedParameter);
+    }
 
     public function updateLoanPaymentFlag($employeeId, $sheetNo)
     {
@@ -349,15 +358,15 @@ where ss.month_id=:monthId and ss.SALARY_TYPE_ID=:salaryTypeId)";
         }
         return $checkResult;
     }
-    public function getMapPayIdList($data, $branchCode, $groupId)
-    {
-        $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
-        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
-        where ss.sheet_no = {$data}";
+    // public function getMapPayIdList($data, $branchCode, $groupId)
+    // {
+    //     $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
+    //     left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+    //     where ss.sheet_no = {$data}";
 
-        $sql = "select distinct pay_id from HRIS_ACC_CODE_MAP where company_code = ({$companyCode}) and branch_code = '{$branchCode}' and group_id = {$groupId}";
-        return $this->rawQuery($sql);
-    }
+    //     $sql = "select distinct pay_id from HRIS_ACC_CODE_MAP where company_code = ({$companyCode}) and branch_code = '{$branchCode}' and group_id = {$groupId}";
+    //     return $this->rawQuery($sql);
+    // }
 
     public function checkApproveLock($sheetNo)
     {
@@ -426,60 +435,168 @@ where SS.SHEET_NO=:sheetNo";
             return;
         }
     }
-    public function getBranchesFromCompany($data, $groupId)
+    // public function getBranchesFromCompany($data, $groupId)
+    // {
+    //     $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
+    //     left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+    //     where ss.sheet_no = {$data}";
+
+    //     $sql = "select distinct branch_code from hris_acc_code_map where company_code = ({$companyCode}) and group_id = $groupId";
+    //     $data = $this->rawQuery($sql);
+    //     return $data;
+    // }
+    // public function getDataForDoubleVoucher($data, $branchCode, $groupId)
+    // {
+    //     //print_r('adsf');die;
+    //     $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
+    //     left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+    //     where ss.sheet_no = {$data}";
+
+    //     $companyId = "select company_id from hris_company where company_code = ({$companyCode})";
+
+    //     $sql = "
+    //     select d.*, v.order_no from (select distinct FN_NEW_VOUCHER_NO(({$companyCode}), 107, trunc(sysdate), 'FA_DOUBLE_VOUCHER') as VOUCHER_NO, 
+    //     A.pay_id, 
+    //     round(A.total,2) as amount, 
+    //     acm.acc_code, 
+    //     ps.pay_edesc, 
+    //     case when ps.pay_type_flag = 'D' then 'CR' when ps.pay_type_flag = 'A' then 'DR'
+    //     else fac.transaction_type end as transaction_type,
+    //     acm.company_code, 
+    //     acm.branch_code, 
+    //     107 as form_code
+    //     from (
+    //         select ssd.pay_id, sum(ssd.val) as total, hacm.branch_code from hris_salary_sheet_detail ssd
+    //         left join hris_acc_code_map hacm on (ssd.pay_id = hacm.pay_id) 
+    //         where hacm.company_code=({$companyCode}) 
+    // 		and hacm.branch_code = '{$branchCode}' and hacm.group_id = {$groupId}
+    // 		and hacm.deleted_flag = 'N'
+    //         and ssd.sheet_no = {$data} 
+    //        -- and ssd.employee_id in (
+    //         --                        select distinct e.employee_id from hris_employees e
+    //          --                       left join hr_employee_setup es on (e.employee_id = es.employee_code)
+    //          --                       
+    //          --                       where es.branch_code = '{$branchCode}'
+    //          --                       
+    //          --                       )
+    //         group by ssd.pay_id, hacm.branch_code) A 
+    //     left join hris_acc_code_map ACM on (ACM.pay_id = A.pay_id)
+    //     left join hris_pay_setup PS on (PS.pay_id = a.pay_id)
+    //     left join fa_chart_of_accounts_setup fac on (fac.acc_code = ACM.acc_code and fac.company_code = acm.company_code)
+    //     where fac.company_code = ({$companyCode}) and acm.branch_code = '{$branchCode}' and acm.group_id = {$groupId} and A.total <> 0 ) d
+    //     left join hris_variance_payhead vp on (vp.pay_id = d.pay_id)
+    //     left join hris_variance v on (v.variance_id = vp.variance_id and v.variable_type = 'S')
+    //     where v.status = 'E'
+    //     order by  d.transaction_type desc ,v.order_no asc";
+    //     //echo '<pre>';print_r($sql);die;
+    //     $result = $this->rawQuery($sql);
+    //     return $result;
+    // }
+
+    public function getDataForDoubleVoucher($data, $branchCode)
     {
+
         $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
 
-        $sql = "select distinct branch_code from hris_acc_code_map where company_code = ({$companyCode}) and group_id = $groupId";
-        $data = $this->rawQuery($sql);
-        return $data;
-    }
-    public function getDataForDoubleVoucher($data, $branchCode, $groupId)
-    {
-        //print_r('adsf');die;
-        $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
+        $companyId = "select c.company_id from HRIS_SALARY_SHEET ss
         left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
         where ss.sheet_no = {$data}";
 
-        $companyId = "select company_id from hris_company where company_code = ({$companyCode})";
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = ({$companyId})";
+
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
 
         $sql = "
-        select d.*, v.order_no from (select distinct FN_NEW_VOUCHER_NO(({$companyCode}), 107, trunc(sysdate), 'FA_DOUBLE_VOUCHER') as VOUCHER_NO, 
-        A.pay_id, 
-        round(A.total,2) as amount, 
-        acm.acc_code, 
-        ps.pay_edesc, 
-        case when ps.pay_type_flag = 'D' then 'CR' when ps.pay_type_flag = 'A' then 'DR'
-        else fac.transaction_type end as transaction_type,
-        acm.company_code, 
-        acm.branch_code, 
-        107 as form_code
-        from (
-            select ssd.pay_id, sum(ssd.val) as total, hacm.branch_code from hris_salary_sheet_detail ssd
-            left join hris_acc_code_map hacm on (ssd.pay_id = hacm.pay_id) 
-            where hacm.company_code=({$companyCode}) 
-			and hacm.branch_code = '{$branchCode}' and hacm.group_id = {$groupId}
-			and hacm.deleted_flag = 'N'
-            and ssd.sheet_no = {$data} 
-           -- and ssd.employee_id in (
-            --                        select distinct e.employee_id from hris_employees e
-             --                       left join hr_employee_setup es on (e.employee_id = es.employee_code)
-             --                       
-             --                       where es.branch_code = '{$branchCode}'
-             --                       
-             --                       )
-            group by ssd.pay_id, hacm.branch_code) A 
-        left join hris_acc_code_map ACM on (ACM.pay_id = A.pay_id)
-        left join hris_pay_setup PS on (PS.pay_id = a.pay_id)
-        left join fa_chart_of_accounts_setup fac on (fac.acc_code = ACM.acc_code and fac.company_code = acm.company_code)
-        where fac.company_code = ({$companyCode}) and acm.branch_code = '{$branchCode}' and acm.group_id = {$groupId} and A.total <> 0 ) d
-        left join hris_variance_payhead vp on (vp.pay_id = d.pay_id)
-        left join hris_variance v on (v.variance_id = vp.variance_id and v.variable_type = 'S')
-        where v.status = 'E'
-        order by  d.transaction_type desc ,v.order_no asc";
-        //echo '<pre>';print_r($sql);die;
+		
+		SELECT
+			d.voucher_no,
+			SUM(d.amount*d.multi) AS AMOUNT,
+			d.acc_code,
+			d.pay_edesc,
+			d.transaction_type,
+			d.company_code,
+			d.branch_code,
+			d.form_code,
+			MIN(v.order_no) AS order_no
+		FROM
+			(
+				SELECT DISTINCT
+					FN_NEW_VOUCHER_NO(({$companyCode}), 107, trunc(sysdate), 'FA_DOUBLE_VOUCHER') AS voucher_no,
+					a.pay_id,
+					round(a.total, 2)                            AS amount,
+					acm.acc_code,
+                    case WHEN fac.transaction_type = 'DR' and ps.pay_type_flag <> 'A' then -1 else 1 end as multi,
+					CASE
+                    WHEN fac.transaction_type = 'DR' THEN
+                             'Sum of all Debit'
+						ELSE
+							ps.pay_edesc
+					END                                          AS pay_edesc,
+					CASE
+                    WHEN fac.transaction_type = 'DR' THEN
+							'DR'
+						ELSE
+							'CR'
+					END                                          AS transaction_type,
+					c.company_code,
+					acm.branch_code,
+					107                                          AS form_code
+				FROM
+					(
+						SELECT
+							ssd.pay_id,
+							SUM(ssd.val) AS total,
+							hacm.branch_code,
+                            case when ca.transaction_type = 'DR' then nvl(E.functional_type_id,2) else 0 end as functional_type_id --case when ps.pay_type_flag = 'A' then nvl(E.functional_type_id,2) else 0 end as functional_type_id
+						FROM
+							hris_salary_sheet_detail ssd
+							left join hris_employees E on (E.employee_id = ssd.employee_id)
+                            left join hris_pay_setup PS on (PS.pay_id = ssd.pay_id)
+							LEFT JOIN hris_acc_code_map        hacm ON ( ssd.pay_id = hacm.pay_id)
+                            LEFT JOIN fa_chart_of_accounts_setup   ca ON ( ca.acc_code = hacm.acc_code and ca.company_code=hacm.company_code)
+						WHERE
+                        hacm.functional_type_id = case when ca.transaction_type = 'DR' then nvl(E.functional_type_id,2) else 0 end and
+								hacm.company_code = ({$companyCode})
+							AND hacm.deleted_flag = 'N'
+							AND ssd.sheet_no = {$data}
+						GROUP BY
+							ssd.pay_id,
+							hacm.branch_code,
+                            case when ca.transaction_type = 'DR' then nvl(E.functional_type_id,2) else 0 end
+	
+					)                                        a
+					LEFT JOIN hris_acc_code_map                        acm ON ( acm.pay_id = a.pay_id and acm.functional_type_id = a.functional_type_id)
+					LEFT JOIN hris_company                             c ON ( c.company_code = acm.company_code )
+					LEFT JOIN hris_pay_setup                           ps ON ( ps.pay_id = a.pay_id )
+					LEFT JOIN fa_chart_of_accounts_setup fac ON ( fac.acc_code = acm.acc_code )
+				WHERE
+                acm.company_code = ($companyCode) and
+						fac.company_code = ({$companyCode}) and acm.branch_code = '{$branchCode}'
+					AND a.total <> 0
+			)                     d
+			LEFT JOIN hris_variance_payhead vp ON ( vp.pay_id = d.pay_id )
+			LEFT JOIN hris_variance         v ON ( v.variance_id = vp.variance_id
+										   AND v.variable_type = 'S' )
+		WHERE
+			v.status = 'E'
+		GROUP BY
+			d.voucher_no,
+			d.acc_code,
+			d.pay_edesc,
+			d.transaction_type,
+			d.company_code,
+			d.branch_code,
+			d.form_code
+		ORDER BY
+			d.transaction_type DESC,
+			MIN(v.order_no) ASC
+		";
         $result = $this->rawQuery($sql);
         return $result;
     }
@@ -782,11 +899,11 @@ where SS.SHEET_NO=:sheetNo";
         FROM
             hris_monthly_value_detail
         WHERE
-        mth_id = 12
+        mth_id in (select  mth_id from hris_monthly_value_setup where mth_code='MOT')
             AND fiscal_year_id = (select fiscal_year_id from hris_month_code where month_id=$detail[monthId])
             AND month_id = $detail[monthId]
             AND employee_id = $empId";
-        // echo '<pre>';print_r($sql);die;
+
         $statement = $this->adapter->query($sql);
         $statement->execute();
         $sql = "INSERT INTO hris_monthly_value_detail (
@@ -798,7 +915,7 @@ where SS.SHEET_NO=:sheetNo";
             fiscal_year_id,
             month_id
         ) VALUES (
-            12,$empId,$detail[overtime],trunc(sysdate),NULL,(SELECT fiscal_year_id FROM hris_month_code WHERE month_id = $detail[monthId]),$detail[monthId])";
+            (select  mth_id from hris_monthly_value_setup where mth_code='MOT'),$empId,$detail[overtime],trunc(sysdate),NULL,(SELECT fiscal_year_id FROM hris_month_code WHERE month_id = $detail[monthId]),$detail[monthId])";
         $statement = $this->adapter->query($sql);
         $statement->execute();
     }
@@ -834,5 +951,193 @@ where SS.SHEET_NO=:sheetNo";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return Helper::extractDbData($result);
+    }
+    public function getOldVoucherNo($sheetNo)
+    {
+        $sql = "select voucher_no from HRIS_SALARY_VOUCHER_DETAILS where sheet_no = $sheetNo and status='E' and completed_flag='Y'";
+
+        return $this->rawQuery($sql)[0]['VOUCHER_NO'];
+    }
+    public function getBranchesFromCompany($data)
+    {
+        $companyCode = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$data}";
+
+        $sql = "select distinct branch_code from hris_acc_code_map where company_code = ({$companyCode})";
+        $data = $this->rawQuery($sql);
+        return $data;
+    }
+
+    public function getMapPayIdList($data, $branchCode)
+    {
+        $companyCode = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$data}";
+
+        $sql = "select distinct pay_id from HRIS_ACC_CODE_MAP where company_code = ({$companyCode}) and branch_code = '{$branchCode}' ";
+        return $this->rawQuery($sql);
+    }
+
+    public function getpayIdForSubDetail($data, $branchCode)
+    {
+        $companyCode = "select c.company_code from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$data}";
+
+        $sql = "select distinct pay_id from HRIS_ACC_CODE_MAP where company_code = ({$companyCode}) and branch_code = '{$branchCode}' and show_voucher_sub_detail = 'Y'";
+        return $this->rawQuery($sql);
+    }
+
+    public function clearIncompleteData($voucherNumber, $sheetNo)
+    {
+
+        $companyId = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$sheetNo}";
+
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = ({$companyId})";
+
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
+
+        $sql1 = "delete from FA_DOUBLE_VOUCHER where voucher_no = '$voucherNumber'";
+        $sql2 = "delete from fa_voucher_sub_detail where voucher_no = '$voucherNumber'";
+        $sql3 = "delete from master_transaction where voucher_no = '$voucherNumber'";
+
+        $this->rawQuery($sql1);
+        $this->rawQuery($sql2);
+        $this->rawQuery($sql3);
+    }
+    public function reInsertIntoDoubleVoucher($data, $employeeId, $sheetDetails, $sheetNo, $oldVoucherNo, $voucherDate)
+    {
+        $companyId = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$sheetNo}";
+
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = ({$companyId})";
+
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
+
+        $voucherNo = $data['VOUCHER_NO'];
+        $accCode = $data['ACC_CODE'];
+        $payEdesc = $data['PAY_EDESC'];
+        $serialNo = $data['SERIAL_NO'];
+        $transactionType = $data['TRANSACTION_TYPE'];
+        $amount = $data['AMOUNT'];
+        $formCode = $data['FORM_CODE'];
+        $companyCode = $data['COMPANY_CODE'];
+        $branchCode = $data['BRANCH_CODE'];
+        $createdBy = "select upper(SUBSTR(first_name, 0, 1)) || upper(LAST_NAME) from HRIS_EMPLOYEES where employee_id = {$employeeId}";
+
+        $sql = "insert into FA_DOUBLE_VOUCHER 
+        (VOUCHER_NO, VOUCHER_DATE, SERIAL_NO, ACC_CODE, TRANSACTION_TYPE, AMOUNT, FORM_CODE, COMPANY_CODE, BRANCH_CODE, CREATED_BY, CREATED_DATE,DELETED_FLAG, PARTICULARS, BUDGET_FLAG, MANUAL_NO) 
+        values
+        ('{$oldVoucherNo}', '$voucherDate','{$serialNo}','{$accCode}', '{$transactionType}', {$amount}, '{$formCode}', '{$companyCode}', '{$branchCode}', ({$createdBy}), trunc(sysdate), 'N', 'Salary Sheet ' || ' {$sheetDetails['SHEET_NO']} ' || '(' || '{$sheetDetails['SALARY_TYPE_NAME']}' || ' Salary) of ' || '{$sheetDetails['MONTH_EDESC']}' || ' ' || '{$sheetDetails['FISCAL_YEAR_NAME']}' || ' ' || '{$payEdesc}', 'E', '{$sheetDetails['SALARY_TYPE_NAME']}' || ' Salary')";
+        // print_r($sql);die;
+        return $this->rawQuery($sql);
+    }
+
+    public function reInsertIntoVoucherSubDetail($data, $employeeId, $indiEmployee, $sheetNo, $oldVoucherNO)
+    {
+        $companyId = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$sheetNo}";
+
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = ({$companyId})";
+
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
+
+        $voucherNo = $data['VOUCHER_NO'];
+        $accCode = $data['ACC_CODE'];
+        $serialNo = "select serial_no from fa_double_voucher where voucher_no = '{$oldVoucherNO}' and acc_code = {$accCode}";
+        //$data['SERIAL_NO'];
+        $transactionType = $data['TRANSACTION_TYPE'];
+        $amount = $data['TOTAL'];
+        $formCode = $data['FORM_CODE'];
+        $companyCode = $data['COMPANY_CODE'];
+        $branchCode = $data['BRANCH_CODE'];
+        $createdBy = "select upper(SUBSTR(first_name, 0, 1)) || upper(LAST_NAME) from HRIS_EMPLOYEES where employee_id = {$indiEmployee}";
+        $particulars = "select particulars from fa_double_voucher where voucher_no = '{$oldVoucherNO}' and acc_code = '{$accCode}'";
+
+        if ($transactionType == 'CR') {
+            $sql = "insert into fa_voucher_sub_detail 
+            (VOUCHER_NO, COMPANY_CODE, BRANCH_CODE, FORM_CODE, SERIAL_NO, ACC_CODE, SUB_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, CREATED_BY, CREATED_DATE, DELETED_FLAG, CURRENCY_CODE, EXCHANGE_RATE, PARTICULARS) 
+            values
+            ('{$oldVoucherNO}', '{$companyCode}','{$branchCode}','{$formCode}', ({$serialNo}), '{$accCode}', 'E' || '{$indiEmployee}', '{$transactionType}', 0, {$amount}, ({$createdBy}), trunc(sysdate), 'N', 'NRS', 1, ({$particulars}))";
+        } else {
+            $sql = "insert into fa_voucher_sub_detail
+            (VOUCHER_NO, COMPANY_CODE, BRANCH_CODE, FORM_CODE, SERIAL_NO, ACC_CODE, SUB_CODE, TRANSACTION_TYPE, DR_AMOUNT, CR_AMOUNT, CREATED_BY, CREATED_DATE, DELETED_FLAG, CURRENCY_CODE, EXCHANGE_RATE) 
+            values
+            ('{$oldVoucherNO}', '{$companyCode}','{$branchCode}','{$formCode}', ({$serialNo}), '{$accCode}', 'E' || '{$indiEmployee}', '{$transactionType}', {$amount}, 0, ({$createdBy}), trunc(sysdate), 'N', 'NRS', 1 )";
+        }
+        //print_r($sql);die;
+        return $this->rawQuery($sql);
+    }
+    public function reInsertIntoMasterTransaction($masterTransactionData, $employeeId, $sheetNo, $oldVoucherNo, $voucherDate)
+    {
+
+        $companyId = "select c.company_id from HRIS_SALARY_SHEET ss
+        left join HRIS_COMPANY C ON( ss.company_id = c.company_id)
+        where ss.sheet_no = {$sheetNo}";
+
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = ({$companyId})";
+
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
+
+
+        $voucherNo = $masterTransactionData['VOUCHER_NO'];
+        $amount = $masterTransactionData['GROSS_AMOUNT'];
+        $companyCode = $masterTransactionData['COMPANY_CODE'];
+        $branchCode = $masterTransactionData['BRANCH_CODE'];
+        $formCode = $masterTransactionData['FORM_CODE'];
+        $createdBy = "select upper(SUBSTR(first_name, 0, 1)) || upper(LAST_NAME) from HRIS_EMPLOYEES where employee_id = {$employeeId}";
+
+        $sql = "INSERT INTO master_transaction (
+            voucher_no,
+            voucher_amount,
+            form_code,
+            company_code,
+            branch_code,
+            created_by,
+            created_date,
+            deleted_flag,
+            voucher_date,
+            currency_code,
+            exchange_rate,
+            is_sync_with_ird,
+            is_real_time
+        ) VALUES (
+            '{$oldVoucherNo}',
+            {$amount},
+            '{$formCode}',
+            '{$companyCode}',
+            '{$branchCode}',
+            ({$createdBy}),
+            TRUNC(SYSDATE),
+            'N',
+            '$voucherDate',
+            'NRS',
+            1,
+            'N',
+            'N'
+        )";
+        // print_r($sql);die;
+        return $this->rawQuery($sql);
     }
 }

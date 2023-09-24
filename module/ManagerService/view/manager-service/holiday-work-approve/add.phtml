@@ -1,0 +1,182 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('js/manager-service/holiday-work-approve/add.js'));
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('id', 'workOnHoliday-form');
+
+$employeeId = $form->get('employeeId');
+$employeeId->setValueOptions($employees);
+$holidayId = $form->get('holidayId');
+$holidayId->setValueOptions($holidays);
+$fromDate = $form->get('fromDate');
+$toDate = $form->get('toDate');
+$duration = $form->get('duration');
+$remarks = $form->get('remarks');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+
+$form->setAttribute('action', $this->url('holidayWorkApprove', ['action' => 'add']));
+
+
+$form->prepare();
+?>
+<script>
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.pullHolidaysForEmployeeLink = '<?php echo $this->url("holidayWorkApprove", ["action" => "pullHolidaysForEmployee"]); ?>';
+    document.approvers = <?= json_encode($approvers); ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\workOnHolidayApply')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>New Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="form-holidayId">Employee Name</label>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="employeeId" id="employeeId" required="required" class="form-control">
+                                <option value="" disabled="" selected="">Please select</option>
+                                <?php foreach ($employees as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($holidayId); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="holidayId" required="required" id="holidayId" class="form-control">
+                                <option style="display:none" value="" disabled="" selected>select a type</option>
+                            </select>
+                            <?php print $this->formElementErrors()->render($holidayId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class=" row">
+                    <div class="col-sm-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group required  <?= empty($fromDate->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($fromDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($fromDate) ?>
+                                </div>
+                                <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block error']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliStartDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group required <?= empty($toDate->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($toDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($toDate) ?>
+                                    <span id="errorMsgDate" style="font-size:11px; color:red;"></span>
+                                </div>
+                                <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block error']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliEndDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group required <?= empty($duration->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($duration); ?>
+                            <?php print $this->formElement($duration); ?>
+                            <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                        </div>
+                        <?php print $this->formElementErrors()->render($duration, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                            <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label for="applyOption">Apply Status</label>
+                        <?php print $this->formElement($applyOption); ?>
+                    </div>
+
+
+                </div>
+
+                <?php
+                print $this->formSubmit($submit);
+                print $this->form()->closeTag();
+                ?>
+            </div>
+
+        </div>
+    </div>
+</div>

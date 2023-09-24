@@ -1,0 +1,203 @@
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\advanceApply')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('js/advance/advance-approve/add.js?1'));
+?>
+
+
+<?php
+$form->setAttribute('role', 'form');
+
+$employeeId = $form->get('employeeId');
+$advanceId = $form->get('advanceId');
+$requestedAmount = $form->get('requestedAmount');
+$dateOfadvance = $form->get('dateOfadvance');
+$reason = $form->get('reason');
+$deductionRate = $form->get('deductionRate');
+$deductionIn = $form->get('deductionIn');
+$overrideRecommenderId = $form->get('overrideRecommenderId');
+$overrideApproverId = $form->get('overrideApproverId');
+//$overrideApproverId->setValueOptions($employeeList);
+
+//echo '<pre>';
+//print_r($employeeList);
+//die();
+
+
+
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'Apply Advance');
+$submit->setAttribute('id', 'request');
+//
+$form->setAttribute('action', $this->url('advanceApply', ['action' => 'add']));
+
+
+$form->prepare();
+print $this->form()->openTag($form);
+?>
+<script>
+    document.advanceList = <?= json_encode($advance); ?>;
+    document.employeeList = <?= json_encode($employeeList); ?>;
+    document.pullEmployeeAdvance = '<?php echo $this->url('advance-approve', ['action' => 'pullEmployeeAdvance']); ?>';
+</script>
+
+
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>
+                    Apply For Advance
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="form-group">
+                    <input type="hidden" name="deductionType" id="deductionType" />
+                </div>
+
+                <div class="row">
+
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <label>Employee</label>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="employeeId" id="employeeId" required="required" ng-model="employeeId" ng-change="employeeChange()" class="form-control">
+                                <option value="" disabled="" selected="" class="ng-binding">Please select</option>
+                                <?php foreach ($employees as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($advanceId); ?>
+                            <?php print $this->formElement($advanceId); ?>
+                            <?php print $this->formElementErrors()->render($advanceId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($requestedAmount); ?>
+                            <?php print $this->formElement($requestedAmount); ?>
+                            <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($dateOfadvance); ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($dateOfadvance); ?>
+                                    <?php print $this->formElementErrors()->render($dateOfadvance, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliDate">&nbsp;</label>
+                                    <input type="text" name="nepaliDate" id="nepalidateOfadvance" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($reason); ?>
+                            <?php print $this->formElement($reason); ?>
+                            <?php print $this->formElementErrors()->render($reason, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+
+
+
+                    <div id="deductionRateDiv" class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($deductionRate); ?>
+                            <?php print $this->formElement($deductionRate); ?>
+                            <?php print $this->formElementErrors()->render($deductionRate, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div id="deductionInDiv" class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($deductionIn); ?>
+                            <?php print $this->formElement($deductionIn); ?>
+                            <?php print $this->formElementErrors()->render($deductionIn, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div id="overrideRecommenderDiv" class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($overrideRecommenderId); ?>
+                            <?php print $this->formElement($overrideRecommenderId); ?>
+                            <?php print $this->formElementErrors()->render($overrideRecommenderId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+
+                    <div id="overrideApproverDiv" class="col-sm-12 col-md-6 col-lg-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($overrideApproverId); ?>
+                            <?php print $this->formElement($overrideApproverId); ?>
+                            <?php print $this->formElementErrors()->render($overrideApproverId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div><span id="monthlySalary" class="clearText"></span></div>
+                    <div><span id="defaultValues" class="clearText"></span></div>
+                    <div><span id="monthlyDeductionAmt" class="clearText"></span></div>
+                    <div><span id="maxReqAmt" class="clearText"></span></div>
+                    <div><span id="overrideDeductionPer" class="clearText"></span></div>
+                    <div><span id="overrideDeductionMonth" class="clearText"></span></div>
+
+                </div>
+
+                <span id="beforeSubmitVal" class="errorMsg"></span></br>
+                <?php print $this->formSubmit($submit); ?>
+
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+print $this->form()->closeTag();
+?>

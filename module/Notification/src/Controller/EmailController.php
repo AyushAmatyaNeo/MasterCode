@@ -27,6 +27,7 @@ use Notification\Model\ExpenseReqNotificationModel;
 use Zend\Mvc\Controller\AbstractActionController;
 use Notification\Model\NewUserNotificationModel;
 use Notification\Model\PayslipEmailNotificationModel;
+use Notification\Model\RoasterModel;
 
 class EmailController extends AbstractActionController
 {
@@ -89,6 +90,8 @@ class EmailController extends AbstractActionController
         51 => "Event_Approval",
         52 => "New_User_Created",
         53 => "Email_Payslip",
+        54 => "Roaster_Assigned",
+
     ];
 
     private function getVariables()
@@ -155,6 +158,9 @@ class EmailController extends AbstractActionController
         $type53 = new PayslipEmailNotificationModel();
         $type53ObjVars = $type53->getObjectAttrs();
 
+        $type54 = new RoasterModel();
+        $type54ObjVars = $type54->getObjectAttrs();
+
         return [
             1 => $type1ObjVars,
             2 => $type1ObjVars,
@@ -209,6 +215,8 @@ class EmailController extends AbstractActionController
             51 => $type49ObjVars,
             52 => $type52ObjVars,
             53 => $type53ObjVars,
+            54 => $type54ObjVars,
+
         ];
     }
 

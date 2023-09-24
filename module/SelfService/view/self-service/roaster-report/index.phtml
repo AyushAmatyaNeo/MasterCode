@@ -1,0 +1,110 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'))
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('js/search.js'));
+$this->headScript()->appendFile($this->basePath('js/Report/AllReport/roster-report.js?1'));
+
+?>
+<script>
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.employeeDetail = <?php echo json_encode($employeeDetail); ?>;
+    document.getRosterReportLink = "<?php echo $this->url('roasterReport', ['action' => 'index']); ?>";
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\overtime-report')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+
+<div class="row">
+    <div class="col-sm-12 ">
+        <div class="portlet box green">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-gift"></i> Filter Employees
+                </div>
+                <div class="tools">
+                    <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                    <a href="" class="fullscreen" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body hris-filter-container" style="display: block;">
+
+                <div class="row margin-top-10">
+                    <div class="col-sm-2">
+                        <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" placeholder="From Date" />
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali" />
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date" />
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                            Reset
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                        <button id="search" class="btn btn-default btn-sm pull-right">
+                            Search
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="portlet box blue">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-gift"></i> Grid
+                </div>
+                <div class="tools">
+                    <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                    <a href="" class="fullscreen" data-original-title="" title=""> </a>
+                </div>
+                <div class="actions">
+                    <div class="btn-group">
+                        <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-copy"></i> Tools
+                            <i class="fa fa-angle-down "></i>
+                        </a>
+                        <ul class="dropdown-menu pull-right">
+                            <li>
+                                <a href="javascript:;" id="excelExport">
+                                    <i class="fa fa-file-excel-o"></i>
+                                    Export to Excel
+                                </a>
+                            </li>
+                            <li>
+                                <a href="javascript:;" id="pdfExport">
+                                    <i class="fa fa-file-pdf-o"></i>
+                                    Export to PDF
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="table">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

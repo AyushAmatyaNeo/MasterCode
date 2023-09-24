@@ -9,25 +9,26 @@
                 </a>
             </div>
         `;
-        
-         var rowTemplateString = "<tr  class='#: (PRI_SEC=='SECONDARY')  ? 'bg-primary' : '' #' data-uid='#: uid #'>" +
-          "<td><input type='checkbox' id='#:ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:ID#'></label></td>" +
-          "<td>#: EMPLOYEE_CODE #</td>" +
-          "<td>#: FULL_NAME #</td>" +
-          "<td>#: LEAVE_ENAME #</td>" +
-          "<td>#: APPLIED_DATE_AD #</td>" +
-          "<td>#: APPLIED_DATE_BS #</td>" +
-          "<td>#: START_DATE_AD #</td>" +
-          "<td>#: START_DATE_BS #</td>" +
-          "<td>#: END_DATE_AD #</td>" +
-          "<td>#: END_DATE_BS #</td>" +
-          "<td>#: HALF_DAY_DETAIL #</td>" +
-          "<td>#: GRACE_PERIOD_DETAIL #</td>" +
-          "<td>#: NO_OF_DAYS #</td>" +
-          "<td>#: STATUS_DETAIL #</td>" +
-          "<td>"+action+"</td>" +
-          "</tr>";
-        
+
+        var rowTemplateString =
+            //   "<tr  class='#: (PRI_SEC=='SECONDARY')  ? 'bg-primary' : '' #' data-uid='#: uid #'>" +
+            "<td><input type='checkbox' id='#:ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:ID#'></label></td>" +
+            "<td>#: EMPLOYEE_CODE #</td>" +
+            "<td>#: FULL_NAME #</td>" +
+            "<td>#: LEAVE_ENAME #</td>" +
+            "<td>#: APPLIED_DATE_AD #</td>" +
+            "<td>#: APPLIED_DATE_BS #</td>" +
+            "<td>#: START_DATE_AD #</td>" +
+            "<td>#: START_DATE_BS #</td>" +
+            "<td>#: END_DATE_AD #</td>" +
+            "<td>#: END_DATE_BS #</td>" +
+            "<td>#: HALF_DAY_DETAIL #</td>" +
+            "<td>#: GRACE_PERIOD_DETAIL #</td>" +
+            "<td>#: NO_OF_DAYS #</td>" +
+            "<td>#: STATUS_DETAIL #</td>" +
+            "<td>" + action + "</td>" +
+            "</tr>";
+
         app.initializeKendoGrid($table, [
             {
                 title: 'Select All',
@@ -35,43 +36,49 @@
                 template: "<input type='checkbox' id='#:ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:ID#'></label>",
                 width: 40
             },
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "FULL_NAME", title: "Employee"},
-            {field: "LEAVE_ENAME", title: "Leave Name"},
-            {title: "Applied Date",
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "FULL_NAME", title: "Employee" },
+            { field: "LEAVE_ENAME", title: "Leave Name" },
+            {
+                title: "Applied Date",
                 columns: [{
-                        field: "APPLIED_DATE_AD",
-                        title: "AD",
-                    },
-                    {
-                        field: "APPLIED_DATE_BS",
-                        title: "BS",
-                    }]},
+                    field: "APPLIED_DATE_AD",
+                    title: "AD",
+                },
+                {
+                    field: "APPLIED_DATE_BS",
+                    title: "BS",
+                }]
+            },
 
-            {title: "From Date",
+            {
+                title: "From Date",
                 columns: [{
-                        field: "START_DATE_AD",
-                        title: "AD",
-                    },
-                    {
-                        field: "START_DATE_BS",
-                        title: "BS",
-                    }]},
-            {title: "To Date",
+                    field: "START_DATE_AD",
+                    title: "AD",
+                },
+                {
+                    field: "START_DATE_BS",
+                    title: "BS",
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "END_DATE_AD",
-                        title: "AD",
-                    },
-                    {
-                        field: "END_DATE_BS",
-                        title: "BS",
-                    }]},
-            {field: "HALF_DAY_DETAIL", title: "Day Interval"},
-            {field: "GRACE_PERIOD_DETAIL", title: "Grace"},
-            {field: "NO_OF_DAYS", title: "Duration"},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: ["ID", "ROLE"], title: "Action", template: action}
-        ], null, null, {rowTemplate : rowTemplateString}, 'Leave Request');
+                    field: "END_DATE_AD",
+                    title: "AD",
+                },
+                {
+                    field: "END_DATE_BS",
+                    title: "BS",
+                }]
+            },
+            { field: "HALF_DAY_DETAIL", title: "Day Interval" },
+            { field: "GRACE_PERIOD_DETAIL", title: "Grace" },
+            { field: "NO_OF_DAYS", title: "Duration" },
+            { field: "STATUS_DETAIL", title: "Status" },
+            { field: ["ID", "ROLE"], title: "Action", template: action }
+        ], null, null, { rowTemplate: rowTemplateString }, 'Leave Request');
 
 
         app.pullDataById('', {}).then(function (response) {
@@ -80,7 +87,7 @@
                 selectItems = {};
                 var data = response.data;
                 for (var i in data) {
-                    selectItems[data[i]['ID']] = {'checked': false, 'role': data[i]['ROLE']};
+                    selectItems[data[i]['ID']] = { 'checked': false, 'role': data[i]['ROLE'] };
                 }
             } else {
                 app.showMessage(response.error, 'error');
@@ -153,14 +160,14 @@
             var selectedValues = [];
             for (var i in selectItems) {
                 if (selectItems[i].checked) {
-                    selectedValues.push({id: i, role: selectItems[i]['role']});
+                    selectedValues.push({ id: i, role: selectItems[i]['role'] });
                 }
             }
 
-            App.blockUI({target: "#hris-page-content"});
+            App.blockUI({ target: "#hris-page-content" });
             app.pullDataById(
-                    document.approveRejectUrl,
-                    {data: selectedValues, btnAction: btnId}
+                document.approveRejectUrl,
+                { data: selectedValues, btnAction: btnId }
             ).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 window.location.reload(true);

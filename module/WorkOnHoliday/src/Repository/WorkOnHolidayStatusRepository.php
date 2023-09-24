@@ -1,4 +1,5 @@
 <?php
+
 namespace WorkOnHoliday\Repository;
 
 use Application\Helper\EntityHelper;
@@ -6,51 +7,53 @@ use Application\Repository\HrisRepository;
 use Setup\Model\HrEmployees;
 use Zend\Db\Adapter\AdapterInterface;
 
-class WorkOnHolidayStatusRepository extends HrisRepository {
+class WorkOnHolidayStatusRepository extends HrisRepository
+{
 
-    public function getFilteredRecord($data, $recomApproveId) {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-        $holidayId = $data['holidayId'];
-        $requestStatusId = $data['requestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
+  public function getFilteredRecord($data, $recomApproveId)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $holidayId = $data['holidayId'];
+    $requestStatusId = $data['requestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-        $statusCondition = '';
-        $holidayCondition = '';
-        $fromDateCondition = '';
-        $toDateCondition = '';
-        if ($requestStatusId != -1) {
-            $statusCondition = " AND  WH.STATUS=:requestStatusId ";
-            $boundedParameter['requestStatusId'] = $requestStatusId;
-        }
-        
-        if ($holidayId != -1) {
-            $holidayCondition = " AND WH.HOLIDAY_ID =:holidayId";
-            $boundedParameter['holidayId'] = $holidayId;
-        }
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $statusCondition = '';
+    $holidayCondition = '';
+    $fromDateCondition = '';
+    $toDateCondition = '';
+    if ($requestStatusId != -1) {
+      $statusCondition = " AND  WH.STATUS=:requestStatusId ";
+      $boundedParameter['requestStatusId'] = $requestStatusId;
+    }
 
-        if ($fromDate != null) {
-            $fromDateCondition = " AND WH.FROM_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
+    if ($holidayId != -1) {
+      $holidayCondition = " AND WH.HOLIDAY_ID =:holidayId";
+      $boundedParameter['holidayId'] = $holidayId;
+    }
 
-        if ($toDate != null) {
-            $toDateCondition = " AND WH.TO_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
-            $boundedParameter['toDate'] = $toDate;
-        }
+    if ($fromDate != null) {
+      $fromDateCondition = " AND WH.FROM_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
+      $boundedParameter['fromDate'] = $fromDate;
+    }
 
-        $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
+    if ($toDate != null) {
+      $toDateCondition = " AND WH.TO_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
+      $boundedParameter['toDate'] = $toDate;
+    }
+
+    $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
                   WH.DURATION,
                   INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_AD,
                   BS_DATE(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_BS,
@@ -116,58 +119,54 @@ class WorkOnHolidayStatusRepository extends HrisRepository {
                 {$holidayCondition}
                 {$fromDateCondition}
                 {$toDateCondition}
-                ORDER BY WH.REQUESTED_DATE DESC";
+                ORDER BY WH.FROM_DATE DESC";
+    return $this->rawQuery($sql, $boundedParameter);
+  }
 
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return $result;
+  public function getWOHRequestList($data)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $holidayId = $data['holidayId'];
+    $requestStatusId = $data['requestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
 
-            return $this->rawQuery($sql, $boundedParameter);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $statusCondition = '';
+    $holidayCondition = '';
+    $fromDateCondition = '';
+    $toDateCondition = '';
+    if ($requestStatusId != -1) {
+      $statusCondition = " AND  WH.STATUS=:requestStatusId ";
+      $boundedParameter['requestStatusId'] = $requestStatusId;
     }
 
-    public function getWOHRequestList($data) {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $functionalTypeId = $data['functionalTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-        $holidayId = $data['holidayId'];
-        $requestStatusId = $data['requestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
+    if ($holidayId != -1) {
+      $holidayCondition = " AND WH.HOLIDAY_ID =:holidayId";
+      $boundedParameter['holidayId'] = $holidayId;
+    }
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-        $statusCondition = '';
-        $holidayCondition = '';
-        $fromDateCondition = '';
-        $toDateCondition = '';
-        if ($requestStatusId != -1) {
-            $statusCondition = " AND  WH.STATUS=:requestStatusId ";
-            $boundedParameter['requestStatusId'] = $requestStatusId;
-        }
+    if ($fromDate != null) {
+      $fromDateCondition = " AND WH.FROM_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
+      $boundedParameter['fromDate'] = $fromDate;
+    }
 
-        if ($holidayId != -1) {
-            $holidayCondition = " AND WH.HOLIDAY_ID =:holidayId";
-            $boundedParameter['holidayId'] = $holidayId;
-        }
-
-        if ($fromDate != null) {
-            $fromDateCondition = " AND WH.FROM_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
-
-        if ($toDate != null) {
-            $toDateCondition = " AND WH.TO_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
-            $boundedParameter['toDate'] = $toDate;
-        }
-        $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
+    if ($toDate != null) {
+      $toDateCondition = " AND WH.TO_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
+      $boundedParameter['toDate'] = $toDate;
+    }
+    $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
                   WH.DURATION,
                   INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_AD,
                   BS_DATE(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_BS,
@@ -238,46 +237,47 @@ class WorkOnHolidayStatusRepository extends HrisRepository {
                 {$statusCondition}
                 {$holidayCondition}
                 {$fromDateCondition}
-                {$toDateCondition} ORDER BY WH.REQUESTED_DATE DESC";
-        // FOR SHIVAM
-//        $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
-//                  WH.DURATION,
-//                  INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_AD,
-//                  BS_DATE(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_BS,
-//                  INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY'))                     AS TO_DATE_AD,
-//                  BS_DATE(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY'))                     AS TO_DATE_BS,
-//                  INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_AD,
-//                  BS_DATE(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_BS,
-//                  LEAVE_STATUS_DESC(WH.STATUS)                                    AS STATUS,
-//                  WH.EMPLOYEE_ID                                                  AS EMPLOYEE_ID,
-//                  WH.ID                                                           AS ID,
-//                  WH.REMARKS                                                      AS REMARKS,
-//                  INITCAP(TO_CHAR(WH.RECOMMENDED_DATE, 'DD-MON-YYYY'))            AS RECOMMENDED_DATE,
-//                  INITCAP(TO_CHAR(WH.APPROVED_DATE, 'DD-MON-YYYY'))               AS APPROVED_DATE,
-//                  E.EMPLOYEE_CODE                                                 AS EMPLOYEE_CODE,
-//                  INITCAP(E.FULL_NAME)                                            AS FULL_NAME,
-//                  WH.RECOMMENDED_BY                                               AS RECOMMENDED_BY,
-//                  WH.APPROVED_BY                                                  AS APPROVED_BY,
-//                  WH.RECOMMENDED_REMARKS                                          AS RECOMMENDED_REMARKS,
-//                  WH.APPROVED_REMARKS                                             AS APPROVED_REMARKS
-//                FROM HRIS_EMPLOYEE_WORK_HOLIDAY WH
-//                LEFT OUTER JOIN HRIS_HOLIDAY_MASTER_SETUP H
-//                ON H.HOLIDAY_ID=WH.HOLIDAY_ID
-//                LEFT OUTER JOIN HRIS_EMPLOYEES E
-//                ON E.EMPLOYEE_ID=WH.EMPLOYEE_ID
-//                WHERE H.STATUS    ='E'
-//                AND E.STATUS      ='E'
-//                {$searchCondition}
-//                {$statusCondition}
-//                {$holidayCondition}
-//                {$fromDateCondition}
-//                {$toDateCondition} ORDER BY WH.REQUESTED_DATE DESC";
-        $finalSql = $this->getPrefReportQuery($sql);
-        return $this->rawQuery($finalSql, $boundedParameter);
-    }
+                {$toDateCondition} ORDER BY WH.FROM_DATE DESC";
+    // FOR SHIVAM
+    //        $sql = "SELECT INITCAP(H.HOLIDAY_ENAME) AS HOLIDAY_ENAME,
+    //                  WH.DURATION,
+    //                  INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_AD,
+    //                  BS_DATE(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY'))                   AS FROM_DATE_BS,
+    //                  INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY'))                     AS TO_DATE_AD,
+    //                  BS_DATE(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY'))                     AS TO_DATE_BS,
+    //                  INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_AD,
+    //                  BS_DATE(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_BS,
+    //                  LEAVE_STATUS_DESC(WH.STATUS)                                    AS STATUS,
+    //                  WH.EMPLOYEE_ID                                                  AS EMPLOYEE_ID,
+    //                  WH.ID                                                           AS ID,
+    //                  WH.REMARKS                                                      AS REMARKS,
+    //                  INITCAP(TO_CHAR(WH.RECOMMENDED_DATE, 'DD-MON-YYYY'))            AS RECOMMENDED_DATE,
+    //                  INITCAP(TO_CHAR(WH.APPROVED_DATE, 'DD-MON-YYYY'))               AS APPROVED_DATE,
+    //                  E.EMPLOYEE_CODE                                                 AS EMPLOYEE_CODE,
+    //                  INITCAP(E.FULL_NAME)                                            AS FULL_NAME,
+    //                  WH.RECOMMENDED_BY                                               AS RECOMMENDED_BY,
+    //                  WH.APPROVED_BY                                                  AS APPROVED_BY,
+    //                  WH.RECOMMENDED_REMARKS                                          AS RECOMMENDED_REMARKS,
+    //                  WH.APPROVED_REMARKS                                             AS APPROVED_REMARKS
+    //                FROM HRIS_EMPLOYEE_WORK_HOLIDAY WH
+    //                LEFT OUTER JOIN HRIS_HOLIDAY_MASTER_SETUP H
+    //                ON H.HOLIDAY_ID=WH.HOLIDAY_ID
+    //                LEFT OUTER JOIN HRIS_EMPLOYEES E
+    //                ON E.EMPLOYEE_ID=WH.EMPLOYEE_ID
+    //                WHERE H.STATUS    ='E'
+    //                AND E.STATUS      ='E'
+    //                {$searchCondition}
+    //                {$statusCondition}
+    //                {$holidayCondition}
+    //                {$fromDateCondition}
+    //                {$toDateCondition} ORDER BY WH.REQUESTED_DATE DESC";
+    $finalSql = $this->getPrefReportQuery($sql);
+    return $this->rawQuery($finalSql, $boundedParameter);
+  }
 
-    public function getAttendedHolidayList($employeeId) {
-        return EntityHelper::rawQueryResult($this->adapter, "
+  public function getAttendedHolidayList($employeeId)
+  {
+    return EntityHelper::rawQueryResult($this->adapter, "
                     SELECT H.HOLIDAY_ID,
                       H.HOLIDAY_CODE,
                       H.HOLIDAY_ENAME,
@@ -297,5 +297,5 @@ class WorkOnHolidayStatusRepository extends HrisRepository {
                     WHERE H.STATUS     ='E'
                     AND EH.EMPLOYEE_ID = {$employeeId}
                     AND H.START_DATE >= A.MIN_ATTENDANCE_DT ORDER BY H.START_DATE");
-    }
+  }
 }

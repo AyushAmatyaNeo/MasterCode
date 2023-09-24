@@ -1,21 +1,21 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-        ->appendFile($this->basePath('js/SelfService/travel-request/expense.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
+    ->appendFile($this->basePath('js/SelfService/travel-request/expense.js'));
 ?>
 
 <script>
     document.viewLink = '<?= $this->url("newtravelrequest", ["action" => "expenseView"]) ?>';
     document.editLink = '<?= $this->url("newtravelrequest", ["action" => "edit"]) ?>';
-    document.deleteLink = '<?= $this->url("newtravelrequest", ["action" => "delete"]) ?>';  
+    document.deleteLink = '<?= $this->url("newtravelrequest", ["action" => "delete"]) ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -31,7 +31,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
@@ -56,14 +56,14 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <ul class="dropdown-menu pull-right">
                     <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -78,34 +78,34 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             <div class="col-sm-2">
                 <?php print $this->formLabel($status); ?>
                 <?php print $this->formElement($status); ?>
-            </div>  
-            <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>"/>
+            </div>
+            <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
             <div class="col-sm-6">
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="fromDate">From Date</label>
-                            <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field"/>
+                            <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" />
                         </div>
 
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="nepaliFromDate">&nbsp;</label>
-                            <input type="text" id="nepaliFromDate" name="nepaliFromDate"  class="form-control reset-field"/>
+                            <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" />
                         </div>
 
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="toDate">To Date</label>
-                            <input type="text"  id="toDate" name="toDate"  class="form-control reset-field"/>
+                            <input type="text" id="toDate" name="toDate" class="form-control reset-field" />
                         </div>
                     </div>
                     <div class="col-sm-3">
                         <div class="form-group">
                             <label for="nepaliToDate">&nbsp;</label>
-                            <input type="text"  id="nepaliToDate" name="nepaliToDate" class="form-control reset-field"/>
+                            <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" />
                         </div>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <i class="fa fa-refresh"></i>
                 </button>
                 <label height="45"></label>
-                <button  id="search" class="btn btn-default btn-sm pull-right">
+                <button id="search" class="btn btn-default btn-sm pull-right">
                     Search
                     <i class="fa fa-search"></i>
                 </button>
@@ -129,4 +129,4 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 <div class="margin-top-20">
     <div id="table">
     </div>
-</div> 
+</div>

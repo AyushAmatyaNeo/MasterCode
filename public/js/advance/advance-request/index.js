@@ -12,11 +12,7 @@
                     <i class="fa fa-money"></i>
                 </a>
                 #}#
-                #if(ALLOW_EDIT=='Y'){#
-                <a class="btn btn-icon-only yellow" href="${document.editLink}/#:ADVANCE_REQUEST_ID#" style="height:17px;" title="Edit">
-                    <i class="fa fa-edit"></i>
-                </a>
-                #}#
+               
                 #if(ALLOW_DELETE=='Y'){#
                 <a  class="btn btn-icon-only red confirmation" href="${document.deleteLink}/#:ADVANCE_REQUEST_ID#" style="height:17px;" title="Cancel">
                     <i class="fa fa-times"></i>
@@ -24,29 +20,44 @@
                 #}#
             </div>
         `;
+        // #if(ALLOW_EDIT=='Y'){#
+        //     <a class="btn btn-icon-only yellow" href="${document.editLink}/#:ADVANCE_REQUEST_ID#" style="height:17px;" title="Edit">
+        //         <i class="fa fa-edit"></i>
+        //     </a>
+        //     #}#
         var columns = [
-            {field: "ADVANCE_ENAME", title: "Advance", width: 150},
-            {title: "Request Date",
+            { field: "ADVANCE_ENAME", title: "Advance", width: 100 },
+            {
+                title: "Request Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (REQUESTED_DATE_AD == null) ? '-' : REQUESTED_DATE_AD #</span>"},
-                    {field: "REQUESTED_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (REQUESTED_DATE_BS == null) ? '-' : REQUESTED_DATE_BS #</span>"}]},
-            {title: "Date Of Advance",
+                    field: "REQUESTED_DATE_AD", width: 80,
+                    title: "AD",
+                    template: "<span>#: (REQUESTED_DATE_AD == null) ? '-' : REQUESTED_DATE_AD #</span>"
+                },
+                {
+                    field: "REQUESTED_DATE_BS", width: 80,
+                    title: "BS",
+                    template: "<span>#: (REQUESTED_DATE_BS == null) ? '-' : REQUESTED_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "Date Of Advance",
                 columns: [{
-                        field: "DATE_OF_ADVANCE_AD",
-                        title: "AD",
-                        template: "<span>#: (DATE_OF_ADVANCE_AD == null) ? '-' : DATE_OF_ADVANCE_AD #</span>"},
-                    {field: "DATE_OF_ADVANCE_BS",
-                        title: "BS",
-                        template: "<span>#: (DATE_OF_ADVANCE_BS == null) ? '-' : DATE_OF_ADVANCE_BS #</span>"}]},
-            {field: "REQUESTED_AMOUNT", title: "Advance Amt", width: 150},
-            {field: "DEDUCTION_RATE", title: "Monthly Deduction", width: 150},
-            {field: "DEDUCTION_IN", title: "Repayment Months", width: 150},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: ["ADVANCE_REQUEST_ID", "ALLOW_EDIT", "ALLOW_DELETE"], title: "Action", width: 120, template: action}
+                    field: "DATE_OF_ADVANCE_AD", width: 80,
+                    title: "AD",
+                    template: "<span>#: (DATE_OF_ADVANCE_AD == null) ? '-' : DATE_OF_ADVANCE_AD #</span>"
+                },
+                {
+                    field: "DATE_OF_ADVANCE_BS", width: 80,
+                    title: "BS",
+                    template: "<span>#: (DATE_OF_ADVANCE_BS == null) ? '-' : DATE_OF_ADVANCE_BS #</span>"
+                }]
+            },
+            { field: "REQUESTED_AMOUNT", title: "Advance Amt", width: 80 },
+            { field: "DEDUCTION_RATE", title: "Monthly Deduction", width: 80 },
+            { field: "DEDUCTION_IN", title: "Repayment Months", width: 80 },
+            { field: "STATUS_DETAIL", title: "Status", width: 60 },
+            { field: ["ADVANCE_REQUEST_ID", "ALLOW_EDIT", "ALLOW_DELETE"], title: "Action", width: 120, template: action }
         ];
         var map = {
             'ADVANCE_ENAME': 'Name',
@@ -71,7 +82,7 @@
             app.exportToPDF($table, map, 'Advance Request List.pdf');
         });
 
-        app.pullDataById("", {'employeeId': document.employeeId}).then(function (response) {
+        app.pullDataById("", { 'employeeId': document.employeeId }).then(function (response) {
             console.log(response.data);
             app.renderKendoGrid($table, response.data);
         }, function (error) {

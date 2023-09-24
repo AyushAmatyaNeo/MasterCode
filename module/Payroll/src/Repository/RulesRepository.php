@@ -312,6 +312,12 @@ class RulesRepository extends HrisRepository
     return $this->rawQuery($sql);
   }
 
+  public function getCompanyName()
+  {
+    $sql = "SELECT value AS company_name FROM hris_preferences WHERE key='COMPANY_NAME' OR key='COMPANY_ADDRESS'";
+    return $this->rawQuery($sql);
+  }
+
   public function getCompanyId($id)
   {
     // echo '<pre>';print_r($empId);die;

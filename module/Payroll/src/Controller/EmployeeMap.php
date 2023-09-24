@@ -48,11 +48,12 @@ class EmployeeMap extends HrisController
         $accountListCompanyWise = $this->repository->getAccHeadList();
         $branchListCompanyWise = $this->repository->getBranchList();
         $ruleRepo = new RulesRepository($this->adapter);
+
         $empWiseCompany = null;
         if ($this->acl['CONTROL_VALUES']) {
             if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
                 $empWiseCompanyDtl = $ruleRepo->getCompanyId($this->acl['CONTROL_VALUES'][0]['VAL']);
-                $empWiseCompany =[];
+                $empWiseCompany = [];
                 foreach ($empWiseCompanyDtl as $element) {
                     $empWiseCompany[$element['COMPANY_CODE']] = $element['COMPANY_NAME'];
                 }

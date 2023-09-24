@@ -30,18 +30,21 @@ use Zend\Filter\File\LowerCase;
 use SelfService\Repository\TravelExpensesRepository;
 // use SelfService\Repository\TravelExpensesRepository;
 
-class NewTravelRequest extends HrisController {
+class NewTravelRequest extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(NewTravelRequestRepository::class);
         $this->initializeForm(TravelRequestForm::class);
         $this->travelRequestRepository = new TravelRequestRepository($adapter);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
-       
+
         if ($request->isPost()) {
             try {
                 $data = (array) $request->getPost();
@@ -52,9 +55,9 @@ class NewTravelRequest extends HrisController {
                 // echo '<pre>';print_r($rawList);die;
                 $list = iterator_to_array($rawList, false);
 
-                if($this->preference['displayHrApproved'] == 'Y'){
-                    for($i = 0; $i < count($list); $i++){
-                        if($list[$i]['HARDCOPY_SIGNED_FLAG'] == 'Y'){
+                if ($this->preference['displayHrApproved'] == 'Y') {
+                    for ($i = 0; $i < count($list); $i++) {
+                        if ($list[$i]['HARDCOPY_SIGNED_FLAG'] == 'Y') {
                             $list[$i]['APPROVER_ID'] = '-1';
                             $list[$i]['APPROVER_NAME'] = 'HR';
                             $list[$i]['RECOMMENDER_ID'] = '-1';
@@ -70,12 +73,13 @@ class NewTravelRequest extends HrisController {
         // echo '<pre>';print_r($this->travelType);die;
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'statusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                    'status' => $statusSE,
-                    'employeeId' => $this->employeeId,
+            'status' => $statusSE,
+            'employeeId' => $this->employeeId,
         ]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
         $employeeId = $this->employeeId;
         $employeeDetails = $this->repository->getEmployeeData($employeeId);
@@ -85,7 +89,7 @@ class NewTravelRequest extends HrisController {
             $postFiles = $request->getFiles();
 
 
-            $travelSubstitute = null;//$postData->travelSubstitute;
+            $travelSubstitute = null; //$postData->travelSubstitute;
             $this->form->setData($postData);
 
             if ($this->form->isValid()) {
@@ -96,12 +100,12 @@ class NewTravelRequest extends HrisController {
                 $model->requestedDate = Helper::getcurrentExpressionDate();
                 $model->status = 'RQ';
                 $model->requestedType = 'ad';
-                if($postData['travelType'] == 'LTR'){
+                if ($postData['travelType'] == 'LTR') {
                     $model->currencyname = 'NPR';
-                }else {
-                    if($postData['requestedAmount'] == ''){
+                } else {
+                    if ($postData['requestedAmount'] == '') {
                         $model->currencyname = 'NPR';
-                    }else{
+                    } else {
                         $model->currencyname = $postData['currency'];
                         $model->conversionrate = $postData['conversionrate'];
                     }
@@ -125,8 +129,8 @@ class NewTravelRequest extends HrisController {
                         $this->flashmessenger()->addMessage($e->getMessage());
                     }
                 }
-                
-                
+
+
                 $this->flashmessenger()->addMessage("Travel Request Successfully added!!!");
                 // if ($travelSubstitute != null) {
                 //     $travelSubstituteModel = new TravelSubstitute();
@@ -181,25 +185,25 @@ class NewTravelRequest extends HrisController {
                 // }
 
 
-                if(count($postFiles['files']) > 0){
-                //   echo '<pre>';  print_r($postFiles['files']); die;
+                if (count($postFiles['files']) > 0) {
+                    //   echo '<pre>';  print_r($postFiles['files']); die;
                     foreach ($postFiles['files'] as $value) {
                         if ($value['name'] != null) {
                             $fileDir = getcwd() . '/public/uploads/documents/travel-documents';
-                      
+
                             if (!file_exists($fileDir)) {
                                 mkdir($fileDir, 0777, true);
                             }
-    
-                            $newImageName = time().$value['name'];
-                            $path = $fileDir. "/" . $newImageName;
-                            move_uploaded_file( $value['tmp_name'], $path);
+
+                            $newImageName = time() . $value['name'];
+                            $path = $fileDir . "/" . $newImageName;
+                            move_uploaded_file($value['tmp_name'], $path);
                             $data = array(
-                               'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1,
-                               'FILE_NAME' => $newImageName,
-                               'TRAVEL_ID' => $model->travelId,
-                               'FILE_IN_DIR_NAME' =>  $path,
-                               'UPLOADED_DATE' => '',
+                                'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1,
+                                'FILE_NAME' => $newImageName,
+                                'TRAVEL_ID' => $model->travelId,
+                                'FILE_IN_DIR_NAME' =>  $path,
+                                'UPLOADED_DATE' => '',
                             );
                             $this->repository->addFiles($data);
                         }
@@ -218,27 +222,28 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'employeeDetails' => $employeeDetails,
-                    'employeeId' => $this->employeeId,
-                    'requestTypes' => $requestType,
-                    'transportTypes' => $transportTypes,
-                    'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true)
+            'form' => $this->form,
+            'employeeDetails' => $employeeDetails,
+            'employeeId' => $this->employeeId,
+            'requestTypes' => $requestType,
+            'transportTypes' => $transportTypes,
+            'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true)
         ]);
     }
 
-    public function editTravelAction() {
+    public function editTravelAction()
+    {
         $request = $this->getRequest();
 
         $id = (int) $this->params()->fromRoute('id');
         if ($id === 0) {
             return $this->redirect()->toRoute("newtravelrequest");
         }
-        
+
         if ($this->repository->checkAllowEdit($id) == 'N') {
             return $this->redirect()->toRoute("newtravelrequest");
         }
@@ -246,7 +251,7 @@ class NewTravelRequest extends HrisController {
         if ($request->isPost()) {
             $travelRequest = new TravelRequestModel();
             $postedData = $request->getPost();
-            $postFiles= $request->getFiles();
+            $postFiles = $request->getFiles();
             $this->form->setData($postedData);
 
             if ($this->form->isValid()) {
@@ -257,47 +262,46 @@ class NewTravelRequest extends HrisController {
                 $travelRequest->fromDate = Helper::getExpressionDate($travelRequest->fromDate);
                 $travelRequest->toDate = Helper::getExpressionDate($travelRequest->toDate);
                 $travelRequest->traveltype = $postedData['travelType'];
-                
-                    $travelRequest->requestedType = 'ad';
-               
-                
-                // echo '<pre>'; print_r($travelRequest); die;
-                $this->repository->edit($travelRequest, $id);    
-                $this->flashmessenger()->addMessage("Travel Request Successfully Edited!!!");
-                if(count($postFiles['files']) > 0){
-                    //   echo '<pre>';  print_r($postFiles['files']); die;
-                        foreach ($postFiles['files'] as $value) {
-                            if ($value['name'] != null) {
-                                $fileDir = getcwd() . '/public/uploads/documents/travel-documents';
-                          
-                                if (!file_exists($fileDir)) {
-                                    mkdir($fileDir, 0777, true);
-                                }
-        
-                                $newImageName = time().$value['name'];
-                                $path = $fileDir. "/" . $newImageName;
-                                move_uploaded_file( $value['tmp_name'], $path);
-                                $data = array(
-                                   'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TRAVELFILES::TABLE_NAME, TRAVELFILES::FILE_ID)) + 1,
-                                   'FILE_NAME' => $newImageName,
-                                   'TRAVEL_ID' => $id,
-                                   'FILE_IN_DIR_NAME' =>  $path,
-                                   'UPLOADED_DATE' => '',
-                                );
-                                // echo '<pre>';print_r($data);die;
 
-                                $this->travelRequestRepository->updateFiles($data);
+                $travelRequest->requestedType = 'ad';
+
+
+                // echo '<pre>'; print_r($travelRequest); die;
+                $this->repository->edit($travelRequest, $id);
+                $this->flashmessenger()->addMessage("Travel Request Successfully Edited!!!");
+                if (count($postFiles['files']) > 0) {
+                    //   echo '<pre>';  print_r($postFiles['files']); die;
+                    foreach ($postFiles['files'] as $value) {
+                        if ($value['name'] != null) {
+                            $fileDir = getcwd() . '/public/uploads/documents/travel-documents';
+
+                            if (!file_exists($fileDir)) {
+                                mkdir($fileDir, 0777, true);
                             }
+
+                            $newImageName = time() . $value['name'];
+                            $path = $fileDir . "/" . $newImageName;
+                            move_uploaded_file($value['tmp_name'], $path);
+                            $data = array(
+                                'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TRAVELFILES::TABLE_NAME, TRAVELFILES::FILE_ID)) + 1,
+                                'FILE_NAME' => $newImageName,
+                                'TRAVEL_ID' => $id,
+                                'FILE_IN_DIR_NAME' =>  $path,
+                                'UPLOADED_DATE' => '',
+                            );
+                            // echo '<pre>';print_r($data);die;
+
+                            $this->travelRequestRepository->updateFiles($data);
                         }
                     }
+                }
                 return $this->redirect()->toRoute("newtravelrequest");
             }
-            
         }
 
         $detail = $this->repository->fetchById($id);
         $fileDetails = $this->repository->fetchAttachmentsById($id);
-                // echo '<pre>'; print_r($fileDetails); die;
+        // echo '<pre>'; print_r($fileDetails); die;
 
         $model = new TravelRequestModel();
         $model->exchangeArrayFromDB($detail);
@@ -313,23 +317,24 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
-// print_r($fileDetails);die;
+        // print_r($fileDetails);die;
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
-                    'detail' => $detail,
-                    'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount,
-                    'transportTypes' => $transportTypes,
-                    'files' => $fileDetails
+            'form' => $this->form,
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
+            'detail' => $detail,
+            'todayDate' => date('d-M-Y'),
+            'advanceAmount' => $advanceAmount,
+            'transportTypes' => $transportTypes,
+            'files' => $fileDetails
         ]);
     }
 
-    public function expenseAddAction() {
+    public function expenseAddAction()
+    {
         $request = $this->getRequest();
         $model = new TravelExpensesModel();
         $reqModel = new TravelRequestModel();
@@ -339,28 +344,28 @@ class NewTravelRequest extends HrisController {
         $travelId = (int) $this->params()->fromRoute('id');
         // var_dump($travelId); die;
         if ($request->isPost()) {
-            
+
             $travelNewId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
             $travelId = (int) $this->params()->fromRoute('id');
-            
+
             $detail = $this->repository->fetchById($travelId);
             $postData = $request->getPost()->getArrayCopy();
             $departureDate = $postData['departureDate'];
             $returnedDate = $postData['returnedDate'];
-           
-            if ($postData['erTypeL'][0] != null){
-               
-                for ($i = 0; $i < count($postData['erTypeL']); $i++){
+
+            if ($postData['erTypeL'][0] != null) {
+
+                for ($i = 0; $i < count($postData['erTypeL']); $i++) {
                     // var_dump($classId); die;
                     $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $travelNewId;
-                    $model->amount= $postData['amountExp'][$i];
-                    $model->exchangeRate=1;
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$i];
-                    
-                    $model->createdDt=Helper::getcurrentExpressionDate();
+                    $model->travelId = $travelNewId;
+                    $model->amount = $postData['amountExp'][$i];
+                    $model->exchangeRate = 1;
+                    $model->expenseDate = Helper::getcurrentExpressionDate();
+                    $model->status = 'E';
+                    $model->remarks = $postData['detRemarks'][$i];
+
+                    $model->createdDt = Helper::getcurrentExpressionDate();
                     $model->departure_Place = $postData['locFrom'][$i];
                     $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
                     $model->erType = $postData['erTypeL'][$i];
@@ -370,21 +375,21 @@ class NewTravelRequest extends HrisController {
                     $repo->add($model);
                 }
             }
-            if ($postData['erTypeI'][0] != null){
-            // echo '<pre>'; print_r($postData); die;
-           
-                for ($j = 0; $j < count($postData['erTypeI']); $j++){
-                   
+            if ($postData['erTypeI'][0] != null) {
+                // echo '<pre>'; print_r($postData); die;
+
+                for ($j = 0; $j < count($postData['erTypeI']); $j++) {
+
                     // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
                     $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $travelNewId;
-                    $model->amount= $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                    $model->exchangeRate=$postData['exchangeRateInternational'][$j];
-                    
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$j];
-                    $model->createdDt=Helper::getcurrentExpressionDate();
+                    $model->travelId = $travelNewId;
+                    $model->amount = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                    $model->exchangeRate = $postData['exchangeRateInternational'][$j];
+
+                    $model->expenseDate = Helper::getcurrentExpressionDate();
+                    $model->status = 'E';
+                    $model->remarks = $postData['detRemarks'][$j];
+                    $model->createdDt = Helper::getcurrentExpressionDate();
                     $model->departure_Place = $postData['locFrom'][$j];
                     $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
                     $model->erType = $postData['erTypeL'][$j];
@@ -392,7 +397,7 @@ class NewTravelRequest extends HrisController {
                     $model->expenseHead = $postData['expenseHead'][$j];
                     $model->currency = $postData['currency'][$j];
                     // var_dump($d); die;
-                   
+
                     $repo->add($model);
                 }
             }
@@ -404,7 +409,7 @@ class NewTravelRequest extends HrisController {
             $reqModel->fromDate = $detail['FROM_DATE'];
             $reqModel->toDate = $detail['TO_DATE'];
             $reqModel->destination = $detail['DESTINATION'];
-            $reqModel->departure = $detail ['DEPARTURE'];
+            $reqModel->departure = $detail['DEPARTURE'];
             $reqModel->purpose = $detail['PURPOSE'];
             $reqModel->travelCode = $detail['TRAVEL_CODE'];
             $reqModel->requestedType = 'ep';
@@ -414,26 +419,26 @@ class NewTravelRequest extends HrisController {
             $reqModel->returnedDate = Helper::getExpressionDate($returnedDate);
             $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
             $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-            if ($postData['erTypeL'][0] != null){
+            if ($postData['erTypeL'][0] != null) {
                 $reqModel->traveltype = 'LTR';
             }
-            if ($postData['erTypeI'][0] != null){
+            if ($postData['erTypeI'][0] != null) {
                 $reqModel->traveltype = 'ITR';
             }
             $this->repository->add($reqModel);
 
             $error = "";
             try {
-                if(isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y'){
+                if (isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y') {
                     HeadNotification::pushNotification(NotificationEvents::TRAVEL_EXPENSE_APPLIED, $reqModel, $this->adapter, $this);
-                }else{
+                } else {
                     HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $reqModel, $this->adapter, $this);
                 }
             } catch (Exception $e) {
                 $error = $e->getMessage();
             }
             $this->flashmessenger()->addMessage("Successfully Added!!!");
-                return $this->redirect()->toRoute("newtravelrequest");
+            return $this->redirect()->toRoute("newtravelrequest");
         }
         $transportTypes = array(
             null => '------------',
@@ -442,11 +447,11 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
         $expenseHeads = array(
-           array('gl' => null, 'name'  => '---select expense heads---'),
+            array('gl' => null, 'name'  => '---select expense heads---'),
             array('gl' => 'Accommodation', 'name' => 'Accommodation'),
             array('gl' => 'Airfare', 'name' => 'Airfare'),
             array('gl' => 'Airport Taxes and visas etc', 'name' => 'Airport Taxes and visas etc'),
@@ -494,11 +499,11 @@ class NewTravelRequest extends HrisController {
             'CP' => 'Company Paid',
         );
         // if ($details) {
-            
+
         // } else {
-            
+
         // }
-        
+
         $expenseHead = array(
             null => '------------',
             'EP' => 'Employee Paid',
@@ -511,13 +516,13 @@ class NewTravelRequest extends HrisController {
         $detail = $this->repository->fetchById($id);
         // echo '<pre>';print_r($detail);die;
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'detail' => $detail,
-                    'id' => $id,
-                    'transportTypes' => $transportTypes,
-                    'employeeDetails' => $employeeDetails,
-                    'erTypes' => $erTypes,
-                    'expenseHeads' => $expenseHeads
+            'form' => $this->form,
+            'detail' => $detail,
+            'id' => $id,
+            'transportTypes' => $transportTypes,
+            'employeeDetails' => $employeeDetails,
+            'erTypes' => $erTypes,
+            'expenseHeads' => $expenseHeads
         ]);
     }
     public function addTravelExpenseAction()
@@ -530,270 +535,267 @@ class NewTravelRequest extends HrisController {
         $localATravels = $this->repository->getLTravel($employeeId);
         // echo '<pre>'; print_r($localATravels);die;
         $IntATravels = $this->repository->getITravel($employeeId);
-        //  echo '<pre>'; print_r($IntATravels);die;
+
         $employeeDetails = $this->repository->getEmployeeData($employeeId);
         $request = $this->getRequest();
         if ($request->isPost()) {
             $postData = $request->getPost()->getArrayCopy();
-            if($postData['traveltype'] == 'LTR' || $postData['traveltype'] == 'ITR'){
-                $postData['travelIdToInsert']=1;
+
+            if ($postData['traveltype'] == 'LTR' || $postData['traveltype'] == 'ITR') {
+                $postData['travelIdToInsert'] = 1;
+            } else {
+                $postData['travelIdToInsert'] = null;
             }
-            // echo '<pre>';print_r($postData);die;
             $travelNewId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
 
-            if($postData['submit']=='Submit'){
+            if ($postData['submit'] == 'Submit') {
 
-            if ($postData['travelIdToInsert'] != '') {
-               
-                $travelId = $postData['travelIdToInsert'];
-                $detail = $this->repository->fetchById($travelId);
+                if ($postData['travelIdToInsert'] != '') {
 
-                $traveltype = '';
-                if ($postData['erTypeL'][0] != -1 && $postData['traveltype'] == 'LTR' &&  $postData['travelIdToInsert'] != ''){
-                    for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExpL'][$i];
-                        $model->exchangeRate=1;
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarksL'][$i];
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFromL'][$i];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
-                        $model->erType = $postData['erTypeL'][$i];
-                        $model->billNo = $postData['ticketNoL'][$i];
-                        $model->expenseHead = $postData['expenseHeadL'][$i];
-                        $model->currency = 'NPR';
-                        // echo '<pre>';print_r($model);die;
+                    $travelId = $postData['travelIdToInsert'];
+                    $detail = $this->repository->fetchById($travelId);
 
-                        $repo->add($model);
-                       
+                    $traveltype = '';
+                    if ($postData['erTypeL'][0] != -1 && $postData['traveltype'] == 'LTR' &&  $postData['travelIdToInsert'] != '') {
+                        for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExpL'][$i];
+                            $model->exchangeRate = 1;
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarksL'][$i];
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFromL'][$i];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
+                            $model->erType = $postData['erTypeL'][$i];
+                            $model->billNo = $postData['ticketNoL'][$i];
+                            $model->expenseHead = $postData['expenseHeadL'][$i];
+                            $model->currency = 'NPR';
+                            // echo '<pre>';print_r($model);die;
+
+                            $repo->add($model);
+                        }
+                        $traveltype = 'LTR';
                     }
-                    $traveltype = 'LTR'; 
-                }
-                if ($postData['erTypeI'][0] != -1 && $postData['traveltype'] == 'ITR' &&  $postData['travelIdToInsert'] != ''){
-                    for ($j = 0; $j < count($postData['erTypeI']); $j++){
-                        // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                        $model->exchangeRate=$postData['exchangeRateInternational'][$j];
-                        
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarks'][$j];
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFrom'][$j];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
-                        $model->erType = $postData['erTypeI'][$j];
-                        $model->billNo = $postData['ticketNo'][$j];
-                        $model->expenseHead = $postData['expenseHead'][$j];
-                        $model->currency = $postData['currency'][$j];
-                    // echo '<pre>';print_r($model);die;
-                        $repo->add($model);
+                    if ($postData['erTypeI'][0] != -1 && $postData['traveltype'] == 'ITR' &&  $postData['travelIdToInsert'] != '') {
+                        for ($j = 0; $j < count($postData['erTypeI']); $j++) {
+                            // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                            $model->exchangeRate = $postData['exchangeRateInternational'][$j];
+
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarks'][$j];
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFrom'][$j];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
+                            $model->erType = $postData['erTypeI'][$j];
+                            $model->billNo = $postData['ticketNo'][$j];
+                            $model->expenseHead = $postData['expenseHead'][$j];
+                            $model->currency = $postData['currency'][$j];
+                            // echo '<pre>';print_r($model);die;
+                            $repo->add($model);
+                        }
+                        $traveltype = 'ITR';
                     }
-                    $traveltype = 'ITR'; 
 
-                }
-
-
-                $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
-                $reqModel->employeeId = $this->employeeId;
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-                $reqModel->status = 'RQ';
-                $reqModel->travelCode = $postData['travelcode'];
-                $reqModel->requestedType = 'ep';
-                $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
-                // $reqModel->referenceTravelId = $travelId;
-                $reqModel->departureDate = $postData['FROM_DATE'];
-                $reqModel->returnedDate = $postData['TO_DATE'];
-                $reqModel->currencyname = 'NPR';
-                $reqModel->fromDate = $postData['fromDate'];
-                $reqModel->toDate = $postData['toDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->traveltype = $traveltype;
-                $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
-                // echo '<pre>'; print_r($reqModel); die;
-                $this->repository->add($reqModel);
-            } else {
-                if ($postData['erTypeL'][0] != -1){
-                    for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                        // var_dump($classId); die;
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExpL'][$i];
-                        $model->exchangeRate=1;
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarksL'][$i];
-                        
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFromL'][$i];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
-                        $model->erType = $postData['erTypeL'][$i];
-                        $model->billNo = $postData['ticketNoL'][$i];
-                        $model->expenseHead = $postData['expenseHeadL'][$i];
-                        $model->currency = 'NPR';
-                        $repo->add($model);
-                    }
 
                     $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                     $reqModel->employeeId = $this->employeeId;
                     $reqModel->requestedDate = Helper::getcurrentExpressionDate();
                     $reqModel->status = 'RQ';
-                    $reqModel->purpose = $postData['purpose'];
-                    $reqModel->departure =$postData['departure'];
-                    $reqModel->purpose = '-';
                     $reqModel->requestedType = 'ep';
                     $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
-                    $reqModel->currencyname = 'NPR';
-                    $reqModel->traveltype = 'DT';
-                    $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
                     // $reqModel->referenceTravelId = $travelId;
-                    $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
-                    $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
+                    $reqModel->departureDate = $postData['fromDate'];
+                    $reqModel->returnedDate = $postData['toDate'];
+                    $reqModel->currencyname = 'NPR';
+                    $reqModel->fromDate = $postData['fromDate'];
+                    $reqModel->toDate = $postData['toDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->traveltype = $traveltype;
+                    $reqModel->travelCode = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
+                    // echo '<pre>'; print_r($reqModel); die;
                     $this->repository->add($reqModel);
+                } else {
+                    if ($postData['erTypeL'][0] != -1) {
+                        for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                            // var_dump($classId); die;
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExpL'][$i];
+                            $model->exchangeRate = 1;
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarksL'][$i];
 
-                }
-            }
-            $error = "";
-            $preference=$this->repository->getPreferenceData();
-            try {
-                // if(isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y'){
-                if(isset($preference[18]['KEY']) && $preference[18]['VALUE'] == 'Y'){
-                    HeadNotification::pushNotification(NotificationEvents::TRAVEL_EXPENSE_APPLIED, $reqModel, $this->adapter, $this);
-                }else{
-                    HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $reqModel, $this->adapter, $this);
-                } 
-            } catch (Exception $e) {
-                $error = $e->getMessage();
-            }
-        }else{
-            if ($postData['travelIdToInsert'] != '') {
-               
-                $travelId = $postData['travelIdToInsert'];
-                $detail = $this->repository->fetchById($travelId);
-                    echo '<pre>';print_r('dbfd');die;
-                $traveltype = '';
-                if ($postData['erTypeL'][0] != -1 && $postData['traveltype'] == 'LTR' &&  $postData['travelIdToInsert'] != ''){
-                    for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExpL'][$i];
-                        $model->exchangeRate=1;
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarksL'][$i];
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFromL'][$i];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
-                        $model->erType = $postData['erTypeL'][$i];
-                        $model->billNo = $postData['ticketNoL'][$i];
-                        $model->expenseHead = $postData['expenseHeadL'][$i];
-                        $model->currency = 'NPR';
-                        // echo '<pre>';print_r($model);die;
-
-                        $repo->add($model);
-                       
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFromL'][$i];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
+                            $model->erType = $postData['erTypeL'][$i];
+                            $model->billNo = $postData['ticketNoL'][$i];
+                            $model->expenseHead = $postData['expenseHeadL'][$i];
+                            $model->currency = 'NPR';
+                            $repo->add($model);
+                        }
+                        $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
+                        $reqModel->employeeId = $this->employeeId;
+                        $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                        $reqModel->status = 'RQ';
+                        $reqModel->purpose = $postData['purpose'];
+                        $reqModel->departure = Helper::getExpressionDate($postData['arrDateL'][0]);
+                        $reqModel->purpose = '-';
+                        $reqModel->requestedType = 'ep';
+                        $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
+                        $reqModel->currencyname = 'NPR';
+                        $reqModel->traveltype = 'DT';
+                        $reqModel->travelCode = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
+                        // $reqModel->referenceTravelId = $travelId;
+                        $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
+                        $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
+                        $this->repository->add($reqModel);
                     }
-                    $traveltype = 'LTR'; 
                 }
-                if ($postData['erTypeI'][0] != -1 && $postData['traveltype'] == 'ITR' &&  $postData['travelIdToInsert'] != ''){
-                    for ($j = 0; $j < count($postData['erTypeI']); $j++){
-                        // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                        $model->exchangeRate=$postData['exchangeRateInternational'][$j];
-                        
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarks'][$j];
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFrom'][$j];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
-                        $model->erType = $postData['erTypeI'][$j];
-                        $model->billNo = $postData['ticketNo'][$j];
-                        $model->expenseHead = $postData['expenseHead'][$j];
-                        $model->currency = $postData['currency'][$j];
-                    // echo '<pre>';print_r($model);die;
-                        $repo->add($model);
+                $error = "";
+                $preference = $this->repository->getPreferenceData();
+                try {
+                    // if(isset($this->preference['travelSingleApprover']) && $this->preference['travelSingleApprover'] == 'Y'){
+                    if (isset($preference[18]['KEY']) && $preference[18]['VALUE'] == 'Y') {
+                        HeadNotification::pushNotification(NotificationEvents::TRAVEL_EXPENSE_APPLIED, $reqModel, $this->adapter, $this);
+                    } else {
+                        HeadNotification::pushNotification(NotificationEvents::TRAVEL_APPLIED, $reqModel, $this->adapter, $this);
                     }
-                    $traveltype = 'ITR'; 
-
+                } catch (Exception $e) {
+                    $error = $e->getMessage();
                 }
-
-
-                $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
-                $reqModel->employeeId = $this->employeeId;
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-                $reqModel->status = 'SV';
-                $reqModel->travelCode = $postData['travelcode'];
-                $reqModel->requestedType = 'ep';
-                $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
-                // $reqModel->referenceTravelId = $travelId;
-                $reqModel->departureDate = $postData['FROM_DATE'];
-                $reqModel->returnedDate = $postData['TO_DATE'];
-                $reqModel->currencyname = 'NPR';
-                $reqModel->fromDate = $postData['fromDate'];
-                $reqModel->toDate = $postData['toDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->traveltype = $traveltype;
-                echo '<pre>'; print_r('891'); die;
-                $this->repository->add($reqModel);
             } else {
-                if ($postData['erTypeL'][0] != -1){
-                    for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                        // var_dump($classId); die;
-                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                        $model->travelId= $travelNewId;
-                        $model->amount= $postData['amountExpL'][$i];
-                        $model->exchangeRate=1;
-                        $model->expenseDate=Helper::getcurrentExpressionDate();
-                        $model->status='E';
-                        $model->remarks=$postData['detRemarksL'][$i];
-                        
-                        $model->createdDt=Helper::getcurrentExpressionDate();
-                        $model->departure_Place = $postData['locFromL'][$i];
-                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
-                        $model->erType = $postData['erTypeL'][$i];
-                        $model->billNo = $postData['ticketNoL'][$i];
-                        $model->expenseHead = $postData['expenseHeadL'][$i];
-                        $model->currency = 'NPR';
-                        $repo->add($model);
+                if ($postData['travelIdToInsert'] != '') {
+
+                    $travelId = $postData['travelIdToInsert'];
+                    $detail = $this->repository->fetchById($travelId);
+                    echo '<pre>';
+                    print_r('dbfd');
+                    die;
+                    $traveltype = '';
+                    if ($postData['erTypeL'][0] != -1 && $postData['traveltype'] == 'LTR' &&  $postData['travelIdToInsert'] != '') {
+                        for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExpL'][$i];
+                            $model->exchangeRate = 1;
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarksL'][$i];
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFromL'][$i];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
+                            $model->erType = $postData['erTypeL'][$i];
+                            $model->billNo = $postData['ticketNoL'][$i];
+                            $model->expenseHead = $postData['expenseHeadL'][$i];
+                            $model->currency = 'NPR';
+                            // echo '<pre>';print_r($model);die;
+
+                            $repo->add($model);
+                        }
+                        $traveltype = 'LTR';
                     }
+                    if ($postData['erTypeI'][0] != -1 && $postData['traveltype'] == 'ITR' &&  $postData['travelIdToInsert'] != '') {
+                        for ($j = 0; $j < count($postData['erTypeI']); $j++) {
+                            // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                            $model->exchangeRate = $postData['exchangeRateInternational'][$j];
+
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarks'][$j];
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFrom'][$j];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
+                            $model->erType = $postData['erTypeI'][$j];
+                            $model->billNo = $postData['ticketNo'][$j];
+                            $model->expenseHead = $postData['expenseHead'][$j];
+                            $model->currency = $postData['currency'][$j];
+                            // echo '<pre>';print_r($model);die;
+                            $repo->add($model);
+                        }
+                        $traveltype = 'ITR';
+                    }
+
 
                     $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                     $reqModel->employeeId = $this->employeeId;
                     $reqModel->requestedDate = Helper::getcurrentExpressionDate();
                     $reqModel->status = 'SV';
-                    $reqModel->purpose = $postData['purpose'];
-                    // $reqModel->departure =$postData['departure'];
                     $reqModel->requestedType = 'ep';
                     $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
+                    // $reqModel->referenceTravelId = $travelId;
+                    $reqModel->departureDate = $postData['fromDate'];
+                    $reqModel->returnedDate = $postData['toDate'];
                     $reqModel->currencyname = 'NPR';
-                    $reqModel->traveltype = 'DT';
-                    $reqModel->travelCode =((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
-                    $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
-                    $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
-                    // echo '<pre>';print_r('fdsn');die;
+                    $reqModel->fromDate = $postData['fromDate'];
+                    $reqModel->toDate = $postData['toDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->travelCode = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->traveltype = $traveltype;
+                    echo '<pre>';
+                    print_r('891');
+                    die;
                     $this->repository->add($reqModel);
+                } else {
+                    if ($postData['erTypeL'][0] != -1) {
+                        for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                            // var_dump($classId); die;
+                            $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                            $model->travelId = $travelNewId;
+                            $model->amount = $postData['amountExpL'][$i];
+                            $model->exchangeRate = 1;
+                            $model->expenseDate = Helper::getcurrentExpressionDate();
+                            $model->status = 'E';
+                            $model->remarks = $postData['detRemarksL'][$i];
+
+                            $model->createdDt = Helper::getcurrentExpressionDate();
+                            $model->departure_Place = $postData['locFromL'][$i];
+                            $model->arraival_DT = Helper::getExpressionDate($postData['arrDateL'][$i]);
+                            $model->erType = $postData['erTypeL'][$i];
+                            $model->billNo = $postData['ticketNoL'][$i];
+                            $model->expenseHead = $postData['expenseHeadL'][$i];
+                            $model->currency = 'NPR';
+                            $repo->add($model);
+                        }
+
+                        $reqModel->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
+                        $reqModel->employeeId = $this->employeeId;
+                        $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                        $reqModel->status = 'SV';
+                        $reqModel->purpose = $postData['purpose'];
+                        // $reqModel->departure =$postData['departure'];
+                        $reqModel->requestedType = 'ep';
+                        $reqModel->requestedAmount = $this->repository->getTotalExpenseAmount($travelNewId);
+                        $reqModel->currencyname = 'NPR';
+                        $reqModel->traveltype = 'DT';
+                        $reqModel->travelCode = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_CODE)) + 1;
+                        $reqModel->fromDate = Helper::getExpressionDate($postData['arrDateL'][0]);
+                        $reqModel->toDate = Helper::getExpressionDate($postData['arrDateL'][0]);
+                        // echo '<pre>';print_r('fdsn');die;
+                        $this->repository->add($reqModel);
+                    }
                 }
             }
-        }
             $this->flashmessenger()->addMessage("Successfully Added!!!");
-                return $this->redirect()->toRoute('newtravelrequest', ['action'=>'expense']);
-            
+            return $this->redirect()->toRoute('newtravelrequest', ['action' => 'expense']);
         }
         $transportTypes = array(
             null => '------------',
@@ -802,8 +804,8 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
         $expenseHeads = array(
             array('gl' => null, 'name'  => '---select expense heads---'),
@@ -867,7 +869,7 @@ class NewTravelRequest extends HrisController {
             'expenseHeads' => $expenseHeads,
             'employeeDetails' => $employeeDetails,
             'destinationsL' => $localATravels,
-            'IntATravels'=> $IntATravels,
+            'IntATravels' => $IntATravels,
         ]);
     }
 
@@ -878,8 +880,8 @@ class NewTravelRequest extends HrisController {
             try {
                 $data = (array) $request->getPost();
                 $data['employeeId'] = $this->employeeId;
-                $data['requestedType'] = 'ad';  
-                $data['travelType'] = "ITR";   
+                $data['requestedType'] = 'ad';
+                $data['travelType'] = "ITR";
                 $rawList = $this->repository->getFilteredRecords($data);
                 $list = iterator_to_array($rawList, false);
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
@@ -889,9 +891,9 @@ class NewTravelRequest extends HrisController {
         }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'statusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                    'status' => $statusSE,
-                    'employeeId' => $this->employeeId
-        ]); 
+            'status' => $statusSE,
+            'employeeId' => $this->employeeId
+        ]);
     }
 
     // request for international Advance
@@ -924,11 +926,10 @@ class NewTravelRequest extends HrisController {
                 // $model->referenceTravelId = $id;
                 // $addData=$model->getArrayCopyForDB();
                 // echo '<pre>'; print_r($model); die;
-                $this->repository->add($model);    
+                $this->repository->add($model);
                 $this->flashmessenger()->addMessage("International Travel Advance Request Successfully Created!!!");
                 return $this->redirect()->toRoute("newtravelrequest");
             }
-            
         }
 
         $detail = $this->repository->fetchById($id);
@@ -948,19 +949,19 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
 
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
-                    'detail' => $detail,
-                    'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount,
-                    'transportTypes' => $transportTypes
-                        //'files' => $fileDetails
+            'form' => $this->form,
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
+            'detail' => $detail,
+            'todayDate' => date('d-M-Y'),
+            'advanceAmount' => $advanceAmount,
+            'transportTypes' => $transportTypes
+            //'files' => $fileDetails
         ]);
     }
 
@@ -972,13 +973,13 @@ class NewTravelRequest extends HrisController {
         try {
             if (sizeof($files) > 0) {
                 $ext = pathinfo($files['file']['name'], PATHINFO_EXTENSION);
-                if (strtolower($ext)== 'txt' || strtolower($ext) == 'pdf' || strtolower($ext) == 'jpg' || strtolower($ext) == 'jpeg' || strtolower($ext) == 'png' || strtolower($ext)=='docx' || strtolower($ext)=='odt' || strtolower($ext)=='doc' ) {
+                if (strtolower($ext) == 'txt' || strtolower($ext) == 'pdf' || strtolower($ext) == 'jpg' || strtolower($ext) == 'jpeg' || strtolower($ext) == 'png' || strtolower($ext) == 'docx' || strtolower($ext) == 'odt' || strtolower($ext) == 'doc') {
                     $fileName = pathinfo($files['file']['name'], PATHINFO_FILENAME);
                     $unique = Helper::generateUniqueName();
                     $newFileName = $unique . "." . $ext;
                     $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/travel-documents/" . $newFileName);
                     $responseData = ["success" => true, "data" => ["fileName" => $newFileName, "oldFileName" => $fileName . "." . $ext]];
-                } else { 
+                } else {
                     throw new Exception("Upload unsuccessful.");
                     //$this->flashmessenger()->addMessage("Employee Successfully Deleted!!!");
                     // echo '<script>alert("Welcome to Geeks for Geeks")</script>';
@@ -998,7 +999,8 @@ class NewTravelRequest extends HrisController {
         return new JsonModel($responseData);
     }
 
-    public function deleteExpenseDetailAction() {
+    public function deleteExpenseDetailAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $postData = $request->getPost()->getArrayCopy();
@@ -1017,14 +1019,15 @@ class NewTravelRequest extends HrisController {
         return new CustomViewModel($responseData);
     }
 
-    public function expenseAction() {
+    public function expenseAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
                 $data = (array) $request->getPost();
                 $data['employeeId'] = $this->employeeId;
                 $data['requestedType'] = 'ep';
-                $rawList = $this->repository->getFilteredRecords($data);
+                $rawList = $this->repository->getExpFilteredRecords($data);
                 $list = iterator_to_array($rawList, false);
                 // echo '<pre>'; print_r($list); die;
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
@@ -1034,12 +1037,13 @@ class NewTravelRequest extends HrisController {
         }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'statusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                    'status' => $statusSE,
-                    'employeeId' => $this->employeeId
+            'status' => $statusSE,
+            'employeeId' => $this->employeeId
         ]);
     }
 
-    public function expenseViewAction() {
+    public function expenseViewAction()
+    {
         //  var_dump('dvd'); die;
         $id = (int) $this->params()->fromRoute('id');
 
@@ -1047,12 +1051,12 @@ class NewTravelRequest extends HrisController {
             return $this->redirect()->toRoute("newtravelrequest");
         }
         // $detailxdc = $this->repository->fetchById($id);
-        
+
         //  if ($detailxdc['REFERENCE_TRAVEL_ID'] != null) {
         //      # code..
         //      $detail = $this->repository->fetchById($detailxdc['REFERENCE_TRAVEL_ID']);
         //  }else{
-            $detail = $this->repository->fetchById($id);
+        $detail = $this->repository->fetchById($id);
         //  }
 
         $model = new TravelRequestModel();
@@ -1062,7 +1066,7 @@ class NewTravelRequest extends HrisController {
         $expenseDtlRepo = new TravelExpenseDtlRepository($this->adapter);
         $result = $expenseDtlRepo->fetchByTravelId($id);
         // echo '<pre>';print_r($detail);die;
-        
+
         $totalAmount = 0;
         $balance = $detail['REQUESTED_AMOUNT'] - $totalAmount;
         $numberInWord = new NumberHelper();
@@ -1071,22 +1075,23 @@ class NewTravelRequest extends HrisController {
         $totalExpenseInWords = $numberInWord->toText($totalAmountSum['TOTAL']);
         // echo '<pre>'; print_r($result); die;
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
-                    'detail' => $detail,
-                    'expenseDtlList' => $result,
-                    'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount,
-                    'totalExpenseInWords' => $totalExpenseInWords,
-                    'totalExpense' => $totalAmount,
-                    'totalAmountSum' => $totalAmountSum,
-                    'balance' => $balance,
-                    // 'detailxdc'=> $detailxdc
+            'form' => $this->form,
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
+            'detail' => $detail,
+            'expenseDtlList' => $result,
+            'todayDate' => date('d-M-Y'),
+            'advanceAmount' => $advanceAmount,
+            'totalExpenseInWords' => $totalExpenseInWords,
+            'totalExpense' => $totalAmount,
+            'totalAmountSum' => $totalAmountSum,
+            'balance' => $balance,
+            // 'detailxdc'=> $detailxdc
         ]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         if ($id === 0) {
             return $this->redirect()->toRoute("newtravelrequest");
@@ -1096,7 +1101,7 @@ class NewTravelRequest extends HrisController {
 
 
         // echo '<pre>'; print_r( $detail['FROM_DATE_BS']); die;
-        if($this->preference['displayHrApproved'] == 'Y' && $detail['HARDCOPY_SIGNED_FLAG'] == 'Y'){
+        if ($this->preference['displayHrApproved'] == 'Y' && $detail['HARDCOPY_SIGNED_FLAG'] == 'Y') {
             $detail['APPROVER_ID'] = '-1';
             $detail['APPROVER_NAME'] = 'HR';
             $detail['RECOMMENDER_ID'] = '-1';
@@ -1109,19 +1114,20 @@ class NewTravelRequest extends HrisController {
         $this->form->bind($model);
         $numberInWord = new NumberHelper();
         $advanceAmount = $numberInWord->toText($detail['REQUESTED_AMOUNT']);
-        
+
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
-                    'detail' => $detail,
-                    'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount,
-                    'filesnew' => $fileDetails
+            'form' => $this->form,
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
+            'detail' => $detail,
+            'todayDate' => date('d-M-Y'),
+            'advanceAmount' => $advanceAmount,
+            'filesnew' => $fileDetails
         ]);
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $id = (int) $this->params()->fromRoute("id");
         if (!$id) {
             return $this->redirect()->toRoute('newtravelrequest');
@@ -1134,22 +1140,23 @@ class NewTravelRequest extends HrisController {
     public function getTravelDetailAction()
     {
         $request = $this->getRequest();
-        $data =$request->getPost();
+        $data = $request->getPost();
 
         if ($data['type'] == 'LTR') {
             $localATravels = $this->repository->getLTraveldetailsId($data['travelId']);
-        } elseif($data['type'] == 'ITR') {
+        } elseif ($data['type'] == 'ITR') {
             $localATravels = $this->repository->getLTraveldetailsIdInternational($data['travelId']);
         }
         try {
-            return new JsonModel(['success' => true, 'data' =>$localATravels, 'error' => '']);
+            return new JsonModel(['success' => true, 'data' => $localATravels, 'error' => '']);
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
 
-    
-    public function editAction() {
+
+    public function editAction()
+    {
         $request = $this->getRequest();
         $employeeId = $this->employeeId;
         // print_r($employeeId); die;
@@ -1160,19 +1167,19 @@ class NewTravelRequest extends HrisController {
             return $this->redirect()->toRoute("newtravelrequest");
         }
         $detailxdc = $this->repository->fetchById($id);
-        
+
 
         //  if ($detailxdc['REFERENCE_TRAVEL_ID'] != null) {
         //      # code..
         //      $detail = $this->repository->fetchById($detailxdc['REFERENCE_TRAVEL_ID']);
         //  }else{
-            $detail = $this->repository->fetchById($id);
+        $detail = $this->repository->fetchById($id);
         //  }
 
-        $model =$model = new TravelExpensesModel();
+        $model = $model = new TravelExpensesModel();
         $model->exchangeArrayFromDB($detail);
         $this->form->bind($model);
-        
+
         $expenseDtlRepo = new TravelExpenseDtlRepository($this->adapter);
         $result = $expenseDtlRepo->fetchByTravelId($id);
         $repo = new TravelExpensesRepository($this->adapter);
@@ -1188,234 +1195,227 @@ class NewTravelRequest extends HrisController {
             $result = $expenseDtlRepo->fetchByTravelIdDelete($id);
 
             $postData = $request->getPost()->getArrayCopy();
-           if($postData['submit']=='Submit'){
-           if( isset($postData['erTypeL']) == true 
-        //    && $detailxdc['REFERENCE_TRAVEL_ID'] != ''
-           ){
-            for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                // var_dump('hrhf'); die;
-                //  echo '<pre>'; print_r($postData); die;
-                $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                $model->travelId= $detailxdc['TRAVEL_ID'];
-                $model->amount= $postData['amountExp'][$i];
-                $model->exchangeRate=1;
-                $model->expenseDate=Helper::getcurrentExpressionDate();
-                $model->status='E';
-                $model->remarks=$postData['detRemarks'][$i];
-                $model->createdDt=Helper::getcurrentExpressionDate();
-                $model->departure_Place = $postData['locFrom'][$i];
-                $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
-                $model->erType = $postData['erTypeL'][$i];
-                $model->billNo = $postData['ticketNo'][$i];
-                $model->expenseHead = $postData['expenseHead'][$i];
-                $model->currency = 'NPR';
-            //   echo '<pre>'; print_r($model);die;
-                $repo->add($model);
-               
-            }
-            $reqModel->fromDate = $postData['departureDate'];
-            $reqModel->toDate = $postData['returnedDate'];
-            $reqModel->destination = $postData['destination'];
-            $reqModel->departure = $postData ['departure'];
-            $reqModel->purpose = $postData['purpose'];
-            $reqModel->status = 'RQ';
-            $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-            $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-            $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-            // echo("<pre>");print_r($reqModel);die;
+            if ($postData['submit'] == 'Submit') {
+                if (
+                    isset($postData['erTypeL']) == true
+                    //    && $detailxdc['REFERENCE_TRAVEL_ID'] != ''
+                ) {
+                    for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                        // var_dump('hrhf'); die;
+                        //  echo '<pre>'; print_r($postData); die;
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$i];
+                        $model->exchangeRate = 1;
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$i];
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$i];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
+                        $model->erType = $postData['erTypeL'][$i];
+                        $model->billNo = $postData['ticketNo'][$i];
+                        $model->expenseHead = $postData['expenseHead'][$i];
+                        $model->currency = 'NPR';
+                        //   echo '<pre>'; print_r($model);die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'RQ';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                    // echo("<pre>");print_r($reqModel);die;
 
-            $this->repository->edit($reqModel,$id);
+                    $this->repository->edit($reqModel, $id);
+                } elseif (isset($postData['erTypeI']) == true) {
+                    for ($j = 0; $j < count($postData['erTypeI']); $j++) {
+                        //    var_dump('herer'); die;
+                        // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                        $model->exchangeRate = $postData['exchangeRateInternational'][$j];
 
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$j];
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$j];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
+                        $model->erType = $postData['erTypeI'][$j];
+                        $model->billNo = $postData['ticketNo'][$j];
+                        $model->expenseHead = $postData['expenseHead'][$j];
+                        $model->currency = $postData['currency'][$j];
+                        // $model->trave
+                        // var_dump($d); die;
+                        // echo '<pre>'; print_r($model); die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'RQ';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                    // echo("<pre>");print_r($reqModel);die;
 
-           }
-          elseif( isset($postData['erTypeI']) == true){
-                for ($j = 0; $j < count($postData['erTypeI']); $j++){
-                    //    var_dump('herer'); die;
-                    // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                    $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $detailxdc['TRAVEL_ID'];
-                    $model->amount= $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                    $model->exchangeRate=$postData['exchangeRateInternational'][$j];
-                    
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$j];
-                    $model->createdDt=Helper::getcurrentExpressionDate();
-                    $model->departure_Place = $postData['locFrom'][$j];
-                    $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
-                    $model->erType = $postData['erTypeI'][$j];
-                    $model->billNo = $postData['ticketNo'][$j];
-                    $model->expenseHead = $postData['expenseHead'][$j];
-                    $model->currency = $postData['currency'][$j];
-                    // $model->trave
-                    // var_dump($d); die;
-                    // echo '<pre>'; print_r($model); die;
-                    $repo->add($model);
+                    $this->repository->edit($reqModel, $id);
+                } else {
+                    for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                        // var_dump('$classId'); die;
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$i];
+                        $model->exchangeRate = 1;
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$i];
+
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$i];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
+                        $model->erType = $postData['erTypeL'][$i];
+                        $model->billNo = $postData['ticketNo'][$i];
+                        $model->expenseHead = $postData['expenseHead'][$i];
+                        $model->currency = 'NPR';
+                        // echo '<pre>'; print_r($model); die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'RQ';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                    // echo("<pre>");print_r($reqModel);die;
+
+                    $this->repository->edit($reqModel, $id);
                 }
-                $reqModel->fromDate = $postData['departureDate'];
-                $reqModel->toDate = $postData['returnedDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->status = 'RQ';
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-                // echo("<pre>");print_r($reqModel);die;
-    
-                $this->repository->edit($reqModel,$id);
-            }else{
-                for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                    // var_dump('$classId'); die;
-                    $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $detailxdc['TRAVEL_ID'];
-                    $model->amount= $postData['amountExp'][$i];
-                    $model->exchangeRate=1;
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$i];
-                    
-                    $model->createdDt=Helper::getcurrentExpressionDate();
-                    $model->departure_Place = $postData['locFrom'][$i];
-                    $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
-                    $model->erType = $postData['erTypeL'][$i];
-                    $model->billNo = $postData['ticketNo'][$i];
-                    $model->expenseHead = $postData['expenseHead'][$i];
-                    $model->currency = 'NPR';
-                    // echo '<pre>'; print_r($model); die;
-                    $repo->add($model);
-                }
-                $reqModel->fromDate = $postData['departureDate'];
-                $reqModel->toDate = $postData['returnedDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->status = 'RQ';
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-                // echo("<pre>");print_r($reqModel);die;
-    
-                $this->repository->edit($reqModel,$id);
-            }
-            $totalamountfortravle = $this->repository->getTotalExpenseAmount($detailxdc['TRAVEL_ID']);
-            // echo '<pre>'; print_r($totalamountfortravle); die;
+                $totalamountfortravle = $this->repository->getTotalExpenseAmount($detailxdc['TRAVEL_ID']);
+                // echo '<pre>'; print_r($totalamountfortravle); die;
 
-            $addTotAMOUNT = $expenseDtlRepo->updateByTravelIdDelete($detailxdc['TRAVEL_ID'],$totalamountfortravle);
+                $addTotAMOUNT = $expenseDtlRepo->updateByTravelIdDelete($detailxdc['TRAVEL_ID'], $totalamountfortravle);
 
-            $this->flashmessenger()->addMessage("Successfully Updated!!!");
+                $this->flashmessenger()->addMessage("Successfully Updated!!!");
                 return $this->redirect()->toRoute("newtravelrequest", ["action" => "expense"]);
-        } else{
-            if( isset($postData['erTypeL']) == true 
-           ){
-            for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                $model->travelId= $detailxdc['TRAVEL_ID'];
-                $model->amount= $postData['amountExp'][$i];
-                $model->exchangeRate=1;
-                $model->expenseDate=Helper::getcurrentExpressionDate();
-                $model->status='E';
-                $model->remarks=$postData['detRemarks'][$i];
-                $model->createdDt=Helper::getcurrentExpressionDate();
-                $model->departure_Place = $postData['locFrom'][$i];
-                $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
-                $model->erType = $postData['erTypeL'][$i];
-                $model->billNo = $postData['ticketNo'][$i];
-                $model->expenseHead = $postData['expenseHead'][$i];
-                $model->currency = 'NPR';
-            //   echo '<pre>'; print_r($model);die;
-                $repo->add($model);
-               
-            }
-            $reqModel->fromDate = $postData['departureDate'];
-            $reqModel->toDate = $postData['returnedDate'];
-            $reqModel->destination = $postData['destination'];
-            $reqModel->departure = $postData ['departure'];
-            $reqModel->purpose = $postData['purpose'];
-            $reqModel->status = 'SV';
-            $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-            $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-            $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-            // echo("<pre>");print_r($reqModel);die;
+            } else {
+                if (
+                    isset($postData['erTypeL']) == true
+                ) {
+                    for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$i];
+                        $model->exchangeRate = 1;
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$i];
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$i];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
+                        $model->erType = $postData['erTypeL'][$i];
+                        $model->billNo = $postData['ticketNo'][$i];
+                        $model->expenseHead = $postData['expenseHead'][$i];
+                        $model->currency = 'NPR';
+                        //   echo '<pre>'; print_r($model);die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'SV';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                    // echo("<pre>");print_r($reqModel);die;
 
-            $this->repository->edit($reqModel,$id);
+                    $this->repository->edit($reqModel, $id);
+                } elseif (isset($postData['erTypeI']) == true) {
+                    for ($j = 0; $j < count($postData['erTypeI']); $j++) {
+                        //    var_dump('herer'); die;
+                        // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
+                        $model->exchangeRate = $postData['exchangeRateInternational'][$j];
 
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$j];
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$j];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
+                        $model->erType = $postData['erTypeI'][$j];
+                        $model->billNo = $postData['ticketNo'][$j];
+                        $model->expenseHead = $postData['expenseHead'][$j];
+                        $model->currency = $postData['currency'][$j];
+                        // $model->trave
+                        // var_dump($d); die;
+                        // echo '<pre>'; print_r($model); die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'SV';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+                    $this->repository->edit($reqModel, $id);
+                } else {
+                    for ($i = 0; $i < count($postData['erTypeL']); $i++) {
+                        $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
+                        $model->travelId = $detailxdc['TRAVEL_ID'];
+                        $model->amount = $postData['amountExp'][$i];
+                        $model->exchangeRate = 1;
+                        $model->expenseDate = Helper::getcurrentExpressionDate();
+                        $model->status = 'E';
+                        $model->remarks = $postData['detRemarks'][$i];
 
-           }
-          elseif( isset($postData['erTypeI']) == true){
-                for ($j = 0; $j < count($postData['erTypeI']); $j++){
-                    //    var_dump('herer'); die;
-                    // $d = $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                    $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $detailxdc['TRAVEL_ID'];
-                    $model->amount= $postData['amountExp'][$j] * $postData['exchangeRateInternational'][$j];
-                    $model->exchangeRate=$postData['exchangeRateInternational'][$j];
-                    
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$j];
-                    $model->createdDt=Helper::getcurrentExpressionDate();
-                    $model->departure_Place = $postData['locFrom'][$j];
-                    $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$j]);
-                    $model->erType = $postData['erTypeI'][$j];
-                    $model->billNo = $postData['ticketNo'][$j];
-                    $model->expenseHead = $postData['expenseHead'][$j];
-                    $model->currency = $postData['currency'][$j];
-                    // $model->trave
-                    // var_dump($d); die;
-                    // echo '<pre>'; print_r($model); die;
-                    $repo->add($model);
+                        $model->createdDt = Helper::getcurrentExpressionDate();
+                        $model->departure_Place = $postData['locFrom'][$i];
+                        $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
+                        $model->erType = $postData['erTypeL'][$i];
+                        $model->billNo = $postData['ticketNo'][$i];
+                        $model->expenseHead = $postData['expenseHead'][$i];
+                        $model->currency = 'NPR';
+                        // echo '<pre>'; print_r($model); die;
+                        $repo->add($model);
+                    }
+                    $reqModel->fromDate = $postData['departureDate'];
+                    $reqModel->toDate = $postData['returnedDate'];
+                    $reqModel->destination = $postData['destination'];
+                    $reqModel->departure = $postData['departure'];
+                    $reqModel->purpose = $postData['purpose'];
+                    $reqModel->status = 'SV';
+                    $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
+                    $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
+                    $reqModel->requestedDate = Helper::getcurrentExpressionDate();
+
+                    $this->repository->edit($reqModel, $id);
                 }
-                $reqModel->fromDate = $postData['departureDate'];
-                $reqModel->toDate = $postData['returnedDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->status = 'SV';
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();    
-                $this->repository->edit($reqModel,$id);
-            }else{
-                for ($i = 0; $i < count($postData['erTypeL']); $i++){
-                    $model->travelExpenseId = ((int) Helper::getMaxId($this->adapter, "hris_travel_expense", "TRAVEL_EXPENSE_ID")) + 1;
-                    $model->travelId= $detailxdc['TRAVEL_ID'];
-                    $model->amount= $postData['amountExp'][$i];
-                    $model->exchangeRate=1;
-                    $model->expenseDate=Helper::getcurrentExpressionDate();
-                    $model->status='E';
-                    $model->remarks=$postData['detRemarks'][$i];
-                    
-                    $model->createdDt=Helper::getcurrentExpressionDate();
-                    $model->departure_Place = $postData['locFrom'][$i];
-                    $model->arraival_DT = Helper::getExpressionDate($postData['arrDate'][$i]);
-                    $model->erType = $postData['erTypeL'][$i];
-                    $model->billNo = $postData['ticketNo'][$i];
-                    $model->expenseHead = $postData['expenseHead'][$i];
-                    $model->currency = 'NPR';
-                    // echo '<pre>'; print_r($model); die;
-                    $repo->add($model);
-                }
-                $reqModel->fromDate = $postData['departureDate'];
-                $reqModel->toDate = $postData['returnedDate'];
-                $reqModel->destination = $postData['destination'];
-                $reqModel->departure = $postData ['departure'];
-                $reqModel->purpose = $postData['purpose'];
-                $reqModel->status = 'SV';
-                $reqModel->fromDate = Helper::getExpressionDate($reqModel->fromDate);
-                $reqModel->toDate = Helper::getExpressionDate($reqModel->toDate);
-                $reqModel->requestedDate = Helper::getcurrentExpressionDate();
-    
-                $this->repository->edit($reqModel,$id);
-            }
-            $totalamountfortravle = $this->repository->getTotalExpenseAmount($detailxdc['TRAVEL_ID']);
-            $addTotAMOUNT = $expenseDtlRepo->updateByTravelIdDelete($detailxdc['TRAVEL_ID'],$totalamountfortravle);
+                $totalamountfortravle = $this->repository->getTotalExpenseAmount($detailxdc['TRAVEL_ID']);
+                $addTotAMOUNT = $expenseDtlRepo->updateByTravelIdDelete($detailxdc['TRAVEL_ID'], $totalamountfortravle);
 
-            $this->flashmessenger()->addMessage("Successfully Updated!!!");
+                $this->flashmessenger()->addMessage("Successfully Updated!!!");
                 return $this->redirect()->toRoute("newtravelrequest", ["action" => "expense"]);
-
+            }
         }
-    }
 
         $transportTypes = array(
             null => '------------',
@@ -1424,8 +1424,8 @@ class NewTravelRequest extends HrisController {
             'TI' => 'Taxi',
             'BS' => 'Bus',
             'OF'  => 'On Foot',
-            'OT'=>'Others',
-            'VV'=>'Own-Vehicle'
+            'OT' => 'Others',
+            'VV' => 'Own-Vehicle'
         );
         $expenseHeads = array(
             array('gl' => null, 'name'  => '---select expense heads---'),
@@ -1472,20 +1472,19 @@ class NewTravelRequest extends HrisController {
         );
         // echo '<pre>'; print_r($result); die;
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
-                    'detail' => $detail,
-                    'expenseDtlList' => $result,
-                    'todayDate' => date('d-M-Y'),
-                    'advanceAmount' => $advanceAmount,
-                    'expenseHeads' => $expenseHeads,
-                    'totalExpenseInWords' => $totalExpenseInWords,
-                    'totalExpense' => $totalAmount,
-                    'totalAmountSum' => $totalAmountSum['TOTAL'],
-                    'balance' => $balance,
-                    'detailxdc'=> $detailxdc
+            'form' => $this->form,
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'],
+            'detail' => $detail,
+            'expenseDtlList' => $result,
+            'todayDate' => date('d-M-Y'),
+            'advanceAmount' => $advanceAmount,
+            'expenseHeads' => $expenseHeads,
+            'totalExpenseInWords' => $totalExpenseInWords,
+            'totalExpense' => $totalAmount,
+            'totalAmountSum' => $totalAmountSum['TOTAL'],
+            'balance' => $balance,
+            'detailxdc' => $detailxdc
         ]);
     }
-
 }

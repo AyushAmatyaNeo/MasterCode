@@ -4,8 +4,8 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
 <script>
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
     document.getSearchDataLink = '<?php echo $this->url('salarySheet', ['action' => 'getSearchData']); ?>';
-    document.salaryType =<?php echo $salaryType; ?>;
-    document.wsExchangeRate='<?php echo $this->url('salarySheet', ['action' => 'getExchangeRate']); ?>';
+    document.salaryType = <?php echo $salaryType; ?>;
+    document.wsExchangeRate = '<?php echo $this->url('salarySheet', ['action' => 'getExchangeRate']); ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -22,16 +22,16 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                     <i class="fa fa-angle-down "></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li >
+                    <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
-                    <li >
+                    <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -58,26 +58,34 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                 <select class="form-control" name="salaryType" id="salaryTypeId">
                 </select>
             </div>
-            <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
-                <label for="" class="radio-inline">
-                    <input type="radio" name="exchangeRate" value="1" checked>Dollar
-                </label>
-                <label for="" class="radio-inline">
-                    <input type="radio" name="exchangeRate" value="0">Nepali
-                </label>
-            </div>
+            <?php if ($allowExchangeRate == 'Y') { ?>
+                <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
+                    <label for="" class="radio-inline">
+                        <input type="radio" name="exchangeRate" value="1" checked>Dollar
+                    </label>
+                    <label for="" class="radio-inline">
+                        <input type="radio" name="exchangeRate" value="0">Nepali
+                    </label>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" id="exchangeRateVal" disabled="disabled" class="form-control" placeholder="Exchange Rate" />
+                </div>
+            <?php } ?>
+
         </div>
-        <div  style="margin-top: 2rem;">
-            <div class="col-sm-2">
-                <input type="text" id="exchangeRateVal" disabled="disabled" class="form-control" placeholder="Exchange Rate" />
-            </div>
+        <div style="margin-top: 2rem;">
+
             <div class="col-sm-2 col-sm-offset-7">
                 <button id="viewBtn" class="btn btn-info pull-right">View</button>
             </div>
         </div>
         <div id="paySlipView" class="margin-top-10">
             <table class="table table-bordered" id="employee-detail">
-                <tr><td colspan="4"><h3><b><span id="yearMonthDetails"></span></b></h3>  </td> </tr>
+                <tr>
+                    <td colspan="4">
+                        <h3><b><span id="yearMonthDetails"></span></b></h3>
+                    </td>
+                </tr>
                 <tr>
                     <td>Employee Name</td>
                     <td key="FULL_NAME"></td>
@@ -116,8 +124,8 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
             </table>
             <table class="table table-bordered">
                 <thead>
-                <th colspan="2" style="font-size: 14px"><b>Addition</b></th>
-                <th colspan="2" style="font-size: 14px"><b>Deduction</b></th>
+                    <th colspan="2" style="font-size: 14px"><b>Addition</b></th>
+                    <th colspan="2" style="font-size: 14px"><b>Deduction</b></th>
                 </thead>
                 <tbody id="paySlipBody">
                 </tbody>

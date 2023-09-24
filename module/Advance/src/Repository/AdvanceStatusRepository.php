@@ -1,45 +1,48 @@
 <?php
+
 namespace Advance\Repository;
 
 use Application\Helper\EntityHelper;
 use Application\Repository\HrisRepository;
 use Setup\Model\HrEmployees;
 
-class AdvanceStatusRepository extends HrisRepository {
+class AdvanceStatusRepository extends HrisRepository
+{
 
-    public function getFilteredRecord($data) {
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
-        $employeeId = $data['employeeId']; 
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $functionalTypeId = $data['functionalTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $status = $data['status'];
-        $employeeTypeId = $data['employeeTypeId'];
+  public function getFilteredRecord($data)
+  {
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $status = $data['status'];
+    $employeeTypeId = $data['employeeTypeId'];
 
-        $searchConditon = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
-        $fromDateCondition = "";
-        $toDateCondition = "";
-        $statusCondition = '';
+    $searchConditon = EntityHelper::getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $fromDateCondition = "";
+    $toDateCondition = "";
+    $statusCondition = '';
 
-        if ($fromDate != null) {
-            $fromDateCondition = " AND AR.REQUESTED_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY') ";
-        }
-        if ($toDate != null) {
-            $toDateCondition = " AND AR.REQUESTED_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY') ";
-        }
+    if ($fromDate != null) {
+      $fromDateCondition = " AND AR.REQUESTED_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY') ";
+    }
+    if ($toDate != null) {
+      $toDateCondition = " AND AR.REQUESTED_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY') ";
+    }
 
-        if ($status != -1 && $status != null) {
-            $statusCondition = "AND AR.STATUS='" . $status . "' ";
-        }
+    if ($status != -1 && $status != null) {
+      $statusCondition = "AND AR.STATUS='" . $status . "' ";
+    }
 
 
-        $sql = "SELECT
+    $sql = "SELECT
           AR.EMPLOYEE_ID AS EMPLOYEE_ID,
           E.EMPLOYEE_CODE AS EMPLOYEE_CODE,
           AR.ADVANCE_REQUEST_ID AS ADVANCE_REQUEST_ID,
@@ -120,29 +123,30 @@ class AdvanceStatusRepository extends HrisRepository {
           {$fromDateCondition}
           {$toDateCondition}
           {$statusCondition}";
-        $sql .= " ORDER BY AR.REQUESTED_DATE DESC";
-        $finalQuery = $this->getPrefReportQuery($sql);
-        $statement = $this->adapter->query($finalQuery);
-        $result = $statement->execute();
-        return $result;
-    }
+    $sql .= " ORDER BY AR.DATE_OF_ADVANCE DESC";
+    $finalQuery = $this->getPrefReportQuery($sql);
+    $statement = $this->adapter->query($finalQuery);
+    $result = $statement->execute();
+    return $result;
+  }
 
-    public function getAdvanceReqList($data) {
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $advanceId = $data['advanceId'];
-        $advanceRequestStatusId = $data['advanceRequestStatusId'];
-        $employeeTypeId = $data['employeeTypeId'];
+  public function getAdvanceReqList($data)
+  {
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $advanceId = $data['advanceId'];
+    $advanceRequestStatusId = $data['advanceRequestStatusId'];
+    $employeeTypeId = $data['employeeTypeId'];
 
-        $sql = "SELECT INITCAP(A.ADVANCE_NAME) AS ADVANCE_NAME,
+    $sql = "SELECT INITCAP(A.ADVANCE_NAME) AS ADVANCE_NAME,
                   A.ADVANCE_CODE,
                   AR.REQUESTED_AMOUNT,
                   INITCAP(TO_CHAR(AR.ADVANCE_DATE, 'DD-MON-YYYY'))                AS ADVANCE_DATE_AD,
@@ -208,56 +212,56 @@ class AdvanceStatusRepository extends HrisRepository {
                   END
                 OR APRV.STATUS IS NULL)";
 
-        if ($advanceRequestStatusId != -1) {
-            $sql .= " AND AR.STATUS = '{$advanceRequestStatusId}'";
-        }
-
-        if ($advanceId != -1) {
-            $sql .= " AND AR.ADVANCE_ID ='" . $advanceId . "'";
-        }
-
-        if ($fromDate != null) {
-            $sql .= " AND AR.ADVANCE_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
-        }
-
-        if ($toDate != null) {
-            $sql .= " AND AR.ADVANCE_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
-        }
-
-        if ($employeeTypeId != null && $employeeTypeId != -1) {
-            $sql .= "AND E.EMPLOYEE_TYPE='" . $employeeTypeId . "' ";
-        }
-
-        if ($employeeId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " = $employeeId";
-        }
-
-        if ($companyId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::COMPANY_ID . "= $companyId)";
-        }
-        if ($branchId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)";
-        }
-        if ($departmentId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DEPARTMENT_ID . "= $departmentId)";
-        }
-        if ($designationId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DESIGNATION_ID . "= $designationId)";
-        }
-        if ($positionId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::POSITION_ID . "= $positionId)";
-        }
-        if ($serviceTypeId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_TYPE_ID . "= $serviceTypeId)";
-        }
-        if ($serviceEventTypeId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_EVENT_TYPE_ID . "= $serviceEventTypeId)";
-        }
-
-        $sql .= " ORDER BY AR.REQUESTED_DATE DESC";
-
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
+    if ($advanceRequestStatusId != -1) {
+      $sql .= " AND AR.STATUS = '{$advanceRequestStatusId}'";
     }
+
+    if ($advanceId != -1) {
+      $sql .= " AND AR.ADVANCE_ID ='" . $advanceId . "'";
+    }
+
+    if ($fromDate != null) {
+      $sql .= " AND AR.ADVANCE_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
+    }
+
+    if ($toDate != null) {
+      $sql .= " AND AR.ADVANCE_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
+    }
+
+    if ($employeeTypeId != null && $employeeTypeId != -1) {
+      $sql .= "AND E.EMPLOYEE_TYPE='" . $employeeTypeId . "' ";
+    }
+
+    if ($employeeId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " = $employeeId";
+    }
+
+    if ($companyId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::COMPANY_ID . "= $companyId)";
+    }
+    if ($branchId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)";
+    }
+    if ($departmentId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DEPARTMENT_ID . "= $departmentId)";
+    }
+    if ($designationId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DESIGNATION_ID . "= $designationId)";
+    }
+    if ($positionId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::POSITION_ID . "= $positionId)";
+    }
+    if ($serviceTypeId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_TYPE_ID . "= $serviceTypeId)";
+    }
+    if ($serviceEventTypeId != -1) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_EVENT_TYPE_ID . "= $serviceEventTypeId)";
+    }
+
+    $sql .= " ORDER BY AR.ADVANCE_DATE DESC";
+
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 }

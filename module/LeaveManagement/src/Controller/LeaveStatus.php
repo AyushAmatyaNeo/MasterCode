@@ -19,37 +19,46 @@ use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class LeaveStatus extends HrisController {
+class LeaveStatus extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(LeaveStatusRepository::class);
         $this->initializeForm(LeaveApplyForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $leaveList = EntityHelper::getTableKVListWithSortOption($this->adapter, LeaveMaster::TABLE_NAME, LeaveMaster::LEAVE_ID, [LeaveMaster::LEAVE_ENAME], [LeaveMaster::STATUS => 'E'], LeaveMaster::LEAVE_ENAME, "ASC", NULL, ['-1' => 'All Leaves'], TRUE);
         $leaveSE = $this->getSelectElement(['name' => 'leave', 'id' => 'leaveId', 'class' => 'form-control reset-field', 'label' => 'Type'], $leaveList);
         $leaveStatusSE = $this->getStatusSelectElement(['name' => 'leaveStatus', 'id' => 'leaveRequestStatusId', 'class' => 'form-control ', 'label' => 'Status']);
 
-        $leaveYearList=EntityHelper::getTableKVList($this->adapter, "HRIS_LEAVE_YEARS", "LEAVE_YEAR_ID", ["LEAVE_YEAR_NAME"], null,null,false,'LEAVE_YEAR_ID','desc');
+        $leaveYearList = EntityHelper::getTableKVList($this->adapter, "HRIS_LEAVE_YEARS", "LEAVE_YEAR_ID", ["LEAVE_YEAR_NAME"], null, null, false, 'LEAVE_YEAR_ID', 'desc');
         $leaveYearSE = $this->getSelectElement(['name' => 'leaveYear', 'id' => 'leaveYear', 'class' => 'form-control ', 'label' => 'Type'], $leaveYearList);
-        
-        $allLeaveForReport= $this->repository->getAllLeaveforReport();
-        
+
+        $allLeaveForReport = $this->repository->getAllLeaveforReport();
+        $employee = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N', 'IS_ADMIN' => "N"], "FULL_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         return $this->stickFlashMessagesTo([
-                    'leaves' => $leaveSE,
-                    'leaveStatus' => $leaveStatusSE,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference,
-                    'leaveYearSelect'  =>$leaveYearSE,
-                    'allLeaveForReport'  =>$allLeaveForReport,
+            'leaves' => $leaveSE,
+            'leaveStatus' => $leaveStatusSE,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference,
+            'leaveYearSelect'  => $leaveYearSE,
+            'allLeaveForReport'  => $allLeaveForReport,
+            'employees' => $employees,
         ]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
 
         if ($id === 0) {
@@ -61,8 +70,8 @@ class LeaveStatus extends HrisController {
 
 
         $detail = $leaveApproveRepository->fetchById($id);
-        
-        if($this->preference['displayHrApproved'] == 'Y' && $detail['HR_APPROVED'] == 'Y'){
+
+        if ($this->preference['displayHrApproved'] == 'Y' && $detail['HR_APPROVED'] == 'Y') {
             $detail['APPROVER_ID'] = '-1';
             $detail['APPROVER_NAME'] = 'HR';
             $detail['RECOMMENDER_ID'] = '-1';
@@ -70,7 +79,7 @@ class LeaveStatus extends HrisController {
             $detail['RECOMMENDED_BY_NAME'] = 'HR';
             $detail['APPROVED_BY_NAME'] = 'HR';
         }
-        
+
         $fileDetails = $leaveApproveRepository->fetchAttachmentsById($id);
 
         $status = $detail['STATUS'];
@@ -84,22 +93,22 @@ class LeaveStatus extends HrisController {
 
         //to get the previous balance of selected leave from assigned leave detail
         $preBalance = $detail['BALANCE'];
-        
-        $actualDays = ($detail['ACTUAL_DAYS']<1)?'0'+$detail['ACTUAL_DAYS']:$detail['ACTUAL_DAYS'];
+
+        $actualDays = ($detail['ACTUAL_DAYS'] < 1) ? '0' + $detail['ACTUAL_DAYS'] : $detail['ACTUAL_DAYS'];
 
         $leaveApply = new LeaveApply();
-        if ($request->isPost() && $detail['SETUP_STATUS']=='E') {
+        if ($request->isPost() && $detail['SETUP_STATUS'] == 'E') {
             $getData = $request->getPost();
             $reason = $getData->approvedRemarks;
             $action = $getData->submit;
 
             if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC') {
-                
-                $checkSameDateApproved = $this->repository->getSameDateApprovedStatus($detail['EMPLOYEE_ID'],$detail['START_DATE'],$detail['END_DATE']);
-                if($checkSameDateApproved['LEAVE_COUNT']>0 && $action == "Approve"){
+
+                $checkSameDateApproved = $this->repository->getSameDateApprovedStatus($detail['EMPLOYEE_ID'], $detail['START_DATE'], $detail['END_DATE']);
+                if ($checkSameDateApproved['LEAVE_COUNT'] > 0 && $action == "Approve") {
                     return $this->redirect()->toRoute("leavestatus");
                 }
-                
+
                 $leaveApply->approvedDt = Helper::getcurrentExpressionDate();
                 if ($action == "Reject") {
                     $leaveApply->status = "R";
@@ -144,47 +153,50 @@ class LeaveStatus extends HrisController {
 
             return $this->redirect()->toRoute("leavestatus");
         }
+
         $leaveApply->exchangeArrayFromDB($detail);
+
         $this->form->bind($leaveApply);
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'employeeId' => $requestedEmployeeID,
-                    'employeeName' => $employeeName,
-                    'requestedDt' => $detail['REQUESTED_DT'],
-                    'availableDays' => $preBalance,
-                    'totalDays' => $detail['TOTAL_DAYS'],
-                    'recommender' => $authRecommender,
-                    'approver' => $authApprover,
-                    'approvedDT' => $detail['APPROVED_DT'],
-                    'remarkDtl' => $detail['REMARKS'],
-                    'status' => $status,
-                    'allowHalfDay' => $detail['ALLOW_HALFDAY'],
-                    'leave' => $leaveRequestRepository->getLeaveList($detail['EMPLOYEE_ID']),
-                    'customRenderer' => Helper::renderCustomView(),
-                    'recommApprove' => $recommApprove,
-                    'subEmployeeId' => $detail['SUB_EMPLOYEE_ID'],
-                    'subRemarks' => $detail['SUB_REMARKS'],
-                    'subApprovedFlag' => $detail['SUB_APPROVED_FLAG'],
-                    'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", FALSE, TRUE),
-                    'gp' => $detail['GRACE_PERIOD'],
-                    'acl' => $this->acl,
-                    'files' => $fileDetails,
-                    'actualDays' => $actualDays,
-                    'subLeaveName' => $detail['LEAVE_ENAME'],
-                    'setupStatus' => $detail['SETUP_STATUS']
+            'form' => $this->form,
+            'id' => $id,
+            'employeeId' => $requestedEmployeeID,
+            'employeeName' => $employeeName,
+            'requestedDt' => $detail['REQUESTED_DT'],
+            'availableDays' => $preBalance,
+            'totalDays' => $detail['TOTAL_DAYS'],
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'approvedDT' => $detail['APPROVED_DT'],
+            'remarkDtl' => $detail['REMARKS'],
+            'status' => $status,
+            'allowHalfDay' => $detail['ALLOW_HALFDAY'],
+            'leave' => $leaveRequestRepository->getLeaveList($detail['EMPLOYEE_ID']),
+            'customRenderer' => Helper::renderCustomView(),
+            'recommApprove' => $recommApprove,
+            'subEmployeeId' => $detail['SUB_EMPLOYEE_ID'],
+            'subRemarks' => $detail['SUB_REMARKS'],
+            'subApprovedFlag' => $detail['SUB_APPROVED_FLAG'],
+            'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", FALSE, TRUE),
+            'gp' => $detail['GRACE_PERIOD'],
+            'acl' => $this->acl,
+            'files' => $fileDetails,
+            'actualDays' => $actualDays,
+            'subLeaveName' => $detail['LEAVE_ENAME'],
+            'setupStatus' => $detail['SETUP_STATUS']
         ]);
     }
 
-    public function pullLeaveRequestStatusListAction() {
+    public function pullLeaveRequestStatusListAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
             $recordList = $this->repository->getLeaveRequestList($data);
 
-            if($this->preference['displayHrApproved'] == 'Y'){
-                for($i = 0; $i < count($recordList); $i++){
-                    if($recordList[$i]['HARDCOPY_SIGNED_FLAG'] == 'Y'){
+            if ($this->preference['displayHrApproved'] == 'Y') {
+                for ($i = 0; $i < count($recordList); $i++) {
+                    if ($recordList[$i]['HARDCOPY_SIGNED_FLAG'] == 'Y') {
                         $recordList[$i]['APPROVER_ID'] = '-1';
                         $recordList[$i]['APPROVER_NAME'] = 'HR';
                         $recordList[$i]['RECOMMENDER_ID'] = '-1';
@@ -203,14 +215,15 @@ class LeaveStatus extends HrisController {
         }
     }
 
-    public function bulkAction() {
+    public function bulkAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
             if ($postData['super_power'] == 'true') {
                 $this->makeSuperDecision($postData['id'], $postData['action'] == "approve");
             } else {
-                $this->makeDecision($postData['id'], $postData['action']);
+                $this->makeDecision($postData['id'], $postData['action'] == "approve");
             }
             return new JsonModel(['success' => true, 'data' => null]);
         } catch (Exception $e) {
@@ -218,17 +231,17 @@ class LeaveStatus extends HrisController {
         }
     }
 
-    private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false)
+    {
 
         $leaveApproveRepository = new LeaveApproveRepository($this->adapter);
         $detail = $leaveApproveRepository->fetchById($id);
-        // echo '<pre>';print_r($detail);die;
-        if($detail['SETUP_STATUS']!='E'){
+        if ($detail['SETUP_STATUS'] != 'E') {
             return;
         }
-        if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC' || $detail['STATUS'] == 'AP' || $detail['STATUS'] == 'R') {
-            $checkSameDateApproved = $this->repository->getSameDateApprovedStatus($detail['EMPLOYEE_ID'],$detail['START_DATE'],$detail['END_DATE']);
-            if($checkSameDateApproved['LEAVE_COUNT']>0 && $approve){
+        if ($detail['STATUS'] == 'RQ' || $detail['STATUS'] == 'RC') {
+            $checkSameDateApproved = $this->repository->getSameDateApprovedStatus($detail['EMPLOYEE_ID'], $detail['START_DATE'], $detail['END_DATE']);
+            if ($checkSameDateApproved['LEAVE_COUNT'] > 0 && $approve) {
                 throw new Exception('Leave Overlap Detected');
             }
             $model = new LeaveApply();
@@ -238,10 +251,9 @@ class LeaveStatus extends HrisController {
             $model->approvedRemarks = $remarks;
             $model->approvedDate = Helper::getcurrentExpressionDate();
             $model->approvedBy = $this->employeeId;
-            $model->status = ($approve == 'approve' )? "AP" : "R";
-            $message = ($approve == 'approve' )? "Leave Request Approved" : "Leave Request Rejected";
+            $model->status = $approve ? "AP" : "R";
+            $message = $approve ? "Leave Request Approved" : "Leave Request Rejected";
             $notificationEvent = $approve ? NotificationEvents::LEAVE_APPROVE_ACCEPTED : NotificationEvents::LEAVE_APPROVE_REJECTED;
-            // echo '<pre>';print_r($model);die;
             $leaveApproveRepository->edit($model, $id);
             if ($enableFlashNotification) {
                 $this->flashmessenger()->addMessage($message);
@@ -274,12 +286,13 @@ class LeaveStatus extends HrisController {
         }
     }
 
-    private function makeSuperDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeSuperDecision($id, $approve, $remarks = null, $enableFlashNotification = false)
+    {
 
         $leaveApproveRepository = new LeaveApproveRepository($this->adapter);
         $detail = $leaveApproveRepository->fetchById($id);
-        
-        if($detail['SETUP_STATUS']!='E'){
+
+        if ($detail['SETUP_STATUS'] != 'E') {
             return;
         }
         if ($detail['STATUS'] == 'AP') {
@@ -291,7 +304,7 @@ class LeaveStatus extends HrisController {
             $model->approvedDate = Helper::getcurrentExpressionDate();
             $model->approvedBy = $this->employeeId;
             $model->status = $approve ? "AP" : "R";
-            
+
             $message = $approve ? "Leave Request Approved" : "Leave Request Rejected";
             $notificationEvent = $approve ? NotificationEvents::LEAVE_APPROVE_ACCEPTED : NotificationEvents::LEAVE_APPROVE_REJECTED;
             $leaveApproveRepository->edit($model, $id);
@@ -306,7 +319,8 @@ class LeaveStatus extends HrisController {
         }
     }
 
-    public function applyLFCAction() {
+    public function applyLFCAction()
+    {
         $id =  $this->params()->fromRoute('id');
 
         if ($id === 0) {
@@ -325,5 +339,4 @@ class LeaveStatus extends HrisController {
             'data' => $data
         ]);
     }
-
 }

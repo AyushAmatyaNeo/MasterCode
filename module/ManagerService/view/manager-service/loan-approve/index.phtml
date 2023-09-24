@@ -1,21 +1,21 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.rtl.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.rtl.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.default.min.css'));
 
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/manager-service/loan-approve/index.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/manager-service/loan-approve/index.js'));
 ?>
 
 <script>
     document.deleteURL = '<?= $this->url("restful", ["action" => "index"]) ?>';
-    document.loanApprove =<?php echo json_encode($loanApprove) ?>;
+    document.loanApprove = <?php echo json_encode($loanApprove) ?>;
     document.viewLink = '<?= $this->url("loanApprove", ["action" => "view"]) ?>';
 </script>
 <div class="page-bar">
@@ -32,7 +32,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
@@ -50,15 +50,17 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <a href="" class="fullscreen" data-original-title="" title=""> </a>
             </div>
             <div class="actions">
+                <a href="<?= $this->url('loanApprove', ['action' => 'add']) ?>" class="btn default btn-sm">
+                    <i class="fa fa-plus-square icon-black"></i> New </a>
                 <div class="btn-group">
                     <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-copy"></i> Tools
                         <i class="fa fa-angle-down "></i>
                     </a>
                     <ul class="dropdown-menu pull-right">
-                        <li >
+                        <li>
                             <a href="javascript:;" id="export">
-                                <i class="fa fa-file-excel-o" ></i> Export to Excel </a>
+                                <i class="fa fa-file-excel-o"></i> Export to Excel </a>
                         </li>
                     </ul>
                 </div>
@@ -66,7 +68,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
         </div>
         <div id="loanApproveTable">
         </div>
-        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv" >
+        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv">
             <div class="col-sm-2 ">
                 <button id="btnReject" class="btn btn-danger btnApproveReject">Reject</button>
             </div>

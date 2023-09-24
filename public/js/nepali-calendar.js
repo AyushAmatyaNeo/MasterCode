@@ -400,6 +400,12 @@ window.nepaliCalendar = (function ($) {
                     } else if (value.OVERALL_STATUS == 'AB') {
                         $date.css('background-color', '#cc0000');
                         $date.children().css('background-color', '#cc0000');
+                    } else if (value.OVERALL_STATUS == 'EC') {
+                        $date.css('background-color', '#d7c5f0');
+                        $date.children().css('background-color', '#d7c5f0');
+                    } else if (value.OVERALL_STATUS == 'OT') {
+                        $date.css('background-color', '#abf0f7');
+                        $date.children().css('background-color', '#abf0f7');
                     }
                 });
             }, function (error) {

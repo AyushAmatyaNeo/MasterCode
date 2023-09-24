@@ -1,8 +1,8 @@
 <?php
 $this->headScript()->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/setup/employee/view.js'))
-        ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'));
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/setup/employee/view.js'))
+    ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'));
 ?>
 
 <?php
@@ -76,7 +76,6 @@ $idDrivingLicenseType = $formThree->get('idDrivingLicenseType');
 $idDrivingLicenseExpiry = $formThree->get('idDrivingLicenseExpiry');
 $idThumbId = $formThree->get('idThumbId');
 $idPanNo = $formThree->get('idPanNo');
-$ssfNo = $formThree->get('ssfNo');
 $idAccountId = $formThree->get('idAccountId');
 $idRetirementNo = $formThree->get('idRetirementNo');
 $idCitizenshipNo = $formThree->get('idCitizenshipNo');
@@ -95,15 +94,15 @@ $departmentId = $formFour->get('departmentId');
 $branchId = $formFour->get('branchId');
 $overtimeEligibility = $formFour->get('overtimeEligible');
 $overtimeEligibilityValue = [
-        '' => ' ',
-        'Y' => 'Yes',
-        'N' => 'No'
+    '' => ' ',
+    'Y' => 'Yes',
+    'N' => 'No'
 ];
 $wohFlag = $formFour->get('wohFlag');
 $wohFlagValue = [
-        '' => ' ',
-        'L' => 'Substitute Leave',
-        'O' => 'Overtime'
+    '' => ' ',
+    'L' => 'Substitute Leave',
+    'O' => 'Overtime'
 ];
 $employeeType = $formFour->get('employeeType');
 $employeeTypeValue = [
@@ -155,25 +154,25 @@ if ($this->messages) {
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\Employee')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb'); ?>
 </div>
-<div id="quaConId">   
-    <?php if ($acl['ALLOW_UPDATE'] == 'Y'): ?>
+<div id="quaConId">
+    <?php if ($acl['ALLOW_UPDATE'] == 'Y') : ?>
         <div class="row esetup" style="margin-top:10px;">
             <div class="col-md-12" style="">
                 <a class="btn btn-success pull-right" href="<?= $this->url("employee", ["action" => "edit"]) ?>/<?php echo $id; ?>/1"> Edit
                     <i class="fa fa-edit"></i>
                 </a>
-            </div>   
-        </div>    
+            </div>
+        </div>
     <?php endif; ?>
     <div id="rootwizard" class="tabbable-custom">
-        <div class="personal-info">     
+        <div class="personal-info">
             <p><i class="fa fa-user ticon" aria-hidden="true"></i>
                 Personal Information</p>
 
             <div class="row clearfix e-setup">
                 <div class="col-xs-12 col-sm-3 col-md-3 col-box">
                     <div class="profile-img-box">
-                        <img alt="profile image"  class="profilepic" src="<?= $this->basePath("uploads/" . $filePath) ?>" />
+                        <img alt="profile image" class="profilepic" src="<?= $this->basePath("uploads/" . $filePath) ?>" />
                         <span class="profilepic-label"><?php echo $employeeData['FULL_NAME']; ?> </span>
                     </div>
                 </div>
@@ -181,7 +180,7 @@ if ($this->messages) {
                 <div class="col-xs-12 col-sm-3 col-md-3 col-box">
                     <div class="row bottomgap">
                         <div class="form-group">
-                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign"> 
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
                                 <?php print $this->formLabel($firstName) ?></div>
                             <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::FIRST_NAME]; ?></div>
@@ -223,7 +222,7 @@ if ($this->messages) {
                             <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::EMAIL_OFFICIAL]; ?></div>
                         </div>
-                    </div>  
+                    </div>
 
                     <!--EmployeeCode-->
                     <div class="row bottomgap">
@@ -233,7 +232,7 @@ if ($this->messages) {
                             <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::EMPLOYEE_CODE]; ?></div>
                         </div>
-                    </div>  
+                    </div>
 
 
                 </div>
@@ -430,7 +429,7 @@ if ($this->messages) {
                     </div>
 
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-6 col-md-4 col-box">
                     <div class="row bottomgap">
 
@@ -516,7 +515,7 @@ if ($this->messages) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-6 col-md-4 col-box">
                     <div class="row bottomgap">
                         <div class="form-group  <?= empty($addrTempProvinceId->getMessages()) ? "" : "error" ?>">
@@ -616,7 +615,7 @@ if ($this->messages) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="row bottomgap">
 
@@ -650,7 +649,7 @@ if ($this->messages) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="row bottomgap">
 
@@ -662,7 +661,7 @@ if ($this->messages) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="row bottomgap">
 
@@ -704,8 +703,8 @@ if ($this->messages) {
 
                 </div>
 
-                
-                
+
+
 
                 <div class="col-xs-12 col-sm-4 col-md-4">
                     <div class="row bottomgap">
@@ -739,7 +738,7 @@ if ($this->messages) {
         </div>
 
 
-        <div class="identification-infomation">  
+        <div class="identification-infomation">
             <p><i class="fa fa-user-circle ticon" aria-hidden="true"></i>
                 Identification Infomation</p>
             <div class="row clearfix e-setup">
@@ -804,7 +803,7 @@ if ($this->messages) {
                         <div class="form-group   <?= empty($idDrivingLicenseExpiry->getMessages()) ? "" : "error" ?>">
                             <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
                                 <?php print $this->formLabel($idDrivingLicenseExpiry); ?></div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">  
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::ID_DRIVING_LICENCE_EXPIRY]; ?>
                             </div>
                         </div>
@@ -816,7 +815,7 @@ if ($this->messages) {
                         <div class="form-group  <?= empty($idDrivingLicenseType->getMessages()) ? "" : "error" ?>">
                             <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
                                 <?php print $this->formLabel($idDrivingLicenseType); ?></div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">  
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::ID_DRIVING_LICENCE_TYPE]; ?></div>
                         </div>
                     </div>
@@ -827,7 +826,7 @@ if ($this->messages) {
                         <div class="form-group  <?= empty($idPassportNo->getMessages()) ? "" : "error" ?>">
                             <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
                                 <?php print $this->formLabel($idPassportNo); ?></div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3"> 
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
                                 <?php print $employeeData[\Setup\Model\HrEmployees::ID_PASSPORT_NO]; ?></div>
                         </div>
                     </div>
@@ -843,8 +842,7 @@ if ($this->messages) {
                                 <?php print $this->formLabel($idThumbId); ?></div>
                             <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
                                 <?php
-                                print $employeeData[\Setup\Model\HrEmployees::ID_THUMB_ID];
-                                ;
+                                print $employeeData[\Setup\Model\HrEmployees::ID_THUMB_ID];;
                                 ?></div>
                         </div>
                     </div>
@@ -888,8 +886,7 @@ if ($this->messages) {
                                 <?php print $this->formLabel($idCitizenshipNo); ?></div>
                             <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
                                 <?php
-                                print $employeeData[\Setup\Model\HrEmployees::ID_CITIZENSHIP_NO];
-                                ;
+                                print $employeeData[\Setup\Model\HrEmployees::ID_CITIZENSHIP_NO];;
                                 ?></div>
                         </div>
                     </div>
@@ -904,7 +901,7 @@ if ($this->messages) {
                                     <?php print $employeeData[\Setup\Model\HrEmployees::ID_CITIZENSHIP_ISSUE_DATE]; ?>
 
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -931,26 +928,13 @@ if ($this->messages) {
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="row bottomgap">
-                        <div class="form-group  <?= empty($ssfNo->getMessages()) ? "" : "error" ?>">
-                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
-                                <?php print $this->formLabel($ssfNo); ?></div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
-                                <?php
-                                print $employeeData[\Setup\Model\HrEmployees::SSF_NO];
-                                ;
-                                ?></div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
 
 
-        <div class="status-info"> 
+        <div class="status-info">
             <p><i class="fa fa-info-circle ticon ticon"></i>Status Infomation</p>
             <div class="row clearfix e-setup">
                 <div class="col-xs-12 col-sm-4 col-md-4">
@@ -959,7 +943,7 @@ if ($this->messages) {
                             <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
                                 <?php print $this->formLabel($joinDate); ?></div>
                             <div class="col-xs-6 col-sm-6 cgap-4">
-                                <div class="input-group"> 
+                                <div class="input-group">
                                     <?php print $employeeData[\Setup\Model\HrEmployees::JOIN_DATE]; ?>
                                 </div>
                             </div>
@@ -1054,7 +1038,7 @@ if ($this->messages) {
                             <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
                                 <?php print $this->formLabel($employeeType); ?></div>
                             <div class="col-xs-6 col-sm-6 cgap-4">
-                                <?php print ($employeeTypeValue[$employeeData[\Setup\Model\HrEmployees::EMPLOYEE_TYPE]]); ?></div>
+                                <?php print($employeeTypeValue[$employeeData[\Setup\Model\HrEmployees::EMPLOYEE_TYPE]]); ?></div>
                         </div>
                     </div>
 
@@ -1087,7 +1071,7 @@ if ($this->messages) {
 
         </div>
 
-        <div class="status-info"> 
+        <div class="status-info">
             <p><i class="fa fa-info-circle ticon ticon"></i>Qualification Details</p>
             <div class="row clearfix e-setup">
                 <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
@@ -1105,7 +1089,7 @@ if ($this->messages) {
                             </tr>
                             <?php
                             foreach ($empQualificationList as $empQualificationRow) {
-                                ?>
+                            ?>
                                 <tr>
                                     <td>
                                         <?php print $empQualificationRow['ACADEMIC_DEGREE_NAME']; ?>
@@ -1145,7 +1129,7 @@ if ($this->messages) {
             </div>
         </div>
 
-        <div class="status-info"> 
+        <div class="status-info">
             <p><i class="fa fa-info-circle ticon ticon"></i>Experience Details</p>
             <div class="row clearfix e-setup">
                 <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
@@ -1161,7 +1145,7 @@ if ($this->messages) {
                             </tr>
                             <?php
                             foreach ($empExperienceList as $experience) {
-                                ?>
+                            ?>
                                 <tr>
                                     <td>
                                         <?php print $experience['ORGANIZATION_TYPE']; ?>
@@ -1186,7 +1170,7 @@ if ($this->messages) {
                 </div>
             </div>
         </div>
-        <div class="status-info"> 
+        <div class="status-info">
             <p><i class="fa fa-info-circle ticon ticon"></i>Training Details</p>
             <div class="row clearfix e-setup">
                 <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
@@ -1201,7 +1185,7 @@ if ($this->messages) {
                             </tr>
                             <?php
                             foreach ($empTrainingList as $training) {
-                                ?>
+                            ?>
                                 <tr>
                                     <td>
                                         <?php print $training['TRAINING_NAME']; ?>
@@ -1226,7 +1210,7 @@ if ($this->messages) {
 
         <div class="row">
             <div class="col-sm-12">
-                <div class="status-info"> 
+                <div class="status-info">
                     <p><i class="fa fa-info-circle ticon ticon"></i>Service Status Details</p>
                     <div class="row clearfix e-setup">
                         <div class="col-sm-12">
@@ -1245,7 +1229,7 @@ if ($this->messages) {
                                     </tr>
                                     <?php
                                     foreach ($jobHistoryList as $jobHistory) {
-                                        ?>
+                                    ?>
                                         <tr>
                                             <td>
                                                 <?php print $jobHistory['START_DATE_AD']; ?>
@@ -1283,8 +1267,7 @@ if ($this->messages) {
                                                 ?>
                                             </td>
                                             <td>
-                                                <a class="btn-edit"
-                                                   href="<?= $this->url("jobHistory", ["action" => "edit", "id" => $jobHistory['JOB_HISTORY_ID']]) ?>" style="height:27px;">
+                                                <a class="btn-edit" href="<?= $this->url("jobHistory", ["action" => "edit", "id" => $jobHistory['JOB_HISTORY_ID']]) ?>" style="height:27px;">
                                                     <i class="fa fa-search-plus"></i>
                                                 </a>
                                             </td>
@@ -1297,7 +1280,7 @@ if ($this->messages) {
                 </div>
             </div>
             <div class="col-sm-12">
-                <div class="status-info"> 
+                <div class="status-info">
                     <p><i class="fa fa-info-circle ticon ticon"></i>Document Details</p>
                     <div class="row clearfix e-setup">
                         <div class="col-sm-6">
@@ -1309,15 +1292,14 @@ if ($this->messages) {
                                     </tr>
                                     <?php
                                     foreach ($employeeFile as $file) {
-                                        ?>
+                                    ?>
                                         <tr>
                                             <td>
                                                 <?php print $file['FILE_NAME']; ?>
                                             </td>
 
                                             <td width="10%">
-                                                <a class="btn-delete"
-                                                   href="<?= $this->basePath() . "/uploads/" . $file['FILE_PATH']; ?>" download="<?php echo $file['FILE_NAME']; ?>" style="height:27px;">
+                                                <a class="btn-delete" href="<?= $this->basePath() . "/uploads/" . $file['FILE_PATH']; ?>" download="<?php echo $file['FILE_NAME']; ?>" style="height:27px;">
                                                     <i class="fa fa-download"></i>
                                                 </a>
                                             </td>
@@ -1333,7 +1315,7 @@ if ($this->messages) {
 
         <div class="row">
             <div class="col-sm-12">
-                <div class="status-info"> 
+                <div class="status-info">
                     <p><i class="fa fa-info-circle ticon ticon"></i>Asset Details</p>
                     <div class="row clearfix e-setup">
                         <div class="col-sm-12">
@@ -1349,7 +1331,7 @@ if ($this->messages) {
 
                                     <?php
                                     foreach ($assetDetails as $asset) {
-                                        ?>
+                                    ?>
                                         <tr>
                                             <td>
                                                 <?php print $asset['ASSET_GROUP_EDESC']; ?>
@@ -1376,11 +1358,11 @@ if ($this->messages) {
                 </div>
             </div>
         </div>
-        
-        
+
+
         <div class="row">
             <div class="col-sm-12">
-                <div class="status-info"> 
+                <div class="status-info">
                     <p><i class="fa fa-info-circle ticon ticon"></i>Relation Details</p>
                     <div class="row clearfix e-setup">
                         <div class="col-sm-12">
@@ -1396,7 +1378,7 @@ if ($this->messages) {
 
                                     <?php
                                     foreach ($relationDetails as $relation) {
-                                        ?>
+                                    ?>
                                         <tr>
                                             <td>
                                                 <?php print $relation['PERSON_NAME']; ?>
@@ -1423,19 +1405,14 @@ if ($this->messages) {
                 </div>
             </div>
         </div>
-        
-        
+
+
     </div>
-    
+
     <div class="row">
         <div class="cols-sm-4 col-sm-offset-4">
             <button id="exportPdf" class="btn btn-success">Print</button>
         </div>
     </div>
-     
+
 </div>
-
-
-
-
-

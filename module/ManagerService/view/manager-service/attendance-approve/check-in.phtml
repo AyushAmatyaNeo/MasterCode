@@ -1,0 +1,139 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+
+
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/moment.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/combodate.js'));
+$this->headScript()->appendFile($this->basePath('js/AttendanceManagement/attendance/checkIn.js'));
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('class', 'attendanceByHr-form');
+
+$employeeId = $form->get('employeeId');
+$attendanceDt = $form->get('attendanceDt');
+$inTime = $form->get('inTime');
+$inRemarks = $form->get('inRemarks');
+$totalHour = $form->get('totalHour');
+$totalHour->setAttributes(['readonly' => "readonly"]);
+
+$employeeId->setValueOptions($employees);
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+
+$form->setAttribute('action', $this->url('attedanceapprove', ['action' => 'checkIn']));
+
+
+$form->prepare();
+?>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\attendancebyhr')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Attendance Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($employeeId->getMessages()) ? "" : "error" ?> ">
+                            <?php print $this->formLabel($employeeId); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($employeeId); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block error']); ?>
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group <?= empty($attendanceDt->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($attendanceDt); ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($attendanceDt); ?>
+                                </div>
+                                <?php print $this->formElementErrors()->render($attendanceDt, ['class' => 'help-block error']); ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliDate" id="nepaliDate" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($inTime->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($inTime) ?>
+                            <!-- <span class="required" aria-required="true">*</span> -->
+                            <div class="input-group dropdown-select">
+                                <?php print $this->formElement($inTime) ?>
+                            </div>
+                            <?php print $this->formElementErrors()->render($inTime, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group  <?= empty($inRemarks->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($inRemarks); ?>
+                            <?php print $this->formElement($inRemarks); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($inRemarks, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+
+                <div class="">
+                    <?php
+                    print $this->formSubmit($submit);
+                    print $this->form()->closeTag();
+                    ?>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -8,7 +8,8 @@ use Zend\Form\Annotation;
  * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("system-setting")
  */
-class SystemSettingForm {
+class SystemSettingForm
+{
 
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
@@ -108,112 +109,112 @@ class SystemSettingForm {
      * @Annotation\Attributes({ "id":"includeHolidayAsLeave"})
      */
     public $includeHolidayAsLeave;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Employee Code"})
      * @Annotation\Attributes({ "id":"includeEmployeeCode"})
      */
     public $includeEmployeeCode;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Company"})
      * @Annotation\Attributes({ "id":"includeCompany"})
      */
     public $includeCompany;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Branch"})
      * @Annotation\Attributes({ "id":"includeBranch"})
      */
     public $includeBranch;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"First Time Password Renew"})
      * @Annotation\Attributes({ "id":"firstTimePwdRenew","value":"N"})
      */
     public $firstTimePwdRenew;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Travel Substitute Cycle"})
      * @Annotation\Attributes({ "id":"travelSubCycle","value":"Y"})
      */
     public $travelSubCycle;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Sub Leave Reference"})
      * @Annotation\Attributes({ "id":"subLeaveReference","value":"N"})
      */
     public $subLeaveReference;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Number")
      * @Annotation\Options({"label":"Sub Leave Max Days"})
      * @Annotation\Attributes({ "id":"subLeaveMaxDays", "class":" form-control","min":"0"})
      */
     public $subLeaveMaxDays;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Number")
      * @Annotation\Options({"label":"leave Encash Max Days"})
      * @Annotation\Attributes({ "id":"leaveEncashMaxDays", "class":" form-control","min":"0"})
      */
     public $leaveEncashMaxDays;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Order By Name"})
      * @Annotation\Attributes({ "id":"orderByName","value":"Y"})
      */
     public $orderByName;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Order By Position"})
      * @Annotation\Attributes({ "id":"orderByPosition","value":"N"})
      */
     public $orderByPosition;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Order By Designation"})
      * @Annotation\Attributes({ "id":"orderByDesignation","value":"N"})
      */
     public $orderByDesignation;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Order By JoinDate"})
      * @Annotation\Attributes({ "id":"orderByJoinDate","value":"N"})
      */
     public $orderByJoinDate;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Order By Seniority"})
      * @Annotation\Attributes({ "id":"orderBySeniority","value":"N"})
      */
     public $orderBySeniority;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"N":"Nepali","E":"English"},"label":"Calendar View"})
      * @Annotation\Attributes({ "id":"calendarView","value":"N"})
      */
     public $calendarView;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"N":"No","Y":"Yes"},"label":"Att App Shift changeable"})
      * @Annotation\Attributes({ "id":"attAppShiftChangeable","value":"N"})
      */
     public $attAppShiftChangeable;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"N":"No","Y":"Yes"},"label":"Att App Time changeable"})
@@ -251,15 +252,15 @@ class SystemSettingForm {
      * @Annotation\Attributes({ "id":"companyAccountNo", "class": "form-control"})
      */
     public $companyAccountNo;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Display HR Approved"})
      * @Annotation\Attributes({ "id":"displayHrApproved","value":"N"})
      */
     public $displayHrApproved;
-	
-	/**
+
+    /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"value_options":{null:"---","D":"Debit","C":"Credit","B":"Both"},"label":"Do not Insert Sub Detail of:"})
@@ -269,10 +270,30 @@ class SystemSettingForm {
     public $doNotInsertSubDetailFlag;
 
     /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Include Exchange Rate"})
+     * @Annotation\Attributes({ "id":"exchangeRate"})
+     */
+    public $exchangeRate;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Send Payslip in Email"})
+     * @Annotation\Attributes({ "id":"payslipEmail"})
+     */
+    public $payslipEmail;
+
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Show Salary History"})
+     * @Annotation\Attributes({ "id":"salaryHistory"})
+     */
+    public $salaryHistory;
+    /**
      * @Annotation\Type("Zend\Form\Element\Submit")
      * @Annotation\Attributes({"value":"Submit","class":"btn btn-success","id":"btnSubmit"})
      */
-    
-    public $submit;
 
+    public $submit;
 }

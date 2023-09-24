@@ -4,7 +4,8 @@ namespace Advance\Model;
 
 use Application\Model\Model;
 
-class AdvancePayment extends Model {
+class AdvancePayment extends Model
+{
 
     const TABLE_NAME = 'HRIS_EMPLOYEE_ADVANCE_PAYMENT';
     const ADVANCE_REQUEST_ID = 'ADVANCE_REQUEST_ID';
@@ -20,6 +21,8 @@ class AdvancePayment extends Model {
     const CREATED_DATE = 'CREATED_DATE';
     const MODIFIED_BY = 'MODIFIED_BY';
     const MODIFIED_DATE = 'MODIFIED_DATE';
+    const ID = 'ID';
+
 
     public $advanceRequestId;
     public $amount;
@@ -34,6 +37,7 @@ class AdvancePayment extends Model {
     public $createdDate;
     public $modifiedBy;
     public $modifiedDate;
+    public $id;
     public $mappings = [
         'advanceRequestId' => self::ADVANCE_REQUEST_ID,
         'amount' => self::AMOUNT,
@@ -47,7 +51,7 @@ class AdvancePayment extends Model {
         'createdBy' => self::CREATED_BY,
         'createdDate' => self::CREATED_DATE,
         'modifiedBy' => self::MODIFIED_BY,
-        'modifiedDate' => self::MODIFIED_DATE
+        'modifiedDate' => self::MODIFIED_DATE,
+        'id' => self::ID
     ];
-
 }

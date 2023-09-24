@@ -34,13 +34,16 @@ class EmailHelper
 
     public static function sendEmail(Message $mail)
     {
+
         if ('development' == APPLICATION_ENV || 'staging' == APPLICATION_ENV) {
+
             return true;
         }
+
         $transport = self::getSmtpTransport();
         $connectionConfig = $transport->getOptions()->getConnectionConfig();
         $mail->setFrom($connectionConfig['username']);
-        //print_r($connectionConfig);die;
+
         $transport->send($mail);
         return true;
     }

@@ -898,7 +898,6 @@ and Show_Default='Y'  AND VARIABLE_TYPE='O'";
 		 haso.order_no
      ORDER BY he.FULL_NAME, haso.order_no
              ";
-        //  echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql);
     }
 
@@ -1475,9 +1474,6 @@ from hris_variance
                 WHERE 1=1 
              {$searchCondition['sql']}
              ";
-        // echo '<pre>';
-        // print_r($sql);
-        // die;
         return $this->rawQuery($sql, $boundedParameter);
     }
 
@@ -1791,7 +1787,8 @@ from hris_variance
         $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
 
         if ($companyIdNew > 0) {
-            $sql = "select distinct he.full_name,he.employee_code, 
+            if ($data['payId'] == 'NS') {
+                $sql = "select distinct he.full_name,he.employee_code, 
             CASE
                 WHEN hssd.val = 0 THEN '0.00'
                 ELSE to_char(hssd.val, '99,99,999.99')
@@ -1806,12 +1803,74 @@ from hris_variance
         left join Hris_Salary_Sheet_Emp_Detail SSED on (SSED.company_id=hss.company_id and SSED.sheet_no=hss.sheet_no and SSED.month_id=hss.month_id)
         where  hss.month_id = {$data['monthId']}
         and he.bank_id = {$data['bankTypeId']}
-        and hssd.pay_id = 139
+        and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
         {$strSalaryType} {$companyConditionNew}
 		 order by he.full_name
              ";
+            } else if ($data['payId'] == 'SSF 31') {
+                $sql = "select distinct he.full_name,he.employee_code, 
+            CASE
+                WHEN hssd.val = 0 THEN '0.00'
+                ELSE to_char(hssd.val, '99,99,999.99')
+                END AS val,
+         he.SSF_BANK_NO as ID_ACCOUNT_NO, hb.bank_name, hfy.fiscal_year_name, 
+        trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+        left join hris_employees he on (he.employee_id = hssd.employee_id)
+        left join hris_banks hb on (hb.bank_id = he.SSF_BANK_ID)
+        left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+        left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+        left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+        left join Hris_Salary_Sheet_Emp_Detail SSED on (SSED.company_id=hss.company_id and SSED.sheet_no=hss.sheet_no and SSED.month_id=hss.month_id)
+        where  hss.month_id = {$data['monthId']}
+        and he.bank_id = {$data['bankTypeId']}
+        and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+        {$strSalaryType} {$companyConditionNew}
+		 order by he.full_name
+             ";
+            } else if ($data['payId'] == 'PF20') {
+                $sql = "select distinct he.full_name,he.employee_code, 
+            CASE
+                WHEN hssd.val = 0 THEN '0.00'
+                ELSE to_char(hssd.val, '99,99,999.99')
+                END AS val,
+         he.PF_BANK_NO as ID_ACCOUNT_NO, hb.bank_name, hfy.fiscal_year_name, 
+        trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+        left join hris_employees he on (he.employee_id = hssd.employee_id)
+        left join hris_banks hb on (hb.bank_id = he.PF_BANK_ID)
+        left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+        left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+        left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+        left join Hris_Salary_Sheet_Emp_Detail SSED on (SSED.company_id=hss.company_id and SSED.sheet_no=hss.sheet_no and SSED.month_id=hss.month_id)
+        where  hss.month_id = {$data['monthId']}
+        and he.bank_id = {$data['bankTypeId']}
+        and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+        {$strSalaryType} {$companyConditionNew}
+		 order by he.full_name
+             ";
+            } else if ($data['payId'] == 'GT33') {
+                $sql = "select distinct he.full_name,he.employee_code, 
+            CASE
+                WHEN hssd.val = 0 THEN '0.00'
+                ELSE to_char(hssd.val, '99,99,999.99')
+                END AS val,
+         he.GRATUITY_BANK_NO as ID_ACCOUNT_NO, hb.bank_name, hfy.fiscal_year_name, 
+        trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+        left join hris_employees he on (he.employee_id = hssd.employee_id)
+        left join hris_banks hb on (hb.bank_id = he.GRATUITY_BANK_ID)
+        left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+        left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+        left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+        left join Hris_Salary_Sheet_Emp_Detail SSED on (SSED.company_id=hss.company_id and SSED.sheet_no=hss.sheet_no and SSED.month_id=hss.month_id)
+        where  hss.month_id = {$data['monthId']}
+        and he.bank_id = {$data['bankTypeId']}
+        and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+        {$strSalaryType} {$companyConditionNew}
+		 order by he.full_name
+             ";
+            }
         } else {
-            $sql = "select he.full_name,he.employee_code, 
+            if ($data['payId'] == 'NS') {
+                $sql = "select he.full_name,he.employee_code, 
             CASE
                 WHEN hssd.val = 0 THEN '0.00'
                 ELSE to_char(hssd.val, '99,99,999.99')
@@ -1824,10 +1883,65 @@ from hris_variance
         left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
         where  hss.month_id = {$data['monthId']}
         and he.bank_id = {$data['bankTypeId']}
-        and hssd.pay_id = 139
+        and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
         {$strSalaryType}
 		 order by he.full_name
              ";
+            } else if ($data['payId'] == 'SSF 31') {
+                $sql = "select he.full_name,he.employee_code, 
+                CASE
+                    WHEN hssd.val = 0 THEN '0.00'
+                    ELSE to_char(hssd.val, '99,99,999.99')
+                    END AS val,he.SSF_BANK_NO as id_account_no, hb.bank_name, hfy.fiscal_year_name, 
+            trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+            left join hris_employees he on (he.employee_id = hssd.employee_id)
+            left join hris_banks hb on (hb.bank_id = he.SSF_BANK_ID)
+            left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+            left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+            left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+            where  hss.month_id = {$data['monthId']}
+            and he.bank_id = {$data['bankTypeId']}
+            and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+            {$strSalaryType}
+             order by he.full_name
+                 ";
+            } else if ($data['payId'] == 'PF20') {
+                $sql = "select he.full_name,he.employee_code, 
+                CASE
+                    WHEN hssd.val = 0 THEN '0.00'
+                    ELSE to_char(hssd.val, '99,99,999.99')
+                    END AS val,he.PF_BANK_NO as id_account_no, hb.bank_name, hfy.fiscal_year_name, 
+            trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+            left join hris_employees he on (he.employee_id = hssd.employee_id)
+            left join hris_banks hb on (hb.bank_id = he.PF_BANK_ID)
+            left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+            left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+            left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+            where  hss.month_id = {$data['monthId']}
+            and he.bank_id = {$data['bankTypeId']}
+            and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+            {$strSalaryType}
+             order by he.full_name
+                 ";
+            } else if ($data['payId'] == 'GT33') {
+                $sql = "select he.full_name,he.employee_code, 
+                CASE
+                    WHEN hssd.val = 0 THEN '0.00'
+                    ELSE to_char(hssd.val, '99,99,999.99')
+                    END AS val,he.GRATUITY_BANK_NO as id_account_no, hb.bank_name, hfy.fiscal_year_name, 
+            trunc(sysdate) as today_date, hmc.month_edesc from hris_salary_sheet_detail hssd
+            left join hris_employees he on (he.employee_id = hssd.employee_id)
+            left join hris_banks hb on (hb.bank_id = he.GRATUITY_BANK_ID)
+            left join hris_salary_sheet hss on (hss.sheet_no = hssd.sheet_no)
+            left join hris_month_code hmc on (hmc.month_id = hss.month_id)
+            left join hris_fiscal_years hfy on (hfy.fiscal_year_id = hmc.fiscal_year_id)
+            where  hss.month_id = {$data['monthId']}
+            and he.bank_id = {$data['bankTypeId']}
+            and hssd.pay_id = (select pay_id from hris_pay_setup where pay_code='{$data['payId']}' )
+            {$strSalaryType}
+             order by he.full_name
+                 ";
+            }
         }
         // echo '<pre>';print_r($sql);die;
 

@@ -6,7 +6,7 @@ use Application\Controller\ControllerFactory;
 use Report\Controller\AllReportController;
 use Zend\Router\Http\Segment;
 
-return[
+return [
     'router' => [
         'routes' => [
             'allreport' => [
@@ -21,7 +21,7 @@ return[
                         'controller' => AllReportController::class,
                         'action' => 'index',
                     ]
-                ], 
+                ],
             ],
         ],
     ],
@@ -85,9 +85,34 @@ return[
                         'action' => 'branchWiseDaily',
                     ],
                     [
-                        'label' => 'Department|Month', 
+                        'label' => 'Department|Month',
                         'route' => 'allreport',
                         'action' => 'departmentWiseAttdReport',
+                    ],
+                    [
+                        'label' => 'Training Report',
+                        'route' => 'allreport',
+                        'action' => 'trainingReport',
+                    ],
+                    [
+                        'label' => 'Male and Female Ratio',
+                        'route' => 'allreport',
+                        'action' => 'maleFemaleRatio',
+                    ],
+                    [
+                        'label' => 'Renumeration Report',
+                        'route' => 'allreport',
+                        'action' => 'renumerationReport',
+                    ],
+                    [
+                        'label' => 'Turn Over',
+                        'route' => 'allreport',
+                        'action' => 'turnOverReport',
+                    ],
+                    [
+                        'label' => 'Generation',
+                        'route' => 'allreport',
+                        'action' => 'ageGeneration',
                     ],
                 ],
             ],
@@ -104,4 +129,3 @@ return[
         ],
     ],
 ];
-

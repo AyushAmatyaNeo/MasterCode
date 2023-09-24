@@ -179,7 +179,48 @@ class SalarySheetDetailRepo extends HrisRepository
         $boundedParameter['employeeId'] = $employeeId;
         return $this->rawQuery($sql, $boundedParameter);
     }
+    public function fetchEmployeePaySlipHRNep($monthId, $employeeId, $salaryTypeId = 1)
+    {
+        $sql = "SELECT TS.*,
+        P.PAY_TYPE_FLAG,
+        P.PAY_EDESC
+      FROM HRIS_SALARY_SHEET_DETAIL TS
+      LEFT JOIN HRIS_PAY_SETUP P
+      ON (TS.PAY_ID         =P.PAY_ID)
+      WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
+      AND TS.SHEET_NO       IN
+        (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
+            AND SALARY_TYPE_ID=:salaryTypeId  
+        )
+      AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
 
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        $boundedParameter['employeeId'] = $employeeId;
+        return $this->rawQuery($sql, $boundedParameter);
+    }
+    public function fetchEmployeePaySlipNep($monthId, $employeeId, $salaryTypeId = 1)
+    {
+        $sql = "SELECT TS.*,
+        P.PAY_TYPE_FLAG,
+        P.PAY_EDESC
+      FROM HRIS_SALARY_SHEET_DETAIL TS
+      LEFT JOIN HRIS_PAY_SETUP P
+      ON (TS.PAY_ID         =P.PAY_ID)
+      WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
+      AND TS.SHEET_NO       IN
+        (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
+            AND SALARY_TYPE_ID=:salaryTypeId AND APPROVED='Y'
+        )
+      AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
+
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        $boundedParameter['employeeId'] = $employeeId;
+        return $this->rawQuery($sql, $boundedParameter);
+    }
     public function fetchEmployeeLoanAmt($monthId, $employeeId, $ruleId)
     {
         $sql = "select 
@@ -403,6 +444,7 @@ class SalarySheetDetailRepo extends HrisRepository
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['employeeId'] = $employeeId;
         $resultList = $this->rawQuery($sql, $boundedParameter);
+
         if (!empty($resultList)) {
             return $resultList[0];
         } else {
@@ -439,7 +481,7 @@ end as GRATUTITY_PERCENT
 
     public function fetchExchangeRate($sheetNo)
     {
-        $sql = "select exchange_rate from hris_salary_sheet where sheet_no=$sheetNo ";
+        $sql = "select COALESCE(exchange_rate, 1) as exchange_rate from hris_salary_sheet where sheet_no=$sheetNo ";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute()->current();
         return $result;
@@ -447,17 +489,19 @@ end as GRATUTITY_PERCENT
 
     public function getExchangeRate($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId)
     {
-
+        $groupString = "";
+        $sheetNoString = "";
+        $companyString = "";
         if ($sheetNo != -1) {
             $sheetNoString = " and SHEET_NO=$sheetNo";
         }
-        if ($groupId != null) {
-            $groupString = " and group_id in ($groupId)";
+        if (!empty($groupId)) {
+            $groupString = " and group_id IN (" . implode(",", $groupId) . ")";
         }
         if ($companyId != 0) {
-            $groupString = " and company_id =$companyId";
+            $companyString = " and company_id =$companyId";
         }
-        $sql = "select exchange_rate from hris_salary_sheet where month_id={$monthId} and salary_type_id={$salaryTypeId} $sheetNoString  $groupString";
+        $sql = "select COALESCE(exchange_rate, 1) as exchange_rate from hris_salary_sheet where month_id={$monthId} and salary_type_id={$salaryTypeId} $sheetNoString  $groupString $companyString ";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute()->current();
         return $result;

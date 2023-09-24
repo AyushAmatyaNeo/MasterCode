@@ -14,14 +14,17 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class ShiftAssign extends HrisController {
+class ShiftAssign extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(ShiftAssignRepository::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $shiftRepo = new ShiftRepository($this->adapter);
         $shiftList = iterator_to_array($shiftRepo->fetchAll(), false);
         return new ViewModel([
@@ -32,7 +35,8 @@ class ShiftAssign extends HrisController {
         ]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $shiftRepo = new ShiftRepository($this->adapter);
         $shiftList = iterator_to_array($shiftRepo->fetchAll(), false);
         return new ViewModel([
@@ -43,7 +47,8 @@ class ShiftAssign extends HrisController {
         ]);
     }
 
-    public function listWSAction() {
+    public function listWSAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -57,7 +62,8 @@ class ShiftAssign extends HrisController {
         }
     }
 
-    public function employeeListWSAction() {
+    public function employeeListWSAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -71,7 +77,8 @@ class ShiftAssign extends HrisController {
         }
     }
 
-    public function addWsAction() {
+    public function addWsAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -82,6 +89,7 @@ class ShiftAssign extends HrisController {
             $shiftId = $data['shiftId'];
             $fromDate = $data['fromDate'];
             $toDate = $data['toDate'];
+
             foreach ($employeeIds as $employeeId) {
                 $this->repository->bulkAdd($employeeId, $shiftId, $fromDate, $toDate, $this->employeeId);
             }
@@ -92,7 +100,8 @@ class ShiftAssign extends HrisController {
         }
     }
 
-    public function editWsAction() {
+    public function editWsAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -114,7 +123,8 @@ class ShiftAssign extends HrisController {
         }
     }
 
-    public function deleteWsAction() {
+    public function deleteWsAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -129,7 +139,8 @@ class ShiftAssign extends HrisController {
         }
     }
 
-    public function employeeShiftsWSAction() {
+    public function employeeShiftsWSAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -142,5 +153,4 @@ class ShiftAssign extends HrisController {
             return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-
 }

@@ -11,10 +11,12 @@ use LeaveManagement\Model\LeaveMaster;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 
-class ReportRepository extends HrisRepository {
+class ReportRepository extends HrisRepository
+{
 
-    public function employeeWiseDailyReport($employeeId) {
-        $sql = <<<EOT
+  public function employeeWiseDailyReport($employeeId)
+  {
+    $sql = <<<EOT
             SELECT R.*,
               M.MONTH_EDESC,
               TRUNC(R.ATTENDANCE_DT)-TRUNC(M.FROM_DATE)+1 AS DAY_COUNT
@@ -76,16 +78,17 @@ class ReportRepository extends HrisRepository {
             ON (M.MONTH_ID = R.MONTH_ID)
 EOT;
 
-        $boundedParameter = [];
-        $boundedParameter['employeeId'] = $employeeId;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
-    }
+    $boundedParameter = [];
+    $boundedParameter['employeeId'] = $employeeId;
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
 
-    public function departmentWiseDailyReport(int $monthId, int $departmentId = null, int $branchId = null) {
-        $sql = <<<EOT
+  public function departmentWiseDailyReport(int $monthId, int $departmentId = null, int $branchId = null)
+  {
+    $sql = <<<EOT
                       SELECT 
                       TRUNC(AD.ATTENDANCE_DT)-TRUNC(M.FROM_DATE)+1                              AS DAY_COUNT, 
                       E.EMPLOYEE_ID                                                             AS EMPLOYEE_ID ,
@@ -149,19 +152,20 @@ EOT;
                     ORDER BY AD.ATTENDANCE_DT,
                       E.EMPLOYEE_ID
 EOT;
-//        echo $sql;
-//        die();
-        $boundedParameter = [];
-        $boundedParameter['departmentId'] = $departmentId;
-        $boundedParameter['monthId'] = $monthId;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
-    }
+    //        echo $sql;
+    //        die();
+    $boundedParameter = [];
+    $boundedParameter['departmentId'] = $departmentId;
+    $boundedParameter['monthId'] = $monthId;
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
 
-    public function branchWiseEmployeeMonthReport($branchId) {
-        $sql = <<<EOT
+  public function branchWiseEmployeeMonthReport($branchId)
+  {
+    $sql = <<<EOT
                 SELECT J.*,
                   JE.FIRST_NAME AS FIRST_NAME,
                     JE.MIDDLE_NAME AS MIDDLE_NAME,
@@ -226,16 +230,17 @@ EOT;
                 JOIN HRIS_MONTH_CODE JM
                 ON (J.MONTH_ID = JM.MONTH_ID)
 EOT;
-        $boundedParameter = [];
-        $boundedParameter['branchId'] = $branchId;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
-    }
+    $boundedParameter = [];
+    $boundedParameter['branchId'] = $branchId;
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
 
-    public function getCompanyBranchDepartment() {
-        $sql = <<<EOT
+  public function getCompanyBranchDepartment()
+  {
+    $sql = <<<EOT
             SELECT C.COMPANY_ID,
               C.COMPANY_NAME,
               B.BRANCH_ID,
@@ -248,13 +253,14 @@ EOT;
             LEFT  JOIN HRIS_DEPARTMENTS D
             ON (D.BRANCH_ID=B.BRANCH_ID)
 EOT;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-    public function getMonthList() {
-        $sql = <<<EOT
+  public function getMonthList()
+  {
+    $sql = <<<EOT
             SELECT AM.MONTH_ID,M.MONTH_EDESC FROM
             (SELECT  UNIQUE (SELECT M.MONTH_ID
                 FROM HRIS_MONTH_CODE M
@@ -262,13 +268,14 @@ EOT;
                 ) AS MONTH_ID
             FROM HRIS_ATTENDANCE_DETAIL AD) AM JOIN HRIS_MONTH_CODE M ON (M.MONTH_ID=AM.MONTH_ID) 
 EOT;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-    public function getEmployeeList() {
-        $sql = <<<EOT
+  public function getEmployeeList()
+  {
+    $sql = <<<EOT
             SELECT E.EMPLOYEE_ID                                                             AS EMPLOYEE_ID,
               E.FIRST_NAME                                                                   AS FIRST_NAME,
               E.MIDDLE_NAME                                                                  AS MIDDLE_NAME,
@@ -279,113 +286,117 @@ EOT;
               E.DEPARTMENT_ID                                                                AS DEPARTMENT_ID
             FROM HRIS_EMPLOYEES E
 EOT;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function fetchAllLeave()
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(LeaveMaster::class, [LeaveMaster::LEAVE_ENAME], NULL, NULL, NULL, NULL, 'L', false, false, null, ["REPLACE(l.leave_ename, ' ', '') AS LEAVE_TRIM_ENAME"]), false);
+    $select->from(['L' => LeaveMaster::TABLE_NAME]);
+    $select->where(["L.STATUS='E'"]);
+    $select->order(LeaveMaster::LEAVE_ID . " ASC");
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+    //        return $result;
+  }
+
+  private function leaveIn($allLeave)
+  {
+    $leaveCount = count($allLeave);
+
+    $leaveIn = "";
+    $i = 1;
+    foreach ($allLeave as $leave) {
+      $leaveIn .= $leave['LEAVE_ID'];
+      if ($i < $leaveCount) {
+        $leaveIn .= ',';
+      }
+      $i++;
     }
+    return $leaveIn;
+  }
 
-    public function fetchAllLeave() {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(LeaveMaster::class, [LeaveMaster::LEAVE_ENAME], NULL, NULL, NULL, NULL, 'L', false, false, null, ["REPLACE(l.leave_ename, ' ', '') AS LEAVE_TRIM_ENAME"]), false);
-        $select->from(['L' => LeaveMaster::TABLE_NAME]);
-        $select->where(["L.STATUS='E'"]);
-        $select->order(LeaveMaster::LEAVE_ID . " ASC");
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-//        return $result;
+  private function convertLeaveIdToName($allLeave, $leaveData, $name)
+  {
+    $columnData = [];
+    foreach ($leaveData as $report) {
+      $tempData = [
+        //                'EMPLOYEE_ID' => $report['EMPLOYEE_ID'],
+        'NAME' => $report[$name]
+      ];
+      foreach ($allLeave as $leave) {
+        $tempData[$leave['LEAVE_TRIM_ENAME']] = $report[$leave['LEAVE_ID']];
+      }
+      array_push($columnData, $tempData);
     }
+    //            print_r($columnData);
+    //            die();
+    return $columnData;
+  }
 
-    private function leaveIn($allLeave) {
-        $leaveCount = count($allLeave);
+  public function filterLeaveReportEmployee($data)
+  {
 
-        $leaveIn = "";
-        $i = 1;
-        foreach ($allLeave as $leave) {
-            $leaveIn .= $leave['LEAVE_ID'];
-            if ($i < $leaveCount) {
-                $leaveIn .= ',';
-            }
-            $i++;
-        }
-        return $leaveIn;
+    $allLeave = $this->fetchAllLeave();
+    $leaveIn = $this->leaveIn($allLeave);
+
+    $companyCondition = "";
+    $branchCondition = "";
+    $departmentCondition = "";
+    $designationCondition = "";
+    $positionCondition = "";
+    $serviceTypeCondition = "";
+    $serviceEventTypeConditon = "";
+    $employeeCondition = "";
+    $employeeTypeCondition = "";
+
+    $fromCondition = "";
+    $toCondition = "";
+
+    if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
+      $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
     }
-
-    private function convertLeaveIdToName($allLeave, $leaveData, $name) {
-        $columnData = [];
-        foreach ($leaveData as $report) {
-            $tempData = [
-//                'EMPLOYEE_ID' => $report['EMPLOYEE_ID'],
-                'NAME' => $report[$name]
-            ];
-            foreach ($allLeave as $leave) {
-                $tempData[$leave['LEAVE_TRIM_ENAME']] = $report[$leave['LEAVE_ID']];
-            }
-            array_push($columnData, $tempData);
-        }
-//            print_r($columnData);
-//            die();
-        return $columnData;
+    if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
+      $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
     }
+    if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
+      $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
+    }
+    if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
+      $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
+    }
+    if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
+      $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
+    }
+    if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
+      $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
+    }
+    if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
+      $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
+    }
+    if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
+      $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
+    }
+    if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
+      $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
+    }
+    $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
 
-    public function filterLeaveReportEmployee($data) {
-
-        $allLeave = $this->fetchAllLeave();
-        $leaveIn = $this->leaveIn($allLeave);
-
-        $companyCondition = "";
-        $branchCondition = "";
-        $departmentCondition = "";
-        $designationCondition = "";
-        $positionCondition = "";
-        $serviceTypeCondition = "";
-        $serviceEventTypeConditon = "";
-        $employeeCondition = "";
-        $employeeTypeCondition = "";
-
-        $fromCondition = "";
-        $toCondition = "";
-
-        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
-            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
-        }
-        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
-            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
-        }
-        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
-            $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
-        }
-        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
-            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
-        }
-        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
-            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
-        }
-        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
-            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
-        }
-        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
-            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
-        }
-        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
-            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
-        }
-        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
-            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
-        }
-        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
-        }
-        $dateCondition = $fromCondition . $toCondition;
-        $sql = <<<EOT
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
+    }
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
+    }
+    $dateCondition = $fromCondition . $toCondition;
+    $sql = <<<EOT
                 
                             SELECT
                 e.full_name,
@@ -416,30 +427,31 @@ EOT;
               {$condition}
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        $extractedResult = Helper::extractDbData($result);
-        return $this->convertLeaveIdToName($allLeave, $extractedResult, 'FULL_NAME');
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    $extractedResult = Helper::extractDbData($result);
+    return $this->convertLeaveIdToName($allLeave, $extractedResult, 'FULL_NAME');
+  }
+
+  public function filterLeaveReportBranch($data)
+  {
+
+    $allLeave = $this->fetchAllLeave();
+    $leaveIn = $this->leaveIn($allLeave);
+    $fromCondition = "";
+    $toCondition = "";
+
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
     }
-
-    public function filterLeaveReportBranch($data) {
-
-        $allLeave = $this->fetchAllLeave();
-        $leaveIn = $this->leaveIn($allLeave);
-        $fromCondition = "";
-        $toCondition = "";
-
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
-        }
-        $dateCondition = $fromCondition . $toCondition;
-        $sql = <<<EOT
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
+    }
+    $dateCondition = $fromCondition . $toCondition;
+    $sql = <<<EOT
                 
                 SELECT BB.BRANCH_NAME,AA.* FROM (SELECT
                           *
@@ -469,29 +481,30 @@ EOT;
                           
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        $extractedResult = Helper::extractDbData($result);
-        return $this->convertLeaveIdToName($allLeave, $extractedResult, 'BRANCH_NAME');
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    $extractedResult = Helper::extractDbData($result);
+    return $this->convertLeaveIdToName($allLeave, $extractedResult, 'BRANCH_NAME');
+  }
+
+  public function filterLeaveReportDepartmnet($data)
+  {
+    $allLeave = $this->fetchAllLeave();
+    $leaveIn = $this->leaveIn($allLeave);
+    $fromCondition = "";
+    $toCondition = "";
+
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
     }
-
-    public function filterLeaveReportDepartmnet($data) {
-        $allLeave = $this->fetchAllLeave();
-        $leaveIn = $this->leaveIn($allLeave);
-        $fromCondition = "";
-        $toCondition = "";
-
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
-        }
-        $dateCondition = $fromCondition . $toCondition;
-        $sql = <<<EOT
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
+    }
+    $dateCondition = $fromCondition . $toCondition;
+    $sql = <<<EOT
                                 SELECT
                   AA.*,BB.DEPARTMENT_NAME
                 FROM (SELECT
@@ -522,29 +535,30 @@ EOT;
                           
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        $extractedResult = Helper::extractDbData($result);
-        return $this->convertLeaveIdToName($allLeave, $extractedResult, 'DEPARTMENT_NAME');
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    $extractedResult = Helper::extractDbData($result);
+    return $this->convertLeaveIdToName($allLeave, $extractedResult, 'DEPARTMENT_NAME');
+  }
+
+  public function filterLeaveReportDesignation($data)
+  {
+    $allLeave = $this->fetchAllLeave();
+    $leaveIn = $this->leaveIn($allLeave);
+    $fromCondition = "";
+    $toCondition = "";
+
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
     }
-
-    public function filterLeaveReportDesignation($data) {
-        $allLeave = $this->fetchAllLeave();
-        $leaveIn = $this->leaveIn($allLeave);
-        $fromCondition = "";
-        $toCondition = "";
-
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
-        }
-        $dateCondition = $fromCondition . $toCondition;
-        $sql = <<<EOT
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
+    }
+    $dateCondition = $fromCondition . $toCondition;
+    $sql = <<<EOT
                 
                 SELECT
   AA.*,BB.DESIGNATION_TITLE
@@ -576,29 +590,30 @@ FROM
         
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        $extractedResult = Helper::extractDbData($result);
-        return $this->convertLeaveIdToName($allLeave, $extractedResult, 'DESIGNATION_TITLE');
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    $extractedResult = Helper::extractDbData($result);
+    return $this->convertLeaveIdToName($allLeave, $extractedResult, 'DESIGNATION_TITLE');
+  }
+
+  public function filterLeaveReportPosition($data)
+  {
+    $allLeave = $this->fetchAllLeave();
+    $leaveIn = $this->leaveIn($allLeave);
+    $fromCondition = "";
+    $toCondition = "";
+
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
     }
-
-    public function filterLeaveReportPosition($data) {
-        $allLeave = $this->fetchAllLeave();
-        $leaveIn = $this->leaveIn($allLeave);
-        $fromCondition = "";
-        $toCondition = "";
-
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND AD.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
-        }
-        $dateCondition = $fromCondition . $toCondition;
-        $sql = <<<EOT
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND AD.ATTENDANCE_DT <= {$toDate->getExpression()}";
+    }
+    $dateCondition = $fromCondition . $toCondition;
+    $sql = <<<EOT
                 
                 SELECT
   AA.*,BB.POSITION_NAME
@@ -629,76 +644,80 @@ FROM
         
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        $extractedResult = Helper::extractDbData($result);
-        return $this->convertLeaveIdToName($allLeave, $extractedResult, 'POSITION_NAME');
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    $extractedResult = Helper::extractDbData($result);
+    return $this->convertLeaveIdToName($allLeave, $extractedResult, 'POSITION_NAME');
+  }
 
-    public function FetchNepaliMonth() {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(Months::class, NULL, [Months::FROM_DATE, Months::TO_DATE], NULL, NULL, NULL, 'M', true), false);
-        $select->from(['M' => Months::TABLE_NAME])
-                ->join(['FY' => FiscalYear::TABLE_NAME], 'FY.' . FiscalYear::FISCAL_YEAR_ID . '=M.' . Months::FISCAL_YEAR_ID, ["MONTH_NAME" => new Expression('CONCAT(FY.FISCAL_YEAR_NAME,M.MONTH_EDESC)')], "left");
-        $select->where(["M.STATUS='E'", "FY.STATUS='E'", "TRUNC(SYSDATE)>M.FROM_DATE"]);
-        $select->order("M." . Months::FROM_DATE . " DESC");
-        $statement = $sql->prepareStatementForSqlObject($select);
+  public function FetchNepaliMonth()
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(Months::class, NULL, [Months::FROM_DATE, Months::TO_DATE], NULL, NULL, NULL, 'M', true), false);
+    $select->from(['M' => Months::TABLE_NAME])
+      ->join(['FY' => FiscalYear::TABLE_NAME], 'FY.' . FiscalYear::FISCAL_YEAR_ID . '=M.' . Months::FISCAL_YEAR_ID, ["MONTH_NAME" => new Expression('CONCAT(FY.FISCAL_YEAR_NAME,M.MONTH_EDESC)')], "left");
+    $select->where(["M.STATUS='E'", "FY.STATUS='E'", "TRUNC(SYSDATE)>M.FROM_DATE"]);
+    $select->order("M." . Months::FROM_DATE . " DESC");
+    $statement = $sql->prepareStatementForSqlObject($select);
 
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-    private function totalHiredEmployees($fromDate, $toDate) {
-        $sql = "select count(*)as TOTAL from hris_employees 
+  private function totalHiredEmployees($fromDate, $toDate)
+  {
+    $sql = "select count(*)as TOTAL from hris_employees 
             where JOIN_DATE BETWEEN " . $fromDate->getExpression() . " and " . $toDate->getExpression() . " and status='E'";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result->current();
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-    public function CalculateHireEmployees($data) {
-        $returnArr = [];
-        foreach ($data as $details) {
-            $name = $details->name;
-            $tempData = [
-                'NAME' => $name
-            ];
-            $fromDate = Helper::getExpressionDate($details->fromDate);
-            $toDate = Helper::getExpressionDate($details->toDate);
-            $total = $this->totalHiredEmployees($fromDate, $toDate);
-            $tempData['TOTAL'] = $total['TOTAL'];
-            $sql = "select full_name,JOIN_DATE from hris_employees 
+  public function CalculateHireEmployees($data)
+  {
+    $returnArr = [];
+    foreach ($data as $details) {
+      $name = $details->name;
+      $tempData = [
+        'NAME' => $name
+      ];
+      $fromDate = Helper::getExpressionDate($details->fromDate);
+      $toDate = Helper::getExpressionDate($details->toDate);
+      $total = $this->totalHiredEmployees($fromDate, $toDate);
+      $tempData['TOTAL'] = $total['TOTAL'];
+      $sql = "select full_name,JOIN_DATE from hris_employees 
             where JOIN_DATE BETWEEN " . $fromDate->getExpression() . " and " . $toDate->getExpression() . " and status='E'";
-            $statement = $this->adapter->query($sql);
-            $result = $statement->execute();
-            $tempData['DATA'] = Helper::extractDbData($result);
-            array_push($returnArr, $tempData);
-        }
-        return $returnArr;
+      $statement = $this->adapter->query($sql);
+      $result = $statement->execute();
+      $tempData['DATA'] = Helper::extractDbData($result);
+      array_push($returnArr, $tempData);
     }
+    return $returnArr;
+  }
 
-    public function branchWiseDailyReport($data) {
+  public function branchWiseDailyReport($data)
+  {
 
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-        $functionalTypeId = $data['functionalTypeId'];
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId,null,null,$functionalTypeId);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
 
-        $boundedParameter = [];
-        $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
-        $monthId = $data['monthId'];
-        $boundedParameter['monthId'] = $monthId;
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $monthId = $data['monthId'];
+    $boundedParameter['monthId'] = $monthId;
 
-        $sql = <<<EOT
+    $sql = <<<EOT
                       SELECT 
                       TRUNC(AD.ATTENDANCE_DT)-TRUNC(M.FROM_DATE)+1                              AS DAY_COUNT, 
                       E.EMPLOYEE_ID                                                             AS EMPLOYEE_ID ,
@@ -805,64 +824,67 @@ EOT;
                     ORDER BY DAY_COUNT asc,
                       TO_NUMBER(NVL(E.EMPLOYEE_CODE,'0'),'9999D99','nls_numeric_characters=,.') asc
 EOT;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParameter);
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParameter);
+    return Helper::extractDbData($result);
+  }
 
-    public function getDaysInMonth($monthId) {
+  public function getDaysInMonth($monthId)
+  {
 
-        $sql = "SELECT TO_DATE - FROM_DATE +1 AS TOTAL_DAYS FROM HRIS_MONTH_CODE WHERE MONTH_ID =:monthId";
-        $boundedParameter = [];
-        $boundedParameter['monthId'] = $monthId;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
-    }
+    $sql = "SELECT TO_DATE - FROM_DATE +1 AS TOTAL_DAYS FROM HRIS_MONTH_CODE WHERE MONTH_ID =:monthId";
+    $boundedParameter = [];
+    $boundedParameter['monthId'] = $monthId;
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
 
-    public function checkIfEmpowerTableExists() {
-        return $this->checkIfTableExists('HR_MONTHLY_MODIFIED_PAY_VALUE');
-    }
+  public function checkIfEmpowerTableExists()
+  {
+    return $this->checkIfTableExists('HR_MONTHLY_MODIFIED_PAY_VALUE');
+  }
 
-    public function loadData($fiscalYearId, $fiscalYearMonthNo) {
-        $sql = "
+  public function loadData($fiscalYearId, $fiscalYearMonthNo)
+  {
+    $sql = "
             BEGIN
               HRIS_PREPARE_PAYROLL_DATA({$fiscalYearId},{$fiscalYearMonthNo});
             END;
             ";
-        $this->executeStatement($sql);
+    $this->executeStatement($sql);
+  }
+
+  public function reportWithOT($data)
+  {
+    $boundedParams = [];
+    $fromCondition = "";
+    $toCondition = "";
+
+    $otFromCondition = "";
+    $otToCondition = "";
+
+    $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId'], $data['functionalTypeId']);
+    $boundedParams = array_merge($boundedParams, $condition['parameter']);
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = $data['fromDate'];
+      $fromCondition = "AND A.ATTENDANCE_DT >= :fromDate";
+      $otFromCondition = "AND OVERTIME_DATE >= :fromDate ";
+      $boundedParams['fromDate'] = $fromDate;
+    }
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = $data['toDate'];
+      $toCondition = "AND A.ATTENDANCE_DT <= :toDate";
+      $otToCondition = "AND OVERTIME_DATE <= :toDate ";
+      $boundedParams['toDate'] = $toDate;
     }
 
-    public function reportWithOT($data) {
-        $boundedParams = [];
-        $fromCondition = "";
-        $toCondition = "";
+    $monthId = $data['monthId'];
+    $boundedParams['monthId'] = $monthId;
 
-        $otFromCondition = "";
-        $otToCondition = "";
-
-        $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId'], $data['functionalTypeId']);
-        $boundedParams=array_merge($boundedParams,$condition['parameter']);
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = $data['fromDate'];
-            $fromCondition = "AND A.ATTENDANCE_DT >= :fromDate";
-            $otFromCondition = "AND OVERTIME_DATE >= :fromDate ";
-            $boundedParams['fromDate'] = $fromDate;
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = $data['toDate'];
-            $toCondition = "AND A.ATTENDANCE_DT <= :toDate";
-            $otToCondition = "AND OVERTIME_DATE <= :toDate ";
-            $boundedParams['toDate'] = $toDate;
-
-        }
-
-        $monthId = $data['monthId'];
-        $boundedParams['monthId'] = $monthId;
-
-        $sql = <<<EOT
+    $sql = <<<EOT
             SELECT C.COMPANY_NAME,
               D.DEPARTMENT_NAME,
               A.EMPLOYEE_ID,
@@ -1025,19 +1047,21 @@ GROUP BY
               D.DEPARTMENT_NAME,
               E.FULL_NAME 
 EOT;
-// echo '<pre>';print_r($sql);die;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParams);
-        return Helper::extractDbData($result);
-    }
+    // echo '<pre>';print_r($sql);die;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParams);
+    return Helper::extractDbData($result);
+  }
 
-    public function toEmpower($fiscalYearId, $fiscalYearMonthNo) {
-        $sql = "BEGIN HRIS_TO_EMPOWER({$fiscalYearId},{$fiscalYearMonthNo}); END;";
-        $this->executeStatement($sql);
-    }
+  public function toEmpower($fiscalYearId, $fiscalYearMonthNo)
+  {
+    $sql = "BEGIN HRIS_TO_EMPOWER({$fiscalYearId},{$fiscalYearMonthNo}); END;";
+    $this->executeStatement($sql);
+  }
 
-    public function departmentMonthReport($fiscalYearId) {
-        $sql = <<<EOT
+  public function departmentMonthReport($fiscalYearId)
+  {
+    $sql = <<<EOT
             SELECT D.DEPARTMENT_NAME,
               R.*
             FROM
@@ -1116,17 +1140,18 @@ EOT;
             JOIN HRIS_DEPARTMENTS D
             ON (R.DEPARTMENT_ID=D.DEPARTMENT_ID)       
 EOT;
-        $boundedParameter['fiscalYearId'] = $fiscalYearId;
-        return $this->rawQuery($sql, $boundedParameter);
-        //$result = $statement->execute();
-        //return Helper::extractDbData($result);
-    }
+    $boundedParameter['fiscalYearId'] = $fiscalYearId;
+    return $this->rawQuery($sql, $boundedParameter);
+    //$result = $statement->execute();
+    //return Helper::extractDbData($result);
+  }
 
-    public function employeeMonthlyReport($searchQuery) {
-        $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], null, null, $searchQuery['functionalTypeId']);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-        $sql = <<<EOT
+  public function employeeMonthlyReport($searchQuery)
+  {
+    $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], null, null, $searchQuery['functionalTypeId']);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $sql = <<<EOT
                 SELECT D.FULL_NAME, D.EMPLOYEE_CODE,
                   R.*
                 FROM
@@ -1208,38 +1233,39 @@ EOT;
                 ON (R.EMPLOYEE_ID=D.EMPLOYEE_ID)                   
 EOT;
 
-        $boundedParameter['fiscalYearId'] = $searchQuery['fiscalYearId'];
-        return $this->rawQuery($sql, $boundedParameter);
-        //$statement = $this->adapter->query($sql);
-        //$result = $statement->execute();
-        //return Helper::extractDbData($result);
+    $boundedParameter['fiscalYearId'] = $searchQuery['fiscalYearId'];
+    return $this->rawQuery($sql, $boundedParameter);
+    //$statement = $this->adapter->query($sql);
+    //$result = $statement->execute();
+    //return Helper::extractDbData($result);
+  }
+
+  public function employeeDailyReport($searchQuery)
+  {
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
+    $monthDetail = $this->getMonthDetailsByDate($fromDate, $toDate);
+
+    $pivotString = '';
+    for ($i = 1; $i <= $monthDetail['DAYS']; $i++) {
+      if ($i != $monthDetail['DAYS']) {
+        $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
+      } else {
+        $pivotString .= $i . ' AS ' . 'D' . $i;
+      }
     }
 
-    public function employeeDailyReport($searchQuery) {
-        $fromDate=$searchQuery['fromDate'];
-        $toDate=$searchQuery['toDate'];
-        $monthDetail = $this-> getMonthDetailsByDate($fromDate,$toDate);
+    $kendoDetails = $this->getMonthDetailsForKendo($fromDate, $toDate);
 
-        $pivotString = '';
-        for ($i = 1; $i <= $monthDetail['DAYS']; $i++) {
-            if ($i != $monthDetail['DAYS']) {
-                $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
-            } else {
-                $pivotString .= $i . ' AS ' . 'D' . $i;
-            }
-        }
-        
-        $kendoDetails =$this->getMonthDetailsForKendo($fromDate,$toDate);
+    $leaveDetails = $this->getLeaveList();
+    $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
+    $boundedParameter = [];
+    $boundedParameter['fromDate'] = $fromDate;
+    $boundedParameter['toDate'] = $toDate;
+    $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], null, null, $searchQuery['functionalTypeId']);
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
 
-        $leaveDetails=$this->getLeaveList();
-        $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
-        $boundedParameter = [];
-        $boundedParameter['fromDate']=$fromDate;
-        $boundedParameter['toDate']=$toDate;
-        $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], null, null, $searchQuery['functionalTypeId']);
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-
-        $sql = <<<EOT
+    $sql = <<<EOT
                 SELECT PL.*,MLD.*,
          CL.PRESENT,
          CL.ABSENT,
@@ -1342,25 +1368,27 @@ from HRIS_ATTENDANCE_DETAIL AD
                  
 EOT;
 
-//   echo $sql;
-//   die();
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParameter);
-        return ['leaveDetails'=>$leaveDetails,'monthDetail' => $monthDetail,'kendoDetails'=>$kendoDetails,'data' => Helper::extractDbData($result)];
-    }
+    //   echo $sql;
+    //   die();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParameter);
+    return ['leaveDetails' => $leaveDetails, 'monthDetail' => $monthDetail, 'kendoDetails' => $kendoDetails, 'data' => Helper::extractDbData($result)];
+  }
 
-    public function getMonthDetails($monthId) {
-        $sql = "SELECT 
+  public function getMonthDetails($monthId)
+  {
+    $sql = "SELECT 
     FROM_DATE,TO_DATE,TO_DATE-FROM_DATE+1 AS DAYS FROM 
     HRIS_MONTH_CODE WHERE MONTH_ID={$monthId}";
-    
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
-    }
 
-    public function employeeYearlyReport($employeeId, $fiscalYearId) {
-        $sql = <<<EOT
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute()->current();
+    return $result;
+  }
+
+  public function employeeYearlyReport($employeeId, $fiscalYearId)
+  {
+    $sql = <<<EOT
                 
                 SELECT PL.*,
            CL.PRESENT,
@@ -1411,17 +1439,18 @@ GROUP BY CAD.EMPLOYEE_ID,CMC.MONTH_ID)CL ON (PL.MONTH_ID=CL.MONTH_ID)
 
            
 EOT;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-    public function getMonthlyAllowance($searchQuery) {
-        $fromDate = $searchQuery['fromDate'];
-        $toDate = $searchQuery['toDate'];
+  public function getMonthlyAllowance($searchQuery)
+  {
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
 
-        $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
-        $sql = "SELECT  
+    $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
+    $sql = "SELECT  
 EMPLOYEE_ID,
 EMPLOYEE_CODE,
 FULL_NAME,
@@ -1482,14 +1511,15 @@ FULL_NAME,
         DEPARTMENT_NAME,
         DESIGNATION_TITLE,
         POSITION_NAME ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-    public function departmentWiseAttdReport($companyId, $date1, $date2) {
-        if ($companyId == 0) {
-            $sql = <<<EOT
+  public function departmentWiseAttdReport($companyId, $date1, $date2)
+  {
+    if ($companyId == 0) {
+      $sql = <<<EOT
           SELECT *
           FROM (SELECT 
           DEPARTMENT_NAME,
@@ -1514,8 +1544,8 @@ FULL_NAME,
           MAX(TOTAL) FOR OVERALL_STATUS IN ('PR' as PR,'WD' as WD,'HD' as HD,'LV' as LV,'WH' as WH,'DO' as DO,'AB' as AB)
           )
 EOT;
-        } else {
-            $sql = <<<EOT
+    } else {
+      $sql = <<<EOT
         SELECT *
         FROM (SELECT 
         DEPARTMENT_NAME,
@@ -1541,39 +1571,41 @@ EOT;
         MAX(TOTAL) FOR OVERALL_STATUS IN ('PR' as PR,'WD' as WD,'HD' as HD,'LV' as LV,'WH' as WH,'DO' as DO,'AB' as AB)
         )
 EOT;
-        }
-
-//        echo $sql;
-//        die();
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
     }
 
-    public function getAllCompanies() {
-        $sql = "SELECT COMPANY_ID, COMPANY_NAME FROM HRIS_COMPANY";
+    //        echo $sql;
+    //        die();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
+  public function getAllCompanies()
+  {
+    $sql = "SELECT COMPANY_ID, COMPANY_NAME FROM HRIS_COMPANY";
 
-    public function fetchBirthdays($by) {
-        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
-        $columIfSynergy = "";
-        $joinIfSyngery = "";
-        if ($this->checkIfTableExists("FA_CHART_OF_ACCOUNTS_SETUP")) {
-            $columIfSynergy = "FCAS.ACC_EDESC AS BANK_ACCOUNT,";
-            $joinIfSyngery = "LEFT JOIN FA_CHART_OF_ACCOUNTS_SETUP FCAS 
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function fetchBirthdays($by)
+  {
+    $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+    $columIfSynergy = "";
+    $joinIfSyngery = "";
+    if ($this->checkIfTableExists("FA_CHART_OF_ACCOUNTS_SETUP")) {
+      $columIfSynergy = "FCAS.ACC_EDESC AS BANK_ACCOUNT,";
+      $joinIfSyngery = "LEFT JOIN FA_CHART_OF_ACCOUNTS_SETUP FCAS 
               ON(FCAS.ACC_CODE=E.ID_ACC_CODE AND C.COMPANY_CODE=FCAS.COMPANY_CODE)";
-        }
-        $fromDate = !empty($_POST['fromDate']) ? $_POST['fromDate'] : '01-Jan-2019';
-        $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : '31-Dec-2019';
+    }
+    $fromDate = !empty($_POST['fromDate']) ? $_POST['fromDate'] : '01-Jan-2019';
+    $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : '31-Dec-2019';
 
-        $condition = EntityHelper::getSearchConditonBounded($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
-        $sql = "SELECT  
+    $condition = EntityHelper::getSearchConditonBounded($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $condition['parameter']);
+    $sql = "SELECT  
           {$columIfSynergy}
               E.ID_ACCOUNT_NO  AS ID_ACCOUNT_NO,
                 E.EMPLOYEE_ID                                                AS EMPLOYEE_ID,
@@ -1706,61 +1738,62 @@ EOT;
               {$condition['sql']}
               {$orderByString}";
 
-        return $this->rawQuery($sql, $boundedParameter);
-    }
+    return $this->rawQuery($sql, $boundedParameter);
+  }
 
-    public function fetchJobDurationReport($by) {
-        $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
+  public function fetchJobDurationReport($by)
+  {
+    $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
 
-        $condition = EntityHelper::getSearchConditon($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
-//         $sql = "SELECT E.EMPLOYEE_CODE, E.FULL_NAME, E.JOIN_DATE DOJ, E.BIRTH_DATE DOB,
-// P.Position_Name,
-//     Des.Designation_Title,
-//     D.Department_Name,
-//     Funt.Functional_Type_Edesc,        
-//      St.Service_Type_Name,
-//      aaa.Basic,aaa.Grade,aaa.Allowance,aaa.Gross,
-//     TRUNC((SYSDATE-BIRTH_DATE)/365)||' Years '||TRUNC(((SYSDATE-BIRTH_DATE)/365-TRUNC((SYSDATE-BIRTH_DATE)/365))*365)||' Days' AGE ,
-//     TRUNC((SYSDATE-JOIN_DATE)/365)||' Years '||TRUNC(((SYSDATE-JOIN_DATE)/365-TRUNC((SYSDATE-JOIN_DATE)/365))*365)||' Days' SERVICE_DURATION
-//     FROM HRIS_EMPLOYEES E 
-//     LEFT JOIN HRIS_DESIGNATIONS DES
-//       ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
-//       LEFT JOIN HRIS_POSITIONS P
-//       ON E.POSITION_ID=P.POSITION_ID
-//       LEFT JOIN hris_departments d on d.department_id=e.department_id
-//     left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
-//     left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
-//     left join 
-//     (select 
-// *
-//  from 
-//  (select 
-//   bb.employee_id,bb.sheet_no,
-//   bb.variable_type,bb.total
-//  from 
-// (SELECT 
-// aa.employee_id,aa.sheet_no,v.variance_id,v.variable_type,sum(ssd.val) as total
-// FROM (select a.*,b.sheet_no from (select  max(month_id) as month_id,employee_id from
-// Hris_Salary_Sheet_Emp_Detail group by employee_id) a
-// left join Hris_Salary_Sheet_Emp_Detail b on (a.employee_id=b.employee_id and a.month_id=b.month_id)
-// ) aa
-// left join Hris_Salary_Sheet_Detail ssd on (aa.sheet_no=ssd.sheet_no and aa.employee_id=ssd.employee_id)
-// left join (select * from HRIS_VARIANCE where variable_type in 
-// ('B','C','A','G')
-// ) v  on (1=1)
-//   join hris_variance_payhead vp on (v.variance_id=vp.variance_id and ssd.pay_id=vp.pay_id)
-// group by aa.employee_id,aa.sheet_no,v.variance_id,v.variable_type
-// )bb) 
-// PIVOT ( 
-// SUM(total) FOR variable_type 
-//                 IN ('B' as Basic,'C' as Grade
-//                 ,'A' as Allowance,'G' as Gross))) aaa on (aaa.employee_id=e.employee_id)
-//       WHERE E.STATUS='E' AND E.RETIRED_FLAG='N' AND E.RESIGNED_FLAG='N'
-//     AND 1=1  
-//             {$condition}
-//             {$orderByString}";
+    $condition = EntityHelper::getSearchConditon($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
+    //         $sql = "SELECT E.EMPLOYEE_CODE, E.FULL_NAME, E.JOIN_DATE DOJ, E.BIRTH_DATE DOB,
+    // P.Position_Name,
+    //     Des.Designation_Title,
+    //     D.Department_Name,
+    //     Funt.Functional_Type_Edesc,        
+    //      St.Service_Type_Name,
+    //      aaa.Basic,aaa.Grade,aaa.Allowance,aaa.Gross,
+    //     TRUNC((SYSDATE-BIRTH_DATE)/365)||' Years '||TRUNC(((SYSDATE-BIRTH_DATE)/365-TRUNC((SYSDATE-BIRTH_DATE)/365))*365)||' Days' AGE ,
+    //     TRUNC((SYSDATE-JOIN_DATE)/365)||' Years '||TRUNC(((SYSDATE-JOIN_DATE)/365-TRUNC((SYSDATE-JOIN_DATE)/365))*365)||' Days' SERVICE_DURATION
+    //     FROM HRIS_EMPLOYEES E 
+    //     LEFT JOIN HRIS_DESIGNATIONS DES
+    //       ON E.DESIGNATION_ID=DES.DESIGNATION_ID 
+    //       LEFT JOIN HRIS_POSITIONS P
+    //       ON E.POSITION_ID=P.POSITION_ID
+    //       LEFT JOIN hris_departments d on d.department_id=e.department_id
+    //     left join Hris_Functional_Types funt on funt.Functional_Type_Id=e.Functional_Type_Id
+    //     left join Hris_Service_Types st on (st.service_type_id=E.Service_Type_Id)
+    //     left join 
+    //     (select 
+    // *
+    //  from 
+    //  (select 
+    //   bb.employee_id,bb.sheet_no,
+    //   bb.variable_type,bb.total
+    //  from 
+    // (SELECT 
+    // aa.employee_id,aa.sheet_no,v.variance_id,v.variable_type,sum(ssd.val) as total
+    // FROM (select a.*,b.sheet_no from (select  max(month_id) as month_id,employee_id from
+    // Hris_Salary_Sheet_Emp_Detail group by employee_id) a
+    // left join Hris_Salary_Sheet_Emp_Detail b on (a.employee_id=b.employee_id and a.month_id=b.month_id)
+    // ) aa
+    // left join Hris_Salary_Sheet_Detail ssd on (aa.sheet_no=ssd.sheet_no and aa.employee_id=ssd.employee_id)
+    // left join (select * from HRIS_VARIANCE where variable_type in 
+    // ('B','C','A','G')
+    // ) v  on (1=1)
+    //   join hris_variance_payhead vp on (v.variance_id=vp.variance_id and ssd.pay_id=vp.pay_id)
+    // group by aa.employee_id,aa.sheet_no,v.variance_id,v.variable_type
+    // )bb) 
+    // PIVOT ( 
+    // SUM(total) FOR variable_type 
+    //                 IN ('B' as Basic,'C' as Grade
+    //                 ,'A' as Allowance,'G' as Gross))) aaa on (aaa.employee_id=e.employee_id)
+    //       WHERE E.STATUS='E' AND E.RETIRED_FLAG='N' AND E.RESIGNED_FLAG='N'
+    //     AND 1=1  
+    //             {$condition}
+    //             {$orderByString}";
 
-$sql = "SELECT E.EMPLOYEE_CODE, E.FULL_NAME, E.JOIN_DATE DOJ, E.BIRTH_DATE DOB,
+    $sql = "SELECT E.EMPLOYEE_CODE, E.FULL_NAME, E.JOIN_DATE DOJ, E.BIRTH_DATE DOB,
 P.Position_Name, e.salary, e.allowance, (nvl(e.salary, 0)+nvl(e.allowance, 0)) gross,
     Des.Designation_Title,
     D.Department_Name,
@@ -1781,19 +1814,20 @@ P.Position_Name, e.salary, e.allowance, (nvl(e.salary, 0)+nvl(e.allowance, 0)) g
             {$condition}
             {$orderByString}";
     //echo $sql; die;
-        return $this->rawQuery($sql);
-    }
+    return $this->rawQuery($sql);
+  }
 
-    public function fetchWeeklyWorkingHoursReport($by) {
-        $condition = EntityHelper::getSearchConditon($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
+  public function fetchWeeklyWorkingHoursReport($by)
+  {
+    $condition = EntityHelper::getSearchConditon($by['companyId'], $by['branchId'], $by['departmentId'], $by['positionId'], $by['designationId'], $by['serviceTypeId'], $by['serviceEventTypeId'], $by['employeeTypeId'], $by['employeeId'], $by['genderId'], $by['locationId'], $by['functionalTypeId']);
 
-        $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : date('d-M-y', strtotime('now'));
-        $toDate = date('d-M-y', strtotime($toDate));
-        $fromDate = strtotime($toDate);
-        $fromDate = strtotime("-6 day", $fromDate);
-        $fromDate = date('d-M-y', $fromDate);
+    $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : date('d-M-y', strtotime('now'));
+    $toDate = date('d-M-y', strtotime($toDate));
+    $fromDate = strtotime($toDate);
+    $fromDate = strtotime("-6 day", $fromDate);
+    $fromDate = date('d-M-y', $fromDate);
 
-        $sql = "select * from (SELECT E.EMPLOYEE_CODE,AD.EMPLOYEE_ID,E.FULL_NAME,
+    $sql = "select * from (SELECT E.EMPLOYEE_CODE,AD.EMPLOYEE_ID,E.FULL_NAME,
     TO_CHAR(ATTENDANCE_DT,'DY') AS WEEKNAME,
     E.DEPARTMENT_ID,
     D.DEPARTMENT_NAME,
@@ -1829,14 +1863,15 @@ P.Position_Name, e.salary, e.allowance, (nvl(e.salary, 0)+nvl(e.allowance, 0)) g
     IN ( 'TUE' AS TUE,'WED' AS WED,'THU' AS THU,'FRI' AS FRI,'SAT' AS SAT,'SUN' AS SUN,'MON' AS MON)
     )";
 
-        return $this->rawQuery($sql);
-    }
+    return $this->rawQuery($sql);
+  }
 
-    public function getDays() {
-        $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : date('d-M-y', strtotime('now'));
-        $toDate = "TO_DATE('{$toDate}')";
+  public function getDays()
+  {
+    $toDate = !empty($_POST['toDate']) ? $_POST['toDate'] : date('d-M-y', strtotime('now'));
+    $toDate = "TO_DATE('{$toDate}')";
 
-        $sql = "SELECT   trunc($toDate-6) + ROWNUM -1  AS DATES,
+    $sql = "SELECT   trunc($toDate-6) + ROWNUM -1  AS DATES,
     ROWNUM AS DAY_COUNT,
     trunc($toDate-6) AS FROM_DATE,
     TO_CHAR(trunc($toDate-6) + ROWNUM -1,'D') AS WEEKDAY,
@@ -1844,75 +1879,114 @@ P.Position_Name, e.salary, e.allowance, (nvl(e.salary, 0)+nvl(e.allowance, 0)) g
     FROM dual d
     CONNECT BY  rownum <=  $toDate -  trunc($toDate-6) + 1";
 
-        return $this->rawQuery($sql);
+    return $this->rawQuery($sql);
+  }
+
+  //   public function fetchRosterReport($data, $dates)
+  //   {
+  //     $employeeId = $data['employeeId'];
+  //     $companyId = $data['companyId'];
+  //     $branchId = $data['branchId'];
+  //     $departmentId = $data['departmentId'];
+  //     $designationId = $data['designationId'];
+  //     $positionId = $data['positionId'];
+  //     $serviceTypeId = $data['serviceTypeId'];
+  //     $serviceEventTypeId = $data['serviceEventTypeId'];
+  //     $employeeTypeId = $data['employeeTypeId'];
+
+  //     $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+
+  //     $boundedParameter = [];
+  //     $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+
+  //     $datesIn = "'";
+  //     for ($i = 0; $i < count($dates); $i++) {
+  //       $i == 0 ? $datesIn .= $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]) : $datesIn .= ",'" . $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]);
+  //     }
+  //     $sql = "
+  // SELECT *
+  // FROM
+  //   (SELECT E.FULL_NAME,
+  //     E.EMPLOYEE_CODE,
+  //     R.FOR_DATE,
+  //     S.SHIFT_ENAME as SHIFT_NAME
+  //   FROM HRIS_EMPLOYEE_SHIFT_ROASTER R
+  //   JOIN HRIS_SHIFTS S
+  //   ON (S.SHIFT_ID = R.SHIFT_ID)
+  //   FULL OUTER JOIN HRIS_EMPLOYEES E
+  //   ON (E.EMPLOYEE_ID = R.EMPLOYEE_ID)
+  //   WHERE 1=1 {$searchCondition['sql']}
+  //   ) PIVOT ( MAX( SHIFT_NAME ) FOR FOR_DATE IN ($datesIn))";
+
+  //     return $this->rawQuery($sql);
+  //   }
+  public function fetchRosterReport($data, $dates)
+  {
+
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+
+    $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+
+    $datesIn = "'";
+    for ($i = 0; $i < count($dates); $i++) {
+      $i == 0 ? $datesIn .= $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]) : $datesIn .= ",'" . $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]);
     }
-
-    public function fetchRosterReport($data, $dates) {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-
-        $datesIn = "'";
-        for ($i = 0; $i < count($dates); $i++) {
-            $i == 0 ? $datesIn .= $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]) : $datesIn .= ",'" . $dates[$i] . "' as DATE_" . str_replace('-', '_', $dates[$i]);
-        }
-        $sql = "
+    $sql = "
 SELECT *
 FROM
-  (SELECT E.FULL_NAME,
-    E.EMPLOYEE_CODE,
-    R.FOR_DATE,
-    S.SHIFT_ENAME as SHIFT_NAME
-  FROM HRIS_EMPLOYEE_SHIFT_ROASTER R
-  JOIN HRIS_SHIFTS S
-  ON (S.SHIFT_ID = R.SHIFT_ID)
-  FULL OUTER JOIN HRIS_EMPLOYEES E
-  ON (E.EMPLOYEE_ID = R.EMPLOYEE_ID)
-  WHERE 1=1 {$searchCondition['sql']}
-  ) PIVOT ( MAX( SHIFT_NAME ) FOR FOR_DATE IN ($datesIn))";
-        return $this->rawQuery($sql);
+(SELECT E.FULL_NAME,
+E.EMPLOYEE_CODE,
+R.FOR_DATE,
+S.SHIFT_ENAME as SHIFT_NAME
+FROM HRIS_EMPLOYEE_SHIFT_ROASTER R
+JOIN HRIS_SHIFTS S
+ON (S.SHIFT_ID = R.SHIFT_ID)
+FULL OUTER JOIN HRIS_EMPLOYEES E
+ON (E.EMPLOYEE_ID = R.EMPLOYEE_ID)
+WHERE 1=1 {$searchCondition}
+) PIVOT ( MAX( SHIFT_NAME ) FOR FOR_DATE IN ($datesIn))";
+
+    return $this->rawQuery($sql);
+  }
+
+  public function reportWithOTforShivam($data)
+  {
+    $fromCondition = "";
+    $toCondition = "";
+
+    $otFromCondition = "";
+    $otToCondition = "";
+
+    $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
+
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $condition['parameter']);
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND A.ATTENDANCE_DT >= :fromDate";
+      $otFromCondition = "AND OVERTIME_DATE >= :fromDate";
+      $boundedParameter['fromDate'] = $fromDate;
+    }
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND A.ATTENDANCE_DT <= :toDate";
+      $otToCondition = "AND OVERTIME_DATE <= :toDate";
+      $boundedParameter['todate'] = $toDate;
     }
 
-    public function reportWithOTforShivam($data) {
-        $fromCondition = "";
-        $toCondition = "";
+    $monthId = $data['monthId'];
+    $boundedParameter['monthId'] = $monthId;
 
-        $otFromCondition = "";
-        $otToCondition = "";
-
-        $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
-
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $condition['parameter']);
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND A.ATTENDANCE_DT >= :fromDate";
-            $otFromCondition = "AND OVERTIME_DATE >= :fromDate";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND A.ATTENDANCE_DT <= :toDate";
-            $otToCondition = "AND OVERTIME_DATE <= :toDate";
-            $boundedParameter['todate'] = $toDate;
-        }
-
-        $monthId = $data['monthId'];
-        $boundedParameter['monthId'] = $monthId;
-
-        $sql = <<<EOT
+    $sql = <<<EOT
             SELECT C.COMPANY_NAME,
               D.DEPARTMENT_NAME,
               A.EMPLOYEE_ID,
@@ -2102,29 +2176,30 @@ GROUP BY
               D.DEPARTMENT_NAME,
               E.FULL_NAME 
 EOT;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
+
+  public function employeeDailyReportShivam($searchQuery)
+  {
+    $monthDetail = $this->getMonthDetails($searchQuery['monthCodeId']);
+
+    $pivotString = '';
+    for ($i = 1; $i <= $monthDetail['DAYS']; $i++) {
+      if ($i != $monthDetail['DAYS']) {
+        $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
+      } else {
+        $pivotString .= $i . ' AS ' . 'D' . $i;
+      }
     }
 
-    public function employeeDailyReportShivam($searchQuery) {
-        $monthDetail = $this->getMonthDetails($searchQuery['monthCodeId']);
-        
-        $pivotString = '';
-        for ($i = 1; $i <= $monthDetail['DAYS']; $i++) {
-            if ($i != $monthDetail['DAYS']) {
-                $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
-            } else {
-                $pivotString .= $i . ' AS ' . 'D' . $i;
-            }
-        }
 
-
-        $leaveDetails=$this->getLeaveList();
-        $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
-        $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
-           $sql = <<<EOT
+    $leaveDetails = $this->getLeaveList();
+    $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
+    $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
+    $sql = <<<EOT
                 SELECT PL.*,MLD.*,
          CL.PRESENT,
          CL.ABSENT,
@@ -2248,32 +2323,33 @@ from HRIS_ATTENDANCE_DETAIL AD
                  
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return ['leaveDetails'=>$leaveDetails,'monthDetail' => $monthDetail, 'data' => Helper::extractDbData($result)];
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return ['leaveDetails' => $leaveDetails, 'monthDetail' => $monthDetail, 'data' => Helper::extractDbData($result)];
+  }
+
+  public function checkAge($data)
+  {
+    $greaterCondition = "";
+    $lessCondition = "";
+    $bothCondition = "";
+
+    $boundedParameter = [];
+    if ($data['greaterThan'] != null && $data['lessThan'] == null) {
+      $greaterCondition = "AND E.AGE >= :greaterThan";
+      $boundedParameter['greaterThan'] = $data['greaterThan'];
+    }
+    if ($data['greaterThan'] == null && $data['lessThan'] != null) {
+      $lessCondition = "AND E.AGE <= :lessThan ";
+      $boundedParameter['lessThan'] = $data['lessThan'];
+    }
+    if ($data['greaterThan'] != null && $data['lessThan'] != null) {
+      $bothCondition = "AND E.AGE between :greaterThan and :lessThan ";
+      $boundedParameter['greaterThan'] = $data['greaterThan'];
+      $boundedParameter['lessThan'] = $data['lessThan'];
     }
 
-    public function checkAge($data) {
-        $greaterCondition = "";
-        $lessCondition = "";
-        $bothCondition = "";
-
-        $boundedParameter = [];
-        if ($data['greaterThan'] != null && $data['lessThan'] == null) {
-            $greaterCondition = "AND E.AGE >= :greaterThan";
-            $boundedParameter['greaterThan'] = $data['greaterThan'];
-        }
-        if ($data['greaterThan'] == null && $data['lessThan'] != null) {
-            $lessCondition = "AND E.AGE <= :lessThan ";
-            $boundedParameter['lessThan'] = $data['lessThan'];
-        }
-        if ($data['greaterThan'] != null && $data['lessThan'] != null) {
-            $bothCondition = "AND E.AGE between :greaterThan and :lessThan ";
-            $boundedParameter['greaterThan'] = $data['greaterThan'];
-            $boundedParameter['lessThan'] = $data['lessThan'];
-        }
-
-        $sql = <<<EOT
+    $sql = <<<EOT
                  SELECT E.EMPLOYEE_CODE,
                 E.FULL_NAME,
                 E.BIRTH_DATE,
@@ -2292,33 +2368,34 @@ EOT;
               ON (E.DEPARTMENT_ID = D.DEPARTMENT_ID) WHERE E.STATUS = 'E' {$greaterCondition} {$lessCondition} {$bothCondition}
 EOT;
 
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return Helper::extractDbData($result);
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return Helper::extractDbData($result);
+  }
+
+  public function checkContract($searchQuery)
+  {
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
+    $fromDateCondition = "";
+    $toDateCondition = "";
+
+    $boundedParameter = [];
+
+    if ($fromDate != null) {
+      $fromDateCondition = " AND (S.END_DATE >= :fromDate OR S.END_DATE IS NULL)";
+      $boundedParameter['fromDate'] = $fromDate;
     }
 
-    public function checkContract($searchQuery) {
-        $fromDate = $searchQuery['fromDate'];
-        $toDate = $searchQuery['toDate'];
-        $fromDateCondition = "";
-        $toDateCondition = "";
+    if ($toDate != null) {
+      $toDateCondition = "AND (S.END_DATE <= :toDate OR S.END_DATE IS NULL) ";
+      $boundedParameter['toDate'] = $toDate;
+    }
 
-        $boundedParameter = [];
-
-        if ($fromDate != null) {
-            $fromDateCondition = " AND (S.END_DATE >= :fromDate OR S.END_DATE IS NULL)";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
-
-        if ($toDate != null) {
-            $toDateCondition = "AND (S.END_DATE <= :toDate OR S.END_DATE IS NULL) ";
-            $boundedParameter['toDate'] = $toDate;
-        }
-
-        $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
-        $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
-        $sql = "SELECT S.*,
+    $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $sql = "SELECT S.*,
                 E.FULL_NAME,
                 E.EMPLOYEE_CODE,
                 D.DEPARTMENT_NAME,
@@ -2372,19 +2449,20 @@ EOT;
               WHERE E.STATUS = 'E'
               {$searchCondition['sql']} {$fromDateCondition} {$toDateCondition}";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParameter);
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParameter);
+    return Helper::extractDbData($result);
+  }
 
-    public function workingSummaryBetnDateReport($searchQuery) {
-        $fromDate = $searchQuery['fromDate'];
-        $toDate = $searchQuery['toDate'];
+  public function workingSummaryBetnDateReport($searchQuery)
+  {
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
 
-        $boundedParameter = [];
-        $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
-        $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
-        $sql = "
+    $boundedParameter = [];
+    $searchCondition = EntityHelper::getSearchConditonBounded($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId']);
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $sql = "
             SELECT C.COMPANY_NAME,
               D.DEPARTMENT_NAME,
               A.EMPLOYEE_ID,
@@ -2541,69 +2619,72 @@ between  :fromDate and :toDate
               E.FULL_NAME 
             ";
 
-        $boundedParameter['fromDate'] = $fromDate;
-        $boundedParameter['toDate'] = $toDate;
+    $boundedParameter['fromDate'] = $fromDate;
+    $boundedParameter['toDate'] = $toDate;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParameter);
-        return Helper::extractDbData($result);
-    }
-    
-    public function getLeaveList(){
-        $sql = "select 
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParameter);
+    return Helper::extractDbData($result);
+  }
+
+  public function getLeaveList()
+  {
+    $sql = "select 
                 leave_code,leave_id,leave_ename
                 ,'ML'||leave_id as  LEAVE_STRING
                 ,leave_id||' as '||'ML'||leave_id
                 as PIVOT_STRING
                 from 
                 hris_leave_master_setup where status='E'";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function getLeaveCodePivot($leave)
+  {
+    $resultSize = sizeof($leave);
+
+    $pivotString = '';
+    for ($i = 0; $i < $resultSize; $i++) {
+      if (($i + 1) < $resultSize) {
+        $pivotString .= $leave[$i]['PIVOT_STRING'] . ', ';
+      } else {
+        $pivotString .= $leave[$i]['PIVOT_STRING'];
+      }
+    }
+    return $pivotString;
+  }
+
+  public function reportWithOTforBot($data)
+  {
+    $fromCondition = "";
+    $toCondition = "";
+
+    $otFromCondition = "";
+    $otToCondition = "";
+
+    $condition = EntityHelper::getSearchConditon($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
+
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $fromCondition = "AND A.ATTENDANCE_DT >= {$fromDate->getExpression()}";
+      $otFromCondition = "AND OVERTIME_DATE >= {$fromDate->getExpression()} ";
+    }
+    if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $toCondition = "AND A.ATTENDANCE_DT <= {$toDate->getExpression()}";
+      $otToCondition = "AND OVERTIME_DATE <= {$toDate->getExpression()} ";
     }
 
-    public function getLeaveCodePivot($leave) {
-       $resultSize = sizeof($leave);
-       
-        $pivotString = '';
-        for ($i = 0; $i < $resultSize; $i++) {
-            if (($i + 1) < $resultSize) {
-                $pivotString .= $leave[$i]['PIVOT_STRING'] . ', ';
-            } else {
-                $pivotString .= $leave[$i]['PIVOT_STRING'];
-            }
-        }
-        return $pivotString;
+    $headerCondition = "0 AS TOTAL_DAYS,";
+    if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1 && isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
+      $fromDate = Helper::getExpressionDate($data['fromDate']);
+      $toDate = Helper::getExpressionDate($data['toDate']);
+      $headerCondition = " {$toDate->getExpression()}-{$fromDate->getExpression()}+1 AS TOTAL_DAYS,";
     }
-    
-    public function reportWithOTforBot($data) {
-        $fromCondition = "";
-        $toCondition = "";
 
-        $otFromCondition = "";
-        $otToCondition = "";
-
-        $condition = EntityHelper::getSearchConditon($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], $data['genderId'], $data['locationId']);
-
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $fromCondition = "AND A.ATTENDANCE_DT >= {$fromDate->getExpression()}";
-            $otFromCondition = "AND OVERTIME_DATE >= {$fromDate->getExpression()} ";
-        }
-        if (isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $toCondition = "AND A.ATTENDANCE_DT <= {$toDate->getExpression()}";
-            $otToCondition = "AND OVERTIME_DATE <= {$toDate->getExpression()} ";
-        }
-
-        $headerCondition = "0 AS TOTAL_DAYS,";
-        if (isset($data['fromDate']) && $data['fromDate'] != null && $data['fromDate'] != -1 && isset($data['toDate']) && $data['toDate'] != null && $data['toDate'] != -1) {
-            $fromDate = Helper::getExpressionDate($data['fromDate']);
-            $toDate = Helper::getExpressionDate($data['toDate']);
-            $headerCondition = " {$toDate->getExpression()}-{$fromDate->getExpression()}+1 AS TOTAL_DAYS,";
-        }
-
-        $sql = <<<EOT
+    $sql = <<<EOT
             SELECT 
    $headerCondition             
    C.COMPANY_NAME,
@@ -2758,32 +2839,33 @@ GROUP BY
               E.FULL_NAME 
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function whereaboutsReport($data)
+  {
+
+    $pivotString = '';
+    //        $pivotCaseString='PL.FULL_NAME,
+    //             PL.EMPLOYEE_ID,
+    //             PL.EMPLOYEE_CODE, ';
+    for ($i = 1; $i <= $data['days']; $i++) {
+      if ($i != $data['days']) {
+        $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
+      } else {
+        $pivotString .= $i . ' AS ' . 'D' . $i;
+      }
     }
 
-    public function whereaboutsReport($data) {
+    $leaveDetails = $this->getLeaveList();
+    $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
 
-        $pivotString = '';
-//        $pivotCaseString='PL.FULL_NAME,
-//             PL.EMPLOYEE_ID,
-//             PL.EMPLOYEE_CODE, ';
-        for ($i = 1; $i <= $data['days']; $i++) {
-            if ($i != $data['days']) {
-                $pivotString .= $i . ' AS ' . 'D' . $i . ', ';
-            } else {
-                $pivotString .= $i . ' AS ' . 'D' . $i;
-            }
-        }
-
-        $leaveDetails=$this->getLeaveList();
-        $leavePivotString = $this->getLeaveCodePivot($leaveDetails);
-
-        $boundedParameter = [];
-        $searchConditon = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], null, null, $data['functionalTypeId']);
-        $boundedParameter = array_merge($boundedParameter, $searchConditon['parameter']);
-        $sql = <<<EOT
+    $boundedParameter = [];
+    $searchConditon = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId'], null, null, $data['functionalTypeId']);
+    $boundedParameter = array_merge($boundedParameter, $searchConditon['parameter']);
+    $sql = <<<EOT
                 SELECT PL.*,
   MLD.*,
   CL.IS_PRESENT,
@@ -2953,37 +3035,40 @@ LEFT JOIN HRIS_EMP_WHEREABOUT_ASN W
 ON (PL.EMPLOYEE_ID = W.EMPLOYEE_ID)
 ORDER BY W.ORDER_BY
 EOT;
-        $boundedParameter['fromDate'] = $data['fromDate'];
-        $boundedParameter['toDate'] = $data['toDate'];
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParameter);
-        return ['leaveDetails'=>$leaveDetails, 'data' => Helper::extractDbData($result)];
-    }
+    $boundedParameter['fromDate'] = $data['fromDate'];
+    $boundedParameter['toDate'] = $data['toDate'];
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParameter);
+    return ['leaveDetails' => $leaveDetails, 'data' => Helper::extractDbData($result)];
+  }
 
-    public function getBranchName($branchId) {
+  public function getBranchName($branchId)
+  {
 
-        $boundedParam = [];
-        $sql = "select BRANCH_NAME from HRIS_BRANCHES where BRANCH_ID = :branchId";
-        $boundedParam['branchId'] = $branchId;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParam);
-        return Helper::extractDbData($result);
-    }
+    $boundedParam = [];
+    $sql = "select BRANCH_NAME from HRIS_BRANCHES where BRANCH_ID = :branchId";
+    $boundedParam['branchId'] = $branchId;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParam);
+    return Helper::extractDbData($result);
+  }
 
-    public function getDates($monthId) {
-        $boundedParam = [];
-        $sql = "SELECT TO_DATE, FROM_DATE, MONTH_EDESC FROM HRIS_MONTH_CODE WHERE MONTH_ID = :monthId";
-        $boundedParam['monthId'] = $monthId;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParam);
-        return Helper::extractDbData($result);
-    }
-    
-   public function getMonthDetailsForKendo($fromDate,$toDate){
-        $boundedParam = [];
-        $boundedParam['fromDate']=$fromDate;
-        $boundedParam['toDate']=$toDate;
-        $sql="select 
+  public function getDates($monthId)
+  {
+    $boundedParam = [];
+    $sql = "SELECT TO_DATE, FROM_DATE, MONTH_EDESC FROM HRIS_MONTH_CODE WHERE MONTH_ID = :monthId";
+    $boundedParam['monthId'] = $monthId;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParam);
+    return Helper::extractDbData($result);
+  }
+
+  public function getMonthDetailsForKendo($fromDate, $toDate)
+  {
+    $boundedParam = [];
+    $boundedParam['fromDate'] = $fromDate;
+    $boundedParam['toDate'] = $toDate;
+    $sql = "select 
 FDATES.*,
 CASE WHEN CV.CALENDER_VIEW='E'
 then
@@ -3002,28 +3087,443 @@ from
         FDATES
         LEFT JOIN (select VALUE AS CALENDER_VIEW from HRIS_PREFERENCES where upper(key)='CALENDAR_VIEW') CV ON (1=1)
         LEFT JOIN HRIS_MONTH_CODE MC ON (FDATES.DATES BETWEEN MC.FROM_DATE AND MC.TO_DATE)";
-        
-//        echo $sql;
-//        DIE();
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParam);
-        return Helper::extractDbData($result);
-        
-    }
-    
-    public function getMonthDetailsByDate($fromDate,$toDate) {
-        $boundedParam = [];
-        $boundedParam['fromDate']=$fromDate;
-        $boundedParam['toDate']=$toDate;
-         $sql = "SELECT 
+
+    //        echo $sql;
+    //        DIE();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParam);
+    return Helper::extractDbData($result);
+  }
+
+  public function getMonthDetailsByDate($fromDate, $toDate)
+  {
+    $boundedParam = [];
+    $boundedParam['fromDate'] = $fromDate;
+    $boundedParam['toDate'] = $toDate;
+    $sql = "SELECT 
     TO_DATE(:fromDate,'DD-MON-YYYY') AS FROM_DATE,
     TO_DATE(:toDate,'DD-MON-YYYY') AS TO_DATE,
     TO_DATE(:toDate,'DD-MON-YYYY')-TO_DATE(:fromDate,'DD-MON-YYYY')+1 AS DAYS FROM 
     DUAL";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParam)->current();
-        return $result;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParam)->current();
+    return $result;
+  }
+  public function trainingReport($trainingId)
+  {
+    $trainingCondition = "";
+    if (isset($trainingId) && $trainingId != null && $trainingId != -1) {
+      $trainingCondition = "and tr.training_id=$trainingId ";
     }
-    
+    $trainingAssignCondition = "";
+    if (isset($trainingId) && $trainingId != null && $trainingId != -1) {
+      $trainingAssignCondition = "and ta.training_id=$trainingId ";
+    }
+    $sql = "select * from (SELECT 
+    TR.EMPLOYEE_ID,
+    E.EMPLOYEE_CODE,
+    E.FULL_NAME                                        AS FULL_NAME,
+    INITCAP(TO_CHAR(TR.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE,
+    BS_DATE(TO_CHAR(TR.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS,
+    TR.REMARKS,
+    (
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN TR.DURATION
+      ELSE T.DURATION
+    END) AS DURATION ,
+    INITCAP(
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN TR.TITLE
+      ELSE T.TRAINING_NAME
+    END) AS TITLE,
+    TR.TRAINING_ID,
+    TRAINING_TYPE_DESC(
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN TR.TRAINING_TYPE
+      ELSE T.TRAINING_TYPE
+    END) AS TRAINING_TYPE,
+ 
+    (
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN INITCAP(TO_CHAR(TR.START_DATE, 'DD-MON-YYYY'))
+      ELSE INITCAP(TO_CHAR(T.START_DATE, 'DD-MON-YYYY'))
+    END) AS START_DATE,
+    (
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN BS_DATE(TR.START_DATE)
+      ELSE BS_DATE(T.START_DATE)
+    END) AS START_DATE_BS,
+    (
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN INITCAP(TO_CHAR(TR.END_DATE, 'DD-MON-YYYY'))
+      ELSE INITCAP(TO_CHAR(T.END_DATE, 'DD-MON-YYYY'))
+    END) AS END_DATE,
+    (
+    CASE
+      WHEN TR.TRAINING_ID IS NULL
+      THEN BS_DATE(TR.END_DATE)
+      ELSE BS_DATE(T.END_DATE)
+    END)                                                 AS END_DATE_BS,
+    TR.RECOMMENDED_BY                                    AS RECOMMENDED_BY,
+    RE.FULL_NAME                                         AS RECOMMENDED_BY_NAME,
+    INITCAP(TO_CHAR(TR.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE,
+    TR.APPROVED_BY                                       AS APPROVED_BY,
+    AE.FULL_NAME                                         AS APPROVED_BY_NAME,
+    INITCAP(TO_CHAR(TR.APPROVED_DATE, 'DD-MON-YYYY'))    AS APPROVED_DATE,
+    INITCAP(TO_CHAR(TR.MODIFIED_DATE, 'DD-MON-YYYY'))    AS MODIFIED_DATE,
+    RAR.EMPLOYEE_ID                                      AS RECOMMENDER_ID,
+    RAR.FULL_NAME                                        AS RECOMMENDER_NAME,
+    RAA.EMPLOYEE_ID                                      AS APPROVER_ID,
+    RAA.FULL_NAME                                        AS APPROVER_NAME,
+    TR.STATUS                                            AS STATUS ,
+    LEAVE_STATUS_DESC(TR.STATUS)                         AS STATUS_DETAIL,
+    C.COMPANY_NAME                                       AS COMPANY_NAME,
+    T.INSTRUCTOR_NAME                                    AS INSTRUCTOR,
+    G.GENDER_NAME                                        AS GENDER,
+    D.DESIGNATION_TITLE                                  AS DESIGNATION,
+    DE.DEPARTMENT_NAME                                   AS DEPARTMENT,
+    T.DAILY_TRAINING_HOUR                                AS TRAINING_HOUR,
+    TD.ATTENDANCE_STATUS                                 AS ATTD_STATUS
+  FROM HRIS_EMPLOYEE_TRAINING_REQUEST TR
+  LEFT JOIN HRIS_TRAINING_MASTER_SETUP T
+  ON T.TRAINING_ID=TR.TRAINING_ID
+  LEFT JOIN HRIS_EMPLOYEES E
+  ON E.EMPLOYEE_ID=TR.EMPLOYEE_ID
+  LEFT JOIN HRIS_EMPLOYEES RE
+  ON(RE.EMPLOYEE_ID =TR.RECOMMENDED_BY)
+  LEFT JOIN HRIS_COMPANY C
+  ON C.COMPANY_ID=T.COMPANY_ID
+  LEFT JOIN HRIS_GENDERS G
+  ON G.GENDER_ID=E.GENDER_ID
+   LEFT JOIN HRIS_DESIGNATIONS D
+  ON D.DESIGNATION_ID=E.DESIGNATION_ID
+   LEFT JOIN HRIS_DEPARTMENTS DE
+  ON DE.DEPARTMENT_ID=E.DEPARTMENT_ID
+  LEFT JOIN HRIS_EMPLOYEES AE
+  ON (AE.EMPLOYEE_ID =TR.APPROVED_BY)
+  LEFT JOIN HRIS_RECOMMENDER_APPROVER RA
+  ON E.EMPLOYEE_ID =RA.EMPLOYEE_ID
+  LEFT JOIN HRIS_EMPLOYEES RAR
+  ON (RA.RECOMMEND_BY=RAR.EMPLOYEE_ID)
+  LEFT JOIN HRIS_EMPLOYEES RAA
+  ON(RA.APPROVED_BY=RAA.EMPLOYEE_ID)
+  LEFT JOIN hris_emp_training_attendance TD
+  ON (TD.TRAINING_ID=TR.TRAINING_ID  AND TD.EMPLOYEE_ID=TR.EMPLOYEE_ID AND TD.TRAINING_DT=TR.START_DATE)
+  WHERE 1          =1   {$trainingCondition}
+  union all 
+  SELECT 
+    TA.EMPLOYEE_ID,
+    E.EMPLOYEE_CODE,
+    E.FULL_NAME                                        AS FULL_NAME,
+    INITCAP(TO_CHAR(TA.CREATED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE,
+    BS_DATE(TO_CHAR(TA.CREATED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS,
+    TA.REMARKS,
+    (
+    CASE
+      WHEN TA.TRAINING_ID IS NOT NULL
+      THEN T.DURATION
+    END) AS DURATION ,
+    INITCAP(
+    CASE
+      WHEN TA.TRAINING_ID IS not NULL
+      THEN  T.TRAINING_NAME
+    END) AS TITLE,
+    TA.TRAINING_ID,
+    TRAINING_TYPE_DESC(
+    CASE
+      WHEN TA.TRAINING_ID IS not NULL
+      THEN  T.TRAINING_TYPE
+    END) AS TRAINING_TYPE,
+
+    (
+    CASE
+      WHEN TA.TRAINING_ID IS NOT NULL
+      THEN  INITCAP(TO_CHAR(T.START_DATE, 'DD-MON-YYYY'))
+    END) AS START_DATE,
+    (
+    CASE
+      WHEN TA.TRAINING_ID IS NOT  NULL
+      THEN  BS_DATE(T.START_DATE)
+    END) AS START_DATE_BS,
+    (
+    CASE
+      WHEN TA.TRAINING_ID IS NOT NULL
+      THEN  INITCAP(TO_CHAR(T.END_DATE, 'DD-MON-YYYY'))
+    END) AS END_DATE,
+    (
+    CASE
+      WHEN TA.TRAINING_ID IS NOT NULL
+      THEN  BS_DATE(T.END_DATE)
+    END)                                                 AS END_DATE_BS,
+    TA.CREATED_BY                                    AS RECOMMENDED_BY,
+    RE.FULL_NAME                                         AS RECOMMENDED_BY_NAME,
+    INITCAP(TO_CHAR(TA.CREATED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE,
+    TA.CREATED_BY                                       AS APPROVED_BY,
+    AE.FULL_NAME                                         AS APPROVED_BY_NAME,
+    INITCAP(TO_CHAR(TA.CREATED_DATE, 'DD-MON-YYYY'))    AS APPROVED_DATE,
+    INITCAP(TO_CHAR(TA.MODIFIED_DATE, 'DD-MON-YYYY'))    AS MODIFIED_DATE,
+    RAR.EMPLOYEE_ID                                      AS RECOMMENDER_ID,
+    RAR.FULL_NAME                                        AS RECOMMENDER_NAME,
+    RAA.EMPLOYEE_ID                                      AS APPROVER_ID,
+    RAA.FULL_NAME                                        AS APPROVER_NAME,
+    (CASE WHEN TA.STATUS='E' THEN 'AP' END  )            AS STATUS ,
+    (CASE WHEN TA.STATUS='E' THEN 'Approved' END  )      AS STATUS_DETAIL,
+    C.COMPANY_NAME                                       AS COMPANY_NAME,
+    T.INSTRUCTOR_NAME                                    AS INSTRUCTOR,
+    G.GENDER_NAME                                        AS GENDER,
+    D.DESIGNATION_TITLE                                  AS DESIGNATION,
+    DE.DEPARTMENT_NAME                                   AS DEPARTMENT,
+    T.DAILY_TRAINING_HOUR                                AS TRAINING_HOUR,
+    TD.ATTENDANCE_STATUS                                 AS ATTD_STATUS
+  FROM hris_employee_training_assign ta
+  LEFT JOIN HRIS_TRAINING_MASTER_SETUP T
+  ON T.TRAINING_ID=ta.TRAINING_ID
+  LEFT JOIN HRIS_EMPLOYEES E
+  ON E.EMPLOYEE_ID=ta.EMPLOYEE_ID
+  LEFT JOIN HRIS_EMPLOYEES RE
+  ON(RE.EMPLOYEE_ID =ta.created_by)
+  LEFT JOIN HRIS_COMPANY C
+  ON C.COMPANY_ID=T.COMPANY_ID
+  LEFT JOIN HRIS_GENDERS G
+  ON G.GENDER_ID=E.GENDER_ID
+   LEFT JOIN HRIS_DESIGNATIONS D
+  ON D.DESIGNATION_ID=E.DESIGNATION_ID
+   LEFT JOIN HRIS_DEPARTMENTS DE
+  ON DE.DEPARTMENT_ID=E.DEPARTMENT_ID
+  LEFT JOIN HRIS_EMPLOYEES AE
+  ON (AE.EMPLOYEE_ID =ta.created_by)
+  LEFT JOIN HRIS_RECOMMENDER_APPROVER RA
+  ON E.EMPLOYEE_ID =RA.EMPLOYEE_ID
+  LEFT JOIN HRIS_EMPLOYEES RAR
+  ON (RA.RECOMMEND_BY=RAR.EMPLOYEE_ID)
+  LEFT JOIN HRIS_EMPLOYEES RAA
+  ON(RA.APPROVED_BY=RAA.EMPLOYEE_ID)
+  LEFT JOIN hris_emp_training_attendance TD
+  ON (TD.TRAINING_ID=ta.TRAINING_ID  AND TD.EMPLOYEE_ID=ta.EMPLOYEE_ID)
+  WHERE 1          =1  {$trainingAssignCondition})TRA order by TRA.training_id desc";
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function trainingHours($trainingId)
+  {
+    $sql = "select daily_training_hour from hris_training_master_setup where training_id=$trainingId";
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result->current();
+  }
+
+  public function maleFemaleReport($data)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+
+    $sql = "SELECT
+    e.employee_code,
+    e.full_name,
+    g.gender_name
+FROM
+    hris_employees e,hris_genders g
+WHERE 1                 =1 and e.gender_id=g.gender_id and
+    e.status = 'E' AND e.retired_flag='N' and e.resigned_flag='N' {$searchCondition['sql']} order by e.employee_code desc";
+    // echo '<pre>';
+    // print_r($sql);
+    // die;
+    return $this->rawQuery($sql, $boundedParameter);
+  }
+  public function fetchGenderHeadCount($data)
+  {
+
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+
+    $sql = "SELECT
+    COUNT(*) AS HEAD_COUNT,
+    E.GENDER_ID,
+    HG.GENDER_NAME,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (), 2) AS PERCENTAGE
+FROM HRIS_EMPLOYEES E
+INNER JOIN HRIS_GENDERS HG ON E.GENDER_ID = HG.GENDER_ID
+WHERE HG.STATUS = 'E' AND E.RETIRED_FLAG = 'N' AND E.RESIGNED_FLAG = 'N'  {$searchCondition['sql']} AND E.STATUS = 'E'
+--AND HE.COMPANY_ID = :V_COMPANY_ID
+GROUP BY E.GENDER_ID, HG.GENDER_NAME
+ORDER BY UPPER(HG.GENDER_NAME)";
+
+    return $this->rawQuery($sql, $boundedParameter);
+  }
+
+  public function renumerationReport($data)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+
+    $monthId = $data['month'];
+    $year = $data['year'];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $sql = "select hssed.full_name,hssd1.val as basic_salary ,hssd2.val as allowance,hssd3.val as gross_amount,hssd4.val as ssf, ROUND(hssd5.val / 12, 2) as total_renumeration  from hris_salary_sheet_emp_detail hssed
+    left join hris_employees e on (e.employee_id=hssed.employee_id)
+    left join hris_salary_sheet_detail hssd1 on (hssd1.employee_id=hssed.employee_id and hssd1.sheet_no=hssed.sheet_no and hssd1.pay_id in (select pay_id from hris_pay_setup where pay_code='BA01'))
+    left join hris_salary_sheet_detail hssd2 on (hssd2.employee_id=hssed.employee_id and hssd2.sheet_no=hssed.sheet_no and hssd2.pay_id in (select pay_id from hris_pay_setup where pay_code='R003'))
+    left join hris_salary_sheet_detail hssd3 on (hssd3.employee_id=hssed.employee_id and hssd3.sheet_no=hssed.sheet_no and hssd3.pay_id in (select pay_id from hris_pay_setup where pay_code='GA01'))
+    left join hris_salary_sheet_detail hssd4 on (hssd4.employee_id=hssed.employee_id and hssd4.sheet_no=hssed.sheet_no and hssd4.pay_id in (select pay_id from hris_pay_setup where pay_code='SSF01'))
+    left join hris_salary_sheet_detail hssd5 on (hssd5.employee_id=hssed.employee_id and hssd5.sheet_no=hssed.sheet_no and hssd5.pay_id in (select pay_id from hris_pay_setup where pay_code='RT01'))
+    where hssed.month_id=$monthId {$searchCondition['sql']} and e.status='E'";
+    return $this->rawQuery($sql, $boundedParameter);
+  }
+
+  public function turnOverReport($data)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+
+
+    $monthId = $data['month'];
+    $year = $data['year'];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $searchCondition1 = EntityHelper::getSearchConditonBoundedJGI($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $monthYrsCondition1 = "";
+    $monthYrsCondition2 = "";
+    $monthId = $data['month'];
+    $year = $data['year'];
+    if ($monthId != null) {
+      $monthYrsCondition1 = "(select from_date from hris_month_code where month_id=$monthId)";
+      $monthYrsCondition2 = "(select to_date from hris_month_code where month_id=$monthId)";
+    } else {
+      $monthYrsCondition1 = "(select start_date from hris_fiscal_years where fiscal_year_id=$year)";
+      $monthYrsCondition2 = "(select end_date from hris_fiscal_years where fiscal_year_id=$year)";
+    }
+    $sql = "select company_name,company_code, Beginning,Ending,Real_Separation,average,to_char(round((Real_Separation*100/average),2), 'FM9990.00')||'%' as employee_turnover from (select company_code,
+    company_name,(Beginning+Real_Separation) as Beginning,Ending,Real_Separation,to_char(round(((Beginning+Ending+Real_Separation)/2),2), 'FM9990.00') as average from(SELECT
+    company_code,
+    company_name,
+    SUM(CASE WHEN employee_status = 'Beginning' THEN ATTN_COUNT ELSE 0 END) AS Beginning,
+    SUM(CASE WHEN employee_status = 'Ending' THEN ATTN_COUNT ELSE 0 END) AS Ending,
+    SUM(CASE WHEN employee_status = 'Real Separation' THEN ATTN_COUNT ELSE 0 END) AS Real_Separation
+FROM(
+      select c.company_code,c.company_name ,
+        'Beginning' as employee_status ,
+        COUNT(*) ATTN_COUNT from hris_employees e,
+        hris_company c where  (e.company_id=c.company_id) 
+        --and e.status='E' and e.retired_flag='N' and e.resigned_flag='N'
+        and e.join_date < $monthYrsCondition1 {$searchCondition['sql']} and e.status='E'
+        group by c.company_code,c.company_name ,'Beginning'
+        union all
+         select c.company_code,c.company_name ,
+        'Ending' as employee_status ,
+        COUNT(*) ATTN_COUNT from hris_employees e,
+        hris_company c where  (e.company_id=c.company_id) 
+        -- and e.status='E' and e.retired_flag='N' and e.resigned_flag='N'
+        and e.join_date < $monthYrsCondition2 {$searchCondition['sql']} and e.status='E'
+        group by c.company_code,c.company_name ,'Ending'
+        union all
+         select c.company_code,c.company_name ,
+        'Real Separation' as employee_status ,
+        COUNT(*) ATTN_COUNT from hris_employees e,hris_job_history he,
+        hris_company c where  (e.company_id=c.company_id)  and (e.employee_id=he.employee_id) {$searchCondition1['sql']}
+        and he.event_date  between $monthYrsCondition1 and $monthYrsCondition2 
+        group by c.company_code,c.company_name ,'Real Separation' )
+GROUP BY
+    company_code,
+    company_name))
+ORDER BY
+    UPPER(company_name)";
+
+    return $this->rawQuery($sql, $boundedParameter);
+  }
+
+  public function ageByGenerationReport($data)
+  {
+    $age = $data['ageGeneration'];
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+    $sql = "";
+    if ($age == 0) {
+      $sql = "select * from (select 'Gen Z' as generation,'1997-2012' as born,'11-26' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1997' and trunc(sysdate) {$searchCondition['sql']}
+      union all 
+      select 'Millennials' as generation,'1981-1996' as born,'27-42' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1981' and '31-dec-1996' {$searchCondition['sql']}
+      union all
+      select 'Gen X' as generation,'1965-1980' as born,'43-58' as current_age,count(*) as total from hris_employees E where E.status='E' and   E.birth_date between '01-jan-1965' and '31-dec-1980' {$searchCondition['sql']}
+      union all 
+      select 'Boomers II (a/k/a Generation Jones)*' as generation,'1955-1964' as born,'59-68' as current_age,count(*) as total from hris_employees E where E.status='E' and   E.birth_date between '01-jan-1955' and '31-dec-1964'
+       {$searchCondition['sql']}
+      union all
+      select 'Boomers I*' as generation,'1946-1954' as born,'69-77' as current_age,count(*) as total from hris_employees E where E.status='E' and   E.birth_date between '01-jan-1946' and '31-dec-1954'  {$searchCondition['sql']})";
+    } elseif ($age == 1) {
+      $sql = "select 'Gen Z' as generation,'1997-2012' as born,'11-26' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1997' and trunc(sysdate) {$searchCondition['sql']}";
+    } elseif ($age == 2) {
+      $sql = "select 'Millennials' as generation,'1981-1996' as born,'27-42' as current_age,count(*) as total from hris_employees E where E.status='E' and   E.birth_date between '01-jan-1981' and '31-dec-1996' {$searchCondition['sql']}";
+    } elseif ($age == 3) {
+      $sql = "select 'Gen X' as generation,'1965-1980' as born,'43-58' as current_age,count(*) as total from hris_employees E where E.status='E' and   E.birth_date between '01-jan-1965' and '31-dec-1980' {$searchCondition['sql']}";
+    } elseif ($age == 4) {
+      $sql = "select 'Boomers II (a/k/a Generation Jones)*' as generation,'1955-1964' as born,'59-68' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1955' and '31-dec-1964' {$searchCondition['sql']}";
+    } else {
+      $sql = "select 'Boomers I*' as generation,'1946-1954' as born,'69-77' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1946' and '31-dec-1954' {$searchCondition['sql']} ";
+    }
+
+    return $this->rawQuery($sql, $boundedParameter);
+  }
 }

@@ -61,14 +61,14 @@
                 $('#deductionInDiv').show();
                 $deductionIn.val(advanceDetails.DEDUCTION_IN);
                 $deductionIn.prop('readonly', true);
-                if (advanceDetails.ALLOW_OVERRIDE_MONTH === 'Y' 
-                        && advanceDetails.MAX_OVERRIDE_MONTH != null 
-                        && Number(advanceDetails.MAX_OVERRIDE_MONTH) > Number(advanceDetails.DEDUCTION_IN)) {
+                if (advanceDetails.ALLOW_OVERRIDE_MONTH === 'Y'
+                    && advanceDetails.MAX_OVERRIDE_MONTH != null
+                    && Number(advanceDetails.MAX_OVERRIDE_MONTH) > Number(advanceDetails.DEDUCTION_IN)) {
                     $deductionIn.prop('readonly', false);
                     $overrideDeductionMonth.text('Max Override Payment months=' + advanceDetails.MAX_OVERRIDE_MONTH);
                     $deductionIn.attr('max', advanceDetails.MAX_OVERRIDE_MONTH);
                     $deductionIn.attr('min', advanceDetails.DEDUCTION_IN);
-//                    $deductionIn.val('');
+                    //                    $deductionIn.val('');
                 }
             }
 
@@ -79,14 +79,14 @@
                 $('#deductionRateDiv').show();
                 $deductionRate.val(advanceDetails.DEDUCTION_RATE);
                 $deductionRate.prop('readonly', true);
-                if (advanceDetails.ALLOW_OVERRIDE_RATE === 'Y' 
-                        && advanceDetails.MIN_OVERRIDE_RATE != null 
-                        && advanceDetails.MIN_OVERRIDE_RATE < advanceDetails.DEDUCTION_RATE) {
+                if (advanceDetails.ALLOW_OVERRIDE_RATE === 'Y'
+                    && advanceDetails.MIN_OVERRIDE_RATE != null
+                    && advanceDetails.MIN_OVERRIDE_RATE < advanceDetails.DEDUCTION_RATE) {
                     $deductionRate.prop('readonly', false);
                     $overrideDeductionPer.text('Min Payment Override rate=' + advanceDetails.MIN_OVERRIDE_RATE);
                     $deductionRate.attr('max', advanceDetails.DEDUCTION_RATE);
                     $deductionRate.attr('min', advanceDetails.MIN_OVERRIDE_RATE);
-//                    $deductionRate.val('');
+                    //                    $deductionRate.val('');
                 } else {
 
                 }
@@ -118,7 +118,7 @@
                 advanceDetails = selectedAdvanceValues;
                 advanceConfig();
             }
-//            defineRateOrMonth();
+            //            defineRateOrMonth();
         });
 
 
@@ -164,4 +164,3 @@
 
     });
 })(window.jQuery, window.app);
-    

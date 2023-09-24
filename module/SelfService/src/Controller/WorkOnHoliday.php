@@ -14,16 +14,21 @@ use WorkOnHoliday\Repository\WorkOnHolidayStatusRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use Application\Custom\CustomViewModel;
+use SelfService\Repository\TravelRequestRepository;
 
-class WorkOnHoliday extends HrisController {
+class WorkOnHoliday extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(WorkOnHolidayRepository::class);
         $this->initializeForm(WorkOnHolidayForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -39,7 +44,8 @@ class WorkOnHoliday extends HrisController {
         return $this->stickFlashMessagesTo([]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
 
         $model = new WorkOnHolidayModel();
@@ -64,25 +70,26 @@ class WorkOnHoliday extends HrisController {
 
         $holidays = $this->getHolidayList($this->employeeId);
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'employeeId' => $this->employeeId,
-                    'holidays' => $holidays["holidayKVList"],
-                    'holidayObjList' => $holidays["holidayList"]
+            'form' => $this->form,
+            'employeeId' => $this->employeeId,
+            'holidays' => $holidays["holidayKVList"],
+            'holidayObjList' => $holidays["holidayList"]
         ]);
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $id = (int) $this->params()->fromRoute("id", 0);
         if ($id === 0) {
             return $this->redirect()->toRoute('workOnHoliday');
         }
-        // echo '<pre>';print_r($id);die;
         $this->repository->delete($id);
         $this->flashmessenger()->addMessage("Work on Holiday Request Successfully Cancelled!!!");
         return $this->redirect()->toRoute('workOnHoliday');
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         if ($id === 0) {
             return $this->redirect()->toRoute("workOnHoliday");
@@ -99,16 +106,17 @@ class WorkOnHoliday extends HrisController {
         $this->form->bind($model);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'employeeName' => $detail['FULL_NAME'],
-                    'status' => $detail['STATUS'],
-                    'requestedDate' => $detail['REQUESTED_DATE'],
-                    'recommender' => $detail['RECOMMENDED_BY_NAME'] ? $detail['RECOMMENDED_BY_NAME'] : $detail['RECOMMENDER_NAME'],
-                    'approver' => $detail['APPROVED_BY_NAME'] ? $detail['APPROVED_BY_NAME'] : $detail['APPROVER_NAME'],
+            'form' => $this->form,
+            'employeeName' => $detail['FULL_NAME'],
+            'status' => $detail['STATUS'],
+            'requestedDate' => $detail['REQUESTED_DATE'],
+            'recommender' => $detail['RECOMMENDED_BY_NAME'] ? $detail['RECOMMENDED_BY_NAME'] : $detail['RECOMMENDER_NAME'],
+            'approver' => $detail['APPROVED_BY_NAME'] ? $detail['APPROVED_BY_NAME'] : $detail['APPROVER_NAME'],
         ]);
     }
 
-    public function getHolidayList($employeeId) {
+    public function getHolidayList($employeeId)
+    {
         $wohRepo = new WorkOnHolidayStatusRepository($this->adapter);
         $holidayResult = $wohRepo->getAttendedHolidayList($employeeId);
         $holidayList = [];
@@ -120,23 +128,27 @@ class WorkOnHoliday extends HrisController {
         return ['holidayKVList' => $holidayList, 'holidayList' => $holidayObjList];
     }
 
-
-    
-    public function validateWOHRequestAction() {
+    public function wsValidateWOHRequestAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
                 $postedData = $request->getPost();
-                // echo '<pre>';print_r($postedData);die;
-                $error = $this->repository->validateWOHRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
-                                // echo '<pre>';print_r($error);die;
-                return new JsonModel(['success' => true, 'data' => $error, 'error' => '']);
+                $travelRequestRepository = new TravelRequestRepository($this->adapter);
+                $error = $travelRequestRepository->validateTravelRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                // $travelLeaveError = $travelRequestRepository->validateTravelLeaveRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                $WODError = $travelRequestRepository->validateWODRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                $WOHError = $travelRequestRepository->validateWOHRequest(Helper::getExpressionDate($postedData['startDate'])->getExpression(), Helper::getExpressionDate($postedData['endDate'])->getExpression(), $postedData['employeeId']);
+                // echo '<pre>';print_r($error);die;
+                return new CustomViewModel([
+                    'success' => true, 'data' => $error, 'WODError' => $WODError, 'WOHError' => $WOHError
+                    // 'travelError' => $travelLeaveError
+                ]);
             } else {
                 throw new Exception("The request should be of type post");
             }
         } catch (Exception $e) {
-            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+            return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-
 }

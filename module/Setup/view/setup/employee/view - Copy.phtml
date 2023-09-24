@@ -1,0 +1,1442 @@
+<?php
+$this->headScript()->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/setup/employee/view.js'))
+        ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'));
+?>
+
+<?php
+/**
+ * Personal Information
+ */
+$companyId = $formOne->get('companyId');
+$employeeCode = $formOne->get("employeeCode");
+$firstName = $formOne->get("firstName");
+$middleName = $formOne->get("middleName");
+$lastName = $formOne->get("lastName");
+$nameNepali = $formOne->get("nameNepali");
+$birthDate = $formOne->get('birthDate');
+$genderId = $formOne->get('genderId');
+$bloodGroupId = $formOne->get('bloodGroupId');
+$religionId = $formOne->get('religionId');
+$socialActivity = $formOne->get('socialActivity');
+$telephoneNo = $formOne->get('telephoneNo');
+$mobileNo = $formOne->get('mobileNo');
+$extensionNo = $formOne->get('extensionNo');
+$emailOfficial = $formOne->get('emailOfficial');
+$emailPersonal = $formOne->get('emailPersonal');
+$socialNetwork = $formOne->get('socialNetwork');
+$countryId = $formOne->get('countryId');
+
+/**
+ * Emergency Contact Information
+ */
+$emergContactName = $formOne->get('emergContactName');
+$emergContactNo = $formOne->get('emergContactNo');
+$emergContactAddress = $formOne->get('emergContactAddress');
+$emergContactRelationship = $formOne->get('emergContactRelationship');
+
+
+/*
+ * Address Information
+ */
+$addrPermHouseNo = $formOne->get('addrPermHouseNo');
+$addrPermWardNo = $formOne->get('addrPermWardNo');
+$addrPermStreetAddress = $formOne->get('addrPermStreetAddress');
+$addrPermVdcMunicipalityId = $formOne->get('addrPermVdcMunicipalityId');
+$addrPermDistrictId = $formOne->get('addrPermDistrictId');
+$addrPermZoneId = $formOne->get('addrPermZoneId');
+$addrTempHouseNo = $formOne->get('addrTempHouseNo');
+$addrTempWardNo = $formOne->get('addrTempWardNo');
+$addrTempStreetAddress = $formOne->get('addrTempStreetAddress');
+$addrTempVdcMunicipalityId = $formOne->get('addrTempVdcMunicipalityId');
+$addrTempDistrictId = $formOne->get('addrTempDistrictId');
+$addrTempZoneId = $formOne->get('addrTempZoneId');
+$addrPermProvinceId = $formOne->get('addrPermProvinceId');
+$addrTempProvinceId = $formOne->get('addrTempProvinceId');
+
+$famFatherName = $formTwo->get('famFatherName');
+$famFatherOccupation = $formTwo->get('famFatherOccupation');
+$famMotherName = $formTwo->get('famMotherName');
+$famMotherOccupation = $formTwo->get('famMotherOccupation');
+$famGrandFatherName = $formTwo->get('famGrandFatherName');
+$famGrandMotherName = $formTwo->get('famGrandMotherName');
+$maritualStatus = $formTwo->get('maritualStatus');
+$famSpouseName = $formTwo->get('famSpouseName');
+$famSpouseOccupation = $formTwo->get('famSpouseOccupation');
+$famSpouseBirthDate = $formTwo->get('famSpouseBirthDate');
+$famSpouseWeddingAnniversary = $formTwo->get('famSpouseWeddingAnniversary');
+
+$idCardNo = $formThree->get('idCardNo');
+$idLbrf = $formThree->get('idLbrf');
+$idBarCode = $formThree->get('idBarCode');
+$idProvidentFundNo = $formThree->get('idProvidentFundNo');
+$idDrivingLicenseNo = $formThree->get('idDrivingLicenseNo');
+$idDrivingLicenseType = $formThree->get('idDrivingLicenseType');
+$idDrivingLicenseExpiry = $formThree->get('idDrivingLicenseExpiry');
+$idThumbId = $formThree->get('idThumbId');
+$idPanNo = $formThree->get('idPanNo');
+$idAccountId = $formThree->get('idAccountId');
+$idRetirementNo = $formThree->get('idRetirementNo');
+$idCitizenshipNo = $formThree->get('idCitizenshipNo');
+$idCitizenshipIssueDate = $formThree->get('idCitizenshipIssueDate');
+$idCitizenshipIssuePlace = $formThree->get('idCitizenshipIssuePlace');
+$idPassportNo = $formThree->get('idPassportNo');
+$idPassportExpiry = $formThree->get('idPassportExpiry');
+
+$joinDate = $formFour->get('joinDate');
+$contractExpiryDt = $formFour->get('contractExpiryDt');
+$salary = $formFour->get('salary');
+$salaryPf = $formFour->get('salaryPf');
+$serviceTypeId = $formFour->get('serviceTypeId');
+$positionId = $formFour->get('positionId');
+$designationId = $formFour->get('designationId');
+$departmentId = $formFour->get('departmentId');
+$branchId = $formFour->get('branchId');
+$overtimeEligibility = $formFour->get('overtimeEligible');
+$overtimeEligibilityValue = [
+        '' => ' ',
+        'Y' => 'Yes',
+        'N' => 'No'
+];
+$wohFlag = $formFour->get('wohFlag');
+$wohFlagValue = [
+        '' => ' ',
+        'L' => 'Substitute Leave',
+        'O' => 'Overtime'
+];
+$employeeType = $formFour->get('employeeType');
+$employeeTypeValue = [
+    'R' => 'Regular',
+    'C' => 'Contract'
+];
+$employeeType->setValueOptions($employeeTypeValue);
+
+
+$academicDegreeId = $formSix->get('academicDegreeId');
+$academicUniversityId = $formSix->get('academicUniversityId');
+$academicProgramId = $formSix->get('academicProgramId');
+$academicCourseId = $formSix->get('academicCourseId');
+$rankType = $formSix->get('rankType');
+$rankValue = $formSix->get('rankValue');
+$passedYr = $formSix->get('passedYr');
+
+
+$expOrgName = $formSeven->get('organizationName');
+$orgType = [
+    'Financial' => 'Financial',
+    'Non-Financial' => 'Non-Financial'
+];
+$expOrgType = $formSeven->get('organizationType');
+
+$expOrgType->setValueOptions($orgType);
+$expPosition = $formSeven->get('position');
+$expFromDate = $formSeven->get('fromDate');
+$expToDate = $formSeven->get('toDate');
+
+
+$traName = $formEight->get('trainingName');
+$traDescription = $formEight->get('description');
+$traFromDate = $formEight->get('fromDate');
+$traToDate = $formEight->get('toDate');
+
+$empId = isset($id) ? $id : -1;
+?>
+
+<?php
+if ($this->messages) {
+    print '<ul class="help-block bg-danger" style="background:#f3e250;">';
+    foreach ($this->messages as $message) {
+        print '<li>' . $message . '</li>';
+    }
+    print '</ul>';
+}
+?>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\Employee')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb'); ?>
+</div>
+<div id="quaConId">   
+    <?php if ($acl['ALLOW_UPDATE'] == 'Y'): ?>
+        <div class="row esetup" style="margin-top:10px;">
+            <div class="col-md-12" style="">
+                <a class="btn btn-success pull-right" href="<?= $this->url("employee", ["action" => "edit"]) ?>/<?php echo $id; ?>/1"> Edit
+                    <i class="fa fa-edit"></i>
+                </a>
+            </div>   
+        </div>    
+    <?php endif; ?>
+    <div id="rootwizard" class="tabbable-custom">
+        <div class="personal-info">     
+            <p><i class="fa fa-user ticon" aria-hidden="true"></i>
+                Personal Information</p>
+
+            <div class="row clearfix e-setup">
+                <div class="col-xs-12 col-sm-3 col-md-3 col-box">
+                    <div class="profile-img-box">
+                        <img alt="profile image"  class="profilepic" src="<?= $this->basePath("uploads/" . $filePath) ?>" />
+                        <span class="profilepic-label"><?php echo $employeeData['FULL_NAME']; ?> </span>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign"> 
+                                <?php print $this->formLabel($firstName) ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FIRST_NAME]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                            <?php print $this->formLabel($birthDate) ?></div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                            <div class="input-group">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::BIRTH_DATE]; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($companyId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[Setup\Model\Company::COMPANY_NAME]; ?></div>
+                            <?php print $this->formElementErrors()->render($companyId, ['class' => 'error']) ?>
+                        </div>
+                    </div>
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($telephoneNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($telephoneNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::TELEPHONE_NO]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($emailOfficial->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emailOfficial); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMAIL_OFFICIAL]; ?></div>
+                        </div>
+                    </div>  
+
+                    <!--EmployeeCode-->
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($employeeCode->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($employeeCode); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMPLOYEE_CODE]; ?></div>
+                        </div>
+                    </div>  
+
+
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($middleName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                                <?php print $this->formLabel($middleName) ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::MIDDLE_NAME]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($nameNepali->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                                <?php print $this->formLabel($nameNepali); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::NAME_NEPALI]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($countryId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($countryId); ?>
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData['COUNTRY_NAME'] ?></div>
+                            <?php print $this->formElementErrors()->render($countryId, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row bottomgap">
+                        <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                            <?php print $this->formLabel($bloodGroupId) ?></div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                            <?php print $employeeData['BLOOD_GROUP_CODE']; ?></div>
+                    </div>
+
+
+
+
+
+
+
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($socialActivity->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                                <?php print $this->formLabel($socialActivity) ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::SOCIAL_ACTIVITY]; ?></div>
+                        </div>
+                    </div>
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($emailPersonal->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emailPersonal); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMAIL_PERSONAL]; ?></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-xs-12 col-sm-3 col-md-3 col-box">
+
+                    <div class="row bottomgap">
+                        <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                            <?php print $this->formLabel($lastName) ?></div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                            <?php print $employeeData[\Setup\Model\HrEmployees::LAST_NAME]; ?>
+                        </div>
+                    </div>
+                    <div class="row bottomgap">
+                        <div class="col-xs-6 col-sm-6  col-md-6 rightalign">
+                            <?php print $this->formLabel($genderId); ?></div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                            <?php print $employeeData[\Setup\Model\Gender::GENDER_NAME]; ?></div>
+                    </div>
+                    <div class="row bottomgap">
+                        <div class="form-group ">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($religionId) ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData['RELIGION_NAME']; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row bottomgap">
+                        <div class="form-group">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($mobileNo); ?>
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::MOBILE_NO]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($extensionNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($extensionNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EXTENSION_NO]; ?></div>
+                        </div>
+                    </div>
+
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($socialNetwork->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($socialNetwork); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::SOCIAL_NETWORK]; ?></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="permanent-info">
+
+            <p> <i class="fa fa-address-book ticon" aria-hidden="true"></i>Permanent Address</p>
+
+            <div class="row clearfix e-setup">
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($addrPermHouseNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermHouseNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_PERM_HOUSE_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($addrPermWardNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermWardNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_PERM_WARD_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrPermStreetAddress->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermStreetAddress); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_PERM_STREET_ADDRESS]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrPermZoneId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermZoneId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $perZoneName; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($addrPermDistrictId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermDistrictId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $perDistrictName; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($addrPermVdcMunicipalityId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermVdcMunicipalityId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData['VDC_MUNICIPALITY_NAME']; ?></div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($addrPermProvinceId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrPermProvinceId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $perProvinceName; ?></div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="Temporary-info">
+            <p><i class="fa fa-address-card ticon" aria-hidden="true"></i>
+                Temporary Address</p>
+
+            <div class="row clearfix e-setup">
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($addrTempHouseNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempHouseNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_TEMP_HOUSE_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrTempWardNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempWardNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_TEMP_WARD_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrTempStreetAddress->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempStreetAddress); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ADDR_TEMP_STREET_ADDRESS]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($addrTempZoneId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempZoneId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $tempZoneName; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrTempDistrictId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempDistrictId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $tempDistrictName; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrTempVdcMunicipalityId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempVdcMunicipalityId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData['VDC_MUNICIPALITY_NAME_TEMP']; ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($addrTempProvinceId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($addrTempProvinceId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $tempProvinceName; ?></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="Emergency-info">
+            <p><i class="fa fa-map-marker ticon" aria-hidden="true"></i>
+                Emergency Contact Details</p>
+            <div class="row clearfix e-setup">
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+
+                        <div class="form-group  <?= empty($emergContactName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emergContactName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMRG_CONTACT_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($emergContactRelationship->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emergContactRelationship); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMERG_CONTACT_RELATIONSHIP]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($emergContactAddress->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emergContactAddress); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMERG_CONTACT_ADDRESS]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-4 col-box">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($emergContactNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
+                                <?php print $this->formLabel($emergContactNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::EMERG_CONTACT_NO]; ?></div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <div class="family-info">
+            <p><i class="fa fa-users ticon" aria-hidden="true"></i>
+                Family Information</p>
+            <div class="row clearfix e-setup">
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group <?= empty($famFatherName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famFatherName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_FATHER_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($famFatherOccupation->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famFatherOccupation); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_FATHER_OCCUPATION]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group <?= empty($famMotherName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famMotherName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_MOTHER_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($famMotherOccupation->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famMotherOccupation); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_MOTHER_OCCUPATION]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($famGrandFatherName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famGrandFatherName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_GRAND_FATHER_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group <?= empty($famGrandMotherName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famGrandMotherName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_GRAND_MOTHER_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($maritualStatus->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($maritualStatus); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php
+                                if ($employeeData[\Setup\Model\HrEmployees::MARITAL_STATUS] == "M")
+                                    echo "Married";
+                                else if ($employeeData[\Setup\Model\HrEmployees::MARITAL_STATUS] == "U")
+                                    echo "Unmarried";
+                                ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group <?= empty($famSpouseName->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famSpouseName); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_SPOUSE_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($famSpouseOccupation->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famSpouseOccupation); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_SPOUSE_OCCUPATION]; ?></div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                
+                
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group <?= empty($famSpouseBirthDate->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famSpouseBirthDate); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_SPOUSE_BIRTH_DATE]; ?>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group<?= empty($famSpouseWeddingAnniversary->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-2">
+                                <?php print $this->formLabel($famSpouseWeddingAnniversary); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-2">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::FAM_SPOUSE_WEDDING_ANNIVERSARY]; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+
+        <div class="identification-infomation">  
+            <p><i class="fa fa-user-circle ticon" aria-hidden="true"></i>
+                Identification Infomation</p>
+            <div class="row clearfix e-setup">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group <?= empty($idCardNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idCardNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_CARD_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idLbrf->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idLbrf); ?>
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_LBRF]; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($idBarCode->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idBarCode); ?>
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_BAR_CODE]; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idProvidentFundNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idProvidentFundNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_PROVIDENT_FUND_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idDrivingLicenseNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idDrivingLicenseNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_DRIVING_LICENCE_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group   <?= empty($idDrivingLicenseExpiry->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idDrivingLicenseExpiry); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">  
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_DRIVING_LICENCE_EXPIRY]; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($idDrivingLicenseType->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idDrivingLicenseType); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">  
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_DRIVING_LICENCE_TYPE]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($idPassportNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idPassportNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3"> 
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_PASSPORT_NO]; ?></div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idThumbId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idThumbId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php
+                                print $employeeData[\Setup\Model\HrEmployees::ID_THUMB_ID];
+                                ;
+                                ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idPanNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idPanNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_PAN_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idAccountId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idAccountId); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_ACCOUNT_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idRetirementNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idRetirementNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::ID_RETIREMENT_NO]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idCitizenshipNo->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idCitizenshipNo); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php
+                                print $employeeData[\Setup\Model\HrEmployees::ID_CITIZENSHIP_NO];
+                                ;
+                                ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group   <?= empty($idCitizenshipIssueDate->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idCitizenshipIssueDate); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <div class="input-group">
+                                    <?php print $employeeData[\Setup\Model\HrEmployees::ID_CITIZENSHIP_ISSUE_DATE]; ?>
+
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($idCitizenshipIssuePlace->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idCitizenshipIssuePlace); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <?php print $employeeData['CITIZENSHIP_ISSUE_PLACE']; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group   <?= empty($idPassportExpiry->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-3">
+                                <?php print $this->formLabel($idPassportExpiry); ?></div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 cgap-3">
+                                <div class="input-group">
+                                    <?php print $employeeData[\Setup\Model\HrEmployees::ID_PASSPORT_EXPIRY]; ?>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="status-info"> 
+            <p><i class="fa fa-info-circle ticon ticon"></i>Status Infomation</p>
+            <div class="row clearfix e-setup">
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($joinDate); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <div class="input-group"> 
+                                    <?php print $employeeData[\Setup\Model\HrEmployees::JOIN_DATE]; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($contractExpiryDt); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <div class="input-group"> 
+                                    <?php print $employeeData[\Setup\Model\HrEmployees::CONTRACT_EXPIRY_DATE]; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group  <?= empty($salary->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($salary); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::SALARY]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group  <?= empty($salaryPf->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($salaryPf); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[\Setup\Model\HrEmployees::SALARY_PF]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group   <?= empty($serviceTypeId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($serviceTypeId); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[Setup\Model\ServiceType::SERVICE_TYPE_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group   <?= empty($positionId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($positionId); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[Setup\Model\Position::POSITION_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+
+                        <div class="form-group   <?= empty($designationId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+
+                                <?php print $this->formLabel($designationId); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[Setup\Model\Designation::DESIGNATION_TITLE]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group   <?= empty($departmentId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($departmentId); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[\Setup\Model\Department::DEPARTMENT_NAME]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group<?= empty($branchId->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($branchId); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $employeeData[\Setup\Model\Branch::BRANCH_NAME]; ?></div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group<?= empty($employeeType->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($employeeType); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print ($employeeTypeValue[$employeeData[\Setup\Model\HrEmployees::EMPLOYEE_TYPE]]); ?></div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group<?= empty($overtimeEligibility->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($overtimeEligibility); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $overtimeEligibilityValue[$employeeData[\Setup\Model\HrEmployees::OVERTIME_ELIGIBLE]] ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-sm-4 col-md-4">
+                    <div class="row bottomgap">
+                        <div class="form-group<?= empty($wohFlag->getMessages()) ? "" : "error" ?>">
+                            <div class="col-xs-6 col-sm-6 col-md-6 rightalign-4">
+                                <?php print $this->formLabel($wohFlag); ?></div>
+                            <div class="col-xs-6 col-sm-6 cgap-4">
+                                <?php print $wohFlagValue[$employeeData[\Setup\Model\HrEmployees::WOH_FLAG]]; ?></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="status-info"> 
+            <p><i class="fa fa-info-circle ticon ticon"></i>Qualification Details</p>
+            <div class="row clearfix e-setup">
+                <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="qualificationTbl">
+                            <tr>
+                                <td><?php print $this->formLabel($academicDegreeId); ?></td>
+                                <td><?php print $this->formLabel($academicUniversityId); ?></td>
+                                <td><?php print $this->formLabel($academicProgramId); ?></td>
+                                <td><?php print $this->formLabel($academicCourseId); ?></td>
+                                <td class="rankwidth"><?php print $this->formLabel($rankType); ?></td>
+                                <td><?php print $this->formLabel($rankValue); ?></td>
+                                <td class="passedyr"><?php print $this->formLabel($passedYr); ?></td>
+                            </tr>
+                            <?php
+                            foreach ($empQualificationList as $empQualificationRow) {
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php print $empQualificationRow['ACADEMIC_DEGREE_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $empQualificationRow['ACADEMIC_UNIVERSITY_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $empQualificationRow['ACADEMIC_PROGRAM_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $empQualificationRow['ACADEMIC_COURSE_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        if ($empQualificationRow['RANK_TYPE'] == 'GPA') {
+                                            print 'GPA';
+                                        } else if ($empQualificationRow['RANK_TYPE'] == 'PER') {
+                                            print 'Percentage';
+                                        }
+                                        ?>
+                                    </td>
+
+                                    <td>
+                                        <?php print $empQualificationRow['RANK_VALUE']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $empQualificationRow['PASSED_YR']; ?>
+                                    </td>
+
+                                </tr>
+                            <?php } ?>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-info"> 
+            <p><i class="fa fa-info-circle ticon ticon"></i>Experience Details</p>
+            <div class="row clearfix e-setup">
+                <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="qualificationTbl">
+                            <tr>
+                                <td><?php print $this->formLabel($expOrgType); ?></td>
+                                <td><?php print $this->formLabel($expOrgName); ?></td>
+                                <td><?php print $this->formLabel($expPosition); ?></td>
+                                <td><?php print $this->formLabel($expFromDate); ?></td>
+                                <td><?php print $this->formLabel($expToDate); ?></td>
+                            </tr>
+                            <?php
+                            foreach ($empExperienceList as $experience) {
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php print $experience['ORGANIZATION_TYPE']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $experience['ORGANIZATION_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $experience['POSITION']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $experience['FROM_DATE']; ?>
+                                    </td>
+
+                                    <td>
+                                        <?php print $experience['TO_DATE']; ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="status-info"> 
+            <p><i class="fa fa-info-circle ticon ticon"></i>Training Details</p>
+            <div class="row clearfix e-setup">
+                <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
+                <div class="col-sm-12">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="qualificationTbl">
+                            <tr>
+                                <td><?php print $this->formLabel($traName); ?></td>
+                                <td><?php print $this->formLabel($traDescription); ?></td>
+                                <td><?php print $this->formLabel($traFromDate); ?></td>
+                                <td><?php print $this->formLabel($traToDate); ?></td>
+                            </tr>
+                            <?php
+                            foreach ($empTrainingList as $training) {
+                                ?>
+                                <tr>
+                                    <td>
+                                        <?php print $training['TRAINING_NAME']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $training['DESCRIPTION']; ?>
+                                    </td>
+                                    <td>
+                                        <?php print $training['FROM_DATE']; ?>
+                                    </td>
+
+                                    <td>
+                                        <?php print $training['TO_DATE']; ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="status-info"> 
+                    <p><i class="fa fa-info-circle ticon ticon"></i>Service Status Details</p>
+                    <div class="row clearfix e-setup">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="qualificationTbl">
+                                    <tr>
+                                        <td><label>Start Date</label></td>
+                                        <td><label>End Date</label></td>
+                                        <td><label>Service Event Type</label></td>
+                                        <td><label>Service Type </label></td>
+                                        <td><label>Branch </label></td>
+                                        <td><label>Department </label></td>
+                                        <td><label>Designation </label></td>
+                                        <td><label>Position </label></td>
+                                        <td><label>Action</label></td>
+                                    </tr>
+                                    <?php
+                                    foreach ($jobHistoryList as $jobHistory) {
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?php print $jobHistory['START_DATE_AD']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print $jobHistory['END_DATE_AD']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print ($jobHistory['SERVICE_EVENT_TYPE_NAME'] != null) ? $jobHistory['SERVICE_EVENT_TYPE_NAME'] : "-"; ?>
+                                            </td>
+
+                                            <td>
+                                                <?php
+                                                print ($jobHistory['TO_SERVICE_NAME'] == null) ? ' ' : $jobHistory['TO_SERVICE_NAME']
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                print ($jobHistory['TO_BRANCH_NAME'] == null) ? ' ' : $jobHistory['TO_BRANCH_NAME']
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                print ($jobHistory['TO_DEPARTMENT_NAME'] == null) ? ' ' : $jobHistory['TO_DEPARTMENT_NAME']
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                print ($jobHistory['TO_DESIGNATION_TITLE'] == null) ? ' ' : $jobHistory['TO_DESIGNATION_TITLE']
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                print ($jobHistory['TO_POSITION_NAME'] == null) ? ' ' : $jobHistory['TO_POSITION_NAME']
+                                                ?>
+                                            </td>
+                                            <td>
+                                                <a class="btn-edit"
+                                                   href="<?= $this->url("jobHistory", ["action" => "edit", "id" => $jobHistory['JOB_HISTORY_ID']]) ?>" style="height:27px;">
+                                                    <i class="fa fa-search-plus"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="status-info"> 
+                    <p><i class="fa fa-info-circle ticon ticon"></i>Document Details</p>
+                    <div class="row clearfix e-setup">
+                        <div class="col-sm-6">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="qualificationTbl">
+                                    <tr>
+                                        <td><label>Document Name</label></td>
+                                        <td><label>Action</label></td>
+                                    </tr>
+                                    <?php
+                                    foreach ($employeeFile as $file) {
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?php print $file['FILE_NAME']; ?>
+                                            </td>
+
+                                            <td width="10%">
+                                                <a class="btn-delete"
+                                                   href="<?= $this->basePath() . "/uploads/" . $file['FILE_PATH']; ?>" download="<?php echo $file['FILE_NAME']; ?>" style="height:27px;">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="status-info"> 
+                    <p><i class="fa fa-info-circle ticon ticon"></i>Asset Details</p>
+                    <div class="row clearfix e-setup">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="assetTbl">
+                                    <tr>
+                                        <td><label>Asset Type</label></td>
+                                        <td><label>Asset</label></td>
+                                        <td><label>Returnable</label></td>
+                                        <td><label>Return Date</label></td>
+                                        <td><label>Returned Date</label></td>
+                                    </tr>
+
+                                    <?php
+                                    foreach ($assetDetails as $asset) {
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?php print $asset['ASSET_GROUP_EDESC']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print $asset['ASSET_EDESC']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print ($asset['RETURNABLE'] == 'Y') ? 'Yes' : 'No'; ?>
+                                            </td>
+                                            <td>
+                                                <?php print $asset['RETURN_DATE']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print (empty($asset['RETURNED_DATE']) && $asset['RETURNABLE'] == 'Y') ? 'Not returned' : $asset['RETURNED_DATE']; ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="status-info"> 
+                    <p><i class="fa fa-info-circle ticon ticon"></i>Relation Details</p>
+                    <div class="row clearfix e-setup">
+                        <div class="col-sm-12">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered table-hover no-footer customtbl profile-table-header" id="assetTbl">
+                                    <tr>
+                                        <td><label>Name</label></td>
+                                        <td><label>Relation</label></td>
+                                        <td><label>DOB</label></td>
+                                        <td><label>Dependent</label></td>
+                                        <td><label>Nominee</label></td>
+                                    </tr>
+
+                                    <?php
+                                    foreach ($relationDetails as $relation) {
+                                        ?>
+                                        <tr>
+                                            <td>
+                                                <?php print $relation['PERSON_NAME']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print $relation['RELATION_NAME']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print $relation['DOB']; ?>
+                                            </td>
+                                            <td>
+                                                <?php print ($relation['IS_DEPENDENT'] == 'Y') ? 'Yes' : 'No';  ?>
+                                            </td>
+                                            <td>
+                                                <?php print ($relation['IS_NOMINEE'] == 'Y') ? 'Yes' : 'No';  ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+    
+    <div class="row">
+        <div class="cols-sm-4 col-sm-offset-4">
+            <button id="exportPdf" class="btn btn-success">Print</button>
+        </div>
+    </div>
+     
+</div>
+
+
+
+
+

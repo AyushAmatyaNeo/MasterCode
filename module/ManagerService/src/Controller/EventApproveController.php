@@ -16,15 +16,18 @@ use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class EventApproveController extends HrisController {
+class EventApproveController extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(EventApproveRepository::class);
         $this->initializeForm(EventRequestForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -39,7 +42,8 @@ class EventApproveController extends HrisController {
         return $this->stickFlashMessagesTo([]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         $role = $this->params()->fromRoute('role');
 
@@ -59,15 +63,16 @@ class EventApproveController extends HrisController {
         $eventRequestModel->exchangeArrayFromDB($detail);
         $this->form->bind($eventRequestModel);
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'role' => $role,
-                    'detail' => $detail,
-                    'customRenderer' => Helper::renderCustomView()
+            'form' => $this->form,
+            'id' => $id,
+            'role' => $role,
+            'detail' => $detail,
+            'customRenderer' => Helper::renderCustomView()
         ]);
     }
 
-    public function statusAction() {
+    public function statusAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -81,13 +86,14 @@ class EventApproveController extends HrisController {
         }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'status', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                    'status' => $statusSE,
-                    'recomApproveId' => $this->employeeId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'status' => $statusSE,
+            'recomApproveId' => $this->employeeId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }
 
-    public function batchApproveRejectAction() {
+    public function batchApproveRejectAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
@@ -98,7 +104,8 @@ class EventApproveController extends HrisController {
         }
     }
 
-    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false)
+    {
         $notificationEvent = null;
         $message = null;
         $model = new EventRequest();
@@ -141,7 +148,8 @@ class EventApproveController extends HrisController {
         'CC' => 'Company Contribution'
     );
 
-    private function getTrainingList($employeeId) {
+    private function getTrainingList($employeeId)
+    {
         if ($this->trainingList === null) {
             $trainingRepo = new EventsRepository($this->adapter);
             $trainingResult = $trainingRepo->selectAll($employeeId);
@@ -156,5 +164,4 @@ class EventApproveController extends HrisController {
         }
         return $this->trainingList;
     }
-
 }

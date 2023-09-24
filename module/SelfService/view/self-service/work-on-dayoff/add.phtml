@@ -1,12 +1,12 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
-$this->headScript()->appendFile($this->basePath('js/SelfService/work-on-dayoff/add.js?1'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/work-on-dayoff/add.js'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'workOnDayoff-form');
@@ -27,7 +27,7 @@ $form->prepare();
 ?>
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
-    document.wsValidateWODRequest = '<?= $this->url("workOnDayoff", ["action" => "validateWODRequest"]) ?>';
+    document.wsValidateWODRequest = '<?= $this->url("workOnHoliday", ["action" => "wsValidateWOHRequest"]) ?>';
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\workOnDayoff')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -43,7 +43,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div class="row margin-top-20">
@@ -59,8 +59,8 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="portlet-body">
                 <div class="form-group">
-                        <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>"/>
-                    </div>
+                    <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
+                </div>
                 <?php
                 print $this->form()->openTag($form);
                 ?>
@@ -76,17 +76,16 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                                     <?php print $this->formElement($fromDate) ?>
                                 </div>
                                 <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block error']) ?>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliStartDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
-                                               class="form-control" value="">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>        
+                            </div>
+                        </div>
 
                     </div>
 
@@ -100,25 +99,23 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                                     <span id="errorMsgDate" style="font-size:11px; color:red;"></span>
                                 </div>
                                 <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block error']) ?>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliEndDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
-                                               class="form-control" value="">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>        
+                            </div>
+                        </div>
 
                     </div>
 
                     <div class="col-sm-4">
-                        <div
-                            class="form-group required <?= empty($duration->getMessages()) ? "" : "error" ?>">
-                                <?php print $this->formLabel($duration); ?>
-                                <?php print $this->formElement($duration); ?>
+                        <div class="form-group required <?= empty($duration->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($duration); ?>
+                            <?php print $this->formElement($duration); ?>
                             <span id="errorMsg" style="font-size:11px; color:red;"></span>
                         </div>
                         <?php print $this->formElementErrors()->render($duration, ['class' => 'help-block error']); ?>

@@ -8,8 +8,9 @@ use Zend\Form\Annotation;
  * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("LeaveMaster")
  */
-class LeaveMasterForm {
-    
+class LeaveMasterForm
+{
+
     /**
      * @Annotation\Type("Zend\Form\Element\Text")
      * @Annotation\Required(false)
@@ -169,8 +170,8 @@ class LeaveMasterForm {
      * @Annotation\Attributes({"value":"Submit","class":"btn btn-success"})
      */
     public $submit;
-    
-    
+
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
@@ -179,8 +180,8 @@ class LeaveMasterForm {
      * @Annotation\Attributes({ "id":"dayOffAsLeave","value":"Y"})
      */
     public $dayOffAsLeave;
-    
-    
+
+
     /**
      * @Annotation\Type("Zend\Form\Element\Radio")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
@@ -216,7 +217,7 @@ class LeaveMasterForm {
      * @Annotation\Attributes({ "id":"enableOverride","value":"N"})
      */
     public $enableOverride;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Number")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
@@ -225,4 +226,20 @@ class LeaveMasterForm {
      * @Annotation\Attributes({ "id":"viewOrder", "class":"form-control"})
      */
     public $viewOrder;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"Substitute Leave"})
+     * @Annotation\Attributes({ "id":"isSubstitute","value":"N"})
+     */
+    public $isSubstitute;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Radio")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"value_options":{"Y":"Yes","N":"No"},"label":"In Sub Leave"})
+     * @Annotation\Attributes({ "id":"inSubLeave","value":"N"})
+     */
+    public $inSubLeave;
 }

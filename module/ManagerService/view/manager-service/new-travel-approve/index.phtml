@@ -5,11 +5,11 @@ $this->headLink()
 $this->headScript()
     ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
     ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-    ->appendFile($this->basePath('js/manager-service/travel-approve/itr-to-approve.js'));
+    ->appendFile($this->basePath('js/manager-service/new-travel-approve/index.js'));
 
 ?>
 <div class="page-bar">
-<?= $this->navigation('Zend\Navigation\travelApprove')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+    <?= $this->navigation('Zend\Navigation\newtravelApprove')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
 </div>
 <?php
 if ($this->messages && (sizeof($this->messages) > 1)) {
@@ -23,21 +23,21 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
 
 <script>
-    document.viewLink = '<?= $this->url("travelApprove", ["action" => "view"]) ?>';
-    document.expenseDetailLink = '<?= $this->url("travelApprove", ["action" => "expenseDetail"]) ?>';
-    document.approveRejectUrl = '<?php echo $this->url('travelApprove', ['action' => 'batchApproveReject']); ?>';
+    document.viewLink = '<?= $this->url("newtravelApprove", ["action" => "view"]) ?>';
+    document.expenseDetailLink = '<?= $this->url("newtravelApprove", ["action" => "expenseDetail"]) ?>';
+    document.approveRejectUrl = '<?php echo $this->url('newtravelApprove', ['action' => 'batchApproveReject']); ?>';
 </script>
 
 <div class="margin-top-20">
     <div class="portlet light bg-inverse">
         <div class="portlet-title">
-        <i class="icon-paper-plane font-green-haze"></i>
+            <i class="icon-paper-plane font-green-haze"></i>
             <span class="caption-subject bold font-green-haze uppercase"> Travel To Approve</span>
 
             <div class="tools">
@@ -45,33 +45,37 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <a href="" class="fullscreen" data-original-title="" title=""> </a>
             </div>
             <div class="actions">
-               <?php if($designation == "34"){?>
-                <a href="<?= $this->url('travelApprove', ['action' => 'travelExpenseToApprove']) ?>" class="btn btn-sm blue-soft">
+                <?php /* if($designation == "34"){?>
+                <a href="<?= $this->url('newtravelApprove', ['action' => 'travelExpenseToApprove']) ?>" class="btn btn-sm  btn-success">
                         Travel Expense To Approve
                     </a>
-              <?php }else{ ?>
-                   <a href="<?= $this->url('travelApprove', ['action' => 'index']) ?>" class="btn btn-sm blue-soft">
-                 Domestic  Travel To Approve
-               </a>
-             <?php  }
-                    
-               ?>
+                    <a href="<?= $this->url('newtravelApprove', ['action' => 'travelExpenseApproved']) ?>" class="btn btn-sm  btn-success">
+                      Approved Travel Expense
+                    </a>
+              <?php } */
+
+                ?>
+                <a href="<?= $this->url('newtravelApprove', ['action' => 'add']) ?>" class="btn default btn-sm">
+                    <i class="fa fa-plus-square icon-black"></i> New </a>
+                <a href="<?= $this->url('newtravelApprove', ['action' => 'itrToApprove']) ?>" class="btn btn-sm  btn-success">
+                    International Travel To Approve
+                </a>
                 <div class="btn-group">
-                    <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <a class="btn btn-sm  btn-success" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-copy"></i> Tools
                         <i class="fa fa-angle-down "></i>
                     </a>
-                    <ul class="dropdown-menu pull-right">
+                    <ul class="dropdown-menu pull-right">9
                         <li>
                             <a href="javascript:;" id="excelExport">
-                                <i class="fa fa-file-excel-o" ></i> 
-                                Export to Excel 
+                                <i class="fa fa-file-excel-o"></i>
+                                Export to Excel
                             </a>
                         </li>
                         <li>
                             <a href="javascript:;" id="pdfExport">
-                                <i class="fa fa-file-excel-o" ></i> 
-                                Export to PDF 
+                                <i class="fa fa-file-excel-o"></i>
+                                Export to PDF
                             </a>
                         </li>
                     </ul>
@@ -81,7 +85,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 
         <div id="table">
         </div>
-        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv" >
+        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv">
             <div class="col-sm-2 ">
                 <button id="btnReject" class="btn btn-danger btnApproveReject">Reject</button>
             </div>

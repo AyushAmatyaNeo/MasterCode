@@ -5,91 +5,91 @@
 
         // $("#domesticConfigTable").hide();
 
-        $("#addDomesticBtn").on('click', function (){
+        $("#addDomesticBtn").on('click', function () {
             $("#domesticConfigTable").show();
             $(".arrDate:first").attr("required", "required");
             $(".depDate:first").attr("required", "required");
             $(".locFrom:first").attr("required", "required");
             $(".locto:first").attr("required", "required");
         });
-        $("#deleteDomesticBtn").on('click', function (){
+        $("#deleteDomesticBtn").on('click', function () {
             $("#domesticConfigTable").hide();
-            $(".arrDate:first").prop('required',false);
-            $(".depDate:first").prop('required',false);
-            $(".locFrom:first").prop('required',false);
-            $(".locto:first").prop('required',false);
+            $(".arrDate:first").prop('required', false);
+            $(".depDate:first").prop('required', false);
+            $(".locFrom:first").prop('required', false);
+            $(".locto:first").prop('required', false);
         });
-          
-        $(document).on('change', '.tableForAll .amountExpL', function(e) {
+
+        $(document).on('change', '.tableForAll .amountExpL', function (e) {
             var test = 0;
             var conversion = 1;
             var mul = 1;
-            $(".amountExpL").each(function(){
+            $(".amountExpL").each(function () {
                 var t2 = $(this).val();
-                conversion =  $(this).closest("tr").find("td:eq(6) input[type='number']").val();
+                conversion = $(this).closest("tr").find("td:eq(6) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
+            });
 
-           $('#totalAmountExp').val(test);
+            $('#totalAmountExp').val(test);
         });
-        $(document).on('change', '.tableForAll .conversionRateL1', function(e) {
+        $(document).on('change', '.tableForAll .conversionRateL1', function (e) {
             console.log('here');
             var test = 0;
             var conversion = 1;
             var mul = 1;
-            $(".conversionRateL1").each(function(){
+            $(".conversionRateL1").each(function () {
                 var conversion = $(this).val();
-                t2 =  $(this).closest("tr").find("td:eq(8) input[type='number']").val();
+                t2 = $(this).closest("tr").find("td:eq(8) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
+            });
 
-           $('#totalAmountExp').val(test);
+            $('#totalAmountExp').val(test);
         });
 
 
 
-        $(document).on('change', '.tableForAll .amountExpI', function(e) {
+        $(document).on('change', '.tableForAll .amountExpI', function (e) {
             var test = 0;
             var conversion = 1;
             var mul = 1;
-            $(".amountExpI").each(function(){
+            $(".amountExpI").each(function () {
                 var t2 = $(this).val();
-                conversion =  $(this).closest("tr").find("td:eq(7) input[type='number']").val();
+                conversion = $(this).closest("tr").find("td:eq(7) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
-           $('#totalAmountExpI').val(test);
+            });
+            $('#totalAmountExpI').val(test);
         });
 
-        $(document).on('change', '.tableForAll .exchangeRateInternational', function(e) {
+        $(document).on('change', '.tableForAll .exchangeRateInternational', function (e) {
             console.log('here');
             var test = 0;
             var conversion = 1;
             var mul = 1;
-            $(".exchangeRateInternational").each(function(){
+            $(".exchangeRateInternational").each(function () {
                 var conversion = $(this).val();
-                t2 =  $(this).closest("tr").find("td:eq(8) input[type='number']").val();
+                t2 = $(this).closest("tr").find("td:eq(8) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
+            });
 
-           $('#totalAmountExp').val(test);
+            $('#totalAmountExp').val(test);
         });
-        $("#addInternationalBtn").on('click', function (){
+        $("#addInternationalBtn").on('click', function () {
             $("#internationalConfigTable").show();
             $(".arrDateInternational:first").attr("required", "required");
             $(".depDateInternational:first").attr("required", "required");
             $(".locFromInternational:first").attr("required", "required");
             $(".loctoInternational:first").attr("required", "required")
         });
-        $("#deleteInternationalBtn").on('click', function (){
+        $("#deleteInternationalBtn").on('click', function () {
             $("#internationalConfigTable").hide();
-            $(".arrDateInternational:first").prop('required',false);
-            $(".depDateInternational:first").prop('required',false);
-            $(".locFromInternational:first").prop('required',false);
-            $(".loctoInternational:first").prop('required',false);
+            $(".arrDateInternational:first").prop('required', false);
+            $(".depDateInternational:first").prop('required', false);
+            $(".locFromInternational:first").prop('required', false);
+            $(".loctoInternational:first").prop('required', false);
         });
 
         internationalPlaces = [
@@ -115,10 +115,10 @@
                 "CODE": "TRAVEL",
                 "NAME": "Travel"
             }
-            
+
         ];
-        
-        all_data=document.currencyList;
+
+        all_data = document.currencyList;
 
 
         // all_data_json = JSON.parse(all_data);
@@ -126,15 +126,15 @@
 
         app.startEndDatePickerWithNepali('', 'departureDate', '', 'returnedDate');
         // app.addComboTimePicker($('.depTime'), $('.arrTime'));
-        app.populateSelect($('.mot'), transportTypes, 'CODE', 'NAME', '-select-',null, 1, true);
+        app.populateSelect($('.mot'), transportTypes, 'CODE', 'NAME', '-select-', null, 1, true);
         app.addDatePicker($('.depDate:last'), $('.arrDate:last'));
         // app.addDatePicker($('#fromDate'));
         // app.addComboTimePicker($('.depTimeInternational'), $('.arrTimeInternational'));
-        app.populateSelect($('.motInternational'), internationalPlaces, 'CODE', 'NAME', '-select-',null, 1, true);
-        app.populateSelect($('.currency'), all_data, 'code', 'code', '-select-',null, 1, true);
+        app.populateSelect($('.motInternational'), internationalPlaces, 'CODE', 'NAME', '-select-', null, 1, true);
+        app.populateSelect($('.currency'), all_data, 'code', 'code', '-select-', null, 1, true);
         app.addDatePicker($('.depDateInternational:last'), $('.arrDateInternational:last'));
-       
-      
+
+
         // $(".depDate:first").on('change', function () {
         //     var diff =  Math.floor(( Date.parse($(".arrDate:first").val()) - Date.parse($(".depDate:first").val()) ) / 86400000);
         //     $(".noOfDays:first").val(diff + 1);
@@ -143,13 +143,13 @@
         //     $(this).closest("tr").find("td div input.total").val($(this).closest("tr").find("td div input.otherExpenses").val());
         // });
         $(document).on('change', '.depDateInternational, .arrDateInternational', function () {
-            var diff = Math.floor(( Date.parse($(this).closest("tr").find("td div input.arrDateInternational").val()) - Date.parse($(this).closest("tr").find("td div input.depDateInternational").val()) ) / 86400000);
+            var diff = Math.floor((Date.parse($(this).closest("tr").find("td div input.arrDateInternational").val()) - Date.parse($(this).closest("tr").find("td div input.depDateInternational").val())) / 86400000);
             console.log(diff);
             $(this).closest("tr").find("td div input.noOfDaysInternational").val(diff + 1);
         });
 
         $(document).on('change', ".depDate, .arrDate", function () {
-            var diff = Math.floor(( Date.parse($(this).closest("tr").find("td div input.arrDate").val()) - Date.parse($(this).closest("tr").find("td div input.depDate").val()) ) / 86400000);
+            var diff = Math.floor((Date.parse($(this).closest("tr").find("td div input.arrDate").val()) - Date.parse($(this).closest("tr").find("td div input.depDate").val())) / 86400000);
             $(this).closest("tr").find("td div input.noOfDays").val(diff + 1);
         });
 
@@ -163,26 +163,26 @@
             <tr>
                 <td><input class="dtlDelBtn btn btn-danger" type="button" value="Del -" style="padding:3px;"></td>
                 <td>
-                                                <select name="erTypeL[]"  class="erTypeL form-control" data-id="`+index+`" id="ertyprL_`+index+`" style="width:13rem ;">
+                                                <select name="erTypeL[]"  class="erTypeL form-control" data-id="`+ index + `" id="ertyprL_` + index + `" style="width:13rem ;">
                                                     <option value="">Select ER Type</option>
                                                     <option value="EP">Employeee Paid</option>
                                                     <option value="EP">Company Paid</option>
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="text" name="locFromL[]" data-id="`+index+`" id="locFromL_`+index+`"   class="locFrom form-control" style="width:10rem ;"> 
+                                                <input type="text" name="locFromL[]" data-id="`+ index + `" id="locFromL_` + index + `"   class="locFrom form-control" style="width:10rem ;"> 
                                             </td>
                                            
                                             <td>
-                                                <input type="text" name="arrDateL[]"  data-id="`+index+`" id="arrDateL_`+index+`" class="arrDate form-control" style="width:12rem ;"> 
+                                                <input type="text" name="arrDateL[]"  data-id="`+ index + `" id="arrDateL_` + index + `" class="arrDate form-control" style="width:12rem ;"> 
                                             </td>
                                             
                                             <td>
-                                                <input type="text" name="ticketNoL[]" data-id="`+index+`" id="ticketNoL_`+index+`" class="ticketNo form-control" style="width:12rem ;"> 
+                                                <input type="text" name="ticketNoL[]" data-id="`+ index + `" id="ticketNoL_` + index + `" class="ticketNo form-control" style="width:12rem ;"> 
                                             </td> 
                                            
                                             <td>
-                                                <select name="expenseHeadL[]" data-id="`+index+`" id="expenseHead_`+index+`" class="form-control" >
+                                                <select name="expenseHeadL[]" data-id="`+ index + `" id="expenseHead_` + index + `" class="form-control" >
                                                 <option value="-1">---select expense head---</option>
                                                 <option value="Accommodation">Accommodation</option>
                                                 <option value ="Airfare">Airfare</option>
@@ -228,31 +228,31 @@
                                                 </select> 
                                             </td>
                                             <td>
-                                                <input type="number" name="conversionRateL[]" data-id="`+index+`" id="conversionRateL_`+index+`" value="1" step="any"  style="width:10rem ;" disabled>
+                                                <input type="number" name="conversionRateL[]" data-id="`+ index + `" id="conversionRateL_` + index + `" value="1" step="any"  style="width:10rem ;" disabled>
                                             </td>
                                             <td>
-                                                <input type="text" name="currencyL[]" data-id="`+index+`" id="currencyL_`+index+`" value="NPR" style="width:10rem ;" disabled >
+                                                <input type="text" name="currencyL[]" data-id="`+ index + `" id="currencyL_` + index + `" value="NPR" style="width:10rem ;" disabled >
                                             </td>
                             
                                             <td>
-                                                <input type="number" name="amountExpL[]" data-id="`+index+`" id="amountExpL_`+index+`" class="amountExpL" step="any">
+                                                <input type="number" name="amountExpL[]" data-id="`+ index + `" id="amountExpL_` + index + `" class="amountExpL" step="any">
                                             </td>
                                             <td>
                                                 <div style="width:150px">
-                                                    <textarea name="detRemarksL[]" data-id="`+index+`" id="detRemarksL_`+index+`" class="detRemarks" ></textarea>
+                                                    <textarea name="detRemarksL[]" data-id="`+ index + `" id="detRemarksL_` + index + `" class="detRemarks" ></textarea>
                                                 </div>
                                             </td>
             </tr>
             `;
-            var exhLtr = document.expenseItrHeads;
+            // var exhLtr = document.expenseItrHeads;
             $('#domesticConfigTable tbody').append(appendData);
-            all_data=document.currencyList;
-            app.populateSelect($('#currencyL_'+index), all_data, 'code', 'code', '-select-',null, 1, true);
-            $('#ertyprL_'+index).prop('required',true);
-            $('#locFromL_'+index).prop('required',true);
-            $('#arrDateL_'+index).prop('required',true);
-            $('#expenseHead_'+index).prop('required',true);
-            $('#amountExpL_'+index).prop('required',true);
+            all_data = document.currencyList;
+            app.populateSelect($('#currencyL_' + index), all_data, 'code', 'code', '-select-', null, 1, true);
+            $('#ertyprL_' + index).prop('required', true);
+            $('#locFromL_' + index).prop('required', true);
+            $('#arrDateL_' + index).prop('required', true);
+            $('#expenseHead_' + index).prop('required', true);
+            $('#amountExpL_' + index).prop('required', true);
             index += 1;
             // console.log(exhLtr);
             // app.populateSelect($('#domesticConfigTable tbody').find('.expenseheadLtr'),exhLtr, 'gl', 'name', '-select-',null, 1, true);
@@ -260,24 +260,24 @@
             //         $('#domesticConfigTable tbody').find('.depTime:last'),
             //         $('#domesticConfigTable tbody').find('.arrTime:last')
             //         );
-            
+
             app.addDatePicker(
-                    $('#domesticConfigTable tbody').find('.depDate:last'),
-                    $('#domesticConfigTable tbody').find('.arrDate:last')
-                    );
-             
-            app.populateSelect($('#domesticConfigTable tbody').find('.mot:last'),transportTypes, 'CODE', 'NAME', '-select-',null, 1, true);
+                $('#domesticConfigTable tbody').find('.depDate:last'),
+                $('#domesticConfigTable tbody').find('.arrDate:last')
+            );
+
+            app.populateSelect($('#domesticConfigTable tbody').find('.mot:last'), transportTypes, 'CODE', 'NAME', '-select-', null, 1, true);
 
             // $('#domesticConfigTable tbody').find(".depDate:last").on('change', function () {
             //     var diff =  Math.floor(( Date.parse($('#domesticConfigTable tbody').find(".arrDate:last").val()) - Date.parse($('#domesticConfigTable tbody').find(".depDate:last").val()) ) / 86400000);
             //     $('#domesticConfigTable tbody').find(".noOfDays:last").val(diff + 1);
             // });
-    
+
             // $('#domesticConfigTable tbody').find(".arrDate:last").on('change', function () {
             //     var diff =  Math.floor(( Date.parse($('#domesticConfigTable tbody').find(".arrDate:last").val()) - Date.parse($('#domesticConfigTable tbody').find(".depDate:last").val()) ) / 86400000);
             //     $('#domesticConfigTable tbody').find(".noOfDays:last").val(diff + 1);
             // });
-            
+
         });
 
         $('.deatilAddBtnInternational').on('click', function () {
@@ -285,7 +285,7 @@
             <tr>
                 <td><input class="dtlDelBtnInternational btn btn-danger" type="button" value="Del -" style="padding:3px;"></td>
                 <td>
-                                                <select name="erTypeI[]"  data-id="` + index +`" id="erTypeI_` + index +`" class="erTypeL form-control" style="width:13rem">
+                                                <select name="erTypeI[]"  data-id="` + index + `" id="erTypeI_` + index + `" class="erTypeL form-control" style="width:13rem">
                                                     <option value="-1">Select ER Type</option>
                                                     <option value="EP">Employeee Paid</option>
                                                     <option value="CP">Company Paid</option>
@@ -293,16 +293,16 @@
                                             </td>
                                             
                                             <td>
-                                                <input type="text" name="locFrom[]"  data-id="` +index +`" id="locFrom_`+index+`"  class="locFrom form-control" style="width:10rem"> 
+                                                <input type="text" name="locFrom[]"  data-id="` + index + `" id="locFrom_` + index + `"  class="locFrom form-control" style="width:10rem"> 
                                             </td>
                                             <td>
-                                                <input type="text" name="arrDate[]"  data-id="`+index+`" id="arrDate_`+index+`" class="arrDate form-control" style="width:10rem"> 
+                                                <input type="text" name="arrDate[]"  data-id="`+ index + `" id="arrDate_` + index + `" class="arrDate form-control" style="width:10rem"> 
                                             </td>
                                             <td>
-                                                <input type="text" name="ticketNo[]" data-id="`+index+`" id="ticketNo_`+index+`" class="ticketNo form-control"> 
+                                                <input type="text" name="ticketNo[]" data-id="`+ index + `" id="ticketNo_` + index + `" class="ticketNo form-control"> 
                                             </td>   
                                             <td>
-                                                    <select name="expenseHead[]" data-id="`+index+`" id="expensehead_`+index+`" class="form-control">
+                                                    <select name="expenseHead[]" data-id="`+ index + `" id="expensehead_` + index + `" class="form-control">
                                                         <option value="-1">---select expense head---</option>
                                                         <option value="Accommodation">Accommodation</option>
                                                         <option value ="Airfare">Airfare</option>
@@ -348,67 +348,67 @@
                                             </select> 
                                             </td>
                                             <td>
-                                                    <select class='currency form-control' name='currency[]' data-id="`+index+`" id="currency_`+index+`" >
+                                                    <select class='currency form-control' name='currency[]' data-id="`+ index + `" id="currency_` + index + `" >
                                                     </select>
                                             </td>   
                                             <td>
-                                                <input type="number" name="exchangeRateInternational[]" data-id="`+index+`" id="exchangeInt_`+index+`"  class="exchangeRateInternational" step="any">       
+                                                <input type="number" name="exchangeRateInternational[]" data-id="`+ index + `" id="exchangeInt_` + index + `"  class="exchangeRateInternational" step="any">       
                                             </td>
                                            
                                             <td>
-                                                <input type="number" name="amountExp[]" step="any" data-id="`+index+`" id="amountExp_`+index+`" class="amountExpI">
+                                                <input type="number" name="amountExp[]" step="any" data-id="`+ index + `" id="amountExp_` + index + `" class="amountExpI">
                                             </td>
                                             <td>
-                                                <textarea name="detRemarks[]" data-id="`+index+`" id="detRemarks_`+index+`"  class="detRemarks form-control" style="width:15rem ;padding:2rem"></textarea>
+                                                <textarea name="detRemarks[]" data-id="`+ index + `" id="detRemarks_` + index + `"  class="detRemarks form-control" style="width:15rem ;padding:2rem"></textarea>
                                             </td>
 
             </tr>
             `;
             $('#internationalConfigTable tbody').append(appendData);
-            all_data=document.currencyList;
-            app.populateSelect($('#currency_'+index), all_data, 'code', 'code', '-select-',null, 1, true);
-            $('#erTypeI_'+index).prop('required',true);
-            $('#locFrom_'+index).prop('required',true);
-            $('#arrDate_'+index).prop('required',true);
-            $('#expensehead_'+index).prop('required',true);
-            $('#amountExp_'+index).prop('required',true);       
-              index += 1;          
+            all_data = document.currencyList;
+            app.populateSelect($('#currency_' + index), all_data, 'code', 'code', '-select-', null, 1, true);
+            $('#erTypeI_' + index).prop('required', true);
+            $('#locFrom_' + index).prop('required', true);
+            $('#arrDate_' + index).prop('required', true);
+            $('#expensehead_' + index).prop('required', true);
+            $('#amountExp_' + index).prop('required', true);
+            index += 1;
             // app.addComboTimePicker(
             //         $('#internationalConfigTable tbody').find('.depTimeInternational:last'),
             //         $('#internationalConfigTable tbody').find('.arrTimeInternational:last')
             //         );
-            
+
             app.addDatePicker(
-                    $('#internationalConfigTable tbody').find('.depDateInternational:last'),
-                    $('#internationalConfigTable tbody').find('.arrDate:last')
-                    );
-             
-            app.populateSelect($('#internationalConfigTable tbody').find('.motInternational:last'), internationalPlaces, 'CODE', 'NAME', '-select-',null, 1, true);
+                $('#internationalConfigTable tbody').find('.depDateInternational:last'),
+                $('#internationalConfigTable tbody').find('.arrDate:last')
+            );
+
+            app.populateSelect($('#internationalConfigTable tbody').find('.motInternational:last'), internationalPlaces, 'CODE', 'NAME', '-select-', null, 1, true);
             // app.populateSelect($('#internationalConfigTable tbody').find('.currency'), all_data, 'code', 'code', '-select-',null, 1, true);
-            
+
             // $('#internationalConfigTable tbody').find(".depDateInternational:last").on('change', function () {
             //     var diff =  Math.floor(( Date.parse($('#internationalConfigTable tbody').find(".arrDateInternational:last").val()) - Date.parse($('#internationalConfigTable tbody').find(".depDateInternational:last").val()) ) / 86400000);
             //     $('#internationalConfigTable tbody').find(".noOfDaysInternational:last").val(diff + 1);
             // });
-    
+
             // $('#internationalConfigTable tbody').find(".arrDateInternational:last").on('change', function () {
             //     var diff =  Math.floor(( Date.parse($('#internationalConfigTable tbody').find(".arrDateInternational:last").val()) - Date.parse($('#internationalConfigTable tbody').find(".depDateInternational:last").val()) ) / 86400000);
             //     $('#internationalConfigTable tbody').find(".noOfDaysInternational:last").val(diff + 1);
             // });
-            
+
         });
 
         $('#domesticConfigTable').on('click', '.dtlDelBtn', function () {
             var selectedtr = $(this).parent().parent();
             selectedtr.remove();
             var test = 0;
-            $(".amountExpL").each(function(){
+            $(".amountExpL").each(function () {
                 var t2 = $(this).val();
-                conversion =  $(this).closest("tr").find("td:eq(6) input[type='number']").val();
+                conversion = $(this).closest("tr").find("td:eq(6) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
-           $('#totalAmountExp').val(test);
+            });
+            $('#totalAmountExp').val(test);
         });
 
         $('#internationalConfigTable').on('click', '.dtlDelBtnInternational', function () {
@@ -416,14 +416,14 @@
             selectedtr.remove();
             var test = 0;
             var conversion = 1;
-             var mul = 1;
-            $(".amountExpI").each(function(){
+            var mul = 1;
+            $(".amountExpI").each(function () {
                 var t2 = $(this).val();
-                conversion =  $(this).closest("tr").find("td:eq(7) input[type='number']").val();
+                conversion = $(this).closest("tr").find("td:eq(7) input[type='number']").val();
                 mul = eval(t2) * eval(conversion);
                 test = eval(test + mul)
-               });
-           $('#totalAmountExpI').val(test);
+            });
+            $('#totalAmountExpI').val(test);
         });
 
         // $('#addDocument').on('click', function () {
@@ -447,7 +447,7 @@
 
         // var myDropzone;
         // Dropzone.autoDiscover = false;
-        
+
         // myDropzone = new Dropzone("div#dropZoneContainer", {
         //     url: document.uploadUrl,
         //     autoProcessQueue: false,
@@ -493,7 +493,7 @@
         // });
     });
     app.addDatePicker($('.arrDate'));
-    $('#expenseTypeTravel').change(function() {
+    $('#expenseTypeTravel').change(function () {
         $('#travelIdsforall').empty();
         $('#addtraveldetails').empty();
         var exp = $(this).val();
@@ -535,7 +535,7 @@
             app.addDatePicker($('#toDate'));
 
 
-            app.populateSelect(travelIdToInsert,document.destinationsI,'TRAVEL_ID','DESTINATION', 'Select Travel Destination','');
+            app.populateSelect(travelIdToInsert, document.destinationsI, 'TRAVEL_ID', 'DESTINATION', 'Select Travel Destination', '');
 
             // $('#travelIdsforall').change('#expenseTypeTravel',function() {
             //     var val = $('#travelIdToInsert').val();
@@ -550,34 +550,34 @@
             //                 $('#addtraveldetails').empty();
             //                 $('#addtraveldetails').append(`
             //                     <div class="col-md-4" id="fromDate">
-                                    
+
             //                                     <label for="employeeCode">From Date:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.FROM_DATE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">To Date:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.TO_DATE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Departure:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.DEPARTURE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Destination:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.DESTINATION+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Requested Amount:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.REQUESTED_AMOUNT+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                 `);
             //             } else {
@@ -590,21 +590,21 @@
             // });
             // adding exepndse table
             $('#domesticConfigTable').hide();
-            $('#ertyprL1').prop('required',false);
-            $('#locFromL1').prop('required',false);
-            $('#arrDateL1').prop('required',false);
-            $('#expenseHeadL1').prop('required',false);
-            $('#amountExpL1').prop('required',false);
-            $('#expensehead_0').prop('required',true);
-            $('#arrDate_0').prop('required',true);
-            $('#locFrom_0').prop('required',true);
-            $('#erTypeI_0').prop('required',true);
-            $('#amountExp_0').prop('required',true);
+            $('#ertyprL1').prop('required', false);
+            $('#locFromL1').prop('required', false);
+            $('#arrDateL1').prop('required', false);
+            $('#expenseHeadL1').prop('required', false);
+            $('#amountExpL1').prop('required', false);
+            $('#expensehead_0').prop('required', true);
+            $('#arrDate_0').prop('required', true);
+            $('#locFrom_0').prop('required', true);
+            $('#erTypeI_0').prop('required', true);
+            $('#amountExp_0').prop('required', true);
             $('#domesticConfigTable tbody tr:not(:first)').remove();
             $('#domesticConfigTable tbody tr td input').val('');
             $('#domesticConfigTable tbody tr td select').val('-1');
             $('#internationalConfigTable').show();
-        } else if(exp == 'LTR') {
+        } else if (exp == 'LTR') {
             // console.log(document.destinationsL);
             $('#travelIdsforall').append(`
                 <div id="travelIdsforall" class="col-md-4" >
@@ -643,8 +643,8 @@
             app.addDatePicker($('#fromDate'));
             app.addDatePicker($('#toDate'));
 
-            app.populateSelect(travelIdToInsert,document.destinationsL,'TRAVEL_ID','DESTINATION', 'Select Travel Destination','');
-            
+            app.populateSelect(travelIdToInsert, document.destinationsL, 'TRAVEL_ID', 'DESTINATION', 'Select Travel Destination', '');
+
             // getting data of this selected travel
             // $('#travelIdsforall').change('#expenseTypeTravel',function() {
             //     var val = $('#travelIdToInsert').val();
@@ -659,37 +659,37 @@
             //                 $('#addtraveldetails').empty();
             //                 $('#addtraveldetails').append(`
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">From Date:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.FROM_DATE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">To Date:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.TO_DATE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Departure:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.DEPARTURE+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Destination:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.DESTINATION+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                     <div class="col-md-4">
-                                    
+
             //                                     <label for="employeeCode">Requested Amount:</label> 
             //                                     <input type="text" class="form-control" value = "`+response.data.REQUESTED_AMOUNT+`" disabled="disabled">
-                                    
+
             //                     </div>
             //                 `);
-                            
+
             //             } else {
             //                 console.log('error');
             //             }
@@ -699,21 +699,21 @@
             //     }
             // });
             $('#domesticConfigTable').show();
-            $('#fromDate').prop('required',true);
-            $('#toDate').prop('required',true);
-            $('#departure').prop('required',true);
-            $('#destination').prop('required',true);
+            $('#fromDate').prop('required', true);
+            $('#toDate').prop('required', true);
+            $('#departure').prop('required', true);
+            $('#destination').prop('required', true);
             $('#domesticLocal').text('Domestic Travel');
-            $('#amountExp').prop('required',false);
-            $('#arrDate1').prop('required',false);
-            $('#locFrom1').prop('required',false);
-            $('#erTypeI1').prop('required',false);
-            $('#expensehead').prop('required',false);
-            $('#ertyprL_0').prop('required',true);
-            $('#locFromL_0').prop('required',true);
-            $('#arrDateL_0').prop('required',true);
-            $('#expenseHead_0').prop('required',true);
-            $('#amountExpL_0').prop('required',true);
+            $('#amountExp').prop('required', false);
+            $('#arrDate1').prop('required', false);
+            $('#locFrom1').prop('required', false);
+            $('#erTypeI1').prop('required', false);
+            $('#expensehead').prop('required', false);
+            $('#ertyprL_0').prop('required', true);
+            $('#locFromL_0').prop('required', true);
+            $('#arrDateL_0').prop('required', true);
+            $('#expenseHead_0').prop('required', true);
+            $('#amountExpL_0').prop('required', true);
             $('#conversionRateL_0').val('1');
             $('#currencyL_0').val('NPR');
 
@@ -721,7 +721,7 @@
             $('#internationalConfigTable tbody tr:not(:first)').remove();
             $('#internationalConfigTable tbody tr td input').val('');
             $('#internationalConfigTable tbody tr td select').val('-1');
-        }else{
+        } else {
             $('#travelIdsforall').empty();
             $('#travelIdsforall').append(`
             <div class="col-sm-4">
@@ -740,26 +740,26 @@
             $('#internationalConfigTable tbody tr td input').val('');
             $('#internationalConfigTable tbody tr td select').val('-1');
 
-            $('#amountExp').prop('required',false);
-            $('#arrDate1').prop('required',false);
-            $('#locFrom1').prop('required',false);
-            $('#erTypeI1').prop('required',false);
-            $('#expensehead').prop('required',false);
-            $('#ertyprL_0').prop('required',true);
-            $('#locFromL_0').prop('required',true);
-            $('#arrDateL_0').prop('required',true);
-            $('#expenseHead_0').prop('required',true);
-            $('#amountExpL_0').prop('required',true);
+            $('#amountExp').prop('required', false);
+            $('#arrDate1').prop('required', false);
+            $('#locFrom1').prop('required', false);
+            $('#erTypeI1').prop('required', false);
+            $('#expensehead').prop('required', false);
+            $('#ertyprL_0').prop('required', true);
+            $('#locFromL_0').prop('required', true);
+            $('#arrDateL_0').prop('required', true);
+            $('#expenseHead_0').prop('required', true);
+            $('#amountExpL_0').prop('required', true);
             $('#conversionRateL_0').val('1');
             $('#currencyL_0').val('NPR');
-           
+
             app.addDatePicker(
                 $('#domesticConfigTable tbody').find('.fromDateD:last'),
                 $('#domesticConfigTable tbody').find('.arrDate:last')
-                );
+            );
         }
     });
-   
+
 })(window.jQuery, window.app);
 
 

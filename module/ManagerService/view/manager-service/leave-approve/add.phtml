@@ -1,0 +1,281 @@
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\leaveapply')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'))
+    ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()->appendFile($this->basePath('js/manager-service/leave-approve/add.js'))
+    ->appendFile($this->basePath('dropzone/dropzone.min.js'));
+?>
+
+
+<?php
+$form->setAttribute('leaveApply', 'form');
+$startDate = $form->get('startDate');
+$endDate = $form->get('endDate');
+$noOfDays = $form->get('noOfDays');
+$halfDay = $form->get('halfDay');
+$remarks = $form->get('remarks');
+
+$employeeId = $form->get('employeeId');
+$employeeId->setValueOptions($employees);
+$submit = $form->get('submit');
+
+$gracePeriod = $form->get('gracePeriod');
+$submit->setAttribute('value', 'Apply Leave');
+$submit->setAttribute('id', 'request');
+
+$form->setAttribute('action', $this->url('leaveapprove', ['action' => 'add']));
+
+$form->prepare();
+print $this->form()->openTag($form);
+?>
+<script>
+    document.pushLeaveFileLink = '<?php echo $this->url('leaverequest', ['action' => 'pushLeaveFileLink']); ?>';
+    document.uploadUrl = '<?= $this->url('leaverequest', ['action' => 'fileUpload']); ?>';
+    document.wsPullLeaveDetailWidEmployeeId = '<?= $this->url("leaverequest", ["action" => "pullLeaveDetailWidEmployeeId"]) ?>';
+    document.wsPullLeaveDetail = '<?= $this->url("leaverequest", ["action" => "pullLeaveDetail"]) ?>';
+    document.wsFetchAvailableDays = '<?= $this->url("leaverequest", ["action" => "fetchAvailableDays"]) ?>';
+    document.wsValidateLeaveRequest = '<?= $this->url("leaverequest", ["action" => "validateLeaveRequest"]) ?>';
+    document.approvers = <?= json_encode($approvers); ?>;
+    document.subLeaveReference = '<?= $subLeaveReference ?>';
+    document.subLeaveMaxDays = '<?= $subLeaveMaxDays ?>';
+</script>
+
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>
+                    Apply For Leave
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($employeeId->getMessages()) ? "" : "error" ?> ">
+                            <?php print $this->formLabel($employeeId) ?>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="employeeId" id="employeeId" required="required" class="form-control">
+                                <option value="" disabled="" selected="" class="ng-binding">Please select</option>
+                                <?php foreach ($employees as $key => $value) { ?>
+                                    <option value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+
+                <div class=" row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label for="leaveId">Leave Type</label>
+                            <span class="required" aria-required="true">*</span>
+                            <select name="leaveId" required="required" id="leaveId" class="form-control">
+                                <option value="" disabled="" selected="">Please select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group disabled">
+                            <label for="leaveId">Available Days</label>
+                            <input type="text" READONLY name="availableDays" required="required" id="availableDays" class="form-control" value="">
+                            <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4" id="SubReferenceDiv">
+                        <div class="form-group">
+                            <label>IN SUB LEAVE</label>
+                            <select name="subRefId" id="subRefId" class="form-control">
+                            </select>
+                            <span id="errorMsgSubRef" style="font-size:11px; color:red;"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class=" row">
+
+                    <div class="col-sm-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group required  <?= empty($startDate->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($startDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($startDate) ?>
+                                </div>
+                                <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block error']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliStartDate">&nbsp;</label>
+                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group required <?= empty($endDate->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($endDate) ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($endDate) ?>
+                                    <span id="errorMsgDate" style="font-size:11px; color:red;"></span>
+                                </div>
+                                <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block error']) ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliEndDate">&nbsp;</label>
+                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($noOfDays); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($noOfDays); ?>
+                            <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                            <span id="halfDayMsg" style="font-size:12px; color:green; font-weight: bold"></span>
+                        </div>
+                        <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4" id="substituteEmployeeCol">
+                        <label for="substituteEmployee">Substitute Employee </label>
+                        <span class="required" aria-required="true">*</span>
+                        <select required class="form-control" name="leaveSubstitute" id="leaveSubstitute" style="cursor: pointer;">
+                            <option style="cursor: pointer;" value="">---</option>
+                            <?php foreach ($employees as $key => $value) { ?>
+                                <option style="cursor: pointer;" value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class=" col-sm-4 " id="gracePeriodCol">
+                        <div class="form-group">
+                            <?php print $this->formLabel($gracePeriod); ?>
+                            <?php print $this->formElement($gracePeriod); ?>
+                        </div>
+
+                        <?php print $this->formElementErrors()->render($gracePeriod, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class=" col-sm-4 " id="halfDayCol">
+                        <div class="form-group">
+                            <?php print $this->formLabel($halfDay); ?>
+                            <?php print $this->formElement($halfDay); ?>
+                        </div>
+
+                        <?php print $this->formElementErrors()->render($halfDay, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group padding-0" id="remarks">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                        </div>
+                        <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block error']); ?>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label for="applyOption">Apply Status</label>
+                        <?php print $this->formElement($applyOption); ?>
+                    </div>
+
+
+
+                </div>
+
+                <div class="row">
+                    <div class=" col-md-6 form-group">
+                        <table id="fileDetailsTbl" class="table">
+                            <tr>
+                                <th>Document</th>
+                                <th>&nbsp;</th>
+                                <th>Action</th>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                        <button id="addDocument" type="button" class="btn btn-primary">
+                            Add
+                        </button>
+                    </div>
+                </div>
+
+                <?php print $this->formSubmit($submit); ?>
+
+            </div>
+        </div>
+    </div>
+</div>
+<?php
+print $this->form()->closeTag();
+?>
+
+
+<!--bootstrap modal-->
+<div id="documentUploadModel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Document Upload</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body" id="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <!--<div id="dropZoneContainer" >-->
+                            <div id="dropZoneContainer" class="dropzone">
+                            </div>
+                            <div id="uploadErr">Please upload Image.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button id='uploadSubmitBtn' class="btn btn-primary" type="button">OK</button>
+            <button id='uploadCancelBtn' class="btn btn-warning" type="button">Cancel</button>
+            <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+        </div>
+    </div>
+</div>

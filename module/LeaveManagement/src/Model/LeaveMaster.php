@@ -4,7 +4,8 @@ namespace LeaveManagement\Model;
 
 use Application\Model\Model;
 
-class LeaveMaster extends Model {
+class LeaveMaster extends Model
+{
 
     const TABLE_NAME = "HRIS_LEAVE_MASTER_SETUP";
     const LEAVE_ID = "LEAVE_ID";
@@ -47,6 +48,7 @@ class LeaveMaster extends Model {
     const ENABLE_OVERRIDE = "ENABLE_OVERRIDE";
     const LEAVE_YEAR = "LEAVE_YEAR";
     const OLD_LEAVE = "OLD_LEAVE";
+    const IS_SUB_LEAVE = "IS_SUB_LEAVE";
     const VIEW_ORDER = "VIEW_ORDER";
 
 
@@ -67,7 +69,6 @@ class LeaveMaster extends Model {
     public $modifiedBy;
     public $paid;
     public $maxAccumulateDays;
-    public $isSubstitute;
     public $allowGraceLeave;
     public $isMonthly;
     public $isSubstituteMandatory;
@@ -89,6 +90,8 @@ class LeaveMaster extends Model {
     public $hrOnly;
     public $enableOverride;
     public $leaveYear;
+    public $isSubstitute;
+    public $inSubLeave;
     public $oldLeave;
     public $viewOrder;
     public $mappings = [
@@ -108,6 +111,7 @@ class LeaveMaster extends Model {
         'createdBy' => self::CREATED_BY,
         'modifiedBy' => self::MODIFIED_BY,
         'paid' => self::PAID,
+        'inSubLeave' => self::IS_SUB_LEAVE,
         'maxAccumulateDays' => self::MAX_ACCUMULATE_DAYS,
         'isSubstitute' => self::IS_SUBSTITUTE,
         'allowGraceLeave' => self::ALLOW_GRACE_LEAVE,
@@ -132,7 +136,6 @@ class LeaveMaster extends Model {
         'enableOverride' => self::ENABLE_OVERRIDE,
         'leaveYear' => self::LEAVE_YEAR,
         'oldLeave' => self::OLD_LEAVE,
-        'viewOrder' => self::VIEW_ORDER
+        'viewOrder' => self::VIEW_ORDER,
     ];
-
 }

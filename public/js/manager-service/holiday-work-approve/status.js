@@ -6,37 +6,53 @@
         var $tableContainer = $("#holidayWorkRequestStatusTable");
         var $search = $('#search');
         var columns = [
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "FULL_NAME", title: "Employee"},
-            {field: "HOLIDAY_ENAME", title: "Holiday"},
-            {title: "Requested Date",
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "FULL_NAME", title: "Employee" },
+            { field: "HOLIDAY_ENAME", title: "Holiday" },
+            {
+                title: "Requested Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (REQUESTED_DATE_AD == null) ? '-' : REQUESTED_DATE_AD #</span>"},
-                    {field: "REQUESTED_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (REQUESTED_DATE_BS == null) ? '-' : REQUESTED_DATE_BS #</span>"}]},
-            {title: "From Date",
+                    field: "REQUESTED_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (REQUESTED_DATE_AD == null) ? '-' : REQUESTED_DATE_AD #</span>"
+                },
+                {
+                    field: "REQUESTED_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (REQUESTED_DATE_BS == null) ? '-' : REQUESTED_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "From Date",
                 columns: [{
-                        field: "FROM_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (FROM_DATE_AD == null) ? '-' : FROM_DATE_AD #</span>"},
-                    {field: "FROM_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (FROM_DATE_BS == null) ? '-' : FROM_DATE_BS #</span>"}]},
-            {title: "To Date",
+                    field: "FROM_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (FROM_DATE_AD == null) ? '-' : FROM_DATE_AD #</span>"
+                },
+                {
+                    field: "FROM_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (FROM_DATE_BS == null) ? '-' : FROM_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "TO_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (TO_DATE_AD == null) ? '-' : TO_DATE_AD #</span>"},
-                    {field: "TO_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (TO_DATE_BS == null) ? '-' : TO_DATE_BS #</span>"}]},
-            {field: "DURATION", title: "Duration"},
-            {field: "YOUR_ROLE", title: "Your Role"},
-            {field: "STATUS", title: "Status"},
-            {field: ["ID", "ROLE"], title: "Action", template: `<span> <a class="btn  btn-icon-only btn-success"
+                    field: "TO_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (TO_DATE_AD == null) ? '-' : TO_DATE_AD #</span>"
+                },
+                {
+                    field: "TO_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (TO_DATE_BS == null) ? '-' : TO_DATE_BS #</span>"
+                }]
+            },
+            { field: "DURATION", title: "Duration" },
+            { field: "YOUR_ROLE", title: "Your Role" },
+            { field: "STATUS", title: "Status" },
+            {
+                field: ["ID", "ROLE"], title: "Action", template: `<span> <a class="btn  btn-icon-only btn-success"
         href="${document.viewLink}/#: ID #/#: ROLE #" style="height:17px;" title="view">
         <i class="fa fa-search-plus"></i></a>
         </span>`}
@@ -72,7 +88,7 @@
             q['fromDate'] = $('#fromDate').val();
             q['toDate'] = $('#toDate').val();
             q['recomApproveId'] = $('#recomApproveId').val();
-            App.blockUI({target: "#hris-page-content"});
+            App.blockUI({ target: "#hris-page-content" });
             app.pullDataById(document.pullHoliayWorkRequestStatusListLink, q).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 app.renderKendoGrid($tableContainer, success.data);
@@ -87,11 +103,11 @@
         $('#pdfExport').on("click", function () {
             app.exportToPDF($tableContainer, map, "Work on Holiday Request List.pdf");
         });
-        
-//        $("#reset").on("click", function () {
-//            $(".form-control").val("");
-//            $("#fromDate").val("");
-//        });
+
+        //        $("#reset").on("click", function () {
+        //            $(".form-control").val("");
+        //            $("#fromDate").val("");
+        //        });
 
     });
 })(window.jQuery, window.app);

@@ -10,38 +10,42 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class LoanApproveRepository implements RepositoryInterface {
+class LoanApproveRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(LoanRequest::TABLE_NAME, $adapter);
     }
 
-    public function add(Model $model) {
-        
+    public function add(Model $model)
+    {
     }
 
-    public function delete($id) {
-        
+    public function delete($id)
+    {
     }
 
-    public function getAllWidStatus($id, $status) {
-        
+    public function getAllWidStatus($id, $status)
+    {
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
         $temp = $model->getArrayCopyForDB();
         $this->tableGateway->update($temp, [LoanRequest::LOAN_REQUEST_ID => $id]);
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -59,16 +63,15 @@ class LoanApproveRepository implements RepositoryInterface {
             new Expression("LR.APPROVED_BY AS APPROVED_BY"),
             new Expression("LR.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
             new Expression("LR.APPROVED_REMARKS AS APPROVED_REMARKS"),
-                ], true);
+        ], true);
 
         $select->from(['LR' => LoanRequest::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=LR.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=LR.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=LR.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=LR.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left")
-        ;
+            ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=LR.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=LR.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=LR.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=LR.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
         $select->where([
             "LR.LOAN_REQUEST_ID=" . $id
@@ -79,7 +82,8 @@ class LoanApproveRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function getAllRequest($id) {
+    public function getAllRequest($id)
+    {
         $sql = "SELECT 
                     LR.LOAN_REQUEST_ID,
                     LR.REQUESTED_AMOUNT,
@@ -117,13 +121,14 @@ class LoanApproveRepository implements RepositoryInterface {
                     WHERE L.STATUS = 'E' AND E.STATUS='E'
                     AND E.RETIRED_FLAG='N' 
                     AND ((RA.RECOMMEND_BY= {$id} AND LR.STATUS='RQ') OR (RA.APPROVED_BY= {$id} AND LR.STATUS='RC') )
-                    ORDER BY LR.REQUESTED_DATE DESC";
+                    ORDER BY LR.LOAN_DATE DESC";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;
     }
 
-    public function addToDetails($id){
+    public function addToDetails($id)
+    {
         $sql = "BEGIN
         HRIS_LOAN_PAYMENT_DETAILS({$id});
         END;

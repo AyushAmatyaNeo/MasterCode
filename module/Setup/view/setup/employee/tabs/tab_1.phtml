@@ -24,6 +24,7 @@ $emailPersonal = $formOne->get('emailPersonal');
 $socialNetwork = $formOne->get('socialNetwork');
 $countryId = $formOne->get('countryId');
 $abroadAddress = $formOne->get('abroadAddress');
+$descriptionDetail = $formOne->get('descriptionDetail');
 
 /**
  * Emergency Contact Information
@@ -81,7 +82,7 @@ $formOne->prepare();
             <div class="col-xs-12 col-sm-6 col-md-3 col-box">
                 <div class="row bottomgap">
                     <div class="form-group <?= empty($employeeCode->getMessages()) ? '' : 'hasError' ?>">
-                        <div class="col-xs-6 col-sm-6 col-md-6 rightalign"> 
+                        <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
                             <?php print $this->formLabel($employeeCode) ?>
                             <span class="required" aria-required="true">*</span>
                         </div>
@@ -97,7 +98,7 @@ $formOne->prepare();
             <div class="col-xs-12 col-sm-6 col-md-3 col-box">
                 <div class="row bottomgap">
                     <div class="form-group <?= empty($firstName->getMessages()) ? '' : 'hasError' ?>">
-                        <div class="col-xs-6 col-sm-6 col-md-6 rightalign"> 
+                        <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
                             <?php print $this->formLabel($firstName) ?>
                             <span class="required" aria-required="true">*</span>
                         </div>
@@ -118,7 +119,7 @@ $formOne->prepare();
                             <?php print $this->formElementErrors()->render($middleName, ['class' => 'error']) ?>
                         </div>
                     </div>
-                </div> 
+                </div>
             </div>
 
             <div class="col-xs-12 col-sm-6 col-md-3 col-box">
@@ -187,7 +188,7 @@ $formOne->prepare();
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                             <div class="input-group date">
-                                <input type="text"   id="nepaliBirthDate" class="form-control " value="">
+                                <input type="text" id="nepaliBirthDate" class="form-control " value="">
                             </div>
                         </div>
                     </div>
@@ -216,7 +217,7 @@ $formOne->prepare();
                     <div class="form-group ">
                         <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
                             <?php print $this->formLabel($religionId) ?>
-                           
+
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                             <?php print $this->formElement($religionId) ?>
@@ -320,7 +321,7 @@ $formOne->prepare();
                         </div>
                     </div>
                 </div>
-            </div> 
+            </div>
 
             <div class="col-xs-12 col-sm-6 col-md-3 col-box">
                 <div class="row bottomgap">
@@ -349,20 +350,21 @@ $formOne->prepare();
             </div>
         </div>
     </div>
-    
+
     <div class="permanent-info" id="abroadAddressDiv">
         <p> <i class="fa fa-ad ticon" aria-hidden="true"></i>Abroad Address</p>
-                    <?php // print $this->formLabel($abroadAddress); ?>
-        
+        <?php // print $this->formLabel($abroadAddress); 
+        ?>
+
         <div class="row clearfix e-setup">
             <div class="col-md-12 colsm-12 col-xs-12">
-                    <?php print $this->formElement($abroadAddress); ?>
-                    <?php print $this->formElementErrors()->render($abroadAddress, ['class' => 'help-block error']); ?>
+                <?php print $this->formElement($abroadAddress); ?>
+                <?php print $this->formElementErrors()->render($abroadAddress, ['class' => 'help-block error']); ?>
 
             </div>
-            
+
         </div>
-        
+
     </div>
 
 
@@ -448,7 +450,7 @@ $formOne->prepare();
                 </div>
 
             </div>
-            
+
             <div class="col-xs-12 col-sm-6 col-md-3 col-box">
                 <div class="row bottomgap">
 
@@ -545,7 +547,7 @@ $formOne->prepare();
                     <?php print $this->formElementErrors()->render($addrTempVdcMunicipalityId, ['class' => 'help-block error']); ?>
 
                 </div>
-                
+
                 <div class="col-xs-12 col-sm-6 col-md-3 col-box">
                     <div class="row bottomgap">
                         <div class="form-group  <?= empty($addrTempProvinceId->getMessages()) ? "" : "error" ?>">
@@ -620,7 +622,7 @@ $formOne->prepare();
                     <div class="form-group  <?= empty($emergContactNo->getMessages()) ? "" : "error" ?>">
                         <div class="col-xs-6 col-sm-6 col-md-6 rightalign">
                             <?php print $this->formLabel($emergContactNo); ?>
-                      
+
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 cgap">
                             <?php print $this->formElement($emergContactNo); ?></div>
@@ -629,6 +631,20 @@ $formOne->prepare();
                 </div>
 
 
+
+            </div>
+        </div>
+        <input type="submit" class="hidden" id="btnform1" value="submit">
+    </div>
+    <div class="permanent-info" id="descriptionDiv">
+        <p> <i class="fa fa-ad ticon" aria-hidden="true"></i>Description</p>
+        <?php // print $this->formLabel($abroadAddress); 
+        ?>
+
+        <div class="row clearfix e-setup">
+            <div class="col-md-12 colsm-12 col-xs-12">
+                <?php print $this->formElement($descriptionDetail); ?>
+                <?php print $this->formElementErrors()->render($descriptionDetail, ['class' => 'help-block error']); ?>
 
             </div>
         </div>

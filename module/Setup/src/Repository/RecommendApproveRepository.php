@@ -12,69 +12,75 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class RecommendApproveRepository implements RepositoryInterface {
+class RecommendApproveRepository implements RepositoryInterface
+{
 
-    private $tableGateway;
-    private $adapter;
+  private $tableGateway;
+  private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
-        $this->tableGateway = new TableGateway(RecommendApprove::TABLE_NAME, $adapter);
-        $this->employeeTableGateway = new TableGateway("HRIS_EMPLOYEES", $adapter);
-        $this->adapter = $adapter;
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    $this->tableGateway = new TableGateway(RecommendApprove::TABLE_NAME, $adapter);
+    $this->employeeTableGateway = new TableGateway("HRIS_EMPLOYEES", $adapter);
+    $this->adapter = $adapter;
+  }
 
-    public function getDesignationList($employeeId) {
-        $boundedParams = [];
-        $sql = "SELECT  DESIGNATION_ID, (DESIGNATION_TITLE) AS DESIGNATION_TITLE, PARENT_DESIGNATION, WITHIN_BRANCH, WITHIN_DEPARTMENT, LEVEL 
+  public function getDesignationList($employeeId)
+  {
+    $boundedParams = [];
+    $sql = "SELECT  DESIGNATION_ID, (DESIGNATION_TITLE) AS DESIGNATION_TITLE, PARENT_DESIGNATION, WITHIN_BRANCH, WITHIN_DEPARTMENT, LEVEL 
                 FROM HRIS_DESIGNATIONS WHERE (LEVEL=2 OR LEVEL=3)
                 START WITH DESIGNATION_ID = (SELECT E.DESIGNATION_ID FROM HRIS_EMPLOYEES E WHERE E.EMPLOYEE_ID=  :employeeId )
                 CONNECT BY PRIOR  PARENT_DESIGNATION=DESIGNATION_ID";
-        $boundedParams['employeeId'] = $employeeId;
-        $statement = $this->adapter->query($sql);
-        return $statement->execute($boundedParams);
+    $boundedParams['employeeId'] = $employeeId;
+    $statement = $this->adapter->query($sql);
+    return $statement->execute($boundedParams);
+  }
+
+  //to get recommender and approver based on designation and branch id
+  public function getEmployeeList($withinBranch, $withinDepartment, $designationId, $branchId, $departmentId)
+  {
+    $boundedParams = [];
+    $sql = "SELECT EMPLOYEE_ID,INITCAP(FIRST_NAME) AS FIRST_NAME,INITCAP(MIDDLE_NAME) AS MIDDLE_NAME,INITCAP(LAST_NAME) AS LAST_NAME FROM HRIS_EMPLOYEES WHERE STATUS='E' AND RETIRED_FLAG='N' AND DESIGNATION_ID= :designationId ";
+
+    if ($withinBranch != null && $withinBranch != "N") {
+      $sql .= " AND BRANCH_ID= :branchId ";
     }
 
-    //to get recommender and approver based on designation and branch id
-    public function getEmployeeList($withinBranch, $withinDepartment, $designationId, $branchId, $departmentId) {
-        $boundedParams = [];
-        $sql = "SELECT EMPLOYEE_ID,INITCAP(FIRST_NAME) AS FIRST_NAME,INITCAP(MIDDLE_NAME) AS MIDDLE_NAME,INITCAP(LAST_NAME) AS LAST_NAME FROM HRIS_EMPLOYEES WHERE STATUS='E' AND RETIRED_FLAG='N' AND DESIGNATION_ID= :designationId ";
-
-        if ($withinBranch != null && $withinBranch != "N") {
-            $sql .= " AND BRANCH_ID= :branchId ";
-        }
-
-        if ($withinDepartment != null && $withinDepartment != "N") {
-            $sql .= " AND DEPARTMENT_ID= :departmentId ";
-        }
-        $boundedParams['designationId'] = $designationId;
-        $boundedParams['branchId'] = $branchId;
-
-        $statement = $this->adapter->query($sql);
-        return $statement->execute();
+    if ($withinDepartment != null && $withinDepartment != "N") {
+      $sql .= " AND DEPARTMENT_ID= :departmentId ";
     }
+    $boundedParams['designationId'] = $designationId;
+    $boundedParams['branchId'] = $branchId;
 
-    public function add(Model $model) {
-        $this->tableGateway->insert($model->getArrayCopyForDB());
-    }
+    $statement = $this->adapter->query($sql);
+    return $statement->execute();
+  }
 
-    public function fetchAll() {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns([
-            new Expression("RA.STATUS AS STATUS"),
-            new Expression("RA.EMPLOYEE_ID AS EMPLOYEE_ID"),
-            new Expression("RA.RECOMMEND_BY AS RECOMMEND_BY"),
-            new Expression("RA.APPROVED_BY AS APPROVED_BY"),
-                ], true);
-        $select->from(['RA' => RecommendApprove::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=RA.EMPLOYEE_ID", ['FIRST_NAME' => new Expression("INITCAP(E.FIRST_NAME)"), 'MIDDLE_NAME' => new Expression("INITCAP(E.MIDDLE_NAME)"), 'LAST_NAME' => new Expression("INITCAP(E.LAST_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=RA.RECOMMEND_BY", ['FIRST_NAME_R' => new Expression("INITCAP(E1.FIRST_NAME)"), "MIDDLE_NAME_R" => new Expression("INITCAP(E1.MIDDLE_NAME)"), "LAST_NAME_R" => new Expression("INITCAP(E1.LAST_NAME)"), "RETIRED_R" => "RETIRED_FLAG", "STATUS_R" => "STATUS"], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=RA.APPROVED_BY", ['FIRST_NAME_A' => new Expression("INITCAP(E2.FIRST_NAME)"), "MIDDLE_NAME_A" => new Expression("INITCAP(E2.MIDDLE_NAME)"), "LAST_NAME_A" => new Expression("INITCAP(E2.LAST_NAME)"), "RETIRED_A" => "RETIRED_FLAG", "STATUS_A" => "STATUS"], "left");
+  public function add(Model $model)
+  {
+    $this->tableGateway->insert($model->getArrayCopyForDB());
+  }
 
-        $select->where([
-            "RA.STATUS='E'",
-            "E.STATUS='E'",
-            "E.RETIRED_FLAG='N' AND
+  public function fetchAll()
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns([
+      new Expression("RA.STATUS AS STATUS"),
+      new Expression("RA.EMPLOYEE_ID AS EMPLOYEE_ID"),
+      new Expression("RA.RECOMMEND_BY AS RECOMMEND_BY"),
+      new Expression("RA.APPROVED_BY AS APPROVED_BY"),
+    ], true);
+    $select->from(['RA' => RecommendApprove::TABLE_NAME])
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=RA.EMPLOYEE_ID", ['FIRST_NAME' => new Expression("INITCAP(E.FIRST_NAME)"), 'MIDDLE_NAME' => new Expression("INITCAP(E.MIDDLE_NAME)"), 'LAST_NAME' => new Expression("INITCAP(E.LAST_NAME)")], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=RA.RECOMMEND_BY", ['FIRST_NAME_R' => new Expression("INITCAP(E1.FIRST_NAME)"), "MIDDLE_NAME_R" => new Expression("INITCAP(E1.MIDDLE_NAME)"), "LAST_NAME_R" => new Expression("INITCAP(E1.LAST_NAME)"), "RETIRED_R" => "RETIRED_FLAG", "STATUS_R" => "STATUS"], "left")
+      ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=RA.APPROVED_BY", ['FIRST_NAME_A' => new Expression("INITCAP(E2.FIRST_NAME)"), "MIDDLE_NAME_A" => new Expression("INITCAP(E2.MIDDLE_NAME)"), "LAST_NAME_A" => new Expression("INITCAP(E2.LAST_NAME)"), "RETIRED_A" => "RETIRED_FLAG", "STATUS_A" => "STATUS"], "left");
+
+    $select->where([
+      "RA.STATUS='E'",
+      "E.STATUS='E'",
+      "E.RETIRED_FLAG='N' AND
               (((E1.STATUS =
                 CASE
                   WHEN E1.STATUS IS NOT NULL
@@ -102,67 +108,72 @@ class RecommendApproveRepository implements RepositoryInterface {
                   THEN ('N')
                 END
               OR E2.RETIRED_FLAG IS NULL)))"
-        ]);
-        $select->order("E.FIRST_NAME ASC");
-        $statement = $sql->prepareStatementForSqlObject($select);
-        return $statement->execute();
-    }
+    ]);
+    $select->order("E.FIRST_NAME ASC");
+    $statement = $sql->prepareStatementForSqlObject($select);
+    return $statement->execute();
+  }
 
-    //to get the employee list for select option
-    public function getEmployees($id = null) {
-        $entitiesArray = array();
-        if ($id != null) {
-            $empresult = $this->employeeTableGateway->select(['EMPLOYEE_ID' => $id])->current();
-            $entitiesArray[$empresult['EMPLOYEE_ID']] = $empresult['FIRST_NAME'] . " " . $empresult['MIDDLE_NAME'] . " " . $empresult['LAST_NAME'];
-        }
-        $sql = "SELECT EMPLOYEE_ID,INITCAP(FIRST_NAME) AS FIRST_NAME,INITCAP(MIDDLE_NAME) AS MIDDLE_NAME,INITCAP(LAST_NAME) AS LAST_NAME FROM 
+  //to get the employee list for select option
+  public function getEmployees($id = null)
+  {
+    $entitiesArray = array();
+    if ($id != null) {
+      $empresult = $this->employeeTableGateway->select(['EMPLOYEE_ID' => $id])->current();
+      $entitiesArray[$empresult['EMPLOYEE_ID']] = $empresult['FIRST_NAME'] . " " . $empresult['MIDDLE_NAME'] . " " . $empresult['LAST_NAME'];
+    }
+    $sql = "SELECT EMPLOYEE_ID,INITCAP(FIRST_NAME) AS FIRST_NAME,INITCAP(MIDDLE_NAME) AS MIDDLE_NAME,INITCAP(LAST_NAME) AS LAST_NAME FROM 
                 HRIS_EMPLOYEES WHERE STATUS='E' AND RETIRED_FLAG='N'
                 AND EMPLOYEE_ID NOT IN 
                 (SELECT EMPLOYEE_ID FROM HRIS_RECOMMENDER_APPROVER WHERE STATUS='E')";
 
-        $statement = $this->adapter->query($sql);
-        $resultset = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $resultset = $statement->execute();
 
-        foreach ($resultset as $result) {
-            $entitiesArray[$result['EMPLOYEE_ID']] = $result['FIRST_NAME'] . " " . $result['MIDDLE_NAME'] . " " . $result['LAST_NAME'];
-        }
-        return $entitiesArray;
+    foreach ($resultset as $result) {
+      $entitiesArray[$result['EMPLOYEE_ID']] = $result['FIRST_NAME'] . " " . $result['MIDDLE_NAME'] . " " . $result['LAST_NAME'];
     }
+    return $entitiesArray;
+  }
 
-    public function edit(Model $model, $id) {
-        $array = $model->getArrayCopyForDB();
-        $this->tableGateway->update($array, [RecommendApprove::EMPLOYEE_ID => $id]);
-    }
+  public function edit(Model $model, $id)
+  {
+    $array = $model->getArrayCopyForDB();
+    $this->tableGateway->update($array, [RecommendApprove::EMPLOYEE_ID => $id]);
+  }
 
-    public function delete($id) {
-        $this->tableGateway->update([RecommendApprove::STATUS => 'D'], [RecommendApprove::EMPLOYEE_ID => $id]);
-    }
+  public function delete($id)
+  {
+    $this->tableGateway->update([RecommendApprove::STATUS => 'D'], [RecommendApprove::EMPLOYEE_ID => $id]);
+  }
 
-    public function fetchById($id) {
-        $row = $this->tableGateway->select([RecommendApprove::EMPLOYEE_ID => $id]);
-        return $row->current();
-    }
+  public function fetchById($id)
+  {
+    $row = $this->tableGateway->select([RecommendApprove::EMPLOYEE_ID => $id]);
+    return $row->current();
+  }
 
-    public function getDetailByEmployeeID($employeeId, $recommenderId = null, $approverId = null) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns([
-            new Expression("RA.STATUS AS STATUS"),
-            new Expression("RA.EMPLOYEE_ID AS EMPLOYEE_ID"),
-            new Expression("RA.RECOMMEND_BY AS RECOMMEND_BY"),
-            new Expression("RA.APPROVED_BY AS APPROVED_BY"),
-                ], true);
-        $select->from(['RA' => RecommendApprove::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=RA.EMPLOYEE_ID", ['FIRST_NAME' => new Expression("INITCAP(E.FIRST_NAME)"), 'MIDDLE_NAME' => new Expression("INITCAP(E.MIDDLE_NAME)"), 'LAST_NAME' => new Expression("INITCAP(E.LAST_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=RA.RECOMMEND_BY", ['FIRST_NAME_R' => new Expression("INITCAP(E1.FIRST_NAME)"), "MIDDLE_NAME_R" => new Expression("INITCAP(E1.MIDDLE_NAME)"), "LAST_NAME_R" => new Expression("INITCAP(E1.LAST_NAME)"), "RETIRED_R" => "RETIRED_FLAG", "STATUS_R" => "STATUS"], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=RA.APPROVED_BY", ['FIRST_NAME_A' => new Expression("INITCAP(E2.FIRST_NAME)"), "MIDDLE_NAME_A" => new Expression("INITCAP(E2.MIDDLE_NAME)"), "LAST_NAME_A" => new Expression("INITCAP(E2.LAST_NAME)"), "RETIRED_A" => "RETIRED_FLAG", "STATUS_A" => "STATUS"], "left");
+  public function getDetailByEmployeeID($employeeId, $recommenderId = null, $approverId = null)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns([
+      new Expression("RA.STATUS AS STATUS"),
+      new Expression("RA.EMPLOYEE_ID AS EMPLOYEE_ID"),
+      new Expression("RA.RECOMMEND_BY AS RECOMMEND_BY"),
+      new Expression("RA.APPROVED_BY AS APPROVED_BY"),
+    ], true);
+    $select->from(['RA' => RecommendApprove::TABLE_NAME])
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=RA.EMPLOYEE_ID", ['FIRST_NAME' => new Expression("INITCAP(E.FIRST_NAME)"), 'MIDDLE_NAME' => new Expression("INITCAP(E.MIDDLE_NAME)"), 'LAST_NAME' => new Expression("INITCAP(E.LAST_NAME)")], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=RA.RECOMMEND_BY", ['FIRST_NAME_R' => new Expression("INITCAP(E1.FIRST_NAME)"), "MIDDLE_NAME_R" => new Expression("INITCAP(E1.MIDDLE_NAME)"), "LAST_NAME_R" => new Expression("INITCAP(E1.LAST_NAME)"), "RETIRED_R" => "RETIRED_FLAG", "STATUS_R" => "STATUS"], "left")
+      ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=RA.APPROVED_BY", ['FIRST_NAME_A' => new Expression("INITCAP(E2.FIRST_NAME)"), "MIDDLE_NAME_A" => new Expression("INITCAP(E2.MIDDLE_NAME)"), "LAST_NAME_A" => new Expression("INITCAP(E2.LAST_NAME)"), "RETIRED_A" => "RETIRED_FLAG", "STATUS_A" => "STATUS"], "left");
 
-        $select->where([
-            "RA.STATUS='E'",
-            "E.STATUS='E'",
-            "E.RETIRED_FLAG='N'",
-            "RA.EMPLOYEE_ID"=>  $employeeId ,
-            " 
+    $select->where([
+      "RA.STATUS='E'",
+      "E.STATUS='E'",
+      "E.RETIRED_FLAG='N'",
+      "RA.EMPLOYEE_ID" =>  $employeeId,
+      " 
               (((E1.STATUS =
                 CASE
                   WHEN E1.STATUS IS NOT NULL
@@ -190,59 +201,62 @@ class RecommendApproveRepository implements RepositoryInterface {
                   THEN ('N')
                 END
               OR E2.RETIRED_FLAG IS NULL)))"
-        ]);
+    ]);
 
-        if ($recommenderId != null && $recommenderId != -1) {
-            $select->where([
-                "RA.RECOMMEND_BY" => $recommenderId]);
-        }
-
-        if ($approverId != null && $approverId != -1) {
-            $select->where([
-                "RA.APPROVED_BY" => $approverId]);
-        }
-
-        $select->order("E.FIRST_NAME ASC");
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result->current();
+    if ($recommenderId != null && $recommenderId != -1) {
+      $select->where([
+        "RA.RECOMMEND_BY" => $recommenderId
+      ]);
     }
 
-    public function getFilteredList($search) {
-        $condition = "";
-        $condition .= EntityHelper::getSearchConditon($search['companyId'], $search['branchId'], $search['departmentId'], $search['positionId'], $search['designationId'], $search['serviceTypeId'], $search['serviceEventTypeId'], $search['employeeTypeId'], $search['employeeId'], null, null, $search['functionalTypeId']);
-        if (isset($search['recommenderId']) && $search['recommenderId'] != null && $search['recommenderId'] != -1) {
-            if (gettype($search['recommenderId']) === 'array') {
-                $csv = "";
-                for ($i = 0; $i < sizeof($search['recommenderId']); $i++) {
-                    if ($i == 0) {
-                        $csv = "'{$search['recommenderId'][$i]}'";
-                    } else {
-                        $csv .= ",'{$search['recommenderId'][$i]}'";
-                    }
-                }
-                $condition .= "AND RA.RECOMMEND_BY IN ({$csv})";
-            } else {
-                $condition .= "AND RA.RECOMMEND_BY IN ('{$search['recommenderId']}')";
-            }
+    if ($approverId != null && $approverId != -1) {
+      $select->where([
+        "RA.APPROVED_BY" => $approverId
+      ]);
+    }
+
+    $select->order("E.FIRST_NAME ASC");
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result->current();
+  }
+
+  public function getFilteredList($search)
+  {
+    $condition = "";
+    $condition .= EntityHelper::getSearchConditon($search['companyId'], $search['branchId'], $search['departmentId'], $search['positionId'], $search['designationId'], $search['serviceTypeId'], $search['serviceEventTypeId'], $search['employeeTypeId'], $search['employeeId'], null, null, $search['functionalTypeId']);
+    if (isset($search['recommenderId']) && $search['recommenderId'] != null && $search['recommenderId'] != -1) {
+      if (gettype($search['recommenderId']) === 'array') {
+        $csv = "";
+        for ($i = 0; $i < sizeof($search['recommenderId']); $i++) {
+          if ($i == 0) {
+            $csv = "'{$search['recommenderId'][$i]}'";
+          } else {
+            $csv .= ",'{$search['recommenderId'][$i]}'";
+          }
         }
-        if (isset($search['approverId']) && $search['approverId'] != null && $search['approverId'] != -1) {
-            if (gettype($search['approverId']) === 'array') {
-                $csv = "";
-                for ($i = 0; $i < sizeof($search['approverId']); $i++) {
-                    if ($i == 0) {
-                        $csv = "'{$search['approverId'][$i]}'";
-                    } else {
-                        $csv .= ",'{$search['approverId'][$i]}'";
-                    }
-                }
-                $condition .= "AND RA.APPROVED_BY IN ({$csv})";
-            } else {
-                $condition .= "AND RA.APPROVED_BY IN ('{$search['approverId']}')";
-            }
+        $condition .= "AND RA.RECOMMEND_BY IN ({$csv})";
+      } else {
+        $condition .= "AND RA.RECOMMEND_BY IN ('{$search['recommenderId']}')";
+      }
+    }
+    if (isset($search['approverId']) && $search['approverId'] != null && $search['approverId'] != -1) {
+      if (gettype($search['approverId']) === 'array') {
+        $csv = "";
+        for ($i = 0; $i < sizeof($search['approverId']); $i++) {
+          if ($i == 0) {
+            $csv = "'{$search['approverId'][$i]}'";
+          } else {
+            $csv .= ",'{$search['approverId'][$i]}'";
+          }
         }
- 
-        $sql = "  
+        $condition .= "AND RA.APPROVED_BY IN ({$csv})";
+      } else {
+        $condition .= "AND RA.APPROVED_BY IN ('{$search['approverId']}')";
+      }
+    }
+
+    $sql = "  
             SELECT AR.A_R_ID,AR.A_R_NAME,AA.A_A_ID,AA.A_A_NAME,
             EC.COMPANY_NAME, 
                 E.EMPLOYEE_ID,
@@ -269,7 +283,7 @@ IARA.EMPLOYEE_ID,
 LISTAGG(IARA.R_A_ID, ',') WITHIN GROUP (ORDER BY IARAE.FULL_NAME) AS A_R_ID,
 LISTAGG(IARAE.FULL_NAME, ',') WITHIN GROUP (ORDER BY IARAE.FULL_NAME) AS A_R_NAME
 FROM HRIS_ALTERNATE_R_A IARA
-JOIN HRIS_EMPLOYEES IARAE ON (IARA.R_A_ID=IARAE.EMPLOYEE_ID AND IARA.R_A_FLAG='R')
+JOIN HRIS_EMPLOYEES IARAE ON (IARA.R_A_ID=IARAE.EMPLOYEE_ID AND IARA.R_A_FLAG='R') where IARAE.STATUS='E'
 GROUP BY IARA.EMPLOYEE_ID) AR ON (AR.EMPLOYEE_ID=E.EMPLOYEE_ID)
 LEFT JOIN (
             SELECT 
@@ -277,43 +291,45 @@ IARA.EMPLOYEE_ID,
 LISTAGG(IARA.R_A_ID, ',') WITHIN GROUP (ORDER BY IARAE.FULL_NAME) AS A_A_ID,
 LISTAGG(IARAE.FULL_NAME, ',') WITHIN GROUP (ORDER BY IARAE.FULL_NAME) AS A_A_NAME
 FROM HRIS_ALTERNATE_R_A IARA
-JOIN HRIS_EMPLOYEES IARAE ON (IARA.R_A_ID=IARAE.EMPLOYEE_ID AND IARA.R_A_FLAG='A')
+JOIN HRIS_EMPLOYEES IARAE ON (IARA.R_A_ID=IARAE.EMPLOYEE_ID AND IARA.R_A_FLAG='A') where IARAE.STATUS='E'
 GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
 
               WHERE 1           =1
-              AND RA.STATUS        = 'E' AND E.STATUS='E '
+              AND RA.STATUS        = 'E' AND E.STATUS='E' AND RE.STATUS='E' AND AE.STATUS='E'
               {$condition}";
-        return EntityHelper::rawQueryResult($this->adapter, $sql);
-    }
-    
-    public function getAlternateRecmApprover($employee_id,$rA){
-        $sql = "  
+    return EntityHelper::rawQueryResult($this->adapter, $sql);
+  }
+
+  public function getAlternateRecmApprover($employee_id, $rA)
+  {
+    $sql = "  
             SELECT R_A_ID FROM HRIS_ALTERNATE_R_A WHERE R_A_FLAG='{$rA}' and employee_id={$employee_id}";
-        return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, $sql));
+    return Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, $sql));
+  }
+
+  public function getEmployeeForOverride($data)
+  {
+    $boundedParams = [];
+    $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId']);
+    $boundedParams = array_merge($boundedParams, $condition['parameter']);
+
+    $typeCondition = "";
+    if ($data['type'] != null || $data['type'] != "") {
+      $typeCondition = "AND TYPE = :type";
+      $boundedParams['type'] = $data['type'];
     }
 
-    public function getEmployeeForOverride($data) {
-        $boundedParams = [];
-        $condition = EntityHelper::getSearchConditonBounded($data['companyId'], $data['branchId'], $data['departmentId'], $data['positionId'], $data['designationId'], $data['serviceTypeId'], $data['serviceEventTypeId'], $data['employeeTypeId'], $data['employeeId']);
-        $boundedParams = array_merge($boundedParams, $condition['parameter']);
+    $leaveTypeCondition = "";
+    if ($data['type'] == 'LV' && ($data['typeId'] != null || $data['typeId'] != -1)) {
+      $leaveTypeCondition = "AND TYPE_ID = :typeId";
+      $boundedParams['typeId'] = $data['typeId'];
+    }
 
-        $typeCondition = "";
-        if($data['type'] != null || $data['type'] != ""){
-            $typeCondition = "AND TYPE = :type";
-            $boundedParams['type'] = $data['type'];
-        }
+    if ($typeCondition == "" || $typeCondition == null) {
+      $sql = "";
+    } else {
 
-        $leaveTypeCondition = "";
-        if ($data['type'] == 'LV' && ($data['typeId'] != null || $data['typeId'] != -1)) {
-            $leaveTypeCondition = "AND TYPE_ID = :typeId";
-            $boundedParams['typeId'] = $data['typeId'];
-        }
-
-        if ($typeCondition == "" || $typeCondition == null){
-            $sql = "";
-        } else {
-
-            $sql = "SELECT E.EMPLOYEE_CODE AS EMPLOYEE_CODE, 
+      $sql = "SELECT E.EMPLOYEE_CODE AS EMPLOYEE_CODE, 
                 E.FULL_NAME AS EMPLOYEE_NAME,
                 E.EMPLOYEE_ID AS EMPLOYEE_ID,
                 NN.* FROM 
@@ -347,40 +363,42 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
                 where 1=1 AND E.STATUS = 'E'
                 {$condition['sql']} order by type_id
                 ";
-        }
-        $statement = $this->adapter->query($sql);
-        return $statement->execute($boundedParams);
+    }
+    $statement = $this->adapter->query($sql);
+    return $statement->execute($boundedParams);
+  }
+
+  public function updateStatus($employeeId, $updateData)
+  {
+    $boundedParams = [];
+    $leaveTypeCheck = "";
+    if ($updateData['type'] == 'LV') {
+      $leaveTypeCheck = "AND TYPE_ID = :leaveType";
+      $boundedParams['leaveType'] = $updateData['leaveType'];
+    }
+    $updateSql = "UPDATE HRIS_REC_APP_OVERRIDE SET STATUS = 'D' where employee_id = :employeeId and TYPE = :type " . $leaveTypeCheck;
+    $boundedParams['employeeId'] = $employeeId;
+    $boundedParams['type'] = $updateData['type'];
+    EntityHelper::rawQueryResult($this->adapter, $updateSql, $boundedParams);
+    return;
+  }
+
+  public function updateOverride($employeeId, $updateData)
+  {
+    $sql = '';
+    $boundedParams = [];
+    $leaveTypeCheck = "";
+    if ($updateData['type'] == 'LV') {
+      $leaveTypeCheck = "AND TYPE_ID = :leaveType";
+      $boundedParams['leaveType'] = $updateData['leaveType'];
     }
 
-    public function updateStatus($employeeId, $updateData) {
-        $boundedParams = [];
-        $leaveTypeCheck = "";
-        if($updateData['type'] == 'LV') {
-            $leaveTypeCheck = "AND TYPE_ID = :leaveType";
-            $boundedParams['leaveType'] = $updateData['leaveType'];
-        }
-        $updateSql = "UPDATE HRIS_REC_APP_OVERRIDE SET STATUS = 'D' where employee_id = :employeeId and TYPE = :type " . $leaveTypeCheck;
-        $boundedParams['employeeId'] = $employeeId;
-        $boundedParams['type'] = $updateData['type'];
-        EntityHelper::rawQueryResult($this->adapter, $updateSql, $boundedParams);
-        return;
-    }
-
-    public function updateOverride($employeeId, $updateData) {
-        $sql = '';
-        $boundedParams = [];
-        $leaveTypeCheck = "";
-        if($updateData['type'] == 'LV') {
-            $leaveTypeCheck = "AND TYPE_ID = :leaveType";
-            $boundedParams['leaveType'] = $updateData['leaveType'];
-        }
-
-        if ($updateData['recommender'] == "NULL" && $updateData['approver'] == "NULL") {
-            $sql = "DELETE FROM HRIS_REC_APP_OVERRIDE WHERE EMPLOYEE_ID = :employeeId and TYPE = 'type' {$leaveTypeCheck}";
-            $boundedParams['employeeId'] = $employeeId;
-            $boundedParams['type'] = $updateData['type'];
-        } else {
-            $sql = "
+    if ($updateData['recommender'] == "NULL" && $updateData['approver'] == "NULL") {
+      $sql = "DELETE FROM HRIS_REC_APP_OVERRIDE WHERE EMPLOYEE_ID = :employeeId and TYPE = 'type' {$leaveTypeCheck}";
+      $boundedParams['employeeId'] = $employeeId;
+      $boundedParams['type'] = $updateData['type'];
+    } else {
+      $sql = "
             DECLARE
                   p_employee_id   NUMBER := :employeeId;
                   p_type          VARCHAR2(5) := :type;
@@ -432,13 +450,13 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
                   COMMIT;
                 END;
             ";
-            $boundedParams['employeeId'] = $employeeId;
-            $boundedParams['type'] = $updateData['type'];
-            $boundedParams['leaveType'] = $updateData['leaveType'];
-            $boundedParams['recommender'] = $updateData['recommender'];
-            $boundedParams['approver'] = $updateData['approver'];
-        }
-        EntityHelper::rawQueryResult($this->adapter, $sql, $boundedParams);
-        return;
+      $boundedParams['employeeId'] = $employeeId;
+      $boundedParams['type'] = $updateData['type'];
+      $boundedParams['leaveType'] = $updateData['leaveType'];
+      $boundedParams['recommender'] = $updateData['recommender'];
+      $boundedParams['approver'] = $updateData['approver'];
     }
+    EntityHelper::rawQueryResult($this->adapter, $sql, $boundedParams);
+    return;
+  }
 }

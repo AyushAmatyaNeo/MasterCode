@@ -1,0 +1,173 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+$this->headScript()->appendFile($this->basePath('assets/pages/scripts/ui-modals.min.js'));
+$this->headScript()->appendFile($this->basePath('js/angular.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/bootstrap-master/ui-bootstrap-tpls-2.2.0.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/boostrap-form-wizard/js/jquery.bootstrap.wizard.min.js'));
+$this->headScript()->appendFile($this->basePath('js/setup/employee/form_wizard.js'));
+$this->headScript()->appendFile($this->basePath('js/setup/employee/add.js'));
+$this->headScript()->appendFile($this->basePath('js/setup/employee/employeeEditController.js'));
+$this->headScript()->appendFile($this->basePath('dropzone/dropzone.min.js'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+?>
+<script>
+    document.allDistrict =<?php echo json_encode($allDistricts); ?>;
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.urlDistrict = '<?= $this->url("employee", ["action" => "district"]) ?>';
+    document.urlSubmitExperience = '<?= $this->url('employee', ['action' => 'edit', 'id' => $id, 'tab' => 8]) ?>';
+    document.urlSubmitTraining = '<?= $this->url('employee', ['action' => 'edit', 'id' => $id, 'tab' => 9]) ?>';
+    document.urlMunicipality = '<?= $this->url("employee", ["action" => "municipality"]) ?>';
+    document.urlEmployeeList = '<?= $this->url("employee", ["action" => "index"]) ?>';
+    document.currentTab = '<?= $tab ?>';
+    document.urlQualificationDtl = '<?= $this->url('restful', ["action" => 'index']); ?>';
+    document.fileTypes = <?= json_encode($filetypes); ?>;
+    document.profilePictureId =<?= ($profilePictureId == null) ? -1 : $profilePictureId ?>;
+    document.employeeId =<?= $id ?>;
+    document.address =<?php echo json_encode($address); ?>;
+    document.urlSetupComplete = '<?php echo $this->url('employee', ['action' => 'setupEmployee', 'id' => $id]); ?>';
+    document.pullAcademicDetailLink = '<?php echo $this->url('employee', ['action' => 'pullAcademicDetail']); ?>';
+    document.pullExperienceDetailLink = '<?php echo $this->url('employee', ['action' => 'pullExperienceDetail']); ?>';
+    document.pullTrainingDetailLink = '<?php echo $this->url('employee', ['action' => 'pullTrainingDetail']); ?>';
+    document.submitQualificationDtlLink = '<?php echo $this->url('employee', ['action' => 'submitQualificationDtl']); ?>';
+    document.submitExperienceDtlLink = '<?php echo $this->url('employee', ['action' => 'submitExperienceDtl']); ?>';
+    document.submitTrainingDtlLink = '<?php echo $this->url('employee', ['action' => 'submitTrainingDtl']); ?>';
+    document.deleteQualificationDtlLink = '<?php echo $this->url('employee', ['action' => 'deleteQualificationDtl']); ?>';
+    document.deleteExperienceDtlLink = '<?php echo $this->url('employee', ['action' => 'deleteExperienceDtl']); ?>';
+    document.deleteTrainingDtlLink = '<?php echo $this->url('employee', ['action' => 'deleteTrainingDtl']); ?>';
+    document.pullEmployeeFileLink = '<?php echo $this->url('employee', ['action' => 'pullEmployeeFile']); ?>';
+    document.pushEmployeeProfileLink = '<?php echo $this->url('employee', ['action' => 'pushEmployeeProfile']); ?>';
+    document.pushEmployeeDocumentLink = '<?php echo $this->url('employee', ['action' => 'pushEmployeeDocument']); ?>';
+    document.pullEmployeeFileByEmpIdLink = '<?php echo $this->url('employee', ['action' => 'pullEmployeeFileByEmpId']); ?>';
+    document.dropEmployeeFileLink = '<?php echo $this->url('employee', ['action' => 'dropEmployeeFile']); ?>';
+    document.addDegreeLink = '<?php echo $this->url('employee', ['action' => 'addDegree']); ?>';
+    document.addUniversityLink = '<?php echo $this->url('employee', ['action' => 'addUniversity']); ?>';
+    document.addProgramLink = '<?php echo $this->url('employee', ['action' => 'addProgram']); ?>';
+    document.addCourseLink = '<?php echo $this->url('employee', ['action' => 'addCourse']); ?>';
+    document.addDistributionEmp = '<?php echo $this->url('employee', ['action' => 'addDistributionEmp']); ?>';
+    document.relation=<?php echo json_encode($relation); ?>;
+    document.pullReltionDetailLink = '<?php echo $this->url('employee', ['action' => 'pullRelationDetail']); ?>';
+    document.submitRelationDtlLink = '<?php echo $this->url('employee', ['action' => 'submitRelationDtl']); ?>';
+    document.deleteRelationDtlLink = '<?php echo $this->url('employee', ['action' => 'deleteRelationDtl']); ?>';
+    document.urlSubmitRelation = '<?= $this->url('employee', ['action' => 'edit', 'id' => $id, 'tab' => 10]) ?>';
+</script>
+<div class="page-bar">
+<?= $this->navigation('Zend\Navigation\Employee')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<div id="quaConId" ng-app="hris" ng-controller="qualificationController">
+    <div id="rootwizard" class="tabbable-custom">
+        <ul class="nav nav-tabs">
+            <li class="active">
+                <a data-toggle="tab" href="#tab1">
+                    <i class="fa fa-book ticon" aria-hidden="true"></i>  General
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab2">
+                    <i class="fa fa-users ticon" aria-hidden="true"></i>   Family
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab3">
+                    <i class="fa fa-user-circle ticon" aria-hidden="true"></i>Identification
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab4">
+                    <i class="fa fa-info-circle ticon"></i> Status & Integration
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab5">
+                    <i class="fa fa-graduation-cap ticon" aria-hidden="true"></i> Qualification
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab6">
+                    <i class="fa fa-picture-o ticon" aria-hidden="true"></i>Upload Image
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab7">
+                    <i class="fa fa-plus-circle ticon" aria-hidden="true"></i>
+                    Experience
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab8">
+                    <i class="fa fa-plus-circle ticon" aria-hidden="true"></i>
+                    Training
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab9">
+                    <i class="fa fa-plus-circle ticon" aria-hidden="true"></i>
+                    Employee Relation
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#tab10">
+                    <i class="fa fa-plus-circle ticon" aria-hidden="true"></i>
+                    Add. Information
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+
+            <?php print $this->partial('tabs/tab_1.phtml'); ?>
+            <?php print $this->partial('tabs/tab_2.phtml'); ?>
+            <?php print $this->partial('tabs/tab_3.phtml'); ?>
+            <?php print $this->partial('tabs/tab_4.phtml'); ?>
+            <?php print $this->partial('tabs/tab_5.phtml'); ?>
+            <?php print $this->partial('tabs/tab_6.phtml'); ?>
+            <?php print $this->partial('tabs/tab_7.phtml'); ?>
+            <?php print $this->partial('tabs/tab_8.phtml'); ?>
+            <?php print $this->partial('tabs/tab_9.phtml'); ?>
+            <?php print $this->partial('tabs/tab_10.phtml'); ?>
+
+            <div class="padding-20">
+                <ul class="pager wizard">
+                    <li class="next">
+                        <button class="btn btn-default pull-right">
+                            <span>Save & Continue</span>
+                            <i class="fa fa-arrow-right iconcolor" aria-hidden="true"></i>
+                        </button>
+                    </li>
+                    <li class="next finish hidden">
+                        <button id="finishBtn" class="btn btn-default pull-right" type="button">
+                            <span>Finish</span>
+                            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+                        </button>
+                    </li>
+                    <li class="previous first hidden">
+                        <button class="btn btn-default btn-cons btn-animated from-left fa fa-cog pull-right"  type="button">
+                            <span>First</span>
+                        </button>
+                    </li>
+                    <li class="previous">
+                        <button class="btn btn-default pull-left" type="button">
+                            <i class="fa fa-arrow-left iconcolor" aria-hidden="true"></i>
+                            <span>Previous</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+<?php print $this->partial('partials/file-upload.phtml'); ?>
+</div>
+
+<?php print $this->partial('partials/degree-setup.phtml'); ?>
+<?php print $this->partial('partials/university-setup.phtml'); ?>
+<?php print $this->partial('partials/program-setup.phtml'); ?>
+<?php print $this->partial('partials/course-setup.phtml'); ?>
+

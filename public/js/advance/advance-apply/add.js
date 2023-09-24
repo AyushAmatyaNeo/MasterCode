@@ -15,6 +15,7 @@
         var $overrideDeductionPer = $('#overrideDeductionPer');
 
         var monthlySalary;
+        var salary;
         var advanceList;
 
         var advanceDetails;
@@ -49,7 +50,9 @@
                     console.log(response);
                     if (response.success = true) {
                         advanceList = response.data;
-                        app.populateSelect($advance, response.data, 'ADVANCE_ID', 'ADVANCE_ENAME', '---', '');
+                        monthlySalary = response.salary;
+                        salary =
+                            app.populateSelect($advance, response.data, 'ADVANCE_ID', 'ADVANCE_ENAME', '---', '');
                     }
                 }, function (error) {
                     console.log(error);
@@ -57,9 +60,9 @@
                 // end request to get advanceList of Employee
 
                 var employeeDetail = searchList(document.employeeList, 'EMPLOYEE_ID', selectedEmpVal)
-                if (employeeDetail['SALARY']) {
-                    monthlySalary = employeeDetail['SALARY'];
-                    $('#monthlySalary').text('Monthly Salary = ' + employeeDetail['SALARY']);
+                if (employeeDetail['SALHISTORY']) {
+                    monthlySalary = employeeDetail['SALHISTORY'] ? employeeDetail['SALHISTORY'] : employeeDetail['SALARY'];
+                    $('#monthlySalary').text('Monthly Salary = ' + employeeDetail['SALHISTORY'] ? employeeDetail['SALHISTORY'] : employeeDetail['SALARY']);
                 }
             } else {
                 $('#monthlySalary').text('');
@@ -105,8 +108,8 @@
                 $deductionIn.val(advanceDetails.DEDUCTION_IN);
                 $deductionIn.prop('readonly', true);
                 if (advanceDetails.ALLOW_OVERRIDE_MONTH === 'Y'
-                        && advanceDetails.MAX_OVERRIDE_MONTH != null
-                        && Number(advanceDetails.MAX_OVERRIDE_MONTH) > Number(advanceDetails.DEDUCTION_IN)) {
+                    && advanceDetails.MAX_OVERRIDE_MONTH != null
+                    && Number(advanceDetails.MAX_OVERRIDE_MONTH) > Number(advanceDetails.DEDUCTION_IN)) {
                     $deductionIn.prop('readonly', false);
                     $overrideDeductionMonth.text('Max Override Payment months=' + advanceDetails.MAX_OVERRIDE_MONTH);
                     $deductionIn.attr('max', advanceDetails.MAX_OVERRIDE_MONTH);
@@ -121,8 +124,8 @@
                 $deductionRate.val(advanceDetails.DEDUCTION_RATE);
                 $deductionRate.prop('readonly', true);
                 if (advanceDetails.ALLOW_OVERRIDE_RATE === 'Y'
-                        && advanceDetails.MIN_OVERRIDE_RATE != null
-                        && advanceDetails.MIN_OVERRIDE_RATE < advanceDetails.DEDUCTION_RATE) {
+                    && advanceDetails.MIN_OVERRIDE_RATE != null
+                    && advanceDetails.MIN_OVERRIDE_RATE < advanceDetails.DEDUCTION_RATE) {
                     $deductionRate.prop('readonly', false);
                     $overrideDeductionPer.text('Min Payment Override rate=' + advanceDetails.MIN_OVERRIDE_RATE);
                     $deductionRate.attr('max', advanceDetails.DEDUCTION_RATE);
@@ -180,29 +183,29 @@
 
 
 
-//        app.setLoadingOnSubmit('AdvanceRequest', function () {
-//            var deductionPercentage = $monthlyDeductionPercentage.val();
-//            var deductionMonthValue = $monthToRepay.val();
-//            var requestAmt = $requestAmt.val();
-//
-//            var totalPaymnetVal = monthlyDeductionValue * deductionMonthValue;
-//
-//            var minPercentage = (advanceDetails.ALLOW_OVERRIDE_RATE == 'Y') ? advanceDetails.MIN_OVERRIDE_RATE : advanceDetails.DEDUCTION_RATE;
-//
-//            if (deductionPercentage > 100) {
-//                $('#beforeSubmitVal').text('Deduction Percetnage Cannot be Greater Than 100');
-//                return false;
-//            }
-//            if (minPercentage > deductionPercentage) {
-//                $('#beforeSubmitVal').text('Deduction Percetnage Cannot be less Than ' + minPercentage);
-//                return false;
-//            }
-//            if (requestAmt > totalPaymnetVal) {
-//                $('#beforeSubmitVal').text(requestAmt + 'cant be paid in ' + deductionMonthValue + ' Months with deduction of Rs' + monthlyDeductionValue);
-//                return false;
-//            }
-//            return true;
-//        });
+        //        app.setLoadingOnSubmit('AdvanceRequest', function () {
+        //            var deductionPercentage = $monthlyDeductionPercentage.val();
+        //            var deductionMonthValue = $monthToRepay.val();
+        //            var requestAmt = $requestAmt.val();
+        //
+        //            var totalPaymnetVal = monthlyDeductionValue * deductionMonthValue;
+        //
+        //            var minPercentage = (advanceDetails.ALLOW_OVERRIDE_RATE == 'Y') ? advanceDetails.MIN_OVERRIDE_RATE : advanceDetails.DEDUCTION_RATE;
+        //
+        //            if (deductionPercentage > 100) {
+        //                $('#beforeSubmitVal').text('Deduction Percetnage Cannot be Greater Than 100');
+        //                return false;
+        //            }
+        //            if (minPercentage > deductionPercentage) {
+        //                $('#beforeSubmitVal').text('Deduction Percetnage Cannot be less Than ' + minPercentage);
+        //                return false;
+        //            }
+        //            if (requestAmt > totalPaymnetVal) {
+        //                $('#beforeSubmitVal').text(requestAmt + 'cant be paid in ' + deductionMonthValue + ' Months with deduction of Rs' + monthlyDeductionValue);
+        //                return false;
+        //            }
+        //            return true;
+        //        });
 
 
     });

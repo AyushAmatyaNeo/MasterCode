@@ -64,7 +64,7 @@ class LeaveRequest extends HrisController
         }
         $leaveList = EntityHelper::getTableKVListWithSortOption($this->adapter, LeaveMaster::TABLE_NAME, LeaveMaster::LEAVE_ID, [LeaveMaster::LEAVE_ENAME], [LeaveMaster::STATUS => 'E'], LeaveMaster::LEAVE_ENAME, "ASC", null, true);
         $leaveSE = $this->getSelectElement(['name' => 'leave', 'id' => 'leaveId', 'class' => 'form-control', 'label' => 'Leave Type'], $leaveList);
-        $leaveStatusFE = $this->getStatusSelectElement(['name' => 'leaveStatus', 'id' => 'leaveRequestStatusId', 'class' => 'form-control', 'label' => 'Leave Request Status']);
+        $leaveStatusFE = $this->getStatusSelectElement(['name' => 'leaveStatus', 'id' => 'leaveRequestStatusId', 'class' => 'form-control', 'label' => 'Status']);
 
         return Helper::addFlashMessagesToArray($this, [
             'leaves' => $leaveSE,
@@ -86,9 +86,7 @@ class LeaveRequest extends HrisController
                 $fileName = pathinfo($files['file']['name'], PATHINFO_FILENAME);
                 $unique = Helper::generateUniqueName();
                 $newFileName = $unique . "." . $ext;
-                // $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/leave_documents/" . $newFileName);
                 $success = move_uploaded_file($files['file']['tmp_name'], Helper::UPLOAD_DIR . "/leave_documents/" . $newFileName);
-                // echo '<pre>';print_r($success);die; 
                 if (!$success) {
                     throw new Exception("Upload unsuccessful.");
                 }
@@ -105,6 +103,7 @@ class LeaveRequest extends HrisController
         return new JsonModel($responseData);
     }
 
+
     public function pushLeaveFileLinkAction()
     {
         try {
@@ -117,7 +116,6 @@ class LeaveRequest extends HrisController
             return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
         }
     }
-
     public function addAction()
     {
         $request = $this->getRequest();
@@ -390,7 +388,7 @@ class LeaveRequest extends HrisController
         }
         $leaveList = EntityHelper::getTableKVListWithSortOption($this->adapter, LeaveMaster::TABLE_NAME, LeaveMaster::LEAVE_ID, [LeaveMaster::LEAVE_ENAME], [LeaveMaster::STATUS => 'E'], LeaveMaster::LEAVE_ENAME, "ASC", null, true);
         $leaveSE = $this->getSelectElement(['name' => 'leave', 'id' => 'leaveId', 'class' => 'form-control', 'label' => 'Leave Type'], $leaveList);
-        $leaveStatusFE = $this->getStatusSelectElement(['name' => 'leaveStatus', 'id' => 'leaveRequestStatusId', 'class' => 'form-control', 'label' => 'Leave Request Status']);
+        $leaveStatusFE = $this->getStatusSelectElement(['name' => 'leaveStatus', 'id' => 'leaveRequestStatusId', 'class' => 'form-control', 'label' => 'Status']);
 
         return Helper::addFlashMessagesToArray($this, [
             'leaves' => $leaveSE,

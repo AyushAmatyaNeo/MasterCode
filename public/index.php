@@ -7,15 +7,14 @@ use Zend\Stdlib\ArrayUtils;
 
 // Define application environment
 defined('APPLICATION_ENV') || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
-//defined('APPLICATION_ENV') || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'development'));
+// defined('APPLICATION_ENV') || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'development'));
 /**
  * Display all errors when APPLICATION_ENV is development.
  */
 if ('development' == APPLICATION_ENV || 'staging' == APPLICATION_ENV) {
     error_reporting(E_ALL);
     ini_set("display_errors", 1);
-}
-else{
+} else {
     error_reporting(0);
     ini_set("display_errors", 0);
 }
@@ -40,10 +39,10 @@ include __DIR__ . '/../vendor/autoload.php';
 
 if (!class_exists(Application::class)) {
     throw new RuntimeException(
-    "Unable to load application.\n"
-    . "- Type `composer install` if you are developing locally.\n"
-    . "- Type `vagrant ssh -c 'composer install'` if you are using Vagrant.\n"
-    . "- Type `docker-compose run zf composer install` if you are using Docker.\n"
+        "Unable to load application.\n"
+            . "- Type `composer install` if you are developing locally.\n"
+            . "- Type `vagrant ssh -c 'composer install'` if you are using Vagrant.\n"
+            . "- Type `docker-compose run zf composer install` if you are using Docker.\n"
     );
 }
 

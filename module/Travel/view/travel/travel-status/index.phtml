@@ -1,28 +1,29 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 $this->headLink()->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-        ->appendFile($this->basePath('js/search.js'))
-        ->appendFile($this->basePath('js/travel/travel-status/index.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
+    ->appendFile($this->basePath('js/search.js'))
+    ->appendFile($this->basePath('js/travel/travel-status/index.js'));
 ?>
 
 <script>
-    document.searchValues =<?php echo json_encode($searchValues) ?>;
+    document.searchValues = <?php echo json_encode($searchValues) ?>;
+    document.expenseAddLink = '<?= $this->url("travelRequest", ["action" => "expenseAdd"]) ?>';
+    document.editExpenseLink = '<?= $this->url("travelStatus", ["action" => "expenseEdit"]) ?>';
     document.expenseDetailLink = '<?= $this->url("travelStatus", ["action" => "expenseDetail"]) ?>';
     document.viewLink = '<?= $this->url("travelStatus", ["action" => "view"]) ?>';
     document.editLink = '<?= $this->url("travelStatus", ["action" => "edit"]) ?>';
-    document.acl =<?php echo json_encode($acl); ?>;
-    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.employeeDetail = <?php echo json_encode($employeeDetail); ?>;
     document.bulkLink = '<?php echo $this->url('travelStatus', ['action' => 'bulk']); ?>';
-    document.preference =<?php echo json_encode($preference) ?>;
-	document.expenseeditLink = '<?= $this->url("travelStatus", ["action" => "edit"]) ?>';
+    document.preference = <?php echo json_encode($preference) ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\travelStatus')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -38,7 +39,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div class="portlet light bg-inverse">
@@ -60,14 +61,14 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <ul class="dropdown-menu pull-right">
                     <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
                     <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                 </ul>
@@ -130,81 +131,82 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <label>Status</label>
-<?php print $this->formElement($travelStatus); ?>
-            </div>   
+                <?php print $this->formElement($travelStatus); ?>
+            </div>
         </div>
         <div class="row margin-top-10">
             <div class="col-sm-2">
                 <div class="form-group">
-                    <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field" placeholder="From Date"/>
+                    <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" placeholder="From Date" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali"/>
+                    <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date"/>
+                    <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
-                    <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
+                    <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali" />
                 </div>
             </div>
+            <?php
+            //                    echo '<pre>';
+            //        print_r($itnaryCodeList);
+            //        die();
+            if (!empty($itnaryCodeList)) {
+            ?>
+                <div class="col-sm-2">
+                    <select class="form-control" name="itnaryId" id="itnaryId">
+                        <option value="-1">Travel Code</option>
+                        <?php
+                        foreach ($itnaryCodeList as $codeList) {
+                            echo '<option value="' . $codeList['ITNARY_ID'] . '">' . $codeList['ITNARY_CODE'] . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            <?php
+
+            }
+            ?>
         </div>
 
-            <div class="row margin-top-10">
-                <?php if ($acl['HR_CANCEL'] == 'Y') { ?>
-                    <div class="col-sm-4">
-                        <label><input id="super_power" type="checkbox" class="reset-field">Use Super Power</label>
-                    </div>
-                <?php } ?>
-                <div class="col-sm-offset-8 col-sm-4">
-                    <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
-                        Reset
-                        <i class="fa fa-refresh"></i>
-                    </button>
-                    <button id="search" class="btn btn-default btn-sm pull-right">
-                        Search
-                        <i class="fa fa-search"></i>
-                    </button>
+        <div class="row margin-top-10">
+            <?php if ($acl['HR_CANCEL'] == 'Y') { ?>
+                <div class="col-sm-4">
+                    <label><input id="super_power" type="checkbox" class="reset-field">Use Super Power</label>
+                </div>
+            <?php } ?>
+            <div class="col-sm-offset-8 col-sm-4">
+                <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                    Reset
+                    <i class="fa fa-refresh"></i>
+                </button>
+                <button id="search" class="btn btn-default btn-sm pull-right">
+                    Search
+                    <i class="fa fa-search"></i>
+                </button>
             </div>
         </div>
     </div>
-	<div class="row">
-            <div class="col-sm-2">
-            <div class="form-group">
-            <label for="fromDate">Year</label>
-                            <select name="year" id="appliedYear">
-                                <option value="18">2018</option>
-                                <option value="19">2019</option>
-                                <option value="20">2020</option>
-                                <option value="21">2021</option>
-                                <option value="22" >2022</option>
-                                <option value="23" selected>2023</option>
-								<option value="24" >2024</option>
-                            </select>
-            </div>   
-            </div>
 </div>
 <div class="margin-top-20">
     <div id="table">
     </div>
-    <div style="display: none;" class="row margin-top-20" id="bulkActionDiv" >
-        <?php  if($acl['HR_APPROVE']=='Y'){  ?>
-        <div class="col-sm-2 ">
-            <button action="reject" class="btn btn-danger btnApproveReject">Reject</button>
-        </div>
-        <div class="col-sm-2 col-sm-offset-8">
-            <button action="approve" class="btn btn-info btnApproveReject pull-right">Approve</button>
-        </div>
+    <div style="display: none;" class="row margin-top-20" id="bulkActionDiv">
+        <?php if ($acl['HR_APPROVE'] == 'Y') {  ?>
+            <div class="col-sm-2 ">
+                <button action="reject" class="btn btn-danger btnApproveReject">Reject</button>
+            </div>
+            <div class="col-sm-2 col-sm-offset-8">
+                <button action="approve" class="btn btn-info btnApproveReject pull-right">Approve</button>
+            </div>
         <?php }      ?>
     </div>
 </div>
-
-
-
-

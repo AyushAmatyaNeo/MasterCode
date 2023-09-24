@@ -1,0 +1,125 @@
+<?php
+$formTwelve->setAttribute('id', 'form12');
+
+$expOrgName = $formTwelve->get('salaryHead');
+$orgType = [
+    'Financial' => 'Financial',
+    'Non-Financial' => 'Non-Financial'
+];
+$expOrgType = $formTwelve->get('salaryHead');
+$expOrgType->setValueOptions($orgType);
+$salAmount = $formTwelve->get('amount');
+$expFromDate = $formTwelve->get('fromDate');
+$expToDate = $formTwelve->get('toDate');
+?>
+
+<div class="tab-pane aditional" id="tab12">
+    <div class="row esetup">
+        <div class="col-md-12">
+            <form name="employeeSalaryHistoryForm" ng-submit="submitSalaryHistory()" id="form12" novalidate>
+                <input type="hidden" name="employeeId" id="employeeId" value="<?php echo $id; ?>">
+                <table class="table table-striped table-bordered table-hover no-footer customtbl" id="qualificationTbl">
+                    <tr>
+                        <td width="18%"><?php print $this->formLabel($expOrgType); ?></td>
+                        <td><?php print $this->formLabel($salAmount); ?></td>
+                        <td><?php print $this->formLabel($expFromDate); ?></td>
+                        <td><?php print $this->formLabel($expToDate); ?></td>
+                        <td width="10%">Effect by Working Day</td>
+                        <td width="10%">Is Default Head</td>
+                        <td width="7%">Is Enable</td>
+                        <td width="1%"></td>
+                    </tr>
+                    <tr ng-repeat="salaryHistory in salaryHistoryFormList" style="background-color:{{salaryHistory.isEnableDaysChecked?'#0da70414':'#d900001f'}} !important">
+                        <td>
+                            <select select2 name="salaryHead" ng-model="salaryHistory.salaryHeadId" ng-options="salaryHeadList.PAY_EDESC for salaryHeadList in salaryHeadList track by salaryHeadList.PAY_ID" required="required" id="salaryHead" class="form-control">
+                            </select>
+                        </td>
+                        <td>
+                            <input type="Number" ng-model="salaryHistory.amount" name="amount_{{salaryHistory.checkbox}}" required="required" id="amount" class="form-control" value="" step="0.01">
+                            <div ng-show="employeeSalaryHistoryForm.$submitted || employeeSalaryHistoryForm.amount_{{salaryHistory.checkbox}}.$touched">
+                                <ul ng-show="employeeSalaryHistoryForm.amount_{{salaryHistory.checkbox}}.$error.required" class="help-block error">
+                                    <li>Amount is required.</li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>
+                            <input dvalue="{{salaryHistory.fromDate}}" datepicker type="text" ng-model="salaryHistory.fromDate" name="fromDate_{{salaryHistory.checkbox}}" required="required" class="form-control" id="expfromDate_{{salaryHistory.checkbox}}" value="">
+                            <div ng-show="employeeSalaryHistoryForm.$submitted || employeeSalaryHistoryForm.fromDate_{{salaryHistory.checkbox}}.$touched">
+                                <ul ng-show="employeeSalaryHistoryForm.fromDate_{{salaryHistory.checkbox}}.$error.required" class="help-block error">
+                                    <li>From Date is required.</li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td>
+                            <input dvalue="{{salaryHistory.toDate}}" datepicker type="text" ng-model="salaryHistory.toDate" name="toDate_{{salaryHistory.checkbox}}" class="form-control" id="exptoDate_{{salaryHistory.checkbox}}" value="">
+                            <div ng-show="employeeSalaryHistoryForm.$submitted || employeeSalaryHistoryForm.toDate_{{salaryHistory.checkbox}}.$touched">
+                                <ul ng-show="employeeSalaryHistoryForm.toDate_{{salaryHistory.checkbox}}.$error.required" class="help-block error">
+                                    <li>To Date is required.</li>
+                                </ul>
+                            </div>
+                        </td>
+                        <td width="1%" style="padding:15px;" class="checkboxgap">
+                            <div class="md-checkbox">
+                                <input type="checkbox" id="effectByWorkingDay_{{salaryHistory.checkbox}}" class="md-check" ng-model="salaryHistory.effectByWorkingDaysChecked">
+                                <label for="effectByWorkingDay_{{salaryHistory.checkbox}}">
+                                    <span class="inc" style="margin-left: 35%;"></span>
+                                    <span class="check" style="margin-left: 35%;"></span>
+                                    <span class="box" style="margin-left: 35%;"></span>
+                                </label>
+                            </div>
+                        </td>
+                        <td width="1%" style="padding:15px;" class="checkboxgap">
+                            <div class="md-checkbox">
+                                <input type="checkbox" id="isDefaultHead_{{salaryHistory.checkbox}}" class="md-check" ng-model="salaryHistory.isDefaultHeadChecked">
+                                <label for="isDefaultHead_{{salaryHistory.checkbox}}">
+                                    <span class="inc" style="margin-left: 35%;"></span>
+                                    <span class="check" style="margin-left: 35%;"></span>
+                                    <span class="box" style="margin-left: 35%;"></span>
+                                </label>
+                            </div>
+                        </td>
+                        <td width="1%" style="padding:15px;" class="checkboxgap">
+                            <div class="md-checkbox">
+                                <input type="checkbox" id="isEnableDays_{{salaryHistory.checkbox}}" class="md-check" ng-model="salaryHistory.isEnableDaysChecked">
+                                <label for="isEnableDays_{{salaryHistory.checkbox}}">
+                                    <span class="inc"></span>
+                                    <span class="check"></span>
+                                    <span class="box"></span>
+                                </label>
+                            </div>
+                        </td>
+                        <td width="1%" style="padding:15px;" class="checkboxgap">
+                            <div class="md-checkbox">
+                                <input type="checkbox" id="{{salaryHistory.checkbox}}" class="md-check" ng-model="salaryHistory.checked">
+                                <label for="{{salaryHistory.checkbox}}">
+                                    <span class="inc"></span>
+                                    <span class="check"></span>
+                                    <span class="box"></span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <a href="javascript:;" class="btn btn-icon-only default pull-right" ng-click="addSalaryHistory()">
+                                <i class="fa fa-plus"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="javascript:;" class="btn btn-icon-only default" ng-click="deleteSalaryHistory()">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+                <input type="submit" class="hidden" id="btnform12" value="submit">
+            </form>
+        </div>
+    </div>
+</div>

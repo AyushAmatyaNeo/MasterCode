@@ -18,17 +18,17 @@ $this->headScript()
 ?>
 
 <script>
-    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
     document.picUrl = '<?= $this->basePath('img/nobody_m.original.jpg'); ?>';
     document.pullAttendanceWS = '<?php echo $this->url('attendancebyhr', ['action' => 'pullAttendance']); ?>';
     document.bulkAttendanceWS = '<?php echo $this->url('attendancebyhr', ['action' => 'bulkAttendanceWS']); ?>';
     document.pullInOutTimeLink = '<?php echo $this->url('attendancebyhr', ['action' => 'pullInOutTime']); ?>';
-    document.acl =<?php echo json_encode($acl); ?>;
-    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
-    document.allowShiftChange ='<?php echo $allowShiftChange; ?>';
-    document.allowTimeChange ='<?php echo $allowTimeChange; ?>';
-    document.preference =<?php echo json_encode($preference) ?>;
-    document.braProv = <?php echo json_encode($braProv);?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.employeeDetail = <?php echo json_encode($employeeDetail); ?>;
+    document.allowShiftChange = '<?php echo $allowShiftChange; ?>';
+    document.allowTimeChange = '<?php echo $allowTimeChange; ?>';
+    document.preference = <?php echo json_encode($preference) ?>;
+    document.braProv = <?php echo json_encode($braProv); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\attendancebyhr')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -46,7 +46,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div class="portlet light bg-inverse">
@@ -60,7 +60,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             <a href="" class="fullscreen" data-original-title="" title=""> </a>
         </div>
         <div class="actions">
-            <?php if ($acl['ALLOW_ADD'] == 'Y'): ?>
+            <?php if ($acl['ALLOW_ADD'] == 'Y') : ?>
                 <a href="<?= $this->url('attendancebyhr', ['action' => 'checkIn']) ?>" class="btn default btn-sm">
                     <i class="fa fa-plus-square icon-black"></i> Check In </a>
                 <a href="<?= $this->url('attendancebyhr', ['action' => 'checkOut']) ?>" class="btn default btn-sm">
@@ -77,26 +77,26 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <ul class="dropdown-menu pull-right">
                     <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
                     <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to PDF 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to PDF
                         </a>
                     </li>
                     <li>
                         <a href="javascript:;" id="excelExportDaily">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to Excel Daily 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to Excel Daily
                         </a>
                     </li>
                     <li>
                         <a href="javascript:;" id="pdfExportDaily">
-                            <i class="fa fa-file-pdf-o" ></i> 
-                            Export to Pdf Daily 
+                            <i class="fa fa-file-pdf-o"></i>
+                            Export to Pdf Daily
                         </a>
                     </li>
                 </ul>
@@ -165,31 +165,31 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             <div class="col-sm-2 ">
                 <?php print $this->formLabel($status); ?>
                 <?php print $this->formElement($status); ?>
-            </div> 
+            </div>
         </div>
         <div class="row margin-top-10">
             <div class="col-sm-2">
                 <div class="form-group">
                     <label>From Date(AD)</label>
-                    <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field" placeholder="From Date"/>
+                    <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" placeholder="From Date" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label>From Date(BS)</label>
-                    <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali"/>
+                    <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label>To Date(AD)</label>
-                    <input type="text" id="toDate" name="toDate"  class="form-control reset-field" placeholder="To Date"/>
+                    <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date" />
                 </div>
             </div>
             <div class="col-sm-2">
                 <div class="form-group">
                     <label>To Date(BS)</label>
-                    <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
+                    <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali" />
                 </div>
             </div>
             <div class="col-sm-2">
@@ -204,15 +204,15 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 </select>
             </div>
         </div>
-        <?php if($preference['provinceWiseBranchFilter'] == 'Y' && $acl['CONTROL'] == 'F') {?>
+        <?php if ($preference['provinceWiseBranchFilter'] == 'Y' && $acl['CONTROL'] == 'F') { ?>
             <div class="row margin-top-10">
                 <div class="col-sm-2">
                     <label>Province</label>
                     <select class="form-control reset-field" name="province[]" id="province">
                         <option>-----</option>
-                        <?php foreach($provinces as $key => $value ){?>
-                            <option value='<?=$key?>'><?=$value?></option>
-                        <?php  }?>
+                        <?php foreach ($provinces as $key => $value) { ?>
+                            <option value='<?= $key ?>'><?= $value ?></option>
+                        <?php  } ?>
                     </select>
                     </select>
                 </div>
@@ -234,52 +234,52 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
         </div>
     </div>
-</div> 
-  
+</div>
+
 
 <div id="table">
 </div>
-    
-<div style="display: none;" class="row margin-top-20" id="acceptRejectDiv" >
-    <?php  if($acl['HR_APPROVE']=='Y'){  ?>
-    <div class="col-sm-2 ">
-        <button id="A" class="btn btn-danger btnApproveReject">Absent</button>
-    </div>
-    <div class="col-sm-2 manualShift">
-        <label>Shift</label>
-        <select id="shiftId" name="shiftId">
-        <option value="0" selected="selected">---</option>
-        <?php foreach($shiftList as $shift){ ?>
-            <option value="<?=$shift['SHIFT_ID']?>"><?=$shift['SHIFT_ENAME']?></option>
-        <?php } ?>
-        </select>
-    </div>
 
-    <div class="col-sm-3 manualTime">
-        <div class="form-group ">
-            <label for="inTime">In Time</label>                            
-            <!--<span class="required" aria-required="true">*</span>-->
-            <div class="input-group dropdown-select">
-                <input type="text" name="inTime" id="inTime" data-format="h&#x3A;mm&#x20;a" data-template="hh&#x20;&#x3A;&#x20;mm&#x20;A" class="form-control" value="">     
+<div style="display: none;" class="row margin-top-20" id="acceptRejectDiv">
+    <?php if ($acl['HR_APPROVE'] == 'Y') {  ?>
+        <div class="col-sm-2 ">
+            <button id="A" class="btn btn-danger btnApproveReject">Absent</button>
+        </div>
+        <div class="col-sm-2 manualShift">
+            <label>Shift</label>
+            <select id="shiftId" name="shiftId">
+                <option value="0" selected="selected">---</option>
+                <?php foreach ($shiftList as $shift) { ?>
+                    <option value="<?= $shift['SHIFT_ID'] ?>"><?= $shift['SHIFT_ENAME'] ?></option>
+                <?php } ?>
+            </select>
+        </div>
+
+        <div class="col-sm-3 manualTime">
+            <div class="form-group ">
+                <label for="inTime">In Time</label>
+                <!--<span class="required" aria-required="true">*</span>-->
+                <div class="input-group dropdown-select">
+                    <input type="text" name="inTime" id="inTime" data-format="h&#x3A;mm&#x20;a" data-template="hh&#x20;&#x3A;&#x20;mm&#x20;A" class="form-control" value="">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-sm-3 manualTime">
-        <div class="form-group ">
-            <label for="outTime">Out Time</label>                            
-            <div class="input-group dropdown-select">
-                <input type="text" name="outTime" id="outTime" data-format="h&#x3A;mm&#x20;a" data-template="hh&#x20;&#x3A;&#x20;mm&#x20;A" class="form-control" value="">    
+        <div class="col-sm-3 manualTime">
+            <div class="form-group ">
+                <label for="outTime">Out Time</label>
+                <div class="input-group dropdown-select">
+                    <input type="text" name="outTime" id="outTime" data-format="h&#x3A;mm&#x20;a" data-template="hh&#x20;&#x3A;&#x20;mm&#x20;A" class="form-control" value="">
+                </div>
+                <label><input id='outNextDay' type="checkbox" value="Y" name='nextDay'>Next Day</label>
             </div>
-            <label><input id ='outNextDay' type="checkbox" value="Y" name='nextDay'>Next Day</label>
         </div>
-    </div>
 
 
 
-    <!-- <div class="col-sm-2 col-sm-offset-8"> -->
-    <div class="col-sm-2 pull-right">
-        <button id="P" class="btn btn-info btnApproveReject pull-right">Present</button>
-    </div>
+        <!-- <div class="col-sm-2 col-sm-offset-8"> -->
+        <div class="col-sm-2 pull-right">
+            <button id="P" class="btn btn-info btnApproveReject pull-right">Present</button>
+        </div>
     <?php }      ?>
 </div>

@@ -15,7 +15,8 @@ use Zend\Form\Annotation;
  * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("attendanceByHr")
  */
-class AttendanceRequestForm {
+class AttendanceRequestForm
+{
 
     /**
      * @Annotation\Type("Zend\Form\Element\Text")
@@ -95,4 +96,12 @@ class AttendanceRequestForm {
      */
     public $submit;
 
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"disable_inarray_validator":"true","label":"Employee"})
+     * @Annotation\Attributes({ "id":"employeeId","class":"form-control"})
+     */
+    public $employeeId;
 }

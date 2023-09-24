@@ -20,47 +20,62 @@
                     <i class="fa fa-times"></i>
                 </a>
                 #}#
-                #if(ALLOW_EXPENSE_APPLY=='Y'){#
-                <a  class="btn btn-icon-only blue" href="${document.expenseAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
-                    <i class="fa fa-arrow-right"></i>
-                </a>
-                #}#
+              
             </div>
         `;
+        // #if(ALLOW_EXPENSE_APPLY=='Y'){#
+        //     <a  class="btn btn-icon-only blue" href="${document.expenseAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
+        //         <i class="fa fa-arrow-right"></i>
+        //     </a>
+        //     #}#
+        //     #if(ALLOW_ADVANCE_ITR=='Y'){#
+        //         <a  class="btn btn-icon-only blue" href="${document.advanceInterAddLink}/#:TRAVEL_ID#" style="height:17px;" title="Apply For Expense">
+        //             <i class="fa fa-arrow-right"></i>
+        //         </a>
+        //         #}#
         app.initializeKendoGrid($table, [
-            {title: "Start Date",
+            {
+                title: "Start Date",
                 columns: [{
-                        field: "FROM_DATE_AD",
-                        title: "English",
-                    },
-                    {
-                        field: "FROM_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "To Date",
+                    field: "FROM_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "FROM_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "TO_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "TO_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "Applied Date",
+                    field: "TO_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "TO_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "Applied Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "REQUESTED_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {field: "DEPARTURE", title: "Departure"},
-            {field: "DESTINATION", title: "Destination"},
-            {field: "REQUESTED_AMOUNT", title: "Request Amt."},
-            {field: "CURRENCY", title: "CURRENCY"},
-            {field: "REQUESTED_TYPE", title: "Request For"},
-            {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: "TRAVEL_ID", title: "Action", template: action}
+                    field: "REQUESTED_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "REQUESTED_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            { field: "DEPARTURE", title: "Departure" },
+            { field: "DESTINATION", title: "Destination" },
+            { field: "REQUESTED_AMOUNT", title: "Request Amt." },
+            { field: "CURRENCY", title: "Currency" },
+            { field: "REQUESTED_TYPE", title: "Request For" },
+            { field: "TRANSPORT_TYPE_DETAIL", title: "Transport" },
+            { field: "TRAVEL_TYPE", title: "Travel Type" },
+            { field: "STATUS_DETAIL", title: "Status" },
+            { field: "TRAVEL_ID", title: "Action", template: action }
         ]);
 
 
@@ -69,13 +84,16 @@
             var statusId = $('#statusId').val();
             var fromDate = $('#fromDate').val();
             var toDate = $('#toDate').val();
-			var year = $('#appliedYear').val();
+            var year = $('#appliedYear').val();
+            var travelType = $('#travelId').val();
+
             app.pullDataById('', {
                 'employeeId': employeeId,
                 'statusId': statusId,
                 'fromDate': fromDate,
                 'toDate': toDate,
-				'year': year
+                'year': year,
+                'travelType': travelType
             }).then(function (response) {
                 if (response.success) {
                     app.renderKendoGrid($table, response.data);
@@ -88,8 +106,9 @@
 
         });
 
+        // $('#search').trigger('click');
 
-        app.searchTable($table, ['EMPLOYEE_NAME', 'EMPLOYEE_CODE']);
+        app.searchTable($table, ['EMPLOYEE_NAME', 'EMPLOYEE_CODE', 'FROM_DATE_AD', 'FROM_DATE_BS', 'TO_DATE_AD', 'TO_DATE_BS', 'TRAVEL_TYPE',]);
         var exportMap = {
             'FROM_DATE_AD': 'From Date(AD)',
             'FROM_DATE_BS': 'From Date(BS)',
@@ -103,6 +122,7 @@
             'REQUESTED_TYPE_DETAIL': 'Request Type',
             'TRANSPORT_TYPE_DETAIL': 'Transport',
             'STATUS_DETAIL': 'Status',
+            'TRAVEL_TYPE': 'Travel Type',
             'PURPOSE': 'Purpose',
             'REMARKS': 'Remarks',
             'RECOMMENDER_NAME': 'Recommender',

@@ -13,6 +13,7 @@ use Appraisal\Model\AppraisalAssign;
 use Appraisal\Model\AppraisalStatus;
 use Appraisal\Repository\AppraisalAssignRepository;
 use Exception;
+use AttendanceManagement\Model\ShiftSetup;
 use System\Model\UserSetup;
 use Notification\Model\PaySlipDetailsModel;
 use System\Repository\UserSetupRepository;
@@ -75,6 +76,7 @@ use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\Controller\Plugin\Url;
+use Notification\Model\RoasterAssignModel;
 
 class HeadNotification
 {
@@ -117,7 +119,9 @@ class HeadNotification
         $notification->messageDateTime = Helper::getcurrentExpressionDateTime();
         $notification->expiryTime = Helper::getExpressionDate(date(Helper::PHP_DATE_FORMAT, strtotime("+" . self::EXPIRE_IN . " days")));
         $notification->status = 'U';
-        // echo '<pre>';print_r($notification);die;
+        // echo '<pre>';
+        // print_r($notification);
+        // die;
         return $notificationRepo->add($notification);
     }
 
@@ -596,6 +600,29 @@ class HeadNotification
         // print_r($newUserModel);
         // die;
         self::sendEmail($newUserModel, 52, $adapter, $url);
+    }
+
+    private static function roasterAssigned(RoasterAssignModel $roasterReport, AdapterInterface $adapter, Url $url)
+    {
+
+        // self::initFullModel(new RoasterRepo($adapter), $roasterReport, $roasterReport->employeeId);
+        $notification = self::initializeNotificationModel(
+            $roasterReport->fromId,
+            $roasterReport->employeeId,
+            \Notification\Model\RoasterModel::class,
+            $adapter
+        );
+        $notification->employeeId = $roasterReport->employeeId;
+        $notification->fromDate = $roasterReport->fromDate;
+        $notification->toDate = $roasterReport->toDate;
+        $notification->fromId = $roasterReport->fromId;
+        $notification->fullName = $roasterReport->fullName;
+        $notification->route = json_encode(["route" => "roasterReport", "action" => "index", "id" => $roasterReport->employeeId]);
+        $title = "Roaster Assign";
+        $desc = "$roasterReport->fullName has been assigned roaster from $roasterReport->fromDate to  $roasterReport->toDate";
+
+        self::addNotifications($notification, $title, $desc, $adapter);
+        self::sendEmail($notification, 54, $adapter, $url);
     }
 
     private static function travelRecommend(TravelRequest $request, AdapterInterface $adapter, Url $url, string $status)
@@ -1965,6 +1992,9 @@ class HeadNotification
                 break;
             case NotificationEvents::PAYSLIP_EMAIL:
                 self::sendPayslipEmail($model, $adapter, $url);
+                break;
+            case NotificationEvents::RAOSTER_ASSIGN:
+                self::roasterAssigned($model, $adapter, $url);
                 break;
         }
     }

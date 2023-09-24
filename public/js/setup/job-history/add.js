@@ -31,7 +31,7 @@
                 startDate: startDate
             }).then(function (response) {
                 var data = response.data;
-                if (typeof data === "undefined" || data == null) {
+                if (typeof data === "undefined" || data == null || data == false) {
                     return;
                 }
                 $serviceEventTypeId.val(data['SERVICE_EVENT_TYPE_ID']).trigger('change.select2');
@@ -65,7 +65,7 @@
         });
 
         var showHistory = function (employeeId) {
-            app.pullDataById(document.wsGetHistoryList, {employeeId}).then(function (response) {
+            app.pullDataById(document.wsGetHistoryList, { employeeId }).then(function (response) {
                 console.log(response);
                 if (response.success) {
                     var data = [];
@@ -76,8 +76,8 @@
                             time: item['START_DATE'],
                             header: item['SERVICE_EVENT_TYPE_NAME'],
                             body: [{
-                                    tag: 'div',
-                                    content: `
+                                tag: 'div',
+                                content: `
                                             <table class="table">
                                             <tr><td>Company</td><td>${item['COMPANY_NAME']}</td></tr>
                                             <tr><td>Branch</td><td>${item['BRANCH_NAME']}</td></tr>
@@ -87,7 +87,7 @@
                                             <tr><td>Service Type</td><td>${item['SERVICE_TYPE_NAME']}</td></tr>
                                             <tr><td>Salary</td><td>${item['TO_SALARY']}</td></tr>
                                             </table>`
-                                }],
+                            }],
                         });
                     });
                     $('#myTimeline').albeTimeline(data);

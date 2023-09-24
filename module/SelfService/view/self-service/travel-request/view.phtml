@@ -3,14 +3,14 @@
 </div>
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
- 
-$this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('js/SelfService/travel-request/view.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+
+$this->headScript()
+    ->appendFile($this->basePath('js/SelfService/travel-request/view.js'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'travelRequest-form');
@@ -107,7 +107,7 @@ print $this->form()->openTag($form);
                             </table>
                         </div>
                         <div class="col-sm-4">
-                            <table width="100%">  
+                            <table width="100%">
                                 <tr height="30">
                                     <td>
                                         Approver
@@ -116,7 +116,7 @@ print $this->form()->openTag($form);
                                     <td>
                                         <?php echo $approver; ?>
                                     </td>
-                                </tr>                               
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -135,17 +135,16 @@ print $this->form()->openTag($form);
                                     </div>
                                     <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block']); ?>
                                 </div>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliStartDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
-                                               class="form-control" value="" disabled="disabled">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="" disabled="disabled">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>    
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-sm-4">
@@ -159,23 +158,21 @@ print $this->form()->openTag($form);
                                     </div>
                                     <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block']); ?>
                                 </div>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliEndDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
-                                               class="form-control" value="" disabled="disabled">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="" disabled="disabled">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>     
+                            </div>
+                        </div>
                     </div>
-                    
+
                     <div class="col-sm-4">
-                        <div
-                            class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
-                                <?php print $this->formLabel($noOfDays); ?>
+                        <div class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($noOfDays); ?>
                             <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($noOfDays); ?>
                             <span id="errorMsg" style="font-size:11px; color:red;"></span>
@@ -184,23 +181,23 @@ print $this->form()->openTag($form);
                     </div>
                 </div>
 
-                
+
                 <div class=" row">
-                    <?php if(!$itnaryId){ ?>
-                     <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($departure); ?>
-                            <?php print $this->formElement($departure); ?>
-                            <?php print $this->formElementErrors()->render($departure, ['class' => 'help-block']); ?>
-                        </div>               
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($destination); ?>
-                            <?php print $this->formElement($destination); ?>
-                            <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
-                        </div>               
-                    </div>
+                    <?php if (!$itnaryId) { ?>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <?php print $this->formLabel($departure); ?>
+                                <?php print $this->formElement($departure); ?>
+                                <?php print $this->formElementErrors()->render($departure, ['class' => 'help-block']); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <?php print $this->formLabel($destination); ?>
+                                <?php print $this->formElement($destination); ?>
+                                <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
+                            </div>
+                        </div>
                     <?php } ?>
 
                     <div class="col-sm-4">
@@ -216,7 +213,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($requestedType); ?>
                             <?php print $this->formElement($requestedType); ?>
                             <?php print $this->formElementErrors()->render($requestedType, ['class' => 'help-block']); ?>
-                        </div>   
+                        </div>
                     </div>
                 </div>
 
@@ -226,7 +223,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($transportType); ?>
                             <?php print $this->formElement($transportType); ?>
                             <?php print $this->formElementErrors()->render($transportType, ['class' => 'help-block']); ?>
-                        </div> 
+                        </div>
                     </div>
 
                     <div class="col-sm-4">
@@ -244,28 +241,29 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
                         </div>
                     </div>
-                </div>   
+                </div>
 
-                <?php if(!empty($files)){ ?>
-                        <div class="row"> 
-                            <div class="col-sm-6"> 
-                                <label>Attachments</label>
-                                    <div style="overflow: scroll; height:100px;" >
-                                        <ul> 
-                                            <?php foreach($files as $file){ ?>
-                                                <a target="_blank" href="<?='../../../uploads/travel_documents/'.$file['FILE_IN_DIR_NAME']?>">
-                                                    <li><?=$file['FILE_NAME']?></li></a>
-                                            <?php } ?>
-                                        </ul>
-                                    </div>
-                                </div>
+                <?php if (!empty($files)) { ?>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Attachments</label>
+                            <div style="overflow: scroll; height:100px;">
+                                <ul>
+                                    <?php foreach ($files as $file) { ?>
+                                        <a target="_blank" href="<?= '../../../uploads/travel_documents/' . $file['FILE_IN_DIR_NAME'] ?>">
+                                            <li><?= $file['FILE_NAME'] ?></li>
+                                        </a>
+                                    <?php } ?>
+                                </ul>
+                            </div>
                         </div>
-                    <?php } ?>
+                    </div>
+                <?php } ?>
 
                 <?php if (isset($detail['SUB_EMPLOYEE_ID'])) { ?>
                     <div class="form-group padding-0">
                         <label for="noOfDays">
-                            Substitute Employee 
+                            Substitute Employee
                         </label>
                         <div>
                             <select disabled="disabled" class="form-control" name="travelSubstitute">
@@ -273,40 +271,37 @@ print $this->form()->openTag($form);
                             </select>
                         </div>
                     </div>
-                    <div
-                        class="form-group margin-top-10 required">
+                    <div class="form-group margin-top-10 required">
                         <label>Reason for action [From Sub. Employee] <?php echo $detail['SUB_APPROVED_FLAG_DETAIL']; ?></label>
                         <textarea disabled="disabled" name="subRemarks" id="form-subRemarks" class="form-subRemarks form-control" style="height: 50px; font-size:12px">
                             <?php echo $detail['SUB_REMARKS']; ?>
                         </textarea>
                     </div>
                 <?php } ?>
-                
+
                 <div class="row">
-                        <div class="col-md-12">
-                            <?php
-                             if ($itnaryId) {
+                    <div class="col-md-12">
+                        <?php
+                        if ($itnaryId) {
                             echo $this->partial('travel/travel-itnary-request/itnaryPartialView.phtml', [
                                 'itnaryId' => $itnaryId,
                                 'travelItnaryDet' => $travelItnaryDet,
                                 'travelItnaryMemDet' => $travelItnaryMemDet
                             ]);
-                             }
-                            ?>
+                        }
+                        ?>
 
-                        </div>
                     </div>
-                
-                
+                </div>
+
+
             </div>
             <?php if ($detail['SUB_APPROVED_FLAG'] == 'Y') { ?>
-                <div
-                    class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                <div class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
                     <label>Reason for action [From Recommender]</label>
                     <?php print $this->formElement($recommendedRemarks); ?>
                 </div>
-                <div
-                    class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                <div class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
                     <label>Reason for action [From Approver]</label>
                     <?php print $this->formElement($approvedRemarks); ?>
                 </div>
@@ -327,10 +322,13 @@ print $this->form()->closeTag();
             <ul id="headingList">
                 <li>
                     <?php if ($detail['COMPANY_FILE_PATH'] != null || $detail['COMPANY_FILE_PATH'] != "") { ?>
-                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50"/>
+                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50" />
                     <?php } ?>
-                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2></li>
-                <li id="underline"><h3>Travel Authorization Form</h3></li>
+                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2>
+                </li>
+                <li id="underline">
+                    <h3>Travel Authorization Form</h3>
+                </li>
             </ul>
         </div>
     </div>
@@ -371,7 +369,7 @@ print $this->form()->closeTag();
         <div class="signRecommender">
             <p style="height: 14px"><label><?= ucwords(strtolower($recommender)); ?></label></p>
             <div class="border-dotted" style="margin-left: 55px;">
-                Recommended By 
+                Recommended By
             </div>
         </div>
         <div class="signApprover">

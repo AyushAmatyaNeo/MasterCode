@@ -35,15 +35,18 @@ $companyAddress = $form->get('companyAddress');
 $companyAccountNo = $form->get('companyAccountNo');
 $displayHrApproved = $form->get('displayHrApproved');
 $doNotInsertSubDetailFlag = $form->get('doNotInsertSubDetailFlag');
+$exchangeRate = $form->get('exchangeRate');
+$payslipEmail = $form->get('payslipEmail');
+$salaryHistory = $form->get('salaryHistory');
 
 $submit = $form->get('submit');
 
 $form->setAttribute('action', $this->url('system-setting', ['action' => 'index']));
 $form->prepare();
 ?>
-<?php if ($this->messages): ?>
+<?php if ($this->messages) : ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php endif; ?>
 <?php
@@ -94,6 +97,50 @@ if ($this->messages) {
                             <?php print $this->formElementErrors()->render($companyAccountNo, ['class' => 'help-block error']); ?>
                         </div>
                     </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($accountLockTryNumber); ?>
+                            <?php print $this->formElement($accountLockTryNumber); ?>
+                            <?php print $this->formElementErrors()->render($accountLockTryNumber, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($accountLockTrySecond); ?>
+                            <?php print $this->formElement($accountLockTrySecond); ?>
+                            <?php print $this->formElementErrors()->render($accountLockTrySecond, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($forcePasswordRenewDay); ?>
+                            <?php print $this->formElement($forcePasswordRenewDay); ?>
+                            <?php print $this->formElementErrors()->render($forcePasswordRenewDay, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($subLeaveMaxDays); ?>
+                            <?php print $this->formElement($subLeaveMaxDays); ?>
+                            <?php print $this->formElementErrors()->render($subLeaveMaxDays, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($leaveEncashMaxDays); ?>
+                            <?php print $this->formElement($leaveEncashMaxDays); ?>
+                            <?php print $this->formElementErrors()->render($leaveEncashMaxDays, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($latePenaltyLeaveDeduction); ?>
+                            <?php print $this->formElement($latePenaltyLeaveDeduction); ?>
+                            <?php print $this->formElementErrors()->render($latePenaltyLeaveDeduction, ['class' => 'help-block error']); ?>
+                        </div>
+                    </div>
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($allowSystemAttendance); ?>
@@ -121,20 +168,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($allowAccountLock, ['class' => 'help-block error']); ?>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($accountLockTryNumber); ?>
-                            <?php print $this->formElement($accountLockTryNumber); ?>
-                            <?php print $this->formElementErrors()->render($accountLockTryNumber, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($accountLockTrySecond); ?>
-                            <?php print $this->formElement($accountLockTrySecond); ?>
-                            <?php print $this->formElementErrors()->render($accountLockTrySecond, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($forcePasswordRenew); ?>
@@ -144,13 +178,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($forcePasswordRenew, ['class' => 'help-block error']); ?>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($forcePasswordRenewDay); ?>
-                            <?php print $this->formElement($forcePasswordRenewDay); ?>
-                            <?php print $this->formElementErrors()->render($forcePasswordRenewDay, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($showAddressBook); ?>
@@ -178,13 +206,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($oldPayslipType, ['class' => 'help-block error']); ?>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($latePenaltyLeaveDeduction); ?>
-                            <?php print $this->formElement($latePenaltyLeaveDeduction); ?>
-                            <?php print $this->formElementErrors()->render($latePenaltyLeaveDeduction, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($enablePrevMthLeaveReq); ?>
@@ -230,7 +252,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($travelSubCycle, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($subLeaveReference); ?>
@@ -240,22 +262,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($subLeaveReference, ['class' => 'help-block error']); ?>
                     </div>
-                    
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($subLeaveMaxDays); ?>
-                            <?php print $this->formElement($subLeaveMaxDays); ?>
-                            <?php print $this->formElementErrors()->render($subLeaveMaxDays, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
 
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <?php print $this->formLabel($leaveEncashMaxDays); ?>
-                            <?php print $this->formElement($leaveEncashMaxDays); ?>
-                            <?php print $this->formElementErrors()->render($leaveEncashMaxDays, ['class' => 'help-block error']); ?>
-                        </div>
-                    </div>
 
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
@@ -264,10 +271,36 @@ if ($this->messages) {
                                 <?php $customRenderer($provinceWiseBranchFilter); ?>
                             </div>
                         </div>
-                        <?php print $this->formElementErrors()->render($provinceWiseBranchFilter, ['class' => 'help-block error']); ?>
+                        <?php print $this->formElementErrors()->render($payslipEmail, ['class' => 'help-block error']); ?>
                     </div>
-					
-					<div class="col-sm-4">
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($payslipEmail); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($payslipEmail); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($exchangeRate, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($exchangeRate); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($exchangeRate); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($exchangeRate, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($salaryHistory); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($salaryHistory); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($salaryHistory, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($doNotInsertSubDetailFlag); ?><br>
                             <?php print $this->formElement($doNotInsertSubDetailFlag); ?>
@@ -276,7 +309,7 @@ if ($this->messages) {
                     </div>
 
                 </div>
-                    <h3 class="form-section">Report</h3>
+                <h3 class="form-section">Report</h3>
                 <div class="row">
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
@@ -332,7 +365,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($includeBranch, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($orderByName); ?>
@@ -342,7 +375,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($orderByName, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($orderByPosition); ?>
@@ -352,7 +385,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($orderByPosition, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($orderByDesignation); ?>
@@ -362,7 +395,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($orderByDesignation, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($orderByJoinDate); ?>
@@ -372,7 +405,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($orderByJoinDate, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($orderBySeniority); ?>
@@ -382,7 +415,7 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($orderBySeniority, ['class' => 'help-block error']); ?>
                     </div>
-                    
+
                     <div class=" col-sm-4 ">
                         <div class="form-group padding-0">
                             <?php print $this->formLabel($displayHrApproved); ?>
@@ -392,8 +425,8 @@ if ($this->messages) {
                         </div>
                         <?php print $this->formElementErrors()->render($displayHrApproved, ['class' => 'help-block error']); ?>
                     </div>
-                    
-                    
+
+
                 </div>
                 <div class="">
                     <?php print $this->formSubmit($submit); ?>

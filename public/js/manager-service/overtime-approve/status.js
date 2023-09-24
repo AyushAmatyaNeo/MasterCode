@@ -7,9 +7,10 @@
         var $search = $('#search');
 
         var columns = [
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "FULL_NAME", title: "Employee"},
-            {title: "Requested Date",
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "FULL_NAME", title: "Employee" },
+            {
+                title: "Requested Date",
                 columns: [
                     {
                         field: "REQUESTED_DATE_AD",
@@ -20,25 +21,30 @@
                         title: "BS",
                     }]
             },
-            {title: "Overtime Date",
+            {
+                title: "Overtime Date",
                 columns: [
                     {
                         field: "OVERTIME_DATE_AD",
                         title: "AD",
                     },
-                    {field: "OVERTIME_DATE_BS",
+                    {
+                        field: "OVERTIME_DATE_BS",
                         title: "BS",
-                    }]},
-            {field: "DETAILS", title: "Time (From-To)", template: `
+                    }]
+            },
+            {
+                field: "DETAILS", title: "Time (From-To)", template: `
                 <ul id="branchList"> #  ln=DETAILS.length # #for(var i=0; i<ln; i++) { #
                     <li>
                        #=i+1 #) #=DETAILS[i].START_TIME # - #=DETAILS[i].END_TIME #
                     </li> #}#
                 </ul>`},
-            {field: "TOTAL_HOUR", title: "Total Hour"},
-            {field: "YOUR_ROLE", title: "Your Role"},
-            {field: "STATUS", title: "Status"},
-            {field: ["OVERTIME_ID", "ROLE"], title: "Action", template: `
+            { field: "TOTAL_HOUR", title: "Total Hour" },
+            { field: "YOUR_ROLE", title: "Your Role" },
+            { field: "STATUS", title: "Status" },
+            {
+                field: ["OVERTIME_ID", "ROLE"], title: "Action", template: `
             <span> 
                 <a class="btn  btn-icon-only btn-success" href="${document.viewLink}/#: OVERTIME_ID #/#: ROLE #" style="height:17px;" title="view">
                     <i class="fa fa-search-plus"></i>
@@ -83,10 +89,10 @@
             }, function (failure) {
             });
         });
-        
-//        $("#reset").on("click", function () {
-//            $(".form-control").val("");
-//        });
+
+        //        $("#reset").on("click", function () {
+        //            $(".form-control").val("");
+        //        });
 
     });
 })(window.jQuery, window.app);

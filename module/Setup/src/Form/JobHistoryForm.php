@@ -8,7 +8,8 @@ use Zend\Form\Annotation;
  * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("JobHistoryForm")
  */
-class JobHistoryForm {
+class JobHistoryForm
+{
 
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
@@ -144,5 +145,4 @@ class JobHistoryForm {
      * @Annotation\Attributes({"value":"Submit","class":"btn btn-success"})
      */
     public $submit;
-
 }

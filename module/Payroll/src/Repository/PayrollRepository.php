@@ -8,13 +8,16 @@ use Application\Repository\HrisRepository;
 use Exception;
 use Zend\Db\Adapter\AdapterInterface;
 
-class PayrollRepository extends HrisRepository {
+class PayrollRepository extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         parent::__construct($adapter, $tableName);
     }
 
-    public function fetchBasicSalary($employeeId, $sheetNo) {
+    public function fetchBasicSalary($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -31,7 +34,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['SALARY'];
     }
 
-    public function getMonthDays($employeeId, $sheetNo) {
+    public function getMonthDays($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -47,7 +51,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['MONTH_DAYS'];
     }
 
-    public function getPresentDays($employeeId, $sheetNo) {
+    public function getPresentDays($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -60,7 +65,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['PRESENT_DAYS'];
     }
 
-    public function getAbsentDays($employeeId, $sheetNo) {
+    public function getAbsentDays($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -73,7 +79,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['ABSENT_DAYS'];
     }
 
-    public function getPaidLeaves($employeeId, $sheetNo) {
+    public function getPaidLeaves($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -86,7 +93,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['PAID_LEAVE'];
     }
 
-    public function getUnpaidLeaves($employeeId, $sheetNo) {
+    public function getUnpaidLeaves($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -99,7 +107,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['UNPAID_LEAVE'];
     }
 
-    public function getDayoffs($employeeId, $sheetNo) {
+    public function getDayoffs($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -112,7 +121,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['DAYOFF'];
     }
 
-    public function getHolidays($employeeId, $sheetNo) {
+    public function getHolidays($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -125,7 +135,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['HOLIDAY'];
     }
 
-    public function getDaysFromJoinDate($employeeId, $sheetNo) {
+    public function getDaysFromJoinDate($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -138,7 +149,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['DAYS_FROM_JOIN_DATE'];
     }
 
-    public function getDaysFromPermanentDate($employeeId, $monthId) {
+    public function getDaysFromPermanentDate($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -152,7 +164,8 @@ class PayrollRepository extends HrisRepository {
         return $rawResult[0]['DAYS_FROM_PERMANENT_DATE'];
     }
 
-    public function isMale($employeeId, $sheetNo) {
+    public function isMale($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -165,7 +178,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['IS_MALE'];
     }
 
-    public function isFemale($employeeId, $sheetNo) {
+    public function isFemale($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -177,21 +191,21 @@ class PayrollRepository extends HrisRepository {
         }
         return $resultList[0]['IS_FEMALE'];
     }
-	
-	 public function getExchangeRate($monthId)
+
+    public function getExchangeRate($monthId)
     {
-        $sql="
- select exchange_rate from hris_salary_sheet where month_id=$monthId ";
+        $sql = "select COALESCE(exchange_rate, 1) as exchange_rate from hris_salary_sheet where month_id=$monthId ";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
             throw new Exception('No Report Found.');
         }
         return $resultList[0]['EXCHANGE_RATE'];
     }
-	
-	
 
-    public function isMarried($employeeId, $sheetNo) {
+
+
+    public function isMarried($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -203,8 +217,9 @@ class PayrollRepository extends HrisRepository {
         }
         return $resultList[0]['IS_MARRIED'];
     }
-	
-	 public function getBonus($employeeId, $monthId) {
+
+    public function getBonus($employeeId, $monthId)
+    {
         $sql = "select nvl(SUM(MTH_VALUE),0) AS BONUS
         from hris_monthly_value_detail MVD
         left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
@@ -218,7 +233,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['BONUS'];
     }
 
-    public function getHouseInsurance($employeeId, $monthId) {
+    public function getHouseInsurance($employeeId, $monthId)
+    {
         $sql = "select nvl(SUM(MTH_VALUE),0) AS HOUSE_INSURANCE
         from hris_monthly_value_detail MVD
         left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
@@ -232,7 +248,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['HOUSE_INSURANCE'];
     }
 
-    public function getLifeInsurance($employeeId, $monthId) {
+    public function getLifeInsurance($employeeId, $monthId)
+    {
         $sql = "select nvl(SUM(MTH_VALUE),0) AS LIFE_INSURANCE
         from hris_monthly_value_detail MVD
         left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
@@ -246,7 +263,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['LIFE_INSURANCE'];
     }
 
-    public function getMedicalAllowance($employeeId, $monthId) {
+    public function getMedicalAllowance($employeeId, $monthId)
+    {
         $sql = "select nvl(SUM(MTH_VALUE),0) AS MEDICAL_ALLOW
         from hris_monthly_value_detail MVD
         left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
@@ -260,7 +278,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['MEDICAL_ALLOW'];
     }
 
-    public function getDonationAmt($employeeId, $monthId) {
+    public function getDonationAmt($employeeId, $monthId)
+    {
         $sql = "select nvl(SUM(MTH_VALUE),0) AS DONATION_AMT
         from hris_monthly_value_detail MVD
         left join hris_month_code MC on (MVD.MONTH_ID = MC.MONTH_ID)
@@ -276,7 +295,8 @@ class PayrollRepository extends HrisRepository {
 
 
 
-    public function getPrevioudMthTax($employeeId, $monthId) {
+    public function getPrevioudMthTax($employeeId, $monthId)
+    {
         $sql = "select nvl(sum(val),0) as PREV_TAX from hris_salary_sheet_detail ssd
 					left join hris_salary_sheet ss on (ssd.sheet_no = ss.sheet_no)
 					where ssd.pay_id = 59 and ssd.employee_id ={$employeeId}
@@ -284,12 +304,13 @@ class PayrollRepository extends HrisRepository {
 					where month_id <> {$monthId})";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['PREV_TAX'];
     }
 
-    public function isPermanent($employeeId, $sheetNo) {
+    public function isPermanent($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -310,7 +331,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['IS_PERMANENT'];
     }
 
-    public function isProbation($employeeId, $monthId) {
+    public function isProbation($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -343,7 +365,8 @@ class PayrollRepository extends HrisRepository {
         return $result['IS_PERMANENT'];
     }
 
-    public function isContract($employeeId, $monthId) {
+    public function isContract($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -377,7 +400,8 @@ class PayrollRepository extends HrisRepository {
         return $result['IS_PERMANENT'];
     }
 
-    public function isTemporary($employeeId, $monthId) {
+    public function isTemporary($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -410,7 +434,8 @@ class PayrollRepository extends HrisRepository {
         return $result['IS_PERMANENT'];
     }
 
-    public function getWorkedDays($employeeId, $sheetNo) {
+    public function getWorkedDays($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -423,7 +448,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['WORKED_DAYS'];
     }
 
-    public function fetchEmployeeList() {
+    public function fetchEmployeeList()
+    {
         $sql = "
                 SELECT E.EMPLOYEE_ID, E.GROUP_ID,
                   E.EMPLOYEE_CODE || '-' || CONCAT(CONCAT(CONCAT(INITCAP(TRIM(E.FIRST_NAME)),' '),
@@ -442,7 +468,8 @@ class PayrollRepository extends HrisRepository {
         return Helper::extractDbData($employeeListRaw);
     }
 
-    public function getBranchAllowance($employeeId) {
+    public function getBranchAllowance($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT ALLOWANCE FROM HRIS_BRANCHES WHERE 
@@ -454,7 +481,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['ALLOWANCE'];
     }
 
-    public function getMonthNo($monthId) {
+    public function getMonthNo($monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $sql = "select FISCAL_YEAR_MONTH_NO from hris_month_code where month_id=:monthId";
@@ -465,8 +493,9 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['FISCAL_YEAR_ID'];
     }
 
-    
-     public function getBranch($employeeId) {
+
+    public function getBranch($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT BRANCH_ID FROM HRIS_EMPLOYEES WHERE  EMPLOYEE_ID=:employeeId";
@@ -477,7 +506,8 @@ class PayrollRepository extends HrisRepository {
         return $resultList[0]['BRANCH_ID'];
     }
 
-    public function getHbLoanAmt($employeeId, $monthId) {
+    public function getHbLoanAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(LPD.AMOUNT,0) AS HB_LOAN_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 3
@@ -486,12 +516,13 @@ class PayrollRepository extends HrisRepository {
                 and ELR.EMPLOYEE_ID = {$employeeId}";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;            
+            return 0;
         }
         return $resultList[0]['HB_LOAN_AMT'];
     }
 
-    public function getHbIntAmt($employeeId, $monthId) {
+    public function getHbIntAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(LPD.interest_amount,0) AS HB_INTEREST_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 3
@@ -501,12 +532,13 @@ class PayrollRepository extends HrisRepository {
         ";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['HB_INTEREST_AMT'];
     }
 
-    public function getWLLoanAmt($employeeId, $monthId) {
+    public function getWLLoanAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(LPD.AMOUNT,0) AS WL_LOAN_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 4
@@ -515,12 +547,13 @@ class PayrollRepository extends HrisRepository {
                 and ELR.EMPLOYEE_ID = {$employeeId}";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['WL_LOAN_AMT'];
     }
 
-    public function getWLIntAmt($employeeId, $monthId) {
+    public function getWLIntAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(lpd.interest_amount,0) AS WL_INTEREST_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 4
@@ -529,12 +562,13 @@ class PayrollRepository extends HrisRepository {
                 and ELR.EMPLOYEE_ID = {$employeeId}";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['WL_INTEREST_AMT'];
     }
 
-    public function getSHLLoanAmt($employeeId, $monthId) {
+    public function getSHLLoanAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(lpd.AMOUNT,0) AS SHL_LOAN_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 5 AND ELR.LOAN_STATUS = 'OPEN'
@@ -544,12 +578,13 @@ class PayrollRepository extends HrisRepository {
 				and lpd.status ='E'";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['SHL_LOAN_AMT'];
     }
 
-    public function getSHLIntAmt($employeeId, $monthId) {
+    public function getSHLIntAmt($employeeId, $monthId)
+    {
         $sql = "SELECT nvl(lpd.interest_amount,0) AS SHL_INTEREST_AMT FROM hris_employee_loan_request ELR 
         LEFT JOIN hris_loan_payment_detail LPD  ON ( ELR.loan_request_id = LPD.LOAN_REQUEST_ID)
         WHERE ELR.LOAN_ID = 5 AND ELR.LOAN_STATUS = 'OPEN'
@@ -559,14 +594,15 @@ class PayrollRepository extends HrisRepository {
 				and lpd.status ='E'";
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
-            return 0;  
+            return 0;
         }
         return $resultList[0]['SHL_INTEREST_AMT'];
     }
 
 
 
-    public function getCafeMealPrevious($employeeId, $monthId){
+    public function getCafeMealPrevious($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -607,8 +643,9 @@ GROUP BY
         }
         return $resultList[0]['AMT'];
     }
-    
-    public function getCafeMealCurrent($employeeId, $monthId){
+
+    public function getCafeMealCurrent($employeeId, $monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['monthId'] = $monthId;
@@ -644,9 +681,10 @@ GROUP BY
         }
         return $resultList[0]['AMT'];
     }
-    
-    
-    public function getPayEmpType($employeeId){
+
+
+    public function getPayEmpType($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT PAY_EMP_TYPE FROM HRIS_EMPLOYEES WHERE  EMPLOYEE_ID=:employeeId";
@@ -656,8 +694,9 @@ GROUP BY
         }
         return $resultList[0]['PAY_EMP_TYPE'];
     }
-    
-     public function getEmployeeServiceId($employeeId, $sheetNo){
+
+    public function getEmployeeServiceId($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $boundedParameter['sheetNo'] = $sheetNo;
@@ -670,11 +709,12 @@ GROUP BY
         }
         return $resultList[0]['SERVICE_TYPE_ID'];
     }
-    
-    public function getserviceTypePf($employeeId, $sheetNo){
+
+    public function getserviceTypePf($employeeId, $sheetNo)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
-//        $boundedParameter['sheetNo'] = $sheetNo;
+        //        $boundedParameter['sheetNo'] = $sheetNo;
         $sql = "select CASE WHEN 
 E.SERVICE_TYPE_ID IS NOT NULL 
 THEN S.PF_ELIGIBLE
@@ -690,8 +730,9 @@ WHERE E.EMPLOYEE_ID=:employeeId";
         }
         return $resultList[0]['PF_ELIGIBLE'];
     }
-    
-    public function getDisablePersonFlag($employeeId){
+
+    public function getDisablePersonFlag($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT 
@@ -708,8 +749,9 @@ END AS DISABLED_FLAG FROM HRIS_EMPLOYEES WHERE  EMPLOYEE_ID=:employeeId";
         }
         return $resultList[0]['DISABLED_FLAG'];
     }
-    
-    public function getPreviousMonthDays($monthId){
+
+    public function getPreviousMonthDays($monthId)
+    {
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $sql = "SELECT 
@@ -720,11 +762,11 @@ FROM HRIS_MONTH_CODE  where MONTH_ID=(:monthId-1)";
             throw new Exception('No Report Found.');
         }
         return $resultList[0]['PRE_MONTH_DAYS'];
-        
     }
-    
-    public function getBranchAllowanceRebate($employeeId){
-         $boundedParameter = [];
+
+    public function getBranchAllowanceRebate($employeeId)
+    {
+        $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT NVL(ALLOWANCE_REBATE,0) AS ALLOWANCE_REBATE FROM HRIS_BRANCHES WHERE 
                 BRANCH_ID=(SELECT  BRANCH_ID FROM HRIS_EMPLOYEES WHERE EMPLOYEE_ID=:employeeId)";
@@ -734,8 +776,9 @@ FROM HRIS_MONTH_CODE  where MONTH_ID=(:monthId-1)";
         }
         return $resultList[0]['ALLOWANCE_REBATE'];
     }
-    
-    public function getRemoteBranch($employeeId){
+
+    public function getRemoteBranch($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT IS_REMOTE FROM HRIS_BRANCHES WHERE 
@@ -747,7 +790,8 @@ FROM HRIS_MONTH_CODE  where MONTH_ID=(:monthId-1)";
         return $resultList[0]['IS_REMOTE'];
     }
 
-    public function getAge($employeeId){
+    public function getAge($employeeId)
+    {
         $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "SELECT 
@@ -761,25 +805,26 @@ FROM HRIS_MONTH_CODE  where MONTH_ID=(:monthId-1)";
         }
         return $resultList[0]['AGE'];
     }
-	
-	public function getSalaryDays($employeeId, $monthId){
-		$boundedParameter = [];
+
+    public function getSalaryDays($employeeId, $monthId)
+    {
+        $boundedParameter = [];
         $boundedParameter['employeeId'] = $employeeId;
         $sql = "select count(*) as SALARY_DAYS from hris_attendance_detail where employee_id = $employeeId
 and attendance_dt between (select from_date from hris_month_code where month_id = $monthId)
 and (select to_date from hris_month_code where month_id = $monthId)
 and overall_status not in ('AB')";
-//print_r($sql);die;
+        //print_r($sql);die;
         $resultList = $this->rawQuery($sql);
         if (!(sizeof($resultList) == 1)) {
             throw new Exception('No Report Found.');
         }
         return $resultList[0]['SALARY_DAYS'];
-	}
+    }
 
-    public function getMonthlyOTHours($employeeId,$sheetNo,$monthId)
+    public function getMonthlyOTHours($employeeId, $sheetNo, $monthId)
     {
-        $sql="select nvl(overtime_hour,0) as OT_WORKED_HOURS from Hris_Salary_Sheet_Emp_Detail where employee_id=$employeeId and 
+        $sql = "select nvl(overtime_hour,0) as OT_WORKED_HOURS from Hris_Salary_Sheet_Emp_Detail where employee_id=$employeeId and 
         month_id=$monthId and sheet_no=$sheetNo
         ";
         $resultList = $this->rawQuery($sql);
@@ -788,5 +833,19 @@ and overall_status not in ('AB')";
         }
         return $resultList[0]['OT_WORKED_HOURS'];
     }
-    
+
+    public function getExchnageRate()
+    {
+        $sql = "select VALUE from HRIS_PREFERENCES WHERE KEY='EXCHANGE_RATE'";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
+    }
+    public function getEmailNoti()
+    {
+        $sql = "select value from HRIS_PREFERENCES WHERE KEY='SEND_PAYSLIP_EMAIL'";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
+    }
 }

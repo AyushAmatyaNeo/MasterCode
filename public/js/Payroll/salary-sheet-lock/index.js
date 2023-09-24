@@ -2,7 +2,7 @@
     'use strict';
     $(document).ready(function () {
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
-
+        app.datePickerWithNepali('voucherDate', 'nepaliVoucherDate');
         var data = document.data;
         var salarySheetList = data['salarySheetList'];
         var monthList = null;
@@ -34,6 +34,8 @@
         var $bulkNotApproveDiv = $('#bulkNotApproveDiv');
         var $bulkLockDiv = $('#bulkLockDiv');
         var $bulkGenerateVoucherDiv = $('#bulkGenerateVoucherDiv');
+        var $bulkTestVoucherDiv = $('#bulkTestVoucherDiv');
+        var $bulkRegenerateVoucherDiv = $('#bulkRegenerateVoucherDiv');
         var $bulkUnlockDiv = $('#bulkUnlockDiv');
         var $bulkActionDiv = $('#bulkActionDiv');
 
@@ -51,18 +53,11 @@
         };
 
         app.populateSelect($salaryTypeId, data['salaryType'], 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
-        
+
         (function ($companyId, link) {
             var onDataLoad = function (data) {
                 companyList = data['company'];
                 app.populateSelect($companyId, data['company'], 'COMPANY_ID', 'COMPANY_NAME', 'Select Company');
-                var acl = document.getAcl;
-                if(acl['CONTROL'] == 'C'){
-                    $companyId.val(acl['CONTROL_VALUES'][0]['VAL']);
-                    document.getElementById("companyId").setAttribute("disabled", "disabled");
-                }else{
-                    console.log('Role is not company wise');
-                }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -73,128 +68,12 @@
             });
         })($companyId, getSearchDataLink);
 
-        
 
-        // (function ($groupId, link) {
-        //     var onDataLoad = function (data) {
-        //         groupList = data;
-        //         app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-        //         var acl = document.getAcl;
-        //         console.log(acl);
-        //         if(acl['CONTROL'] == 'C'){
-        //             var companyWiseGroup = document.getCompanyWiseGroup;
-        //             if(companyWiseGroup[0]['GROUP_ID']){
-        //                 $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-        //             }                    
-        //             document.getElementById("groupId").setAttribute("disabled", "disabled");
-        //         }else{
-        //             console.log('Role is not company wise');
-        //         }
-        //     };
-        //     app.serverRequest(link, {}).then(function (response) {
-        //         if (response.success) {
-        //             onDataLoad(response.data);
-        //         }
-        //     }, function (error) {
-
-        //     });
-        // })($groupId, getGroupListLink);
 
         (function ($groupId, link) {
             var onDataLoad = function (data) {
                 groupList = data;
                 app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-				var acl = document.getAcl;
-                console.log(acl);
-                if(acl['CONTROL'] == 'C'){
-					var groupListControl = [];
-					
-                    var companyWiseGroup = document.getCompanyWiseGroup;
-                    if(companyWiseGroup[0]['GROUP_ID']){
-                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    }     
-
-					var totarrLength = (companyWiseGroup.length) - 1;
-					if(totarrLength == 0) 
-					{
-						document.getElementById("groupId").setAttribute("disabled", "disabled");
-					}
-					
-					if(totarrLength == 0) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 1) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 2) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 3) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-
-                    if(totarrLength == 4) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 5) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID ) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-                    
-					if(totarrLength == 6) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					//console.log(groupListControl);
-					
-					app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-					
-					//FOR selecting the group
-					if(companyWiseGroup[0]['GROUP_ID']){
-                        $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    } 
-                    //document.getElementById("groupId").setAttribute("disabled", "disabled");
-                }else{
-                    console.log('Role is not company wise');
-                }
             };
             app.serverRequest(link, {}).then(function (response) {
                 if (response.success) {
@@ -232,11 +111,11 @@
             selectedSalarySheetList = [];
             for (var i in salarySheetList) {
                 if (salarySheetList[i]['MONTH_ID'] == monthValue &&
-                        (companyValue == -1 || companyValue == salarySheetList[i]['COMPANY_ID'])
-                        && (groupValue == -1 || groupValue == salarySheetList[i]['GROUP_ID'])
-                        && (salaryType == -1 || salaryType == salarySheetList[i]['SALARY_TYPE_ID'])
+                    (companyValue == -1 || companyValue == salarySheetList[i]['COMPANY_ID'])
+                    && (groupValue == -1 || groupValue == salarySheetList[i]['GROUP_ID'])
+                    && (salaryType == -1 || salaryType == salarySheetList[i]['SALARY_TYPE_ID'])
 
-                        ) {
+                ) {
                     selectedSalarySheetList.push(salarySheetList[i]);
                     if (groupValue != '-1') {
                         break;
@@ -248,7 +127,7 @@
             $nepaliFromDate.val(nepaliDatePickerExt.fromEnglishToNepali(selectedMonth['FROM_DATE']));
             $toDate.val(selectedMonth['TO_DATE']);
             $nepaliToDate.val(nepaliDatePickerExt.fromEnglishToNepali(selectedMonth['TO_DATE']));
-            
+
         };
         $month.on('change', function () {
             monthChangeAction();
@@ -257,31 +136,47 @@
         $companyId.on('change', function () {
             monthChangeAction();
         });
-        
-         var $sheetTable = $('#sheetTable');
-         
+
+        var $sheetTable = $('#sheetTable');
+
         var grid = app.initializeKendoGrid($sheetTable, [
-            {field: "SHEET_NO", title: "Sheet", width: 80},
-            {field: "MONTH_EDESC", title: "Month", width: 100},
-            {field: "SALARY_TYPE_NAME", title: "Salary Type", width: 100},
-            {field: "GROUP_NAME", title: "Group", width: 100},
-            {field: "APPROVED", title: "Approved", width: 100},
-            {field: "LOCKED", title: "Locked", width: 100},
-        ], null, {id: "SHEET_NO", atLast: false, fn: function (selected) {
+            { field: "SHEET_NO", title: "Sheet", width: 50 },
+            { field: "MONTH_EDESC", title: "Month", width: 70 },
+            { field: "SALARY_TYPE_NAME", title: "Salary Type", width: 80 },
+            { field: "GROUP_NAME", title: "Group", width: 100 },
+            { field: "APPROVED", title: "Approved", width: 50 },
+            { field: "LOCKED", title: "Locked", width: 50 },
+            { field: "VOUCHER_NO", title: "Voucher Number", width: 100 },
+        ], null, {
+            id: "SHEET_NO", atLast: false, fn: function (selected) {
                 if (selected) {
                     $bulkActionDiv.show();
                     var approved_locked = getTableValues();
-                    console.log(approved_locked);
-                    if(approved_locked.includes('N',0) || approved_locked.length > 1){
+                    var allow_regen = getTableAllowRegenValues();
+                    // console.log(allow_regen);
+                    if (approved_locked.includes('N', 0) || approved_locked.length > 1) {
                         $bulkGenerateVoucherDiv.hide();
-                    }else{
-                        $bulkGenerateVoucherDiv.show();
-                    }                    
+                        $bulkRegenerateVoucherDiv.hide();
+                    } else {
+                        if (allow_regen.includes('Y', 0)) {
+                            $bulkGenerateVoucherDiv.hide();
+                            $bulkRegenerateVoucherDiv.show();
+                        } else {
+                            $bulkGenerateVoucherDiv.show();
+                            $bulkRegenerateVoucherDiv.hide();
+                        }
+                    }
+                    if (approved_locked.length > 1) {
+                        $bulkTestVoucherDiv.hide();
+                    } else {
+                        $bulkTestVoucherDiv.show();
+                    }
                 } else {
                     $bulkActionDiv.hide();
                 }
-            }});
-        
+            }
+        });
+
         $('#header-chb2').change(function (ev) {
             var checked = ev.target.checked;
             $('.row-checkbox2').each(function (idx, item) {
@@ -300,15 +195,15 @@
         $groupId.on("select2:select select2:unselect", function (event) {
             monthChangeAction();
         });
-        
-        var groupChangeFn=function(){
+
+        var groupChangeFn = function () {
             let selectedGroups = $groupId.val();
-            if(selectedGroups==null){
-                let allGroup=[];
+            if (selectedGroups == null) {
+                let allGroup = [];
                 $.each(groupList, function (key, value) {
                     allGroup.push(value['GROUP_ID']);
                 });
-                selectedGroups=allGroup;
+                selectedGroups = allGroup;
             }
             let selectedSalaryTypeId = $salaryTypeId.val();
             if (selectedGroups !== null || selectedGroups !== '-1') {
@@ -317,8 +212,8 @@
                     monthId: selectedMonth['MONTH_ID'],
                     salaryTypeId: selectedSalaryTypeId
                 }).then(function (response) {
-                    let empLoadData=[];
-                    
+                    let empLoadData = [];
+
                     if ($groupId.val() == null) {
                         $.each(response.data, function (index, value) {
                             value['CHECKED_FLAG'] = 'N';
@@ -342,7 +237,7 @@
             groupChangeFn();
         });
 
-        function getSelectedSheets(){
+        function getSelectedSheets() {
             var list = grid.getSelected();
             var selectedValues = [];
             for (var i in list) {
@@ -351,7 +246,7 @@
             return selectedValues;
         }
 
-        function getTableValues(){
+        function getTableValues() {
             var list = grid.getSelected();
             var selectedValues = [];
             for (var i in list) {
@@ -360,13 +255,24 @@
             }
             return selectedValues;
         }
-        
+
+        function getTableAllowRegenValues() {
+            var list = grid.getSelected();
+            var selectedValues = [];
+            for (var i in list) {
+                selectedValues.push(list[i].ALLOW_REGEN);
+                // selectedValues.push(list[i].LOCKED);
+            }
+            return selectedValues;
+        }
+
+
 
         $bulkApproveDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
             // console.log(selectedValues);
 
-            app.serverRequest(document.bulkActionLink, {data : selectedValues, action : 'A'}).then(function (success) {
+            app.serverRequest(document.bulkActionLink, { data: selectedValues, action: 'A' }).then(function (success) {
                 $viewBtn.trigger('click');
                 app.showMessage('Sheets Approved', 'success');
             }, function (failure) {
@@ -375,7 +281,7 @@
         });
         $bulkNotApproveDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
-            app.serverRequest(document.bulkActionLink, {data : selectedValues, action : 'NA'}).then(function (success) {
+            app.serverRequest(document.bulkActionLink, { data: selectedValues, action: 'NA' }).then(function (success) {
                 $viewBtn.trigger('click');
                 app.showMessage('Sheets Unapproved', 'success');
             }, function (failure) {
@@ -384,7 +290,7 @@
         });
         $bulkLockDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
-            app.serverRequest(document.bulkActionLink, {data : selectedValues, action : 'L'}).then(function (success) {
+            app.serverRequest(document.bulkActionLink, { data: selectedValues, action: 'L' }).then(function (success) {
                 $viewBtn.trigger('click');
                 app.showMessage('Sheets Locked', 'success');
             }, function (failure) {
@@ -393,7 +299,7 @@
         });
         $bulkUnlockDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
-            app.serverRequest(document.bulkActionLink, {data : selectedValues, action : 'UL'}).then(function (success) {
+            app.serverRequest(document.bulkActionLink, { data: selectedValues, action: 'UL' }).then(function (success) {
                 $viewBtn.trigger('click');
                 app.showMessage('Sheets Unlocked', 'success');
             }, function (failure) {
@@ -402,14 +308,19 @@
         });
         $bulkGenerateVoucherDiv.bind("click", function () {
             var selectedValues = getSelectedSheets();
-            
-            
+            var voucherDate = $('#voucherDate').val();
+            if (voucherDate == undefined || voucherDate == '' || voucherDate == null) {
+                app.showMessage('Voucher Date Not Selected', 'warning');
+                return;
+            }
+
+
             loading_screen = pleaseWait({
                 logo: loadingLogoLink,
                 backgroundColor: '#2f9e1e',
                 loadingHtml: "<p class='loading-message' style='color:white !important;'>" + "Generating Voucher" + "</p>" + loadingHtml
             });
-            
+
             // var counter = 0;
             // counter++;
             // $pleaseWaitOptions.show();
@@ -417,40 +328,110 @@
             //     loading_screen.finish();
             //     $pleaseWaitOptions.hide();
             // }
-            app.serverRequest(document.generateVoucherLink, {data : selectedValues}).then(function (success) {
+            app.serverRequest(document.generateVoucherLink, { data: selectedValues, voucherDate: voucherDate }).then(function (success) {
                 $viewBtn.trigger('click');
                 updateLoadingHtml();
-                if(success.success){
+                if (success.success) {
                     loading_screen.finish();
                     $pleaseWaitOptions.hide();
                 }
                 app.showMessage('Voucher Generated.', 'success');
-                if(success.unmapped.length > 0){
+                if (success.unmapped.length > 0) {
                     var html = '<h3 align="center">Unmapped Employees</h3><table class="table table-striped header-fixed"><tr><th>Employee ID</th><th>Employee Name</th><th>Account Code</th><th>Account Name</th></tr>';
-                    for(var i in success.unmapped){
-                        html+="<tr><td>"+success.unmapped[i].EMPLOYEE_ID+"</td><td>"+success.unmapped[i].FULL_NAME+"</td><td>"+success.unmapped[i].ACC_CODE+"</td><td>"+success.unmapped[i].ACC_NAME+"</td></tr>";
+                    for (var i in success.unmapped) {
+                        html += "<tr><td>" + success.unmapped[i].EMPLOYEE_ID + "</td><td>" + success.unmapped[i].FULL_NAME + "</td><td>" + success.unmapped[i].ACC_CODE + "</td><td>" + success.unmapped[i].ACC_NAME + "</td></tr>";
                     }
-                    html+="</table>";
-                    $( ".modal-body" ).append(html);
-                    $( "#modal-toggle" ).click();
+                    html += "</table>";
+                    $(".modal-body").append(html);
+                    $("#modal-toggle").click();
 
                 }
             }, function (failure) {
 
             });
-            
+
         });
+
+        $bulkRegenerateVoucherDiv.bind("click", function () {
+            var selectedValues = getSelectedSheets();
+            var voucherDate = $('#voucherDate').val();
+            if (voucherDate == undefined || voucherDate == '' || voucherDate == null) {
+                app.showMessage('Voucher Date Not Selected', 'warning');
+                return;
+            }
+
+            loading_screen = pleaseWait({
+                logo: loadingLogoLink,
+                backgroundColor: '#2f9e1e',
+                loadingHtml: "<p class='loading-message' style='color:white !important;'>" + "Generating Voucher" + "</p>" + loadingHtml
+            });
+
+            app.serverRequest(document.regenerateVoucherLink, { data: selectedValues, voucherDate: voucherDate }).then(function (success) {
+                $viewBtn.trigger('click');
+                updateLoadingHtml();
+                if (success.success) {
+                    loading_screen.finish();
+                    $pleaseWaitOptions.hide();
+                }
+                app.showMessage('Voucher Generated.', 'success');
+                if (success.unmapped.length > 0) {
+                    var html = '<h3 align="center">Unmapped Employees</h3><table class="table table-striped header-fixed"><tr><th>Employee ID</th><th>Employee Name</th><th>Account Code</th><th>Account Name</th></tr>';
+                    for (var i in success.unmapped) {
+                        html += "<tr><td>" + success.unmapped[i].EMPLOYEE_ID + "</td><td>" + success.unmapped[i].FULL_NAME + "</td><td>" + success.unmapped[i].ACC_CODE + "</td><td>" + success.unmapped[i].ACC_NAME + "</td></tr>";
+                    }
+                    html += "</table>";
+                    $(".modal-body").append(html);
+                    $("#modal-toggle").click();
+
+                }
+            }, function (failure) {
+
+            });
+
+        });
+
+        $bulkTestVoucherDiv.bind("click", function () {
+            var selectedValues = getSelectedSheets();
+
+            app.serverRequest(document.testVoucherLink, { data: selectedValues }).then(function (success) {
+                // console.log(success);
+                // app.showMessage('Voucher Generated.', 'success');
+                $(".modal-body").empty();
+                if (success.voucherData.length > 0) {
+                    var DR_SUM = 0;
+                    var CR_SUM = 0;
+                    var html = '<h3 align="center">Voucher Details</h3><table class="table table-striped header-fixed"><tr><th>Pay Heading</th><th>Transaction Type</th><th>Amount</th></tr>';
+                    for (var i in success.voucherData) {
+                        html += "<tr><td>" + success.voucherData[i].PAY_EDESC + "</td><td>" + success.voucherData[i].TRANSACTION_TYPE + "</td><td>" + success.voucherData[i].AMOUNT + "</td>" + "</tr>";
+
+                        if (success.voucherData[i].TRANSACTION_TYPE == 'DR') {
+                            DR_SUM += parseFloat(success.voucherData[i].AMOUNT);
+                        } else {
+                            CR_SUM += parseFloat(success.voucherData[i].AMOUNT);
+                        }
+                    }
+                    html += "<tr><td colspan=3></td></tr><tr><td colspan=2>Total Debit</td><td>" + DR_SUM + "</td></tr><tr><td colspan=2>Total Credit</td><td>" + CR_SUM + "</td></tr></table>";
+                    $(".modal-body").append(html);
+                    $("#modal-toggle").click();
+                }
+            }, function (failure) {
+
+            });
+
+        });
+
+
         $pleaseWaitOptions.hide();
         $cancelBtn.on('click', function () {
             loading_screen.finish();
             $pleaseWaitOptions.hide();
         });
-        
-        $(document).on('click', '#excelExport', function(){    
+
+        $(document).on('click', '#excelExport', function () {
             $("#unmapped-table").table2excel({
                 exclude: ".noExl",
                 name: "Unmapped Employees",
-                filename: "Unmapped Employees.xls" 
+                filename: "Unmapped Employees.xls"
             });
         });
     });

@@ -1,4 +1,5 @@
 <?php
+
 namespace LeaveManagement\Repository;
 
 use Application\Helper\EntityHelper;
@@ -6,12 +7,13 @@ use Application\Repository\HrisRepository;
 use LeaveManagement\Model\LeaveApply;
 use Setup\Model\HrEmployees;
 use Zend\Db\Sql\Expression;
-use Zend\Db\Sql\Sql; 
+use Zend\Db\Sql\Sql;
 
-class LeaveStatusRepository extends HrisRepository {
+class LeaveStatusRepository extends HrisRepository
+{
 
-    public function getAllRequest($status = null, $date = null, $branchId = NULL, $employeeId = NULL) {
-
+    public function getAllRequest($status = null, $date = null, $branchId = NULL, $employeeId = NULL)
+    {
         $sql = "SELECT INITCAP(L.LEAVE_ENAME) AS LEAVE_ENAME,
                 LA.NO_OF_DAYS,
                 INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))     AS START_DATE,
@@ -31,43 +33,36 @@ class LeaveStatusRepository extends HrisRepository {
                 AND E.STATUS     ='E'
                 AND L.LEAVE_ID   =LA.LEAVE_ID
                 AND E.EMPLOYEE_ID=LA.EMPLOYEE_ID ";
-
-        $boundedParameter = [];
-
         if ($status != null) {
-            $sql .= " AND LA.STATUS = :status";
-            $boundedParameter['status'] = $status;
+            $sql .= " AND LA.STATUS ='" . $status . "'";
         }
         if ($date != null) {
             $sql .= "AND (" . $date->getExpression() . " between LA.START_DATE AND LA.END_DATE)";
         }
 
         if ($branchId != null) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= :branchId)";
-            $boundedParameter['branchId'] = $branchId;
+            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)";
         }
 
         if ($employeeId != null) {
-            $sql .= "AND E." . HrEmployees::EMPLOYEE_ID . " = :employeeId";
-            $boundedParameter['employeeId'] = $employeeId;
+            $sql .= "AND E." . HrEmployees::EMPLOYEE_ID . " = $employeeId";
         }
+        $statement = $this->adapter->query($sql);
 
-        return $this->rawQuery($sql,$boundedParameter);
-        // $statement = $this->adapter->query($sql);
-
-        // $result = $statement->execute();
-        // return $result;
+        $result = $statement->execute();
+        return $result;
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(LeaveApply::class, NULL, [
-                LeaveApply::START_DATE,
-                LeaveApply::REQUESTED_DT,
-                LeaveApply::END_DATE,
-                LeaveApply::APPROVED_DT
-                ], NULL, NULL, NULL, 'LA'), false);
+            LeaveApply::START_DATE,
+            LeaveApply::REQUESTED_DT,
+            LeaveApply::END_DATE,
+            LeaveApply::APPROVED_DT
+        ], NULL, NULL, NULL, 'LA'), false);
 
 
         $select->from(['LA' => LeaveApply::TABLE_NAME])
@@ -84,7 +79,8 @@ class LeaveStatusRepository extends HrisRepository {
         return $result->current();
     }
 
-    public function getFilteredRecord($data, $recomApproveId = null) {
+    public function getFilteredRecord($data, $recomApproveId = null)
+    {
         $employeeId = $data['employeeId'];
         $companyId = $data['companyId'];
         $branchId = $data['branchId'];
@@ -101,31 +97,25 @@ class LeaveStatusRepository extends HrisRepository {
         $toDate = $data['toDate'];
 
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
+        $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
         $statusCondition = '';
         $leaveCondition = '';
         $fromDateCondition = "";
         $toDateCondition = "";
         if ($leaveRequestStatusId != -1) {
-            $statusCondition = " AND LA.STATUS=:leaveRequestStatusId";
-            $boundedParameter['leaveRequestStatusId'] = $leaveRequestStatusId;
+            $statusCondition = " AND LA.STATUS='{$leaveRequestStatusId}'";
         }
 
         if ($leaveId != null && $leaveId != -1) {
-            $leaveCondition = " AND LA.LEAVE_ID = :leaveId";
-            $boundedParameter['leaveId'] = $leaveId;
+            $leaveCondition = " AND LA.LEAVE_ID = {$leaveId}";
         }
 
         if ($fromDate != null) {
-            $fromDateCondition = " AND LA.START_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
-            $boundedParameter['leaveId'] = $fromDate;
+            $fromDateCondition = " AND LA.START_DATE>=TO_DATE('{$fromDate}','DD-MM-YYYY')";
         }
 
         if ($toDate != null) {
-            $toDateCondition = "AND LA.END_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
-            $boundedParameter['leaveId'] = $toDate;
+            $toDateCondition = "AND LA.END_DATE<=TO_DATE('{$toDate}','DD-MM-YYYY')";
         }
 
         $sql = "SELECT INITCAP(L.LEAVE_ENAME) AS LEAVE_ENAME,
@@ -217,20 +207,161 @@ class LeaveStatusRepository extends HrisRepository {
                     THEN ('Y')
                   END
                 OR LS.EMPLOYEE_ID IS NULL)
-                AND U.EMPLOYEE_ID  ={$recomApproveId} {$searchCondition['sql']} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
-                ORDER BY LA.REQUESTED_DT DESC";
+                AND U.EMPLOYEE_ID  ={$recomApproveId} {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
+                ORDER BY LA.START_DATE DESC";
 
-                return $this->rawQuery($sql,$boundedParameter);
-
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return $result;
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result;
     }
 
-    public function getLeaveRequestList($data): array {
-        
-//        print_r($data);
-//        die();
+    //     public function getLeaveRequestList($data): array {
+
+    // //        print_r($data);
+    // //        die();
+    //         $employeeId = $data['employeeId'];
+    //         $companyId = $data['companyId'];
+    //         $branchId = $data['branchId'];
+    //         $departmentId = $data['departmentId'];
+    //         $designationId = $data['designationId'];
+    //         $positionId = $data['positionId'];
+    //         $serviceTypeId = $data['serviceTypeId'];
+    //         $serviceEventTypeId = $data['serviceEventTypeId'];
+    //         $employeeTypeId = $data['employeeTypeId'];
+    //         $functionalTypeId = $data['functionalTypeId'];
+
+    //         $leaveRequestStatusId = $data['leaveRequestStatusId'];
+    //         $leaveId = $data['leaveId'];
+    //         $fromDate = $data['fromDate'];
+    //         $toDate = $data['toDate'];
+    //         $leaveYear = $data['leaveYear'];
+
+
+    //         $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId,null,null,$functionalTypeId);
+    //         $statusCondition = '';
+    //         $leaveCondition = '';
+    //         $fromDateCondition = "";
+    //         $toDateCondition = "";
+
+    //         if($leaveYear!=null){
+    //             $leaveYearStatusCondition="( ( L.STATUS ='E' OR L.OLD_LEAVE='Y' ) AND L.LEAVE_YEAR= {$leaveYear} )";
+    //         }else{
+    //             $leaveYearStatusCondition="L.STATUS ='E'";
+    //         }
+
+    //         if ($leaveRequestStatusId != -1) {
+    //             $statusCondition = " AND LA.STATUS='{$leaveRequestStatusId}'";
+    //         }
+
+    //         if ($leaveId != null && $leaveId != -1) {
+    //             $leaveCondition = " AND LA.LEAVE_ID = {$leaveId}";
+    //         }
+
+    //         if ($fromDate != null) {
+    //             $fromDateCondition = " AND LA.START_DATE>=TO_DATE('{$fromDate}','DD-MM-YYYY')";
+    //         }
+
+    //         if ($toDate != null) {
+    //             $toDateCondition = "AND LA.END_DATE<=TO_DATE('{$toDate}','DD-MM-YYYY')";
+    //         }
+
+    //         $sql = "SELECT 
+    //              FUNT.FUNCTIONAL_TYPE_EDESC                                        AS FUNCTIONAL_TYPE_EDESC,
+    //             --INITCAP(L.LEAVE_ENAME) AS LEAVE_ENAME,
+    //             CASE WHEN SUB_REF_ID IS NULL THEN 
+    // INITCAP(L.LEAVE_ENAME)
+    // ELSE
+    // INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')'
+    // END
+    // AS LEAVE_ENAME,
+    //                   L.LEAVE_CODE,
+    //                   L.SHOW_LEAVE_FORM,
+    //                   L.LEAVE_ID,
+    //                   LA.NO_OF_DAYS,
+    //                   case when L.ALLOW_HALFDAY = 'Y'
+    //                   then LA.NO_OF_DAYS/2
+    //                   else LA.NO_OF_DAYS
+    //                   END as ACTUAL_DAYS,
+    //                   (CASE WHEN (LA.HALF_DAY IS NULL OR LA.HALF_DAY = 'N') 
+    //                   THEN 'Full Day' 
+    //                   WHEN (LA.HALF_DAY = 'F') THEN 'First Half' 
+    //                   ELSE 'Second Half' END) AS HALF_DAY_DETAIL,
+    //                   INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))     AS START_DATE_AD,
+    //                   BS_DATE(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))     AS START_DATE_BS,
+    //                   INITCAP(TO_CHAR(LA.END_DATE, 'DD-MON-YYYY'))       AS END_DATE_AD,
+    //                   BS_DATE(TO_CHAR(LA.END_DATE, 'DD-MON-YYYY'))       AS END_DATE_BS,
+    //                   INITCAP(TO_CHAR(LA.REQUESTED_DT, 'DD-MON-YYYY'))   AS APPLIED_DATE_AD,
+    //                   BS_DATE(TO_CHAR(LA.REQUESTED_DT, 'DD-MON-YYYY'))   AS APPLIED_DATE_BS,
+    //                   LEAVE_STATUS_DESC(LA.STATUS)                       AS STATUS,
+    //                   LA.ID                                              AS ID,
+    //                   LA.EMPLOYEE_ID                                     AS EMPLOYEE_ID,
+    //                   INITCAP(TO_CHAR(LA.RECOMMENDED_DT, 'DD-MON-YYYY')) AS RECOMMENDED_DT,
+    //                   INITCAP(TO_CHAR(LA.APPROVED_DT, 'DD-MON-YYYY'))    AS APPROVED_DT,
+    //                   E.EMPLOYEE_CODE                                    AS EMPLOYEE_CODE,                  
+    //                   INITCAP(E.FULL_NAME)                               AS FULL_NAME,
+    //                   INITCAP(E1.FULL_NAME)                              AS RECOMMENDED_BY_NAME,
+    //                   INITCAP(E2.FULL_NAME)                              AS APPROVED_BY_NAME,
+    //                   RA.RECOMMEND_BY                                    AS RECOMMENDER_ID,
+    //                   RA.APPROVED_BY                                     AS APPROVER_ID,
+    //                   INITCAP(RECM.FULL_NAME)                            AS RECOMMENDER_NAME,
+    //                   INITCAP(APRV.FULL_NAME)                            AS APPROVER_NAME,
+    //                   LA.RECOMMENDED_BY                                  AS RECOMMENDED_BY,
+    //                   LA.APPROVED_BY                                     AS APPROVED_BY,
+    //                   LA.RECOMMENDED_REMARKS                             AS RECOMMENDED_REMARKS,
+    //                   LA.APPROVED_REMARKS                                AS APPROVED_REMARKS,
+    //                   LA.HARDCOPY_SIGNED_FLAG                            AS HARDCOPY_SIGNED_FLAG,
+    //                   LS.APPROVED_FLAG                                   AS SUB_APPROVED_FLAG,
+    //                   INITCAP(TO_CHAR(LS.APPROVED_DATE, 'DD-MON-YYYY'))  AS SUB_APPROVED_DATE,
+    //                   LS.EMPLOYEE_ID                                     AS SUB_EMPLOYEE_ID
+    //                 FROM HRIS_EMPLOYEE_LEAVE_REQUEST LA
+    //                 LEFT OUTER JOIN HRIS_LEAVE_MASTER_SETUP L
+    //                 ON L.LEAVE_ID=LA.LEAVE_ID
+    //                 LEFT OUTER JOIN HRIS_EMPLOYEES E
+    //                 ON E.EMPLOYEE_ID=LA.EMPLOYEE_ID
+    //                 LEFT OUTER JOIN HRIS_EMPLOYEES E1
+    //                 ON E1.EMPLOYEE_ID=LA.RECOMMENDED_BY
+    //                 LEFT OUTER JOIN HRIS_EMPLOYEES E2
+    //                 ON E2.EMPLOYEE_ID=LA.APPROVED_BY
+    //                 LEFT OUTER JOIN HRIS_RECOMMENDER_APPROVER RA
+    //                 ON LA.EMPLOYEE_ID = RA.EMPLOYEE_ID
+    //                 LEFT OUTER JOIN HRIS_EMPLOYEES RECM
+    //                 ON RECM.EMPLOYEE_ID = RA.RECOMMEND_BY
+    //                 LEFT OUTER JOIN HRIS_EMPLOYEES APRV
+    //                 ON APRV.EMPLOYEE_ID = RA.APPROVED_BY
+    //                 LEFT OUTER JOIN HRIS_LEAVE_SUBSTITUTE LS
+    //                 ON LA.ID       = LS.LEAVE_REQUEST_ID
+    //                 LEFT JOIN 
+    //                 (SELECT 
+    // WOD_ID AS ID
+    // ,LA.EMPLOYEE_ID
+    // ,NO_OF_DAYS
+    // ,WD.FROM_DATE||' - '||WD.TO_DATE AS SUB_NAME
+    // from 
+    // HRIS_EMPLOYEE_LEAVE_ADDITION LA
+    // JOIN Hris_Employee_Work_Dayoff WD ON (LA.WOD_ID=WD.ID)
+    // UNION
+    // SELECT 
+    // WOH_ID AS ID
+    // ,LA.EMPLOYEE_ID
+    // ,NO_OF_DAYS
+    // ,H.Holiday_Ename||'-'||WH.FROM_DATE||' - '||WH.TO_DATE AS SUB_NAME
+    // from 
+    // HRIS_EMPLOYEE_LEAVE_ADDITION LA
+    // JOIN Hris_Employee_Work_Holiday WH ON (LA.WOH_ID=WH.ID)
+    // LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID)
+    // LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
+    //     ON E.FUNCTIONAL_TYPE_ID=FUNT.FUNCTIONAL_TYPE_ID                
+    //                 WHERE 
+    //                 {$leaveYearStatusCondition}
+    //                 AND E.STATUS   ='E'
+    //                 {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
+    //                 ORDER BY LA.REQUESTED_DT DESC";
+    //         $finalSql = $this->getPrefReportQuery($sql);
+    //         return $this->rawQuery($finalSql);
+    //     }
+
+    public function getLeaveRequestList($data): array
+    {
         $employeeId = $data['employeeId'];
         $companyId = $data['companyId'];
         $branchId = $data['branchId'];
@@ -246,60 +377,40 @@ class LeaveStatusRepository extends HrisRepository {
         $leaveId = $data['leaveId'];
         $fromDate = $data['fromDate'];
         $toDate = $data['toDate'];
-        $leaveYear = $data['leaveYear'];
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId,null,null,$functionalTypeId);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
+
+        $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
         $statusCondition = '';
         $leaveCondition = '';
         $fromDateCondition = "";
         $toDateCondition = "";
-        
-        if($leaveYear!=null){
-            $leaveYearStatusCondition="( ( L.STATUS ='E' OR L.OLD_LEAVE='Y' ) AND L.LEAVE_YEAR= {$leaveYear} )";
-        }else{
-            $leaveYearStatusCondition="L.STATUS ='E'";
-        }
-        
         if ($leaveRequestStatusId != -1) {
-            $statusCondition = " AND LA.STATUS= :leaveRequestStatusId";
-            $boundedParameter['leaveRequestStatusId'] = $leaveRequestStatusId;
+            $statusCondition = " AND LA.STATUS='{$leaveRequestStatusId}'";
         }
 
-        if ($leaveId != -1) {
-            $leaveCondition = " AND LA.LEAVE_ID = :leaveId";
-            $boundedParameter['leaveId'] = $leaveId;
+        if ($leaveId != null && $leaveId != -1) {
+            $leaveCondition = " AND LA.LEAVE_ID = {$leaveId}";
         }
 
         if ($fromDate != null) {
-            $fromDateCondition = " AND LA.START_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
-            $boundedParameter['fromDate'] = $fromDate;
+            $fromDateCondition = " AND LA.START_DATE>=TO_DATE('{$fromDate}','DD-MM-YYYY')";
         }
 
         if ($toDate != null) {
-            $toDateCondition = "AND LA.END_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
-            $boundedParameter['toDate'] = $toDate;
-        }
-		
-		 if($fromDate && $toDate){
-            $fromDateCondition="";
-            $toDateCondition="AND ( ( LA.START_DATE BETWEEN TO_DATE (:fromDate,'DD-MM-YYYY') AND TO_DATE(:toDate,'DD-MM-YYYY') )
-                                OR  ( LA.END_DATE   BETWEEN TO_DATE (:fromDate,'DD-MM-YYYY') AND TO_DATE(:toDate,'DD-MM-YYYY') ) )";
+            $toDateCondition = "AND LA.END_DATE<=TO_DATE('{$toDate}','DD-MM-YYYY')";
         }
 
         $sql = "SELECT 
-                FUNT.FUNCTIONAL_TYPE_EDESC                                        AS FUNCTIONAL_TYPE_EDESC,
-                CASE WHEN SUB_REF_ID IS NULL THEN 
-                INITCAP(L.LEAVE_ENAME)
-                ELSE
-                INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')'
-                END
-                AS LEAVE_ENAME,
+             FUNT.FUNCTIONAL_TYPE_EDESC                                        AS FUNCTIONAL_TYPE_EDESC,
+            --INITCAP(L.LEAVE_ENAME) AS LEAVE_ENAME,
+            CASE WHEN SUB_REF_ID IS NULL THEN 
+INITCAP(L.LEAVE_ENAME)
+ELSE
+INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')'
+END
+AS LEAVE_ENAME,
                   L.LEAVE_CODE,
-                  L.SHOW_LEAVE_FORM,
-                  L.LEAVE_ID,
-                  LA.NO_OF_DAYS,
+                  (CASE WHEN (LA.HALF_DAY IS NULL OR  LA.HALF_DAY = 'N')  THEN LA.NO_OF_DAYS else la.NO_OF_DAYS/2 end) as no_of_days,
                   case when L.ALLOW_HALFDAY = 'Y'
                   then LA.NO_OF_DAYS/2
                   else LA.NO_OF_DAYS
@@ -373,40 +484,32 @@ JOIN Hris_Employee_Work_Holiday WH ON (LA.WOH_ID=WH.ID)
 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID)
 LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
     ON E.FUNCTIONAL_TYPE_ID=FUNT.FUNCTIONAL_TYPE_ID                
-                WHERE 
-                {$leaveYearStatusCondition}
+                WHERE L.STATUS ='E'
                 AND E.STATUS   ='E'
-                {$searchCondition['sql']} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
-                ORDER BY LA.REQUESTED_DT DESC";
+                {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
+                ORDER BY LA.START_DATE DESC";
         $finalSql = $this->getPrefReportQuery($sql);
-        return $this->rawQuery($finalSql, $boundedParameter);
+        return $this->rawQuery($finalSql);
     }
-    
-    public function getSameDateApprovedStatus($employeeId, $startDate, $endDate) {
-      $boundedParameter = [];
-      $boundedParameter['startDate'] = $startDate;
-      $boundedParameter['endDate'] = $endDate;
-      $boundedParameter['employeeId'] = $employeeId;
+
+    public function getSameDateApprovedStatus($employeeId, $startDate, $endDate)
+    {
         $sql = "SELECT COUNT(*) as LEAVE_COUNT
   FROM HRIS_EMPLOYEE_LEAVE_REQUEST
-  WHERE ((:startDate BETWEEN START_DATE AND END_DATE)
-  OR (:endDate BETWEEN START_DATE AND END_DATE))
+  WHERE (('{$startDate}' BETWEEN START_DATE AND END_DATE)
+  OR ('{$endDate}' BETWEEN START_DATE AND END_DATE))
   AND STATUS  IN ('AP','CP','CR')
-  AND EMPLOYEE_ID = :employeeId
+  AND EMPLOYEE_ID = $employeeId
                 ";
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-
-        return $this->rawQuery($sql, $boundedParameter);
-        
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result->current();
     }
 
-    public function getLfcData($id) {
+    public function getLfcData($id)
+    {
         $leaveId = "SELECT LEAVE_ID FROM  HRIS_EMPLOYEE_LEAVE_REQUEST where id = {$id}";
         $employeeId = "SELECT EMPLOYEE_ID FROM  HRIS_EMPLOYEE_LEAVE_REQUEST where id = {$id}";
-
-        $boundedParameter = [];
-        $boundedParameter['id'] = $id;
 
         $sql = "SELECT L.*, 
                 BS_DATE(TO_CHAR(L.START_DATE, 'DD-MON-YYYY')) as START_DATE_BS,
@@ -426,18 +529,18 @@ LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
                 left join HRIS_DEPARTMENTS D on (E.DEPARTMENT_ID = D.DEPARTMENT_ID)
                 left join HRIS_DESIGNATIONS DE on (E.DESIGNATION_ID = DE.DESIGNATION_ID)
                 left join HRIS_BRANCHES B on (E.BRANCH_ID = B.BRANCH_ID)
-                where LR.EMPLOYEE_ID = (SELECT EMPLOYEE_ID FROM  HRIS_EMPLOYEE_LEAVE_REQUEST where id = :id)
-                and LR.LEAVE_ID = (SELECT LEAVE_ID FROM  HRIS_EMPLOYEE_LEAVE_REQUEST where id = :id)
+                where LR.EMPLOYEE_ID = ({$employeeId})
+                and LR.LEAVE_ID = ({$leaveId}) 
                 and LR.STATUS = 'AP') L";
 
-                return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return $result;
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute();
+        return $result;
     }
-    
-    
-    public function getAllLeaveforReport() {
+
+
+    public function getAllLeaveforReport()
+    {
         $sql = "select 
                 lms.leave_id,
                 lms.LEAVE_CODE,
@@ -452,16 +555,17 @@ LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
         foreach ($result as $allLeave) {
             $tempId = $allLeave['LEAVE_YEAR'];
             (!array_key_exists($tempId, $allLeaveForReport)) ?
-                            $allLeaveForReport[$tempId][0] = $allLeave :
-                            array_push($allLeaveForReport[$tempId], $allLeave);
+                $allLeaveForReport[$tempId][0] = $allLeave :
+                array_push($allLeaveForReport[$tempId], $allLeave);
         }
 
         return $allLeaveForReport;
     }
-    
-    
-    public function getMonthlyLeaveforReport($monthly=false) {
-        $monthlyCondition=($monthly)?"AND  IS_MONTHLY='Y' ":"AND  IS_MONTHLY='N'";
+
+
+    public function getMonthlyLeaveforReport($monthly = false)
+    {
+        $monthlyCondition = ($monthly) ? "AND  IS_MONTHLY='Y' " : "AND  IS_MONTHLY='N'";
         $sql = "select 
                 lms.leave_id,
                 lms.LEAVE_CODE,
@@ -476,11 +580,10 @@ LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
         foreach ($result as $allLeave) {
             $tempId = $allLeave['LEAVE_YEAR'];
             (!array_key_exists($tempId, $allLeaveForReport)) ?
-                            $allLeaveForReport[$tempId][0] = $allLeave :
-                            array_push($allLeaveForReport[$tempId], $allLeave);
+                $allLeaveForReport[$tempId][0] = $allLeave :
+                array_push($allLeaveForReport[$tempId], $allLeave);
         }
 
         return $allLeaveForReport;
     }
-
 }

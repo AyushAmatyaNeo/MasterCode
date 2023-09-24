@@ -32,7 +32,6 @@
         // var $table = $('#table');
         var $salaryTypeId = $('#salaryTypeId');
         var $bankTypeId = $('#bankTypeId');
-
         //        var map = {};
         //        var exportType = {
         //            "ACCOUNT_NO": "STRING",
@@ -201,16 +200,16 @@ For Bank Information :
             q['salaryTypeId'] = $salaryTypeId.val();
             q['bankTypeId'] = $bankTypeId.val();
             q['companyId'] = $('#companyId').val();
-
-
-
+            q['payId'] = $('#payHead').val();
+            if (q['bankTypeId'] < 0) {
+                $bankTypeId.focus();
+                app.showMessage("Select Bank.", 'error');
+                return;
+            }
 
             //            q['extVar'] = $otVariable.val();
             //            q['extField'] = $extraFields.val();
             //            q['reportType'] = $reportType.val();
-
-
-
             app.serverRequest(document.pullLetterToBankDetail, q).then(function (response) {
                 if (response.success) {
                     let tempTotal = 0;
@@ -228,8 +227,8 @@ For Bank Information :
 
                     });
 
-                    response.data['COMPANY_NAME'] = (response.companyDetail[0]) ? response.companyDetail[0]['COMPANY_NAME'] : response.preference['companyAddress'];
-                    response.data['ADDRESS'] = (response.companyDetail[0]) ? response.companyDetail[0]['ADDRESS'] : response.preference['companyAddress'];
+                    response.data['COMPANY_NAME'] = (response.companyDetail[0]) ? response.companyDetail[0]['COMPANY_NAME'] : response.preference[0]['COMPANY_NAME'];
+                    response.data['ADDRESS'] = (response.companyDetail[0]) ? response.companyDetail[0]['ADDRESS'] : response.preference[1]['COMPANY_NAME'];
                     response.data['TOTAL'] = tempTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
                     console.log(response.data.employees);
                     var mustHtml = Mustache.to_html(repTemplate, response.data);

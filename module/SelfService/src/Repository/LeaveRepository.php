@@ -7,17 +7,20 @@ use LeaveManagement\Model\LeaveAssign;
 use Traversable;
 use Zend\Db\Adapter\AdapterInterface;
 
-class LeaveRepository extends HrisRepository {
+class LeaveRepository extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
-        if ($tableName == null) {
-            $tableName = LeaveAssign::TABLE_NAME;
-        }
-        parent::__construct($adapter, $tableName);
+  public function __construct(AdapterInterface $adapter, $tableName = null)
+  {
+    if ($tableName == null) {
+      $tableName = LeaveAssign::TABLE_NAME;
     }
+    parent::__construct($adapter, $tableName);
+  }
 
-    function selectAll($employeeId): Traversable {
-        $sql = "SELECT * FROM (SELECT LA.LEAVE_ID,
+  function selectAll($employeeId): Traversable
+  {
+    $sql = "SELECT * FROM (SELECT LA.LEAVE_ID,
                   LMS.LEAVE_CODE,
                   LMS.LEAVE_ENAME,
                   LA.PREVIOUS_YEAR_BAL,
@@ -55,19 +58,21 @@ class LeaveRepository extends HrisRepository {
                 LEFT JOIN HRIS_LEAVE_MASTER_SETUP LMS
                 ON (LA.LEAVE_ID     =LMS.LEAVE_ID)
                 WHERE LA.EMPLOYEE_ID=:employeeId AND LMS.STATUS ='E' AND LMS.IS_MONTHLY = 'N' ORDER BY LMS.LEAVE_ENAME ASC)";
-        //echo $sql; die;
-        $boundedParameter = [];
-        $boundedParameter['employeeId'] = $employeeId;
-        // echo '<pre>';print_r($sql);die;
-        $statement = $this->adapter->query($sql);
-        return $statement->execute($boundedParameter);
-    }
+    //echo $sql; die;
+    $boundedParameter = [];
+    $boundedParameter['employeeId'] = $employeeId;
+    // echo '<pre>';print_r($sql);die;
+    $statement = $this->adapter->query($sql);
+    return $statement->execute($boundedParameter);
+  }
 
-    function monthlyLeaveStatus($employeeId, $fiscalYearMonthNo) {
-        $sql = "SELECT * FROM (SELECT LA.LEAVE_ID,
+  function monthlyLeaveStatus($employeeId, $fiscalYearMonthNo)
+  {
+    $sql = "SELECT * FROM (SELECT LA.LEAVE_ID,
                   LMS.LEAVE_CODE,
                   LMS.LEAVE_ENAME,
                   LA.TOTAL_DAYS,
+                  LA.PREVIOUS_YEAR_BAL,
                   LA.BALANCE,
                   (SELECT SUM(ELR.NO_OF_DAYS/(
                     CASE
@@ -99,6 +104,7 @@ class LeaveRepository extends HrisRepository {
                   LMS.LEAVE_CODE,
                   LMS.LEAVE_ENAME,
                   LA.TOTAL_DAYS,
+                  LA.PREVIOUS_YEAR_BAL,
                   LA.BALANCE,
                   (SELECT SUM(ELR.NO_OF_DAYS/(
                     CASE
@@ -126,12 +132,11 @@ class LeaveRepository extends HrisRepository {
                 AND LMS.CARRY_FORWARD          = 'Y'
                 ORDER BY LMS.LEAVE_ENAME ASC) ";
 
-        $boundedParameter = [];
-        $boundedParameter['employeeId'] = $employeeId;
-        $boundedParameter['fiscalYearMonthNo'] = $fiscalYearMonthNo;
-        
-        $statement = $this->adapter->query($sql);
-        return $statement->execute($boundedParameter);
-    }
+    $boundedParameter = [];
+    $boundedParameter['employeeId'] = $employeeId;
+    $boundedParameter['fiscalYearMonthNo'] = $fiscalYearMonthNo;
 
+    $statement = $this->adapter->query($sql);
+    return $statement->execute($boundedParameter);
+  }
 }

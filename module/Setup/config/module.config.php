@@ -1,4 +1,5 @@
 <?php
+
 namespace Setup;
 
 use Application\Controller\ControllerFactory;
@@ -56,24 +57,24 @@ return [
                         'action' => 'index'
                     ]
                 ]
-             ],
-            'travelCategory'=>[
-                'type'=>Segment::class,
-                'options'=>[
-                    'route'=>'/setup/travelCategory[/:action[/:id]]',
-                    'defaults'=>[
-                        'controller'=>TravelCategoryController::class,
-                        'action'=>'index'
+            ],
+            'travelCategory' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/setup/travelCategory[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => TravelCategoryController::class,
+                        'action' => 'index'
                     ],
                 ],
             ],
-			 'travelExpenseClass'=>[
-                'type'=>Segment::class,
-                'options'=>[
-                    'route'=>'/setup/travelExpenseClass[/:action[/:id]]',
-                    'defaults'=>[
-                        'controller'=>TravelExpClassController::class,
-                        'action'=>'index'
+            'travelExpenseClass' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/setup/travelExpenseClass[/:action[/:id]]',
+                    'defaults' => [
+                        'controller' => TravelExpClassController::class,
+                        'action' => 'index'
                     ],
                 ],
             ],
@@ -610,6 +611,16 @@ return [
                         'route' => 'jobHistory',
                         'action' => 'edit',
                     ],
+                    [
+                        'label' => 'New Employees',
+                        'route' => 'jobHistory',
+                        'action' => 'newEmployee',
+                    ],
+                    [
+                        'label' => 'Resigned and Retired Employees',
+                        'route' => 'jobHistory',
+                        'action' => 'resignedRetired',
+                    ],
                 ]
             ]
         ],
@@ -996,72 +1007,72 @@ return [
                 ]
             ]
         ],
-        'travelCategory'=>[
+        'travelCategory' => [
             [
-                'label'=>"Travel Category",
-                'route'=>"travelCategory"
+                'label' => "Travel Category",
+                'route' => "travelCategory"
             ],
             [
-                'label'=>"Travel Category",
-                'route'=>"travelCategory",
-                'pages'=>[
+                'label' => "Travel Category",
+                'route' => "travelCategory",
+                'pages' => [
                     [
-                        'label'=>'List',
-                        'route'=>'travelCategory',
-                        'action'=>'index',
+                        'label' => 'List',
+                        'route' => 'travelCategory',
+                        'action' => 'index',
                     ],
                     [
-                        'label'=>'Add',
-                        'route'=>'travelCategory',
-                        'action'=>'add',
+                        'label' => 'Add',
+                        'route' => 'travelCategory',
+                        'action' => 'add',
                     ],
                     [
-                        'label'=>'Detail',
-                        'route'=>'travelCategory',
-                        'action'=>'view',
+                        'label' => 'Detail',
+                        'route' => 'travelCategory',
+                        'action' => 'view',
                     ],
                     [
-                        'label'=>'Edit',
-                        'route'=>'travelCategory',
-                        'action'=>'edit',
+                        'label' => 'Edit',
+                        'route' => 'travelCategory',
+                        'action' => 'edit',
                     ],
                     [
-                        'label'=>'Delete',
-                        'route'=>'travelCategory',
-                        'action'=>'delete',
+                        'label' => 'Delete',
+                        'route' => 'travelCategory',
+                        'action' => 'delete',
                     ],
                 ],
             ],
         ],
-		 'travelExpenseClass'=>[
+        'travelExpenseClass' => [
             [
-                'label'=>"Travel Expense",
-                'route'=>"travelExpenseClass"
+                'label' => "Travel Expense",
+                'route' => "travelExpenseClass"
             ],
             [
-                'label'=>"Travel Expense",
-                'route'=>"travelExpenseClass",
-                'pages'=>[
+                'label' => "Travel Expense",
+                'route' => "travelExpenseClass",
+                'pages' => [
                     [
-                        'label'=>'List',
-                        'route'=>'travelExpenseClass',
-                        'action'=>'index',
+                        'label' => 'List',
+                        'route' => 'travelExpenseClass',
+                        'action' => 'index',
                     ],
                     [
-                        'label'=>'Add',
-                        'route'=>'travelExpenseClass',
-                        'action'=>'add',
+                        'label' => 'Add',
+                        'route' => 'travelExpenseClass',
+                        'action' => 'add',
                     ],
-                   
+
                     [
-                        'label'=>'Edit',
-                        'route'=>'travelExpenseClass',
-                        'action'=>'edit',
+                        'label' => 'Edit',
+                        'route' => 'travelExpenseClass',
+                        'action' => 'edit',
                     ],
                     [
-                        'label'=>'Delete',
-                        'route'=>'travelExpenseClass',
-                        'action'=>'delete',
+                        'label' => 'Delete',
+                        'route' => 'travelExpenseClass',
+                        'action' => 'delete',
                     ],
                 ],
             ],
@@ -1203,9 +1214,9 @@ return [
             FileTypeController::class => ControllerFactory::class,
             ShiftGroupController::class => ControllerFactory::class,
             TravelCategoryController::class => ControllerFactory::class,
-			TravelExpClassController::class => ControllerFactory::class,
+            TravelExpClassController::class => ControllerFactory::class,
             EventsAndConferenceController::class => ControllerFactory::class,
-			BankController::class => ControllerFactory::class
+            BankController::class => ControllerFactory::class
         ],
     ],
     'view_manager' => [

@@ -15,16 +15,15 @@ $this->headScript()
 ?>
 
 <script>
-    document.ids =<?php echo json_encode(["leaveId" => -1, "leaveRequestStatusId" => -1, "fromDate1" => "", "nepaliFromDate1" => "", "toDate1" => "", "nepaliToDate1" => ""]) ?>;
-    document.searchValues =<?php echo json_encode($searchValues) ?>;
-    document.acl =<?php echo json_encode($acl); ?>;
-    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.ids = <?php echo json_encode(["leaveId" => -1, "leaveRequestStatusId" => -1, "fromDate1" => "", "nepaliFromDate1" => "", "toDate1" => "", "nepaliToDate1" => ""]) ?>;
+    document.searchValues = <?php echo json_encode($searchValues) ?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.employeeDetail = <?php echo json_encode($employeeDetail); ?>;
     document.viewLink = '<?= $this->url("leavestatus", ["action" => "view"]) ?>';
     document.pullLeaveRequestStatusListLink = '<?= $this->url("leavestatus", ["action" => "pullLeaveRequestStatusList"]) ?>';
-    document.lfcLink = '<?= $this->url("leavestatus", ["action" => "applyLFC"]) ?>';
     document.bulkLink = '<?php echo $this->url('leavestatus', ['action' => 'bulk']); ?>';
-    document.preference =<?php echo json_encode($preference) ?>;
-    document.allLeaveForReport =<?php echo json_encode($allLeaveForReport) ?>;
+    document.preference = <?php echo json_encode($preference) ?>;
+    document.employees = <?php echo json_encode($employees); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\leavestatus')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -41,7 +40,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?><div class="portlet light bg-inverse">
     <div class="portlet-title">
@@ -64,13 +63,13 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <ul class="dropdown-menu pull-right">
                     <li>
                         <a href="javascript:;" id="excelExport">
-                            <i class="fa fa-file-excel-o" ></i> 
-                            Export to Excel 
+                            <i class="fa fa-file-excel-o"></i>
+                            Export to Excel
                         </a>
                     </li>
                     <li>
                         <a href="javascript:;" id="pdfExport">
-                            <i class="fa fa-file-pdf-o" ></i> 
+                            <i class="fa fa-file-pdf-o"></i>
                             Export to PDF
                         </a>
                     </li>
@@ -123,9 +122,9 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 </select>
             </div>
             <div class="col-sm-2">
-                            <label>Functional Type</label>
-                            <select multiple class="form-control" name="functionalType" id="functionalTypeId">
-                            </select>
+                <label>Functional Type</label>
+                <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                </select>
             </div>
             <div class="col-sm-2">
                 <label>Employee</label>
@@ -136,26 +135,22 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <label>Leave</label>
                 <?php print $this->formElement($leaves); ?>
             </div>
-            <div class="col-sm-2 ">
-                <label>Leave Year</label>
-                <?php print $this->formElement($leaveYearSelect); ?>
-            </div>
 
         </div>
 
         <div class="row margin-top-10">
             <div class="col-sm-2">
-                <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field" placeholder="From Date"/>
+                <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" placeholder="From Date" />
             </div>
             <div class="col-sm-2">
-                <input type="text" id="nepaliFromDate" name="nepaliFromDate"  class="form-control reset-field" placeholder="From Date Nepali"/>
+                <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali" />
 
             </div>
             <div class="col-sm-2">
-                <input type="text"  id="toDate" name="toDate"  class="form-control reset-field" placeholder="To Date"/>
+                <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date" />
             </div>
             <div class="col-sm-2">
-                <input type="text"  id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
+                <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali" />
             </div>
 
             <div class="col-sm-2 ">
@@ -165,10 +160,10 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
         </div>
 
         <div class="row margin-top-10">
-            <?php  if($acl['HR_CANCEL']=='Y'){  ?>
-            <div class="col-sm-4">
-                <label><input id="super_power" type="checkbox" class="reset-field">Use Super Power</label>
-            </div>
+            <?php if ($acl['HR_CANCEL'] == 'Y') {  ?>
+                <div class="col-sm-4">
+                    <label><input id="super_power" type="checkbox" class="reset-field">Use Super Power</label>
+                </div>
             <?php }      ?>
             <div class=" col-sm-offset-8 col-sm-4">
                 <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
@@ -185,19 +180,17 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 </div>
 
 
-<div class="margin-top-10">  
+<div class="margin-top-10">
     <div id="leaveRequestStatusTable">
     </div>
-    <div style="display: none;" class="row margin-top-20" id="bulkActionDiv" >
-            <?php  if($acl['HR_APPROVE']=='Y'){  ?>
-        <div class="col-sm-2 ">
-            <button action="reject" class="btn btn-danger btnApproveReject">Reject</button>
-        </div>
-        <div class="col-sm-2 col-sm-offset-8">
-            <button action="approve" class="btn btn-info btnApproveReject pull-right">Approve</button>
-        </div>
-            <?php }      ?>
+    <div style="display: none;" class="row margin-top-20" id="bulkActionDiv">
+        <?php if ($acl['HR_APPROVE'] == 'Y') {  ?>
+            <div class="col-sm-2 ">
+                <button action="reject" class="btn btn-danger btnApproveReject">Reject</button>
+            </div>
+            <div class="col-sm-2 col-sm-offset-8">
+                <button action="approve" class="btn btn-info btnApproveReject pull-right">Approve</button>
+            </div>
+        <?php }      ?>
     </div>
 </div>
-
-

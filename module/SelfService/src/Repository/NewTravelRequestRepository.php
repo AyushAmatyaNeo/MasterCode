@@ -1,4 +1,5 @@
 <?php
+
 namespace SelfService\Repository;
 
 use Application\Helper\EntityHelper;
@@ -6,7 +7,7 @@ use Application\Model\Model;
 use Application\Repository\RepositoryInterface;
 use SelfService\Model\TravelRequest;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\Sql\Expression; 
+use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Application\Helper\Helper;
 use Zend\Db\TableGateway\TableGateway;
@@ -16,26 +17,29 @@ use Setup\Model\HrEmployees;
 use Zend\Http\Header\TE;
 use ZF\DevelopmentMode\Help;
 
-class NewTravelRequestRepository extends HrisRepository implements RepositoryInterface {
+class NewTravelRequestRepository extends HrisRepository implements RepositoryInterface
+{
 
     protected $tableGateway;
     protected $adapter;
- 
-    public function __construct(AdapterInterface $adapter) {
+
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(TravelRequest::TABLE_NAME, $adapter);
         $this->tableEmployeeGateway = new TableGateway(HrEmployees::TABLE_NAME, $adapter);
-        $this->fileGateway = new TableGateway(TRAVELFILES::TABLE_NAME,$adapter);
-    } 
-    public function getFilteredRecords(array $search) { #passes value from view
+        $this->fileGateway = new TableGateway(TRAVELFILES::TABLE_NAME, $adapter);
+    }
+    public function getFilteredRecords(array $search)
+    { #passes value from view
         $sql = new Sql($this->adapter);
         $employeeId = $search['employeeId'];
 
-        if($search['year']){
-            $startdate = '01-JAN-'.$search['year'];
-            $enddate = '30-DEC-'.$search['year'];
+        if ($search['year']) {
+            $startdate = '01-JAN-' . $search['year'];
+            $enddate = '30-DEC-' . $search['year'];
         }
-       
+
 
         $select = $sql->select();
         $select->columns([
@@ -93,29 +97,29 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         $select->where([
             "E.EMPLOYEE_ID  = {$employeeId}",
             "TR.STATUS  != 'C' ",
-           //"LOWER(TR.REQUESTED_TYPE) = 'ad'"
+            //"LOWER(TR.REQUESTED_TYPE) = 'ad'"
         ]);
         // if($search['travelType']){
         //     $select->where([
-		// 	"TR.TRAVEL_TYPE = '{$search['travelType']}'",
+        // 	"TR.TRAVEL_TYPE = '{$search['travelType']}'",
         //     ]);
         // }
         // if($search['year']){
-            
+
         //     $select->where([
-		// 	"TR.REQUESTED_DATE BETWEEN '{$startdate}' AND '{$enddate}'",
+        // 	"TR.REQUESTED_DATE BETWEEN '{$startdate}' AND '{$enddate}'",
         //     ]);
         // }
-        if($search['year']){
-            
+        if ($search['year']) {
+
             $select->where([
-			"TR.from_date BETWEEN '{$startdate}' AND '{$enddate}'",
+                "TR.from_date BETWEEN '{$startdate}' AND '{$enddate}'",
             ]);
         }
-        if($search['year']){
-            
+        if ($search['year']) {
+
             $select->where([
-			"TR.to_date BETWEEN '{$startdate}' AND '{$enddate}'",
+                "TR.to_date BETWEEN '{$startdate}' AND '{$enddate}'",
             ]);
         }
 
@@ -161,10 +165,146 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         }
         $select->order("TR.FROM_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
-        // echo '<pre>';print_r($statement);die;
-
         $result = $statement->execute();
-        // echo '<pre>';print_r($statement);die;
+
+        return $result;
+    }
+
+    public function getExpFilteredRecords(array $search)
+    { #passes value from view
+        $sql = new Sql($this->adapter);
+        $employeeId = $search['employeeId'];
+
+        if ($search['fromDate'] != '' || $search['toDate'] != '') {
+            $startdate = $search['fromDate'];
+            $enddate = $search['toDate'];
+        }
+
+        $select = $sql->select();
+        $select->columns([
+            new Expression("INITCAP(TO_CHAR(TR.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE_AD"),
+            new Expression("BS_DATE(TR.FROM_DATE) AS FROM_DATE_BS"),
+            new Expression("INITCAP(TO_CHAR(TR.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE_AD"),
+            new Expression("BS_DATE(TR.TO_DATE) AS TO_DATE_BS"),
+            new Expression("TR.STATUS AS STATUS"),
+            new Expression("TR.HARDCOPY_SIGNED_FLAG AS HARDCOPY_SIGNED_FLAG"),
+            new Expression("travel_status_desc(TR.STATUS) AS STATUS_DETAIL"),
+            new Expression("TR.DESTINATION AS DESTINATION"),
+            new Expression("TR.DEPARTURE AS DEPARTURE"),
+            new Expression("INITCAP(TO_CHAR(TR.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
+            new Expression("BS_DATE(TR.REQUESTED_DATE) AS REQUESTED_DATE_BS"),
+            new Expression("INITCAP(TO_CHAR(TR.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
+            new Expression("INITCAP(TO_CHAR(TR.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
+            new Expression("TR.REQUESTED_AMOUNT AS REQUESTED_AMOUNT"),
+            new Expression("TR.TRAVEL_ID AS TRAVEL_ID"),
+            new Expression("TR.TRAVEL_CODE AS TRAVEL_CODE"),
+            new Expression("TR.PURPOSE AS PURPOSE"),
+            new Expression("TR.APPROVED_BY AS APPROVED_BY"),
+            new Expression("TR.TRANSPORT_TYPE AS TRANSPORT_TYPE"),
+            new Expression("(CASE WHEN TR.TRANSPORT_TYPE = 'AP' THEN 'Aeroplane' WHEN TR.TRANSPORT_TYPE = 'OV' THEN 'Office Vehicles' WHEN TR.TRANSPORT_TYPE = 'TI' THEN 'Taxi' WHEN TR.TRANSPORT_TYPE = 'BS' THEN 'BUS' WHEN TR.TRANSPORT_TYPE = 'VV' THEN 'Own Vehicle' ELSE 'Others' END) AS TRANSPORT_TYPE_DETAIL"),
+            new Expression("TR.EMPLOYEE_ID AS EMPLOYEE_ID"),
+            new Expression("TR.RECOMMENDED_BY AS RECOMMENDED_BY"),
+            new Expression("TR.APPROVED_BY AS APPROVED_BY"),
+            new Expression("TR.APPROVED_REMARKS AS APPROVED_REMARKS"),
+            new Expression("TR.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
+            new Expression("TR.REMARKS AS REMARKS"),
+            new Expression("TR.REQUESTED_TYPE AS REQUESTED_TYPE"),
+            new Expression("TR.CURRENCY_NAME AS CURRENCY"),
+            new Expression("TR.TRAVEL_TYPE AS TRAVEL_TYPE"),
+            new Expression("(CASE WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'LTR' THEN 'Local Travel Request' WHEN LOWER(TR.REQUESTED_TYPE) = 'ia' THEN 'Intenational Travel Request'
+             WHEN LOWER(TR.REQUESTED_TYPE) = 'ad' AND TRAVEL_TYPE = 'ITR' THEN 'Intenational Travel Advance Request'
+             WHEN TR.REQUESTED_TYPE = 'ep' and TR.TRAVEL_TYPE = 'LTR'
+             THEN 'Expense For Domestic Travel'
+             WHEN TR.REQUESTED_TYPE = 'ep' and TR.TRAVEL_TYPE = 'ITR'
+             THEN 'Expense For International Travel'
+             ELSE 'Expense For Local Travel' END) AS REQUESTED_TYPE"),
+            new Expression("(CASE WHEN TR.STATUS in ('RQ','SV') THEN 'Y' ELSE 'N' END) AS ALLOW_EDIT"),
+            new Expression("(CASE WHEN TR.STATUS IN ('RQ','RC','SV') THEN 'Y' ELSE 'N' END) AS ALLOW_DELETE"),
+            new Expression("(CASE WHEN (TR.STATUS = 'AP' AND LOWER(TR.REQUESTED_TYPE) = 'ad' AND (SELECT COUNT(*) FROM HRIS_EMPLOYEE_TRAVEL_REQUEST WHERE REFERENCE_TRAVEL_ID =TR.TRAVEL_ID AND STATUS not in ('C','R') ) =0 ) THEN 'Y' ELSE 'N' END) AS ALLOW_EXPENSE_APPLY"),
+
+            new Expression("(CASE WHEN (TR.STATUS = 'AP' AND LOWER(TR.REQUESTED_TYPE) = 'ia' AND (SELECT COUNT(*) FROM HRIS_EMPLOYEE_TRAVEL_REQUEST WHERE REFERENCE_TRAVEL_ID =TR.TRAVEL_ID AND STATUS not in ('C','R') ) =0 )  THEN 'Y' ELSE 'N' END) AS ALLOW_ADVANCE_ITR"),
+        ], true);
+
+        $select->from(['TR' => TravelRequest::TABLE_NAME])
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=TR.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=TR.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=TR.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=TR.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+
+        $select->where([
+            "E.EMPLOYEE_ID  = {$employeeId}",
+            "TR.STATUS  != 'C' ",
+            //"LOWER(TR.REQUESTED_TYPE) = 'ad'"
+        ]);
+        // if($search['travelType']){
+        //     $select->where([
+        // 	"TR.TRAVEL_TYPE = '{$search['travelType']}'",
+        //     ]);
+        // }
+        // if($search['year']){
+
+        //     $select->where([
+        // 	"TR.REQUESTED_DATE BETWEEN '{$startdate}' AND '{$enddate}'",
+        //     ]);
+        // }
+        if ($search['fromDate'] != '') {
+
+            $select->where([
+                "TR.from_date BETWEEN '{$startdate}' AND '{$enddate}'",
+            ]);
+        }
+        if ($search['toDate'] != '') {
+
+            $select->where([
+                "TR.to_date BETWEEN '{$startdate}' AND '{$enddate}'",
+            ]);
+        }
+
+        if ($search['statusId'] != -1) {
+            $select->where([
+                "TR.STATUS" => $search['statusId'],
+            ]);
+        }
+        if ($search['statusId'] != 'C') {
+            $select->where([
+                " (trunc(sysdate-tr.requested_date)) < (
+                    CASE
+                        WHEN tr.status = 'C' THEN 20
+                        ELSE 365
+                    END
+                )"
+            ]);
+        }
+
+        // if ($search['fromDate'] != null) {
+        //     $fromDate = $search['fromDate'];
+        //     $select->where([
+        //         "TR.FROM_DATE>=TO_DATE('{$fromDate}','DD-MON-YYYY')"
+        //     ]);
+        // }
+
+        // if ($search['toDate'] != null) {
+        //     $toDate = $search['toDate'];
+        //     $select->where([
+        //         "TR.TO_DATE>=TO_DATE('{$toDate}','DD-MON-YYYY')"
+        //     ]);
+        // }
+
+        if (isset($search['requestedType'])) {
+            $select->where([
+                "LOWER(TR.REQUESTED_TYPE) in ('{$search['requestedType']}') "
+            ]);
+        }
+        // if ($search['travelType']) {
+        //     $select->where([
+        //         "TR.TRAVEL_TYPE in ('{$search['travelType']}') "
+        //     ]);
+        // }
+        $select->order("TR.FROM_DATE DESC");
+        $statement = $sql->prepareStatementForSqlObject($select);
+        $result = $statement->execute();
         return $result;
     }
     public function linkTravelWithFiles($id = null)
@@ -186,32 +326,33 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
                 $statement->execute();
             }
         }
-        $sql="delete from hris_travel_files where travel_id is null";
+        $sql = "delete from hris_travel_files where travel_id is null";
         $statement = $this->adapter->query($sql);
         $statement->execute();
     }
 
     public function fetchAttachmentsById($id)
     {
-        $sql="select * from HRIS_TRAVEL_FILES where travel_id=$id";
-        $result=EntityHelper::rawQueryResult($this->adapter,$sql);
+        $sql = "select * from HRIS_TRAVEL_FILES where travel_id=$id";
+        $result = EntityHelper::rawQueryResult($this->adapter, $sql);
         return Helper::extractDbData($result);
     }
 
-    public function add(Model $model) {
-        $addData=$model->getArrayCopyForDB();
+    public function add(Model $model)
+    {
+        $addData = $model->getArrayCopyForDB();
         // echo '<pre>'; print_r($addData); die;
         $this->tableGateway->insert($addData);
         // var_dump('dgdv');die;
 
-        if ($addData['STATUS']=='AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
+        if ($addData['STATUS'] == 'AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
             //THE FOLLOWING CODE WAS DONE IN THE URGENCY FOR MAKING THE DATE COMPATIBLE WITH SAP HANA
             $sql = "CALL 
             HRIS_REATTENDANCE((select to_char(from_date,'yyyy-mm-dd') from HRIS_EMPLOYEE_TRAVEL_REQUEST where travel_id = $model->travelId), $model->employeeId,(select to_char(to_date,'yyyy-mm-dd') from HRIS_EMPLOYEE_TRAVEL_REQUEST where travel_id = $model->travelId));";
-        //            $boundedParameter = [];
-        //            $boundedParameter['fromDate'] = $model->fromDate;
-        //            $boundedParameter['employeeId'] = $model->employeeId;
-        //            $boundedParameter['toDate'] = $model->toDate;
+            //            $boundedParameter = [];
+            //            $boundedParameter['fromDate'] = $model->fromDate;
+            //            $boundedParameter['employeeId'] = $model->employeeId;
+            //            $boundedParameter['toDate'] = $model->toDate;
 
             $this->rawQuery($sql);
         }
@@ -223,22 +364,25 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         $this->fileGateway->insert($data);
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $this->tableGateway->update([TravelRequest::STATUS => 'C'], [TravelRequest::TRAVEL_ID => $id]);
     }
- 
-    public function edit(Model $model, $id) {
+
+    public function edit(Model $model, $id)
+    {
         // echo("<pre>");print_r($model);die;
         $array = $model->getArrayCopyForDB();
         // var_dump($array); die;
         $this->tableGateway->update($array, [TravelRequest::TRAVEL_ID => $id]);
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -275,7 +419,7 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
             new Expression("TR.TRAVEL_TYPE AS TRAVEL_TYPE"),
             new Expression("TR.CURRENCY_NAME AS CURRENCY"),
             new Expression("TE.EXPENSE_DATE AS EXPENSE_REQUESTED_DATE"),
-            ], true);
+        ], true);
 
         $select->from(['TR' => TravelRequest::TABLE_NAME])
             ->join(['TS' => "HRIS_TRAVEL_SUBSTITUTE"], "TR.TRAVEL_ID=TS.TRAVEL_ID", [
@@ -284,8 +428,8 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
                 'SUB_REMARKS' => "REMARKS",
                 'SUB_APPROVED_FLAG' => "APPROVED_FLAG",
                 'SUB_APPROVED_FLAG_DETAIL' => new Expression("(CASE WHEN APPROVED_FLAG = 'Y' THEN 'Approved' WHEN APPROVED_FLAG = 'N' THEN 'Rejected' ELSE 'Pending' END)")
-                ], "left")
-            ->join (['TE' =>'HRIS_TRAVEL_EXPENSE'], 'TE.TRAVEL_ID=TR.TRAVEL_ID',["EXPENSE_DATE" =>new Expression("INITCAP(TO_CHAR(TE.EXPENSE_DATE, 'DD-MON-YYYY'))")],"left")
+            ], "left")
+            ->join(['TE' => 'HRIS_TRAVEL_EXPENSE'], 'TE.TRAVEL_ID=TR.TRAVEL_ID', ["EXPENSE_DATE" => new Expression("INITCAP(TO_CHAR(TE.EXPENSE_DATE, 'DD-MON-YYYY'))")], "left")
             ->join(['TSE' => 'HRIS_EMPLOYEES'], 'TS.EMPLOYEE_ID=TSE.EMPLOYEE_ID', ["SUB_EMPLOYEE_NAME" => new Expression("INITCAP(TSE.FULL_NAME)")], "left")
             ->join(['TSED' => 'HRIS_DESIGNATIONS'], 'TSE.DESIGNATION_ID=TSED.DESIGNATION_ID', ["SUB_DESIGNATION_TITLE" => "DESIGNATION_TITLE"], "left")
             ->join(['E' => 'HRIS_EMPLOYEES'], 'E.EMPLOYEE_ID=TR.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
@@ -300,7 +444,7 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         $select->where(["TR.TRAVEL_ID" => $id]);
         $select->order("TR.REQUESTED_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
-                // echo '<pre>'; print_r($statement); die;
+        // echo '<pre>'; print_r($statement); die;
         $result = $statement->execute();
         return $result->current();
     }
@@ -318,39 +462,44 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         // var_dump($result); die;
         return $result[0];
     }
-    public function checkAllowEdit($id){
+    public function checkAllowEdit($id)
+    {
         $sql = "SELECT (CASE WHEN STATUS = 'RQ' THEN 'Y' ELSE 'N' END)"
-                . " AS ALLOW_EDIT FROM HRIS_EMPLOYEE_TRAVEL_REQUEST WHERE "
-                . "TRAVEL_ID = {$id}";
+            . " AS ALLOW_EDIT FROM HRIS_EMPLOYEE_TRAVEL_REQUEST WHERE "
+            . "TRAVEL_ID = {$id}";
 
         // $boundedParameter = [];
         // $boundedParameter['id'] = $id;
         return $this->rawQuery($sql)[0]["ALLOW_EDIT"];
     }
-    public function getClassIdFromEmpId($id){
+    public function getClassIdFromEmpId($id)
+    {
         $sql = "select pcm.class_id from hris_position_class_map pcm
         left join hris_employees he on (pcm.position_id = he.position_id)
         where he.employee_id = {$id}";
         return $this->rawQuery($sql)[0]["CLASS_ID"];
     }
-    public function getRateFromConfigId($configId){
+    public function getRateFromConfigId($configId)
+    {
         $sql = "select rate from hris_class_travel_config where config_id = {$configId}";
 
         //print_r($sql);die;
         return $this->rawQuery($sql)[0]["RATE"];
     }
-    public function getCongifId($travelType, $mot, $classId){
-        if($travelType == "DOMESTIC"){
+    public function getCongifId($travelType, $mot, $classId)
+    {
+        if ($travelType == "DOMESTIC") {
             $sql = "select config_id from hris_class_travel_config where
         travel_type = '{$travelType}' and domestic_type = '{$mot}' and class_id = {$classId}";
-        }else{
+        } else {
             $sql = "select config_id from hris_class_travel_config where
         travel_type = '{$travelType}' and international_type = '{$mot}' and class_id = {$classId}";
         }
         // print_r($this->rawQuery($sql));die;   
         return $this->rawQuery($sql)[0]["CONFIG_ID"];
     }
-    public function getTotalExpenseAmount($travelId){
+    public function getTotalExpenseAmount($travelId)
+    {
         // $sql = "select sum(total * exchange_rate) as NRP_TOTAL from hris_travel_expense where travel_id = {$travelId} and status = 'E'";
         // return $this->rawQuery($sql)[0]["NRP_TOTAL"];
         $sql = "select nvl(sum(amount),0) as NRP_TOTAL from hris_travel_expense where travel_id = {$travelId} and status = 'E'";
@@ -381,17 +530,17 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
          and status= 'AP' and requested_date > '01-JAN-2022'";
         $result =  $this->rawQuery($sql);
         // var_dump($result); die;
-		$a = [];
+        $a = [];
         foreach ($result as $key => $value) {
             $a[] = $value['travel_id'];
         }
-		
-        
+
+
         return $result;
     }
     public function getITravel($id)
     {
-     $sql = "SELECT * 
+        $sql = "SELECT * 
      FROM   hris_employee_travel_request 
       WHERE  TRAVEL_ID NOT IN 
       (SELECT reference_travel_id FROM 
@@ -425,10 +574,9 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
 
     public function getPreferenceData()
     {
-        $sql="select * from hris_preferences";
+        $sql = "select * from hris_preferences";
         $result =  $this->rawQuery($sql);
         // echo '<pre>';print_r($sql);die;
         return $result;
     }
 }
-

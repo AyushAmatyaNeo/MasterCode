@@ -1,4 +1,5 @@
 <?php
+
 namespace AttendanceManagement\Repository;
 
 use Application\Helper\EntityHelper;
@@ -9,99 +10,103 @@ use Setup\Model\HrEmployees;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 
-class AttendanceStatusRepository extends HrisRepository {
+class AttendanceStatusRepository extends HrisRepository
+{
 
-    public function getAllRequest($status = null, $branchId = null, $employeeId = null) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceRequestModel::class, NULL, [
-                AttendanceRequestModel::REQUESTED_DT,
-                AttendanceRequestModel::APPROVED_DT,
-                AttendanceRequestModel::ATTENDANCE_DT
-                ], [
-                AttendanceRequestModel::IN_TIME,
-                AttendanceRequestModel::OUT_TIME
-                ], NULL, NULL, 'AR'), false);
+  public function getAllRequest($status = null, $branchId = null, $employeeId = null)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceRequestModel::class, NULL, [
+      AttendanceRequestModel::REQUESTED_DT,
+      AttendanceRequestModel::APPROVED_DT,
+      AttendanceRequestModel::ATTENDANCE_DT
+    ], [
+      AttendanceRequestModel::IN_TIME,
+      AttendanceRequestModel::OUT_TIME
+    ], NULL, NULL, 'AR'), false);
 
-        $select->from(['AR' => AttendanceRequestModel::TABLE_NAME])
-            ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=AR.EMPLOYEE_ID", ['FIRST_NAME' => new Expression('INITCAP(E.FIRST_NAME)'), 'MIDDLE_NAME' => new Expression('INITCAP(E.MIDDLE_NAME)'), 'LAST_NAME' => new Expression('INITCAP(E.LAST_NAME)')], "left")
-            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=AR.APPROVED_BY", ['FIRST_NAME1' => new Expression('INITCAP(E1.FIRST_NAME)'), 'MIDDLE_NAME1' => new Expression('INITCAP(E1.MIDDLE_NAME)'), 'LAST_NAME1' => new Expression('INITCAP(E1.LAST_NAME)')], "left");
+    $select->from(['AR' => AttendanceRequestModel::TABLE_NAME])
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=AR.EMPLOYEE_ID", ['FIRST_NAME' => new Expression('INITCAP(E.FIRST_NAME)'), 'MIDDLE_NAME' => new Expression('INITCAP(E.MIDDLE_NAME)'), 'LAST_NAME' => new Expression('INITCAP(E.LAST_NAME)')], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=AR.APPROVED_BY", ['FIRST_NAME1' => new Expression('INITCAP(E1.FIRST_NAME)'), 'MIDDLE_NAME1' => new Expression('INITCAP(E1.MIDDLE_NAME)'), 'LAST_NAME1' => new Expression('INITCAP(E1.LAST_NAME)')], "left");
 
-        $select->where([
-            "E.STATUS='E'",
-            "E.RETIRED_FLAG='N'"
-        ]);
-        if ($status != null) {
-            $where = "AR.STATUS ='" . $status . "'";
-            $select->where([$where]);
-        }
-
-        if ($branchId != null) {
-            $select->where(["E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)"]);
-        }
-
-        if ($employeeId != null) {
-            $select->where(["E." . HrEmployees::EMPLOYEE_ID . " = $employeeId"]);
-        }
-        $select->order("E.FIRST_NAME ASC");
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result;
+    $select->where([
+      "E.STATUS='E'",
+      "E.RETIRED_FLAG='N'"
+    ]);
+    if ($status != null) {
+      $where = "AR.STATUS ='" . $status . "'";
+      $select->where([$where]);
     }
 
-    public function fetchById($id) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceRequestModel::class, NULL, [
-                AttendanceRequestModel::REQUESTED_DT,
-                AttendanceRequestModel::ATTENDANCE_DT
-                ], [
-                AttendanceRequestModel::IN_TIME,
-                AttendanceRequestModel::OUT_TIME
-                ], NULL, NULL, 'A'), false);
-
-        $select->from(['A' => AttendanceRequestModel::TABLE_NAME])
-            ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ['FIRST_NAME' => new Expression('INITCAP(E.FIRST_NAME)'), 'MIDDLE_NAME' => new Expression('INITCAP(E.MIDDLE_NAME)'), 'LAST_NAME' => new Expression('INITCAP(E.LAST_NAME)')], "left")
-            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=AR.APPROVED_BY", ['FIRST_NAME1' => new Expression('INITCAP(E1.FIRST_NAME)'), 'MIDDLE_NAME1' => new Expression('INITCAP(E1.MIDDLE_NAME)'), 'LAST_NAME1' => new Expression('INITCAP(E1.LAST_NAME)')], "left");
-
-        $select->where([AttendanceRequestModel::ID => $id]);
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result->current();
+    if ($branchId != null) {
+      $select->where(["E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)"]);
     }
 
-    public function getFilteredRecord($data, $recomApproveId) {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
+    if ($employeeId != null) {
+      $select->where(["E." . HrEmployees::EMPLOYEE_ID . " = $employeeId"]);
+    }
+    $select->order("E.FIRST_NAME ASC");
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result;
+  }
 
-        $attendanceRequestStatusId = $data['attendanceRequestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
-        $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $statusCondition = "";
-        $fromDateCondition = "";
-        $toDateCondition = "";
+  public function fetchById($id)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(AttendanceRequestModel::class, NULL, [
+      AttendanceRequestModel::REQUESTED_DT,
+      AttendanceRequestModel::ATTENDANCE_DT
+    ], [
+      AttendanceRequestModel::IN_TIME,
+      AttendanceRequestModel::OUT_TIME
+    ], NULL, NULL, 'A'), false);
 
-        if ($attendanceRequestStatusId != -1) {
-            $statusCondition = "AND AR.STATUS = '{$attendanceRequestStatusId}'";
-        }
+    $select->from(['A' => AttendanceRequestModel::TABLE_NAME])
+      ->join(['E' => 'HRIS_EMPLOYEES'], 'A.EMPLOYEE_ID=E.EMPLOYEE_ID', ['FIRST_NAME' => new Expression('INITCAP(E.FIRST_NAME)'), 'MIDDLE_NAME' => new Expression('INITCAP(E.MIDDLE_NAME)'), 'LAST_NAME' => new Expression('INITCAP(E.LAST_NAME)')], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=AR.APPROVED_BY", ['FIRST_NAME1' => new Expression('INITCAP(E1.FIRST_NAME)'), 'MIDDLE_NAME1' => new Expression('INITCAP(E1.MIDDLE_NAME)'), 'LAST_NAME1' => new Expression('INITCAP(E1.LAST_NAME)')], "left");
 
-        if ($fromDate != null) {
-            $fromDateCondition = " AND AR.ATTENDANCE_DT>=TO_DATE('{$fromDate}','DD-MM-YYYY')";
-        }
+    $select->where([AttendanceRequestModel::ID => $id]);
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-        if ($toDate != null) {
-            $toDateCondition = "AND AR.ATTENDANCE_DT<=TO_DATE('{$toDate}','DD-MM-YYYY')";
-        }
+  public function getFilteredRecord($data, $recomApproveId)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
 
-        $sql = "SELECT DISTINCT AR.ID                                             AS ID,
+    $attendanceRequestStatusId = $data['attendanceRequestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+    $searchCondition = $this->getSearchConditon($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+    $statusCondition = "";
+    $fromDateCondition = "";
+    $toDateCondition = "";
+
+    if ($attendanceRequestStatusId != -1) {
+      $statusCondition = "AND AR.STATUS = '{$attendanceRequestStatusId}'";
+    }
+
+    if ($fromDate != null) {
+      $fromDateCondition = " AND AR.ATTENDANCE_DT>=TO_DATE('{$fromDate}','DD-MM-YYYY')";
+    }
+
+    if ($toDate != null) {
+      $toDateCondition = "AND AR.ATTENDANCE_DT<=TO_DATE('{$toDate}','DD-MM-YYYY')";
+    }
+
+    $sql = "SELECT DISTINCT AR.ID                                             AS ID,
                   AR.EMPLOYEE_ID                                                  AS EMPLOYEE_ID,
                   E.EMPLOYEE_CODE                                                  AS EMPLOYEE_CODE,
                   INITCAP(TO_CHAR(AR.ATTENDANCE_DT, 'DD-MON-YYYY'))               AS ATTENDANCE_DT_AD,
@@ -187,53 +192,52 @@ class AttendanceStatusRepository extends HrisRepository {
                     THEN ('E')
                   END
                 OR APRV.STATUS IS NULL) {$searchCondition} {$statusCondition} {$fromDateCondition} {$toDateCondition}";
-                
-//                echo $sql;
-//                die();
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
+
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
+
+  public function getAttenReqList($data): array
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $attendanceRequestStatusId = $data['attendanceRequestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+
+    $boundedParams = [];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+
+    $statusCondition = "";
+    $fromDateCondition = "";
+    $toDateCondition = "";
+
+    if ($attendanceRequestStatusId != -1) {
+      $statusCondition = "AND AR.STATUS = :attendanceRequestStatusId";
+      $boundedParams['attendanceRequestStatusId'] = $attendanceRequestStatusId;
     }
 
-    public function getAttenReqList($data): array {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-        $functionalTypeId = $data['functionalTypeId'];
-        $attendanceRequestStatusId = $data['attendanceRequestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
+    if ($fromDate != null) {
+      $fromDateCondition = " AND AR.ATTENDANCE_DT>= :fromDate";
+      $boundedParams['fromDate'] = $fromDate;
+    }
 
-        $boundedParams = [];
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
-        $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+    if ($toDate != null) {
+      $toDateCondition = "AND AR.ATTENDANCE_DT<= :toDate";
+      $boundedParams['toDate'] = $toDate;
+    }
 
-        $statusCondition = "";
-        $fromDateCondition = "";
-        $toDateCondition = "";
-
-        if ($attendanceRequestStatusId != -1) {
-            $statusCondition = "AND AR.STATUS = :attendanceRequestStatusId";
-            $boundedParams['attendanceRequestStatusId'] = $attendanceRequestStatusId;
-        }
-
-        if ($fromDate != null) {
-            $fromDateCondition = " AND AR.ATTENDANCE_DT>= :fromDate";
-            $boundedParams['fromDate'] = $fromDate;
-        }
-
-        if ($toDate != null) {
-            $toDateCondition = "AND AR.ATTENDANCE_DT<= :toDate";
-            $boundedParams['toDate'] = $toDate;
-        }
-
-        $sql = "SELECT AR.ID                                           AS ID,
+    $sql = "SELECT AR.ID                                           AS ID,
                   AR.EMPLOYEE_ID                                       AS EMPLOYEE_ID,
                   INITCAP(TO_CHAR(AR.ATTENDANCE_DT, 'DD-MON-YYYY'))    AS ATTENDANCE_DT_AD,
                   BS_DATE(TO_CHAR(AR.ATTENDANCE_DT, 'DD-MON-YYYY'))    AS ATTENDANCE_DT_BS,
@@ -297,8 +301,8 @@ class AttendanceStatusRepository extends HrisRepository {
                     WHEN APRV.STATUS IS NOT NULL
                     THEN ('E')
                   END
-                OR APRV.STATUS IS NULL) {$searchCondition['sql']} {$statusCondition} {$fromDateCondition} {$toDateCondition}";
-        $finalQuery = $this->getPrefReportQuery($sql);
-        return $this->rawQuery($finalQuery, $boundedParams);
-    }
+                OR APRV.STATUS IS NULL) {$searchCondition['sql']} {$statusCondition} {$fromDateCondition} {$toDateCondition} order by AR.ATTENDANCE_DT desc";
+    $finalQuery = $this->getPrefReportQuery($sql);
+    return $this->rawQuery($finalQuery, $boundedParams);
+  }
 }

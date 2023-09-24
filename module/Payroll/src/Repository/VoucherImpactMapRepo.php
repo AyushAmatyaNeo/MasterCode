@@ -1,4 +1,5 @@
 <?php
+
 namespace Payroll\Repository;
 
 use Application\Helper\EntityHelper;
@@ -8,43 +9,51 @@ use Application\Repository\HrisRepository;
 use Payroll\Model\AccCodeMap;
 use Zend\Db\Adapter\AdapterInterface;
 
-class VoucherImpactMapRepo extends HrisRepository {
+class VoucherImpactMapRepo extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         if ($tableName == null) {
             $tableName = AccCodeMap::TABLE_NAME;
         }
         parent::__construct($adapter, $tableName);
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $temp = $model->getArrayCopyForDB();
-		$sql= "DELETE FROM HRIS_ACC_CODE_MAP where pay_id = {$temp['PAY_ID']} and company_code = {$temp['COMPANY_CODE']} and branch_code = {$temp['BRANCH_CODE']} and group_id = {$temp['GROUP_ID']}";
-		$statement = $this->adapter->query($sql);
+        $sql = "DELETE FROM HRIS_ACC_CODE_MAP where pay_id = {$temp['PAY_ID']} and company_code = {$temp['COMPANY_CODE']} and branch_code = {$temp['BRANCH_CODE']} and group_id = {$temp['GROUP_ID']}";
+        $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $this->tableGateway->insert($model->getArrayCopyForDB());
     }
-    public function convertCompanyCodeToId($companyCode){
+    public function convertCompanyCodeToId($companyCode)
+    {
         $sql = "select company_id from hris_company where company_code = {$companyCode}";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return Helper::extractDbData($result)[0]['COMPANY_ID'];
     }
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         return; //$this->tableGateway->select($id);
     }
 
-    public function delete($id) {
-        $sql="delete from  HRIS_ACC_CODE_MAP where ID = $id";
+    public function delete($id)
+    {
+        $sql = "delete from  HRIS_ACC_CODE_MAP where ID = $id";
         $this->rawQuery($sql);
         return;
     }
 
-    public function deleteBy($by) {
+    public function deleteBy($by)
+    {
         // return $this->tableGateway->delete($by);
     }
 
-    public function getEmployeeDataList($data){
+    public function getEmployeeDataList($data)
+    {
         $sql = "SELECT
         e1.employee_code,
         e1.full_name,
@@ -76,11 +85,12 @@ class VoucherImpactMapRepo extends HrisRepository {
                 company_code = '{$data['company']}'
         ) ";
         $statement = $this->adapter->query($sql);
-        
+
         $result = $statement->execute();
         return Helper::extractDbData($result);
     }
-    public function getBranchList(){
+    public function getBranchList()
+    {
         $sql = "select 
         fbs.BRANCH_CODE,
         fbs.COMPANY_CODE,
@@ -94,20 +104,21 @@ class VoucherImpactMapRepo extends HrisRepository {
         foreach ($result as $allBranch) {
             $tempId = $allBranch['COMPANY_CODE'];
             (!array_key_exists($tempId, $allBranchName)) ?
-                            $allBranchName[$tempId][0] = $allBranch :
-                            array_push($allBranchName[$tempId], $allBranch);
+                $allBranchName[$tempId][0] = $allBranch :
+                array_push($allBranchName[$tempId], $allBranch);
         }
 
         return $allBranchName;
     }
-    public function getAccHeadList() {
+    public function getAccHeadList()
+    {
         $sql = "select 
                 fac.ACC_CODE,
                 fac.COMPANY_CODE,
                 fac.ACC_EDESC
                 from FA_CHART_OF_ACCOUNTS_SETUP fac
                 where fac.DELETED_FLAG = 'N' ";
-                        // echo '<pre>';print_r($sql);die;
+
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
 
@@ -115,23 +126,24 @@ class VoucherImpactMapRepo extends HrisRepository {
         foreach ($result as $allAcc) {
             $tempId = $allAcc['COMPANY_CODE'];
             (!array_key_exists($tempId, $allAccHeads)) ?
-                            $allAccHeads[$tempId][0] = $allAcc :
-                            array_push($allAccHeads[$tempId], $allAcc);
+                $allAccHeads[$tempId][0] = $allAcc :
+                array_push($allAccHeads[$tempId], $allAcc);
         }
 
         return $allAccHeads;
     }
 
-    public function getMappedAccCode($data){
-		// $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = {$data['company']}";
+    public function getMappedAccCode($data)
+    {
+        // $dblinkSql = "select DBLINK_NAME from HRIS_COMPANYWISE_DBLINK where company_id = {$data['company']}";
 
-		// $dblink = $this->rawQuery($dblinkSql);
-		
-		// if($dblink){
-		// 	$dblinkName = $dblink[0]['DBLINK_NAME'];
-		// }
-		
-		$sql = "SELECT
+        // $dblink = $this->rawQuery($dblinkSql);
+
+        // if($dblink){
+        // 	$dblinkName = $dblink[0]['DBLINK_NAME'];
+        // }
+
+        $sql = "SELECT
         acm.id,
         c.company_name,
         fbs.branch_edesc as BRANCH_NAME,
@@ -169,10 +181,10 @@ class VoucherImpactMapRepo extends HrisRepository {
         DESC,
             ps.priority_index
 		";
-		// echo '<pre>';print_r($sql); die;
-		$statement = $this->adapter->query($sql);
-		
-		$result = $statement->execute();
-		return Helper::extractDbData($result);
-	}
+        // echo '<pre>';print_r($sql); die;
+        $statement = $this->adapter->query($sql);
+
+        $result = $statement->execute();
+        return Helper::extractDbData($result);
+    }
 }

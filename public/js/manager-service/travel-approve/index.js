@@ -4,7 +4,7 @@
         var $table = $('#table');
         var action = `
             <div class="clearfix">
-                #if(REQUESTED_TYPE=='ad' || REQUESTED_TYPE=='ia'){#
+                #if(REQUESTED_TYPE=='ad'){#
                 <a class="btn btn-icon-only green" href="${document.viewLink}/#:TRAVEL_ID#/#:ROLE#" style="height:17px;" title="View Detail">
                     <i class="fa fa-search"></i>
                 </a>
@@ -15,13 +15,31 @@
                 #}#
             </div>
         `;
+
+        var rowTemplateString = "<tr  class='#: (PRI_SEC=='SECONDARY')  ? 'bg-primary' : '' #' data-uid='#: uid #'>" +
+          "<td><input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label></td>" +
+          "<td>#: EMPLOYEE_CODE #</td>" +
+          "<td>#: EMPLOYEE_NAME #</td>" +
+          "<td>#: FROM_DATE_AD #</td>" +
+          "<td>#: FROM_DATE_BS #</td>" +
+          "<td>#: TO_DATE_AD #</td>" +
+          "<td>#: TO_DATE_BS #</td>" +
+          "<td>#: REQUESTED_DATE_AD #</td>" +
+          "<td>#: REQUESTED_DATE_BS #</td>" +
+          "<td>#: DESTINATION #</td>" +
+          "<td>#: REQUESTED_AMOUNT #</td>" +
+          "<td>#: TRANSPORT_TYPE_DETAIL #</td>" +
+          "<td>#: STATUS_DETAIL #</td>" +
+          "<td>"+action+"</td>" +
+          "</tr>";
+
         app.initializeKendoGrid($table, [
-            // {
-            //     title: 'Select All',
-            //     headerTemplate: "<input type='checkbox' id='header-chb' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-chb'></label>",
-            //     template: "<input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label>",
-            //     width: 40
-            // },
+            {
+                title: 'Select All',
+                headerTemplate: "<input type='checkbox' id='header-chb' class='k-checkbox header-checkbox'><label class='k-checkbox-label' for='header-chb'></label>",
+                template: "<input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label>",
+                width: 40
+            },
             {field: "EMPLOYEE_CODE", title: "Code"},
             {field: "EMPLOYEE_NAME", title: "Employee"},
             {title: "Start Date",
@@ -51,11 +69,11 @@
                     }]},
             {field: "DESTINATION", title: "Destination"},
             {field: "REQUESTED_AMOUNT", title: "Request Amt."},
-            {field: "REQUESTED_TYPE_DETAIL", title: "Request For"},
+            //{field: "REQUESTED_TYPE_DETAIL", title: "Request For"},
             {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
             {field: "STATUS_DETAIL", title: "Status"},
             {field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action}
-        ]);
+        ], null, null, {rowTemplate : rowTemplateString}, 'Travel Request List');
 
 
         app.serverRequest('', {}).then(function (response) {

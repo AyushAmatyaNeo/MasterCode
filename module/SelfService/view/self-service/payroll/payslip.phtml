@@ -54,14 +54,16 @@ $this->headScript()->appendFile($this->basePath('js/SelfService/payroll/payslip.
                 <select class="form-control" name="salaryType" id="salaryTypeId">
                 </select>
             </div>
-            <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
-                <label for="" class="radio-inline">
-                    <input type="radio" name="exchangeRate" value="1" checked>Dollar
-                </label>
-                <label for="" class="radio-inline">
-                    <input type="radio" name="exchangeRate" value="0">Nepali
-                </label>
-            </div>
+            <?php if ($allowExchangeRate == 'Y') { ?>
+                <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
+                    <label for="" class="radio-inline">
+                        <input type="radio" name="exchangeRate" value="1" checked>Dollar
+                    </label>
+                    <label for="" class="radio-inline">
+                        <input type="radio" name="exchangeRate" value="0">Nepali
+                    </label>
+                </div>
+            <?php } ?>
             <div class="col-sm-2 col-sm-offset-9">
                 <button id="printBtn" class="btn btn-outline pull-right">Print</button>
                 <button id="viewBtn" class="btn btn-info pull-right">View</button>

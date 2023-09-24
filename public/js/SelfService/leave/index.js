@@ -4,14 +4,14 @@
         var $table = $('#leaveTable');
 
         app.initializeKendoGrid($table, [
-            {field: "LEAVE_ENAME", title: "Leave Name"},
-            {field: "PREVIOUS_YEAR_BAL", title: "Previous"},
-            {field: "TOTAL_DAYS", title: "Total Days"},
-            {field: "LEAVE_TAKEN", title: "Leave taken"},
-            {field: "ENCASHED", title: "Encashed"},
-            {field: "LEAVE_DEDUCTED", title: "Leave Deducted"},
-            {field: "LEAVE_ADDED", title: "Leave Added"},
-            {field: "BALANCE", title: "Available Days"}
+            { field: "LEAVE_ENAME", title: "Leave Name" },
+            { field: "PREVIOUS_YEAR_BAL", title: "Previous Balance" },
+            { field: "TOTAL_DAYS", title: "Total Days" },
+            { field: "LEAVE_TAKEN", title: "Leave taken" },
+            // { field: "ENCASHED", title: "Encashed" },
+            // { field: "LEAVE_DEDUCTED", title: "Leave Deducted" },
+            // { field: "LEAVE_ADDED", title: "Leave Added" },
+            { field: "BALANCE", title: "Available Days" }
         ], null, null, null, 'Leave Balance List');
 
 
@@ -26,7 +26,7 @@
 
         var exportMap = {
             'LEAVE_ENAME': 'Leave',
-            'PREVIOUS_YEAR_BAL': 'Previous',
+            'PREVIOUS_YEAR_BAL': 'Previous Balance',
             'TOTAL_DAYS': 'Total Days',
             'LEAVE_TAKEN': 'Leave Taken',
             'LEAVE_DEDUCTED': 'Leave Deducted',
@@ -50,10 +50,11 @@
 
 
         app.initializeKendoGrid($monthlyLeaveTable, [
-            {field: "LEAVE_ENAME", title: "Leave Name"},
-            {field: "TOTAL_DAYS", title: "Total Days"},
-            {field: "LEAVE_TAKEN", title: "Leave taken"},
-            {field: "BALANCE", title: "Available Days"}
+            { field: "LEAVE_ENAME", title: "Leave Name" },
+            { field: "PREVIOUS_YEAR_BAL", title: "Previous Balance" },
+            { field: "TOTAL_DAYS", title: "Total Days" },
+            { field: "LEAVE_TAKEN", title: "Leave taken" },
+            { field: "BALANCE", title: "Available Days" }
         ], null, null, null, 'Leave Balance List');
 
 
@@ -62,7 +63,7 @@
             if (value == null) {
                 return;
             }
-            app.serverRequest("", {fiscalYearMonthNo: value}).then(function (response) {
+            app.serverRequest("", { fiscalYearMonthNo: value }).then(function (response) {
                 app.renderKendoGrid($monthlyLeaveTable, response.data);
             }, function (error) {
 

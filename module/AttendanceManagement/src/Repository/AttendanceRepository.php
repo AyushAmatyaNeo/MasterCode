@@ -10,62 +10,70 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
 
-class AttendanceRepository implements RepositoryInterface {
+class AttendanceRepository implements RepositoryInterface
+{
 
-    private $tableGateway;
-    private $adapter;
+  private $tableGateway;
+  private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
-        $this->tableGateway = new TableGateway(Attendance::TABLE_NAME, $adapter);
-        $this->adapter = $adapter;
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    $this->tableGateway = new TableGateway(Attendance::TABLE_NAME, $adapter);
+    $this->adapter = $adapter;
+  }
 
-    public function add(Model $model) {
-        $this->tableGateway->insert($model->getArrayCopyForDB());
-        $this->attendanceAfterInsert($model);
-    }
+  public function add(Model $model)
+  {
+    $this->tableGateway->insert($model->getArrayCopyForDB());
+    $this->attendanceAfterInsert($model);
+  }
 
-    public function delete($id) {
-        
-    }
+  public function delete($id)
+  {
+  }
 
-    public function edit(Model $model, $combo) {
-        $tempArray = $model->getArrayCopyForDB();
-        unset($tempArray[Attendance::EMPLOYEE_ID]);
-        unset($tempArray[Attendance::ATTENDANCE_DT]);
-        $this->tableGateway->update($tempArray, [
-            Attendance::EMPLOYEE_ID => $combo['employeeId'],
-            Attendance::ATTENDANCE_DT => $combo['attendanceDt']
-        ]);
-    }
+  public function edit(Model $model, $combo)
+  {
+    $tempArray = $model->getArrayCopyForDB();
+    unset($tempArray[Attendance::EMPLOYEE_ID]);
+    unset($tempArray[Attendance::ATTENDANCE_DT]);
+    $this->tableGateway->update($tempArray, [
+      Attendance::EMPLOYEE_ID => $combo['employeeId'],
+      Attendance::ATTENDANCE_DT => $combo['attendanceDt']
+    ]);
+  }
 
-    public function fetchAll() {
-        
-    }
+  public function fetchAll()
+  {
+  }
 
-    public function fetchById($combo) {
-        $result = $this->tableGateway->select(
-                [
-                    Attendance::EMPLOYEE_ID => $combo['employeeId'],
-                    Attendance::ATTENDANCE_DT => $combo['attendanceDt']
-        ]);
-        return $result->current();
-    }
+  public function fetchById($combo)
+  {
+    $result = $this->tableGateway->select(
+      [
+        Attendance::EMPLOYEE_ID => $combo['employeeId'],
+        Attendance::ATTENDANCE_DT => $combo['attendanceDt']
+      ]
+    );
+    return $result->current();
+  }
 
-    public function fetchAllByEmpIdAttendanceDt($employeeId, $attendanceDt) {
-        $result = $this->tableGateway->select(function(Select $select)use($employeeId, $attendanceDt) {
-            $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(Attendance::class, null, [Attendance::ATTENDANCE_DT], [Attendance::ATTENDANCE_TIME]), false);
-            $select->where([
-                Attendance::EMPLOYEE_ID => $employeeId,
-                Attendance::ATTENDANCE_DT . " = TO_DATE('" . $attendanceDt . "','DD-MON-YYYY')"
-            ]);
-            $select->order(Attendance::ATTENDANCE_TIME . " ASC");
-        });
-        return $result;
-    }
+  public function fetchAllByEmpIdAttendanceDt($employeeId, $attendanceDt)
+  {
+    $result = $this->tableGateway->select(function (Select $select) use ($employeeId, $attendanceDt) {
+      $select->columns(EntityHelper::getColumnNameArrayWithOracleFns(Attendance::class, null, [Attendance::ATTENDANCE_DT], [Attendance::ATTENDANCE_TIME]), false);
+      $select->where([
+        Attendance::EMPLOYEE_ID => $employeeId,
+        Attendance::ATTENDANCE_DT . " = TO_DATE('" . $attendanceDt . "','DD-MON-YYYY')"
+      ]);
+      $select->order(Attendance::ATTENDANCE_TIME . " ASC");
+    });
+    return $result;
+  }
 
-    public function getTotalByEmpIdAttendanceDt($employeeId, $attendanceDt) {
-        $sql = " SELECT ROUND(TOTAL_MINS/60,0)
+  public function getTotalByEmpIdAttendanceDt($employeeId, $attendanceDt)
+  {
+    $sql = " SELECT ROUND(TOTAL_MINS/60,0)
                   ||':'
                   ||MOD(TOTAL_MINS,60) TOTAL_HRS,
                   TOTAL_MINS,
@@ -92,16 +100,17 @@ class AttendanceRepository implements RepositoryInterface {
                     )
                   GROUP BY MOD(RNUM,2)
                   )";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        foreach ($result as $row) {
-            $list[$row['HR_TYPE']] = $row;
-        }
-        return $list;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    foreach ($result as $row) {
+      $list[$row['HR_TYPE']] = $row;
     }
+    return $list;
+  }
 
-    public function fetchInOutTimeList($employeeId, $attendanceDt) {
-        $sql = "SELECT IN_TIME_QUERY.IN_TIME,
+  public function fetchInOutTimeList($employeeId, $attendanceDt)
+  {
+    $sql = "SELECT IN_TIME_QUERY.IN_TIME,
                   OUT_TIME_QUERY.OUT_TIME  FROM
                   (SELECT INITCAP(TO_CHAR(ATTENDANCE_TIME,'HH:MI AM')) AS OUT_TIME,
                     ATTENDANCE_DT,
@@ -140,12 +149,13 @@ class AttendanceRepository implements RepositoryInterface {
                 ON
                 IN_TIME_QUERY.RNUM1 = OUT_TIME_QUERY.RNUM1
 ";
-        $statement = $this->adapter->query($sql);
-        return $statement->execute();
-    }
+    $statement = $this->adapter->query($sql);
+    return $statement->execute();
+  }
 
-    public function fetchEmployeeShfitDetails($employeeId) {
-        $sql = "SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS') AS CURRENT_TIME,
+  public function fetchEmployeeShfitDetails($employeeId)
+  {
+    $sql = "SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS') AS CURRENT_TIME,
             TO_CHAR(S.END_TIME, 'HH24:MI:SS') AS CHECKOUT_TIME, 
             ESA.*,S.* FROM HRIS_EMPLOYEES E
                 join HRIS_EMPLOYEE_SHIFT_ASSIGN ESA on (ESA.EMPLOYEE_ID=E.EMPLOYEE_ID)
@@ -153,30 +163,32 @@ class AttendanceRepository implements RepositoryInterface {
                 WHERE E.EMPLOYEE_ID=$employeeId AND ESA.STATUS='E' AND ESA.MODIFIED_DT IS NULL
                 AND (TO_DATE(TRUNC(SYSDATE), 'DD-MON-YY') BETWEEN TO_DATE(S.START_DATE, 'DD-MON-YY') AND TO_DATE(S.END_DATE, 'DD-MON-YY'))";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result->current();
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-    private function attendanceAfterInsert($attendance) {
-        $sql = "BEGIN HRIS_ATTENDANCE_AFTER_INSERT({$attendance->employeeId},{$attendance->attendanceDt->getExpression()},{$attendance->attendanceTime->getExpression()},'{{$attendance->remarks}}'); END;";
-        $statement = $this->adapter->query($sql);
-        $statement->execute();
-    }
+  private function attendanceAfterInsert($attendance)
+  {
+    $sql = "BEGIN HRIS_ATTENDANCE_AFTER_INSERT({$attendance->employeeId},{$attendance->attendanceDt->getExpression()},{$attendance->attendanceTime->getExpression()},'{{$attendance->remarks}}'); END;";
+    $statement = $this->adapter->query($sql);
+    $statement->execute();
+  }
 
-    function insertAttendance($data){
-      $inTime = $data['inTime'] == null ? 'null' : "TO_DATE('{$data['attendanceDt']} {$data['inTime']}', 'DD-MON-YYYY HH:MI AM')" ;
-        if ($data['nextDay']) {
-            $outNextDay='Y';
-            $outTime = $data['outTime'] == null ? 'null' : "(TO_DATE('{$data['attendanceDt']} {$data['outTime']}', 'DD-MON-YYYY HH:MI AM'))+1";
-        } else {
-            $outNextDay='N';
-            $outTime = $data['outTime'] == null ? 'null' : "TO_DATE('{$data['attendanceDt']} {$data['outTime']}', 'DD-MON-YYYY HH:MI AM')";
-        }
-        if($data->totalHour == null){
-          $data->totalHour = 'NULL';
-      }
-      $sql = "
+  function insertAttendance($data)
+  {
+    $inTime = $data['inTime'] == null ? 'null' : "TO_DATE('{$data['attendanceDt']} {$data['inTime']}', 'DD-MON-YYYY HH:MI AM')";
+    if ($data['nextDay']) {
+      $outNextDay = 'Y';
+      $outTime = $data['outTime'] == null ? 'null' : "(TO_DATE('{$data['attendanceDt']} {$data['outTime']}', 'DD-MON-YYYY HH:MI AM'))+1";
+    } else {
+      $outNextDay = 'N';
+      $outTime = $data['outTime'] == null ? 'null' : "TO_DATE('{$data['attendanceDt']} {$data['outTime']}', 'DD-MON-YYYY HH:MI AM')";
+    }
+    if ($data->totalHour == null) {
+      $data->totalHour = 'NULL';
+    }
+    $sql = "
       DECLARE 
       V_REQ_ID NUMBER := {$data['requestId']};
       V_IN_TIME TIMESTAMP;
@@ -216,7 +228,7 @@ class AttendanceRepository implements RepositoryInterface {
 
       HRIS_REATTENDANCE(V_ATTENDANCE_DT, V_EMPLOYEE_ID, V_ATTENDANCE_DT);      
       END;";
-      $statement = $this->adapter->query($sql);
-      $statement->execute();
-    }
+    $statement = $this->adapter->query($sql);
+    $statement->execute();
+  }
 }

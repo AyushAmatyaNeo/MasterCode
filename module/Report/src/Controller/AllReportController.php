@@ -11,6 +11,7 @@ use Application\Model\FiscalYear;
 use Application\Model\HrisQuery;
 use Application\Repository\DashboardRepository;
 use Exception;
+use Setup\Model\Training;
 use Report\Repository\ReportRepository;
 use Setup\Model\Branch;
 use Zend\Authentication\Storage\StorageInterface;
@@ -19,53 +20,58 @@ use Zend\Db\Sql\Select as Select2;
 use Zend\Form\Element\Select;
 use Zend\View\Model\JsonModel;
 
-class AllReportController extends HrisController {
+class AllReportController extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(ReportRepository::class);
     }
 
-    public function branchWiseDailyAction() {
+    public function branchWiseDailyAction()
+    {
         $monthId = (int) $this->params()->fromRoute('id1');
         $branchId = (int) $this->params()->fromRoute('id2');
 
         return Helper::addFlashMessagesToArray($this, [
-                    'comBraList' => [
-                        'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"])
-                    ],
-                    'monthId' => $monthId,
-                    'branchId' => $branchId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference,
-                    'name' => $this->storageData['employee_detail']['EMPLOYEE_CODE'].'-'.$this->storageData['employee_detail']['FULL_NAME'],
-                    'companyLogo' => $this->storageData['employee_detail']['COMPANY_FILE_PATH'],
+            'comBraList' => [
+                'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"])
+            ],
+            'monthId' => $monthId,
+            'branchId' => $branchId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference,
+            'name' => $this->storageData['employee_detail']['EMPLOYEE_CODE'] . '-' . $this->storageData['employee_detail']['FULL_NAME'],
+            'companyLogo' => $this->storageData['employee_detail']['COMPANY_FILE_PATH'],
         ]);
     }
-    
-    public function branchWiseDailyInOutAction() {
+
+    public function branchWiseDailyInOutAction()
+    {
         $monthId = (int) $this->params()->fromRoute('id1');
         $branchId = (int) $this->params()->fromRoute('id2');
 
         return Helper::addFlashMessagesToArray($this, [
-//                    'comBraList' => [
-//                        'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"])
-//                    ],
-                    'monthId' => $monthId,
-//                    'branchId' => $branchId,
-                    'preference' => $this->preference,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference,
-                    'name' => $this->storageData['employee_detail']['EMPLOYEE_CODE'].'-'.$this->storageData['employee_detail']['FULL_NAME'],
-                    'companyLogo' => $this->storageData['employee_detail']['COMPANY_FILE_PATH'],
+            //                    'comBraList' => [
+            //                        'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME, Branch::COMPANY_ID], [Branch::STATUS => "E"])
+            //                    ],
+            'monthId' => $monthId,
+            //                    'branchId' => $branchId,
+            'preference' => $this->preference,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference,
+            'name' => $this->storageData['employee_detail']['EMPLOYEE_CODE'] . '-' . $this->storageData['employee_detail']['FULL_NAME'],
+            'companyLogo' => $this->storageData['employee_detail']['COMPANY_FILE_PATH'],
         ]);
     }
 
-    public function branchWiseDailyReportAction() {
+    public function branchWiseDailyReportAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -81,7 +87,7 @@ class AllReportController extends HrisController {
 
                 $reportData = $this->repository->branchWiseDailyReport($postedData);
                 $branchName = -1;
-                if($postedData['branchId'] != null ) {
+                if ($postedData['branchId'] != null) {
                     $branchName = $this->repository->getBranchName($postedData['branchId'][0]);
                 }
                 $days = $this->repository->getDaysInMonth($monthId);
@@ -95,21 +101,23 @@ class AllReportController extends HrisController {
             return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-    
-    public function branchWiseAction() {
+
+    public function branchWiseAction()
+    {
         $branchId = (int) $this->params()->fromRoute('id1');
         return $this->stickFlashMessagesTo([
-                    'comBraDepList' => [
-                        'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME], [Branch::STATUS => "E"])
-                    ],
-                    'branchId' => $branchId,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'comBraDepList' => [
+                'BRANCH_LIST' => EntityHelper::getTableList($this->adapter, Branch::TABLE_NAME, [Branch::BRANCH_ID, Branch::BRANCH_NAME], [Branch::STATUS => "E"])
+            ],
+            'branchId' => $branchId,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function branchWiseMonthReportAction() {
+    public function branchWiseMonthReportAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -129,15 +137,16 @@ class AllReportController extends HrisController {
         }
     }
 
-    private function getFiscalYearSE() {
+    private function getFiscalYearSE()
+    {
         $fiscalYearList = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName(FiscalYear::TABLE_NAME)
-                ->setColumnList([FiscalYear::FISCAL_YEAR_ID, FiscalYear::FISCAL_YEAR_NAME])
-                ->setWhere([FiscalYear::STATUS => 'E'])
-                ->setOrder([FiscalYear::START_DATE => Select2::ORDER_DESCENDING])
-                ->setKeyValue(FiscalYear::FISCAL_YEAR_ID, FiscalYear::FISCAL_YEAR_NAME)
-                ->result();
+            ->setAdapter($this->adapter)
+            ->setTableName(FiscalYear::TABLE_NAME)
+            ->setColumnList([FiscalYear::FISCAL_YEAR_ID, FiscalYear::FISCAL_YEAR_NAME])
+            ->setWhere([FiscalYear::STATUS => 'E'])
+            ->setOrder([FiscalYear::START_DATE => Select2::ORDER_DESCENDING])
+            ->setKeyValue(FiscalYear::FISCAL_YEAR_ID, FiscalYear::FISCAL_YEAR_NAME)
+            ->result();
         $config = [
             'name' => 'fiscalYear',
             'id' => 'fiscalYearId',
@@ -148,7 +157,8 @@ class AllReportController extends HrisController {
         return $this->getSelectElement($config, $fiscalYearList);
     }
 
-    public function departmentAllAction() {
+    public function departmentAllAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -161,13 +171,16 @@ class AllReportController extends HrisController {
         }
 
 
-        return ['fiscalYearSE' => $this->getFiscalYearSE(), 'calenderType' => $this->getCanderType(),
+        return [
+            'fiscalYearSE' => $this->getFiscalYearSE(), 'calenderType' => $this->getCanderType(),
             'preference' => $this->preference,
             'acl' => $this->acl,
-            'employeeDetail' => $this->storageData['employee_detail']];
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
     }
 
-    public function departmentWiseAction() {
+    public function departmentWiseAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -179,7 +192,8 @@ class AllReportController extends HrisController {
             }
         }
 
-        return ['fiscalYearSE' => $this->getFiscalYearSE(),
+        return [
+            'fiscalYearSE' => $this->getFiscalYearSE(),
             'calenderType' => $this->getCanderType(),
             'preference' => $this->preference,
             'acl' => $this->acl,
@@ -187,10 +201,11 @@ class AllReportController extends HrisController {
         ];
     }
 
-    public function departmentWiseDailyAction() {
-//        $monthId = (int) $this->params()->fromRoute('id1');
-//        $departmentId = (int) $this->params()->fromRoute('id2');
-//        $monthList = $this->repository->getMonthList();
+    public function departmentWiseDailyAction()
+    {
+        //        $monthId = (int) $this->params()->fromRoute('id1');
+        //        $departmentId = (int) $this->params()->fromRoute('id2');
+        //        $monthList = $this->repository->getMonthList();
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -206,24 +221,25 @@ class AllReportController extends HrisController {
 
 
         return $this->stickFlashMessagesTo([
-//                'comBraDepList' => [
-//                    'DEPARTMENT_LIST' => EntityHelper::getTableList($this->adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"])
-//                ],
-//                'monthList' => $monthList,
-//                'monthId' => $monthId,
-//                'departmentId' => $departmentId,
-                    'fiscalYearSE' => $this->getFiscalYearSE(),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            //                'comBraDepList' => [
+            //                    'DEPARTMENT_LIST' => EntityHelper::getTableList($this->adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"])
+            //                ],
+            //                'monthList' => $monthList,
+            //                'monthId' => $monthId,
+            //                'departmentId' => $departmentId,
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function departmentWiseDailyShivamAction() {
+    public function departmentWiseDailyShivamAction()
+    {
 
-//        $monthId = (int) $this->params()->fromRoute('id1');
-//        $departmentId = (int) $this->params()->fromRoute('id2');
-//        $monthList = $this->repository->getMonthList();
+        //        $monthId = (int) $this->params()->fromRoute('id1');
+        //        $departmentId = (int) $this->params()->fromRoute('id2');
+        //        $monthList = $this->repository->getMonthList();
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -239,20 +255,21 @@ class AllReportController extends HrisController {
 
 
         return $this->stickFlashMessagesTo([
-//                'comBraDepList' => [
-//                    'DEPARTMENT_LIST' => EntityHelper::getTableList($this->adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"])
-//                ],
-//                'monthList' => $monthList,
-//                'monthId' => $monthId,
-//                'departmentId' => $departmentId,
-                    'fiscalYearSE' => $this->getFiscalYearSE(),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            //                'comBraDepList' => [
+            //                    'DEPARTMENT_LIST' => EntityHelper::getTableList($this->adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"])
+            //                ],
+            //                'monthList' => $monthList,
+            //                'monthId' => $monthId,
+            //                'departmentId' => $departmentId,
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function employeeWiseAction() {
+    public function employeeWiseAction()
+    {
 
         $employeeId = (int) $this->params()->fromRoute('id1');
         $employeeList = $this->repository->getEmployeeList();
@@ -260,7 +277,7 @@ class AllReportController extends HrisController {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
-//                $data = $request->getPost();
+                //                $data = $request->getPost();
                 $postedData = $request->getPost();
                 $employeeId = $postedData['employeeId'];
                 $fiscalYearId = $postedData['fiscalYearId'];
@@ -273,15 +290,16 @@ class AllReportController extends HrisController {
 
 
         return $this->stickFlashMessagesTo([
-                    'fiscalYearSE' => $this->getFiscalYearSE(),
-                    'employeeList' => $employeeList,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'employeeList' => $employeeList,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function withOvertimeAction() {
+    public function withOvertimeAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -294,15 +312,16 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function toEmpowerAction() {
+    public function toEmpowerAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -319,7 +338,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function loadDataAction() {
+    public function loadDataAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -336,7 +356,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function employeeWiseDailyReportAction() {
+    public function employeeWiseDailyReportAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -357,7 +378,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function departmentWiseDailyReportAction() {
+    public function departmentWiseDailyReportAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -382,7 +404,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    private function getComBraDepList() {
+    private function getComBraDepList()
+    {
         $cbd = $this->repository->getCompanyBranchDepartment();
         $comBraDepList = [];
         foreach ($cbd as $row) {
@@ -426,7 +449,8 @@ class AllReportController extends HrisController {
         return $comBraDepList;
     }
 
-    public function leaveReportAction() {
+    public function leaveReportAction()
+    {
 
         $customFormElement = new Select();
         $customFormElement->setName("status");
@@ -443,21 +467,23 @@ class AllReportController extends HrisController {
 
         $allLeave = $this->repository->fetchAllLeave();
         return Helper::addFlashMessagesToArray($this, [
-                    'customWise' => $customFormElement,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'allLeave' => $allLeave,
-                    'preference' => $this->preference
+            'customWise' => $customFormElement,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'allLeave' => $allLeave,
+            'preference' => $this->preference
         ]);
     }
 
-    public function HireAndFireReportAction() {
+    public function HireAndFireReportAction()
+    {
         $nepaliMonth = $this->repository->FetchNepaliMonth();
         return Helper::addFlashMessagesToArray($this, [
-                    'nepaliMonth' => $nepaliMonth
+            'nepaliMonth' => $nepaliMonth
         ]);
     }
 
-    public function getLeaveReportWSAction() {
+    public function getLeaveReportWSAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -492,7 +518,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function getHireFireReportAction() {
+    public function getHireFireReportAction()
+    {
         try {
             $request = $this->getRequest();
             $Postdata = $request->getPost();
@@ -504,7 +531,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function monthlyAllowanceAction() {
+    public function monthlyAllowanceAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -517,15 +545,16 @@ class AllReportController extends HrisController {
             }
         }
         return $this->stickFlashMessagesTo([
-                    'fiscalYearSE' => $this->getFiscalYearSE(),
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function departmentWiseAttdReportAction() {
+    public function departmentWiseAttdReportAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
@@ -552,11 +581,11 @@ class AllReportController extends HrisController {
                 $companies = $this->repository->getAllCompanies();
 
                 return $this->stickFlashMessagesTo([
-                            'searchValues' => EntityHelper::getSearchData($this->adapter),
-                            'acl' => $this->acl,
-                            'employeeDetail' => $this->storageData['employee_detail'],
-                            'companies' => $companies,
-                            'preference' => $this->preference
+                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+                    'acl' => $this->acl,
+                    'employeeDetail' => $this->storageData['employee_detail'],
+                    'companies' => $companies,
+                    'preference' => $this->preference
                 ]);
             }
         } catch (Exception $e) {
@@ -564,7 +593,8 @@ class AllReportController extends HrisController {
         }
     }
 
-    public function getCanderType() {
+    public function getCanderType()
+    {
         $calenderType = 'N';
         if (isset($this->preference['calendarView'])) {
             $calenderType = $this->preference['calendarView'];
@@ -572,7 +602,8 @@ class AllReportController extends HrisController {
         return $calenderType;
     }
 
-    public function birthdayReportAction() {
+    public function birthdayReportAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -585,14 +616,15 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => ApplicationHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference
+            'searchValues' => ApplicationHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function jobDurationReportAction() {
+    public function jobDurationReportAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -605,14 +637,15 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => ApplicationHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference
+            'searchValues' => ApplicationHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function weeklyWorkingHoursReportAction() {
+    public function weeklyWorkingHoursReportAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -627,14 +660,15 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => ApplicationHelper::getSearchData($this->adapter),
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    'preference' => $this->preference
+            'searchValues' => ApplicationHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function rosterReportAction() {
+    public function rosterReportAction()
+    {
 
         $request = $this->getRequest();
         if ($request->isPost()) {
@@ -642,7 +676,6 @@ class AllReportController extends HrisController {
                 $postedData = $request->getPost();
                 $from_date = date("d-M-y", strtotime($postedData['fromDate']));
                 $to_date = date("d-M-y", strtotime($postedData['toDate']));
-
                 $begin = new \DateTime($from_date);
                 $end = new \DateTime($to_date);
                 $end->modify('+1 day');
@@ -656,7 +689,6 @@ class AllReportController extends HrisController {
                     array_push($dates, $dt->format("d-M-y"));
                 }
                 $data = $this->repository->fetchRosterReport($postedData, $dates);
-
                 return new JsonModel(['success' => true, 'data' => $data, 'dates' => $dates, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'dates' => $dates, 'error' => $e->getMessage()]);
@@ -670,7 +702,8 @@ class AllReportController extends HrisController {
         ];
     }
 
-    public function withOvertimeShivamAction() {
+    public function withOvertimeShivamAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -683,15 +716,16 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
-    
-    public function withOvertimeBotAction() {
+
+    public function withOvertimeBotAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -704,15 +738,16 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'linkToEmpower' => $this->repository->checkIfEmpowerTableExists() ? 1 : 0,
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
         ]);
     }
 
-    public function ageReportAction() {
+    public function ageReportAction()
+    {
         $request = $this->getRequest();
 
         if ($request->isPost()) {
@@ -727,14 +762,15 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function contractExpiryReportAction() {
+    public function contractExpiryReportAction()
+    {
         $request = $this->getRequest();
 
         if ($request->isPost()) {
@@ -749,60 +785,61 @@ class AllReportController extends HrisController {
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
-    
-    
-    public function calendarReportAction(){
-        $empRawList= EntityHelper::rawQueryResult($this->adapter, "select 
+
+
+    public function calendarReportAction()
+    {
+        $empRawList = EntityHelper::rawQueryResult($this->adapter, "select 
 employee_id,employee_code||'-'||full_name as full_name
 from hris_employees where status='E'
 and Retired_Flag!='Y' and Resigned_Flag!='Y'");
-        $empList=Helper::extractDbData($empRawList);
-        
-        $empRawProfileList= EntityHelper::rawQueryResult($this->adapter, "select 
+        $empList = Helper::extractDbData($empRawList);
+
+        $empRawProfileList = EntityHelper::rawQueryResult($this->adapter, "select 
 e.employee_id
 ,e.PROFILE_PICTURE_ID
 ,ef.file_path
 from
 hris_employees e
 left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
-        
-        $empProfile=array();
-        foreach($empRawProfileList as $empProList){
-            $empProfile[$empProList['EMPLOYEE_ID']]=$empProList['FILE_PATH'];
+
+        $empProfile = array();
+        foreach ($empRawProfileList as $empProList) {
+            $empProfile[$empProList['EMPLOYEE_ID']] = $empProList['FILE_PATH'];
         }
-        
-         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail'],
-                    "calendarType"=>$this->storageData['preference']['calendarView'],
-                    'empList' => $empList,
-                    'empProfile' => $empProfile
+
+        return $this->stickFlashMessagesTo([
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            "calendarType" => $this->storageData['preference']['calendarView'],
+            'empList' => $empList,
+            'empProfile' => $empProfile
         ]);
-        
     }
-    
-    public function fetchEmployeeCalendarJsonFeedAction() {
+
+    public function fetchEmployeeCalendarJsonFeedAction()
+    {
         try {
             $request = $this->getRequest();
             if ($request->isPost()) {
 
                 $employeeId = $this->employeeId;
-                
+
                 $dahsboardRepo = new DashboardRepository($this->adapter);
 
                 $startDate = $this->getRequest()->getPost('startDate');
                 $endDate = $this->getRequest()->getPost('endDate');
                 $selEmp = $this->getRequest()->getPost('selEmp');
-                if($selEmp>0){
-                $employeeId = $selEmp;
+                if ($selEmp > 0) {
+                    $employeeId = $selEmp;
                 }
                 $calendarData = $dahsboardRepo->fetchEmployeeCalendarData($employeeId, $startDate, $endDate);
                 $calendarJsonFeedArray = Helper::extractDbData($calendarData);
@@ -814,9 +851,10 @@ left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
-    
 
-    public function employeeWSBetnDateAction() {
+
+    public function employeeWSBetnDateAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -829,14 +867,15 @@ left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
         }
 
         return $this->stickFlashMessagesTo([
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
-                    'preference' => $this->preference,
-                    'acl' => $this->acl,
-                    'employeeDetail' => $this->storageData['employee_detail']
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
-    public function whereaboutsAction() {
+    public function whereaboutsAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -855,13 +894,132 @@ left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
             'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
-    
-    public function workForceAction(){
-       return $this->stickFlashMessagesTo([
+
+    public function workForceAction()
+    {
+        return $this->stickFlashMessagesTo([
             'preference' => $this->preference,
             'acl' => $this->acl,
             'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 
+    public function trainingReportAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $data = $this->repository->trainingReport($postedData['trainingId']);
+                foreach ($data as &$item) { // loop through each element and add the key-value pair
+                    $item["lDProgram"] = 'Training';
+                }
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => null]);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+            }
+        }
+
+        $trainings = EntityHelper::getTableKVListWithSortOption($this->adapter, Training::TABLE_NAME, Training::TRAINING_ID, [Training::TRAINING_NAME], [Training::STATUS => 'E'], "TRAINING_NAME", "ASC", null, [-1 => "All Training"], true);
+        $trainingSE = $this->getSelectElement(['name' => 'trainingId', 'id' => 'trainingId', 'class' => 'form-control reset-field', 'label' => 'Training'], $trainings);
+        return [
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'calenderType' => $this->getCanderType(),
+            'preference' => $this->preference,
+            'trainings' => $trainingSE,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
+    }
+
+    public function getHoursAction()
+    {
+        $request = $this->getRequest();
+        try {
+            $postedData = $request->getPost();
+            $hourPerDay = $this->repository->trainingHours($postedData['trainingId']);
+            $data = $hourPerDay['DAILY_TRAINING_HOUR'];
+            return new JsonModel(['success' => true, 'data' => $data, 'error' => null]);
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public  function maleFemaleRatioAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $data = $this->repository->maleFemaleReport($postedData);
+                $headCountGender = $this->repository->fetchGenderHeadCount($postedData);
+                return new JsonModel(['success' => true, 'data' => $data, 'headCountGender' => $headCountGender, 'error' => null]);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+            }
+        }
+        return [
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
+    }
+    public  function renumerationReportAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $data = $this->repository->renumerationReport($postedData);
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => null]);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+            }
+        }
+        return [
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
+    }
+
+    public function turnOverReportAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $data = $this->repository->turnOverReport($postedData);
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => null]);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+            }
+        }
+        return [
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
+    }
+
+    public function ageGenerationAction()
+    {
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $data = $this->repository->ageByGenerationReport($postedData);
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => null]);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
+            }
+        }
+        return [
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ];
+    }
 }

@@ -1,10 +1,12 @@
 <?php
+
 namespace Setup\Form;
 
 use Application\Model\Model;
 use Zend\Form\Annotation;
 
-class HrEmployeesFormTabThree extends Model {
+class HrEmployeesFormTabThree extends Model
+{
 
     /**
      * @Annotation\Required(false)
@@ -95,7 +97,7 @@ class HrEmployeesFormTabThree extends Model {
     public $idPanNo;
 
     /**
-     * @Annotation\Required(true)
+     * @Annotation\Required(false)
      * @Annotation\Type("Zend\Form\Element\Text")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
      * @Annotation\Options({"label":"SSF No"})
@@ -111,6 +113,60 @@ class HrEmployeesFormTabThree extends Model {
      * @Annotation\Attributes({ "id":"idAccCode", "class":"form-control" })
      */
     public $idAccCode;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"label":"Gratuity Bank Name"})
+     * @Annotation\Attributes({ "id":"gratuityBankAcc", "class":"form-control" })
+     */
+    public $gratuityBankAcc;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"label":"PF Bank Name"})
+     * @Annotation\Attributes({ "id":"pfBankAcc", "class":"form-control" })
+     */
+    public $pfBankAcc;
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Select")
+     * @Annotation\Required(false)
+     * @Annotation\Options({"label":"SSF Bank Name"})
+     * @Annotation\Attributes({ "id":"ssfBankAcc", "class":"form-control" })
+     */
+    public $ssfBankAcc;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"SSF Bank Account No"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"50"}})
+     * @Annotation\Attributes({ "id":"idSSFId", "class":"form-control" })
+     */
+    public $idSSFId;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"PF Bank Account No"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"50"}})
+     * @Annotation\Attributes({ "id":"idPFId", "class":"form-control" })
+     */
+    public $idPFId;
+
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Text")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Gratuity Bank Account No"})
+     * @Annotation\Validator({"name":"StringLength", "options":{"max":"50"}})
+     * @Annotation\Attributes({ "id":"idGratuityId", "class":"form-control" })
+     */
+    public $idGratuityId;
 
     /**
      * @Annotation\Required(false)
@@ -178,7 +234,7 @@ class HrEmployeesFormTabThree extends Model {
      * @Annotation\Attributes({"class":"form-control","id":"idPassportExpiry" })
      */
     public $idPassportExpiry;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
@@ -186,7 +242,7 @@ class HrEmployeesFormTabThree extends Model {
      * @Annotation\Attributes({ "id":"empowerCompanyCode", "class":"form-control" })
      */
     public $empowerCompanyCode;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Required(false)
@@ -202,8 +258,8 @@ class HrEmployeesFormTabThree extends Model {
      * @Annotation\Attributes({ "id":"bankId", "class":"form-control" })
      */
     public $bankId;
-    
-    
+
+
     public $modifiedBy;
     public $modifiedDt;
     public $mappings = [
@@ -230,6 +286,11 @@ class HrEmployeesFormTabThree extends Model {
         'empowerCompanyCode' => 'EMPOWER_COMPANY_CODE',
         'empowerBranchCode' => 'EMPOWER_BRANCH_CODE',
         'bankId' => 'BANK_ID',
+        'gratuityBankAcc' => 'GRATUITY_BANK_ID',
+        'ssfBankAcc' => 'SSF_BANK_ID',
+        'pfBankAcc' => 'PF_BANK_ID',
+        'idSSFId' => 'SSF_BANK_NO',
+        'idGratuityId' => 'GRATUITY_BANK_NO',
+        'idPFId' => 'PF_BANK_NO',
     ];
-
 }

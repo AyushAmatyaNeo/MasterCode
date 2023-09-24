@@ -1,0 +1,200 @@
+<?php
+//Load JS files here
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/angular.min.js'))
+        ->appendFile($this->basePath('js/search.js')) 
+        ->appendFile($this->basePath('js/setup/employee/employeeListController.js'));
+?> 
+<script> 
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.viewLink = '<?= $this->url("employee", ["action" => "view"]) ?>';
+    document.editLink = '<?= $this->url("employee", ["action" => "edit"]) ?>';
+    document.deleteLink = '<?= $this->url("employee", ["action" => "delete"]) ?>';
+    document.pullEmployeeListForEmployeeTableLink = '<?= $this->url("employee", ["action" => "pullEmployeeListForEmployeeTable"]) ?>';
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.braProv = <?php echo json_encode($braProv);?>;
+    document.excelExportWithImageLink = '<?= $this->url("employee", ["action" => "excelExport"]) ?>';
+    document.excelExportWithImageDownload = '<?php echo $this->basePath('uploads/Employees_List.xlsx'); ?>';
+</script>
+
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\Employee')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<div id="employeeList" >
+    <div class="portlet light bg-inverse">
+        <div class="portlet-title">
+            <div class="caption">
+                <i class="icon-paper-plane font-green-haze"></i>
+                <span class="caption-subject bold font-green-haze uppercase"> Filter Employees</span>
+            </div>
+            <div class="tools">
+                <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                <a href="" class="fullscreen" data-original-title="" title=""> </a>
+            </div>
+            <div class="actions">
+                <?php if ($acl['ALLOW_ADD'] == 'Y'): ?>
+                    <a href="<?= $this->url('employee', ['action' => 'edit', 'tab' => 1]) ?>" class="btn default btn-sm">
+                        <i class="fa fa-plus-square icon-black"></i> New </a>
+                <?php endif; ?>
+                <div class="btn-group">
+                    <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-copy"></i> Tools
+                        <i class="fa fa-angle-down "></i>
+                    </a>
+                    <ul class="dropdown-menu pull-right">
+                        <li >
+                            <a href="javascript:;" id="excelExport">
+                                <i class="fa fa-file-excel-o" ></i> Export to Excel </a>
+                        </li>
+                        <li >
+                            <a href="javascript:;" id="pdfExport">
+                                <i class="fa fa-file-pdf-o" ></i> Export to PDF </a>
+                        </li>
+                        <li >
+                            <a href="javascript:;" id="excelExportWithImage">
+                                <i class="fa fa-file-excel-o" ></i> Export to Excel Image</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="portlet-body">
+            <div class="row">
+                <div class="col-sm-2">
+                    <label>Company</label>
+                    <select multiple class="form-control" name="company" id="companyId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Branch</label>
+                    <select multiple class="form-control" name="branchId" id="branchId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Department</label>
+                    <select multiple class="form-control" name="department" id="departmentId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Designation</label>
+                    <select multiple class="form-control" name="designation" id="designationId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Position</label>
+                    <select multiple class="form-control" name="position" id="positionId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Service Type</label>
+                    <select multiple class="form-control" name="serviceType" id="serviceTypeId">
+                    </select>
+                </div>
+            </div>
+            <div class="row margin-top-10">
+                <div class="col-sm-2">
+                    <label>Service Event Type</label>
+                    <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Employee Type</label>
+                    <select multiple class="form-control" name="employeeType" id="employeeTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Gender</label>
+                    <select multiple class="form-control" name="gender" id="genderId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Functional Type</label>
+                    <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Employee</label>
+                    <select multiple class="form-control" name="employee" id="employeeId">
+                    </select>
+                </div> 
+                <div class="col-sm-2">
+                    <label>Export Parameters</label>
+                    <select multiple class="form-control reset-field" name="exparams" id="exparamsId">
+                    </select>
+                </div>
+            </div>
+            <?php if($preference['provinceWiseBranchFilter'] == 'Y') {?>
+                <div class="row margin-top-10">
+                    <div class="col-sm-2">
+                        <label>Province</label>
+                        <select class="form-control reset-field" name="province[]" id="province">
+                            <option>-----</option>
+                            <?php foreach($provinces as $key => $value ){?>
+                                <option value='<?=$key?>'><?=$value?></option>
+                            <?php  }?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <div class="row margin-top-10">
+                <div class="col-sm-4 col-sm-offset-8">
+                    <button id="reset" class="btn default btn-sm pull-right hris-reset-btn ">
+                        Reset
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <button id="search" class="btn btn-default btn-sm pull-right">
+                        Search
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="employeeTable">
+    </div>
+
+    <style type="text/css">
+        .employee-photo {
+            display: inline-block;
+            width: 50px;
+            height: 40px;
+            background-size: 50px 40px;
+            background-position: center center;
+            vertical-align: middle;
+            line-height: 32px;
+            box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+            /*margin-left: 5px;*/
+        }
+
+        .customer-name {
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 32px;
+            padding-left: 3px;
+        }
+    </style>
+</div>

@@ -11,32 +11,35 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class DayoffWorkApproveRepository implements RepositoryInterface {
+class DayoffWorkApproveRepository implements RepositoryInterface
+{
 
-    private $tableGateway;
-    private $adapter;
+  private $tableGateway;
+  private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
-        $this->adapter = $adapter;
-        $this->tableGateway = new TableGateway(WorkOnDayoff::TABLE_NAME, $adapter);
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    $this->adapter = $adapter;
+    $this->tableGateway = new TableGateway(WorkOnDayoff::TABLE_NAME, $adapter);
+  }
 
-    public function add(Model $model) {
-        
-    }
+  public function add(Model $model)
+  {
+  }
 
-    public function delete($id) {
-        
-    }
+  public function delete($id)
+  {
+  }
 
-    public function getAllWidStatus($id, $status) {
-        
-    }
+  public function getAllWidStatus($id, $status)
+  {
+  }
 
-    public function edit(Model $model, $id) {
-        $temp = $model->getArrayCopyForDB();
-        $this->tableGateway->update($temp, [WorkOnDayoff::ID => $id]);
-        $sql = "
+  public function edit(Model $model, $id)
+  {
+    $temp = $model->getArrayCopyForDB();
+    $this->tableGateway->update($temp, [WorkOnDayoff::ID => $id]);
+    $sql = "
             DECLARE
                   V_ID HRIS_EMPLOYEE_WORK_DAYOFF.ID%TYPE;
                   V_STATUS HRIS_EMPLOYEE_WORK_DAYOFF.STATUS%TYPE;
@@ -61,53 +64,55 @@ class DayoffWorkApproveRepository implements RepositoryInterface {
                   END IF;
                 END;
             ";
-        EntityHelper::rawQueryResult($this->adapter, $sql);
-    }
+    EntityHelper::rawQueryResult($this->adapter, $sql);
+  }
 
-    public function fetchAll() {
-        
-    }
+  public function fetchAll()
+  {
+  }
 
-    public function fetchById($id) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns([
-            new Expression("WD.ID AS ID"),
-            new Expression("WD.EMPLOYEE_ID AS EMPLOYEE_ID"),
-            new Expression("INITCAP(TO_CHAR(WD.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
-            new Expression("INITCAP(TO_CHAR(WD.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE"),
-            new Expression("INITCAP(TO_CHAR(WD.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE"),
-            new Expression("WD.DURATION AS DURATION"),
-            new Expression("WD.REMARKS AS REMARKS"),
-            new Expression("WD.STATUS AS STATUS"),
-            new Expression("WD.RECOMMENDED_BY AS RECOMMENDED_BY"),
-            new Expression("INITCAP(TO_CHAR(WD.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
-            new Expression("WD.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
-            new Expression("WD.APPROVED_BY AS APPROVED_BY"),
-            new Expression("INITCAP(TO_CHAR(WD.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
-            new Expression("WD.APPROVED_REMARKS AS APPROVED_REMARKS"),
-            new Expression("INITCAP(TO_CHAR(WD.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
-                ], true);
+  public function fetchById($id)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns([
+      new Expression("WD.ID AS ID"),
+      new Expression("WD.EMPLOYEE_ID AS EMPLOYEE_ID"),
+      new Expression("INITCAP(TO_CHAR(WD.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
+      new Expression("INITCAP(TO_CHAR(WD.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE"),
+      new Expression("INITCAP(TO_CHAR(WD.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE"),
+      new Expression("WD.DURATION AS DURATION"),
+      new Expression("WD.REMARKS AS REMARKS"),
+      new Expression("WD.STATUS AS STATUS"),
+      new Expression("WD.RECOMMENDED_BY AS RECOMMENDED_BY"),
+      new Expression("INITCAP(TO_CHAR(WD.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
+      new Expression("WD.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
+      new Expression("WD.APPROVED_BY AS APPROVED_BY"),
+      new Expression("INITCAP(TO_CHAR(WD.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
+      new Expression("WD.APPROVED_REMARKS AS APPROVED_REMARKS"),
+      new Expression("INITCAP(TO_CHAR(WD.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
+    ], true);
 
-        $select->from(['WD' => WorkOnDayoff::TABLE_NAME])
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=WD.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+    $select->from(['WD' => WorkOnDayoff::TABLE_NAME])
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=WD.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=WD.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+      ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WD.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+      ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WD.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+      ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+      ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
-        $select->where([
-            "WD.ID=" . $id
-        ]);
+    $select->where([
+      "WD.ID=" . $id
+    ]);
 
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result->current();
-    }
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-    public function getAllRequest($id, $status = null) {
-        $sql = "SELECT 
+  public function getAllRequest($id, $status = null)
+  {
+    $sql = "SELECT 
                     WD.ID,
                     E.EMPLOYEE_CODE AS EMPLOYEE_CODE,
                     WD.EMPLOYEE_ID,
@@ -170,16 +175,16 @@ class DayoffWorkApproveRepository implements RepositoryInterface {
                 AND WD.STATUS IN ('RC')) )
                 AND U.EMPLOYEE_ID={$id}
                     ORDER BY WD.REQUESTED_DATE DESC";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 
-    public function wodReward($wodId) {
-        EntityHelper::rawQueryResult($this->adapter, "
+  public function wodReward($wodId)
+  {
+    EntityHelper::rawQueryResult($this->adapter, "
                     BEGIN
                       HRIS_WOD_REWARD({$wodId});
                     END;");
-    }
-
+  }
 }

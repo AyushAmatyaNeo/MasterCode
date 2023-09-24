@@ -3,14 +3,14 @@
 </div>
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
 $this->headScript()
-        ->appendFile($this->basePath('js/manager-service/travel-approve/view.js'));
+    ->appendFile($this->basePath('js/manager-service/travel-approve/view.js'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'travelRequest-form');
@@ -22,7 +22,7 @@ $toDate->setAttributes(["disabled" => "disabled"]);
 $requestedAmount = $form->get('requestedAmount');
 $destination = $form->get('destination');
 $departure = $form->get('departure');
- $departure->setAttributes(["disabled" => "disabled"]);
+$departure->setAttributes(["disabled" => "disabled"]);
 $destination->setAttributes(["disabled" => "disabled"]);
 $purpose = $form->get('purpose');
 $purpose->setAttributes(["disabled" => "disabled"]);
@@ -82,7 +82,7 @@ print $this->form()->openTag($form);
                                     <td>
                                         <?= $recommender ?>
                                     </td>
-                                </tr>  
+                                </tr>
 
                                 <tr height="30">
                                     <td>
@@ -97,7 +97,7 @@ print $this->form()->openTag($form);
                         </div>
 
                         <div class="col-sm-4">
-                            <table>  
+                            <table>
                                 <tr height="30">
                                     <td>
                                         Requested Date
@@ -116,12 +116,12 @@ print $this->form()->openTag($form);
                                     <td>
                                         <?= $approver ?>
                                     </td>
-                                </tr>     
+                                </tr>
                             </table>
                         </div>
 
                         <div class="col-sm-4">
-                            <table>  
+                            <table>
                                 <tr height="30">
                                     <td>
                                         Status
@@ -147,7 +147,7 @@ print $this->form()->openTag($form);
                                         }
                                         ?>
                                     </td>
-                                </tr> 
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -162,17 +162,16 @@ print $this->form()->openTag($form);
                                     <?php print $this->formElement($fromDate); ?>
                                     <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block']); ?>
                                 </div>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliStartDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
-                                               class="form-control" value="" disabled="disabled">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="" disabled="disabled">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>        
+                            </div>
+                        </div>
 
                     </div>
 
@@ -184,17 +183,16 @@ print $this->form()->openTag($form);
                                     <?php print $this->formElement($toDate); ?>
                                     <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block']); ?>
                                 </div>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliEndDate">&nbsp;</label>
                                     <div class="input-group">
-                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
-                                               class="form-control" value="" disabled="disabled">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="" disabled="disabled">
                                     </div>
                                 </div>
-                            </div>     
-                        </div>        
+                            </div>
+                        </div>
 
                     </div>
 
@@ -215,7 +213,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($destination); ?>
                             <?php print $this->formElement($destination); ?>
                             <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
-                        </div>               
+                        </div>
                     </div>
 
                     <div class="col-sm-4">
@@ -231,7 +229,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($requestedType); ?>
                             <?php print $this->formElement($requestedType); ?>
                             <?php print $this->formElementErrors()->render($requestedType, ['class' => 'help-block']); ?>
-                        </div> 
+                        </div>
                     </div>
                 </div>
 
@@ -241,7 +239,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($transportType); ?>
                             <?php print $this->formElement($transportType); ?>
                             <?php print $this->formElementErrors()->render($transportType, ['class' => 'help-block']); ?>
-                        </div> 
+                        </div>
                     </div>
 
 
@@ -252,60 +250,57 @@ print $this->form()->openTag($form);
                             <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
                         </div>
                     </div>
-                    <div class="col-sm-4"> 
+                    <div class="col-sm-4">
                         <div class="form-group">
                             <?php print $this->formLabel($departure); ?>
                             <?php print $this->formElement($departure); ?>
                             <?php print $this->formElementErrors()->render($departure, ['class' => 'help-block']); ?>
-                        </div>               
+                        </div>
                     </div>
                 </div>
-  
-                <?php if(!empty($files)){ ?>
-                        <div class="row"> 
-                            <div class="col-sm-6"> 
-                                <label>Attachments</label>
-                                    <div style="overflow: scroll; height:100px;" >
-                                        <ul> 
-                                            <?php foreach($files as $file){ ?>
-                                                <a target="_blank" href="<?='../../../../uploads/travel_documents/'.$file['FILE_IN_DIR_NAME']?>">
-                                                    <li><?=$file['FILE_NAME']?></li></a>
-                                            <?php } ?>
-                                        </ul>
-                                    </div>
-                                </div>
+
+                <?php if (!empty($files)) { ?>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Attachments</label>
+                            <div style="overflow: scroll; height:100px;">
+                                <ul>
+                                    <?php foreach ($files as $file) { ?>
+                                        <a target="_blank" href="<?= '../../../../uploads/travel_documents/' . $file['FILE_IN_DIR_NAME'] ?>">
+                                            <li><?= $file['FILE_NAME'] ?></li>
+                                        </a>
+                                    <?php } ?>
+                                </ul>
+                            </div>
                         </div>
-                    <?php } ?>
-            </div>     
+                    </div>
+                <?php } ?>
+            </div>
             <?php if ($role == 3 || $role == 4) { ?>
                 <?php $recommendedRemarks->setAttributes(['disabled' => 'disabled']); ?>
-                <div
-                    class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
-                        <?php print $this->formLabel($recommendedRemarks); ?>
-                        <?php print $this->formElement($recommendedRemarks); ?>
+                <div class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                    <?php print $this->formLabel($recommendedRemarks); ?>
+                    <?php print $this->formElement($recommendedRemarks); ?>
                 </div>
-                <div
-                    class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                <div class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
                     <label>Reason for action [From Approver]</label>
                     <?php print $this->formElement($approvedRemarks); ?>
                 </div>
             <?php } ?>
- 
+
             <?php if ($role == 2) { ?>
                 <?php $approvedRemarks->setAttributes(['disabled' => 'disabled']); ?>
-                <div
-                    class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                <div class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
                     <label>Reason for action [From Recommender]</label>
                     <?php print $this->formElement($recommendedRemarks); ?>
                 </div>
-                <div
-                    class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
-                        <?php print $this->formLabel($approvedRemarks); ?>
-                        <?php print $this->formElement($approvedRemarks); ?>
+                <div class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                    <?php print $this->formLabel($approvedRemarks); ?>
+                    <?php print $this->formElement($approvedRemarks); ?>
                 </div>
             <?php } ?>
 
-           
+
 
         </div>
 
@@ -321,10 +316,13 @@ print $this->form()->closeTag();
             <ul id="headingList">
                 <li>
                     <?php if ($detail['COMPANY_FILE_PATH'] != null || $detail['COMPANY_FILE_PATH'] != "") { ?>
-                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50"/>
+                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50" />
                     <?php } ?>
-                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2></li>
-                <li id="underline"><h3>Travel Authorization Form</h3></li>
+                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2>
+                </li>
+                <li id="underline">
+                    <h3>Travel Authorization Form</h3>
+                </li>
             </ul>
         </div>
     </div>
@@ -357,7 +355,7 @@ print $this->form()->closeTag();
             <li>Mode of Transport: <?php echo $detail['TRANSPORT_TYPE_DETAIL']; ?></li>
         </ul>
     </div>
-    <label style="color:red ;" ><i>* Note:I hereby declare that all expenses, including self-stay arrangement (if any), claimed are legitimate business expenses actually incurred and claimed as per company policy.</i></label>
+    <label style="color:red ;"><i>* Note:I hereby declare that all expenses, including self-stay arrangement (if any), claimed are legitimate business expenses actually incurred and claimed as per company policy.</i></label>
     <div class="row font-common signature">
         <div class="signEmployee">
             <div class="border-dotted">
@@ -367,7 +365,7 @@ print $this->form()->closeTag();
         <div class="signRecommender">
             <p style="height: 14px"><label><?= ucwords(strtolower($recommender)); ?></label></p>
             <div class="border-dotted" style="margin-left: 55px;">
-                Recommended By 
+                Recommended By
             </div>
         </div>
         <div class="signApprover">
@@ -378,20 +376,20 @@ print $this->form()->closeTag();
         </div>
     </div>
     <?php
-            if ($detail['REQUESTED_AMOUNT'] > 0) { ?>
-    <div class="row detailOfRequest" style="">
-        <h4 style="margin-bottom:3px;">To Account Section:</h4>
-       
-                <div class="font-common">
+    if ($detail['REQUESTED_AMOUNT'] > 0) { ?>
+        <div class="row detailOfRequest" style="">
+            <h4 style="margin-bottom:3px;">To Account Section:</h4>
+
+            <div class="font-common">
                 <p style="margin-top:0px;">
                     Please provide to give him/her tour advance Rs. <?= $detail['REQUESTED_AMOUNT'] ?> which will be adjusted after presenting travel expenses & tour report within 15 days.
                 </p>
             </div>
-        
-       
-    </div>
+
+
+        </div>
     <?php   }
-        ?>
+    ?>
     <div class="row font-common detailOfRequest1">
         <div class="signEmployee2">
             <div class="border-dotted1">

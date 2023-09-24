@@ -1,10 +1,12 @@
 <?php
+
 namespace Setup\Model;
 
 use Application\Model\Model;
 use function Complex\sec;
 
-class HrEmployees extends Model {
+class HrEmployees extends Model
+{
 
     public $employeeId;
     public $companyId;
@@ -116,10 +118,26 @@ class HrEmployees extends Model {
     public $gratuityDate;
     public $permanentDate;
     public $disabledFlag;
-	public $taxBase;
+    public $levelId;
+    public $contractExpiryDate;
+    public $gratuity;
+    public $currentSalary;
+    public $previousSalary;
+    public $dearnessAllowance;
+    public $paymentDate;
+    public $gratuityBankAcc;
+    public $ssfBankAcc;
+    public $pfBankAcc;
     public $ssfNo;
+    public $idSSFId;
+    public $idPFId;
+    public $idGratuityId;
+    public $descriptionDetail;
+    public $startDate;
+    public $endDate;
+    public $attdEmailFlag;
 
-    
+
     const TABLE_NAME = "HRIS_EMPLOYEES";
     const EMPLOYEE_ID = "EMPLOYEE_ID";
     const COMPANY_ID = "COMPANY_ID";
@@ -231,10 +249,25 @@ class HrEmployees extends Model {
     const PERMANENT_DATE = "PERMANENT_DATE";
     const GRATUITY_DATE = "GRATUITY_DATE";
     const DISABLED_FLAG = "DISABLED_FLAG";
-	const TAX_BASE = "TAX_BASE";
-    const SSF_NO="SSF_NO";
+    const LEVEL_ID = "LEVEL_ID";
+    const CONTRACT_EXPIRY_DATE = "CONTRACT_EXPIRY_DATE";
+    const GRATUITY = "GRATUITY";
+    const CURRENT_SALARY = "CURRENT_SALARY";
+    const PREVIOUS_SALARY = "PREVIOUS_SALARY";
+    const DEARNESS_ALLOWANCE = "DEARNESS_ALLOWANCE";
+    const PAYMENT_DATE = "PAYMENT_DATE";
+    const SSF_NO = "SSF_NO";
+    const PF_BANK_ID = "PF_BANK_ID";
+    const DESCRIPTION_DETAIL = "DESCRIPTION_DETAIL";
+    const GRATUITY_BANK_ID = "GRATUITY_BANK_ID";
+    const SSF_BANK_ID = "SSF_BANK_ID";
+    const SSF_BANK_NO = "SSF_BANK_NO";
+    const PF_BANK_NO = "PF_BANK_NO";
+    const GRATUITY_BANK_NO = "GRATUITY_BANK_NO";
+    const START_DATE = "START_DATE";
+    const END_DATE = "END_DATE";
+    const ATTD_EMAIL_FLAG = "ATTD_EMAIL_FLAG";
 
-    
     public $mappings = [
         'employeeId' => self::EMPLOYEE_ID,
         'companyId' => self::COMPANY_ID,
@@ -336,18 +369,33 @@ class HrEmployees extends Model {
         'empowerCompanyCode' => self::EMPOWER_COMPANY_CODE,
         'empowerBranchCode' => self::EMPOWER_BRANCH_CODE,
         'abroadAddress' => self::ABROAD_ADDRESS,
-        'addrPermProvinceId' =>self::ADDR_PERM_PROVINCE_ID,
-        'addrTempProvinceId' =>self::ADDR_TEMP_PROVINCE_ID,
-        'payEmpType' =>self::PAY_EMP_TYPE,
-        'wohFlag' =>self::WOH_FLAG,
-        'overtimeEligible' =>self::OVERTIME_ELIGIBLE,
+        'addrPermProvinceId' => self::ADDR_PERM_PROVINCE_ID,
+        'addrTempProvinceId' => self::ADDR_TEMP_PROVINCE_ID,
+        'payEmpType' => self::PAY_EMP_TYPE,
+        'wohFlag' => self::WOH_FLAG,
+        'overtimeEligible' => self::OVERTIME_ELIGIBLE,
         'allowance' => self::ALLOWANCE,
         'bankId' => self::BANK_ID,
         'permanentDate' => self::PERMANENT_DATE,
         'gratuityDate' => self::GRATUITY_DATE,
         'disabledFlag' => self::DISABLED_FLAG,
-		'taxBase' => self::TAX_BASE,
-        'ssfNo'=>self::SSF_NO,
+        'levelId' => self::LEVEL_ID,
+        'contractExpiryDate' => self::CONTRACT_EXPIRY_DATE,
+        'gratuity' => self::GRATUITY,
+        'currentSalary' => self::CURRENT_SALARY,
+        'previousSalary' => self::PREVIOUS_SALARY,
+        'dearnessAllowance' => self::DEARNESS_ALLOWANCE,
+        'paymentDate' => self::PAYMENT_DATE,
+        'ssfNo' => self::SSF_NO,
+        'pfBankAcc' => self::PF_BANK_ID,
+        'ssfBankAcc' => self::SSF_BANK_ID,
+        'gratuityBankAcc' => self::GRATUITY_BANK_ID,
+        'idSSFId' => self::SSF_BANK_NO,
+        'idPFId' => self::PF_BANK_NO,
+        'descriptionDetail' => self::DESCRIPTION_DETAIL,
+        'idGratuityId' => self::GRATUITY_BANK_NO,
+        'startDate' => self::START_DATE,
+        'endDate' => self::END_DATE,
+        'attdEmailFlag' => self::ATTD_EMAIL_FLAG
     ];
-
 }

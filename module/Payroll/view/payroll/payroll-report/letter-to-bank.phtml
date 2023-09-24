@@ -1,47 +1,51 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/search.js'))
-        ->appendFile($this->basePath('js/mustache.js'))
-        ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'))
-        ->appendFile($this->basePath('js/Payroll/payrollReport/letterToBank.js?1'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/search.js'))
+    ->appendFile($this->basePath('js/mustache.js'))
+    ->appendFile($this->basePath('assets/global/plugins/jsPDF-master/dist/jspdf.debug.js'))
+    ->appendFile($this->basePath('js/Payroll/payrollReport/letterToBank.js?1'));
 ?>
 
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
 <script>
-    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
     document.getFiscalYearMonthLink = '<?php echo $this->url('payrollReport', ['action' => 'getFiscalYearMonth']); ?>';
     document.pullLetterToBankDetail = '<?= $this->url("payrollReport", ["action" => "pullLetterToBankDetail"]) ?>';
-    document.salaryType =<?php echo json_encode($salaryType); ?>;
-    document.bankType =<?php echo json_encode($bankType); ?>;
-    document.preference =<?php echo json_encode($preference) ?>;
-    document.incomes =<?php echo json_encode($incomes); ?>;
-    document.acl =<?php echo json_encode($acl); ?>;
-    document.taxExcemptions =<?php echo json_encode($taxExcemptions); ?>;
-    document.otherTax =<?php echo json_encode($otherTax); ?>;
-    document.miscellaneous =<?php echo json_encode($miscellaneous); ?>;
-    document.bMiscellaneou =<?php echo json_encode($bMiscellaneou); ?>;
-    document.cMiscellaneou =<?php echo json_encode($cMiscellaneou); ?>;
-    document.sumOfExemption =<?php echo json_encode($sumOfExemption); ?>;
-    document.sumOfOtherTax =<?php echo json_encode($sumOfOtherTax); ?>;
-    document.controlValues =<?php echo json_encode($controlValues); ?>;
-
+    document.salaryType = <?php echo json_encode($salaryType); ?>;
+    document.bankType = <?php echo json_encode($bankType); ?>;
+    document.preference = <?php echo json_encode($preference) ?>;
+    document.incomes = <?php echo json_encode($incomes); ?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.taxExcemptions = <?php echo json_encode($taxExcemptions); ?>;
+    document.otherTax = <?php echo json_encode($otherTax); ?>;
+    document.miscellaneous = <?php echo json_encode($miscellaneous); ?>;
+    document.bMiscellaneou = <?php echo json_encode($bMiscellaneou); ?>;
+    document.cMiscellaneou = <?php echo json_encode($cMiscellaneou); ?>;
+    document.sumOfExemption = <?php echo json_encode($sumOfExemption); ?>;
+    document.sumOfOtherTax = <?php echo json_encode($sumOfOtherTax); ?>;
+    document.controlValues = <?php echo json_encode($controlValues); ?>;
 </script>
 
 <style>
-.table-condensed>thead>tr>th, .table-condensed>thead>tr>td, .table-condensed>tbody>tr>th, .table-condensed>tbody>tr>td, .table-condensed>tfoot>tr>th, .table-condensed>tfoot>tr>td {
-    padding: 0px;
-}    
+    .table-condensed>thead>tr>th,
+    .table-condensed>thead>tr>td,
+    .table-condensed>tbody>tr>th,
+    .table-condensed>tbody>tr>td,
+    .table-condensed>tfoot>tr>th,
+    .table-condensed>tfoot>tr>td {
+        padding: 0px;
+    }
 </style>
 
 <div class="page-bar">
@@ -72,12 +76,21 @@ $this->headScript()
                         </div>
                         <div class="col-sm-2">
                             <label>Bank</label>
-                            <select class="form-control" name="bankType" id="bankTypeId">
+                            <select class="form-control" name="bankType" id="bankTypeId" required>
                             </select>
                         </div>
                         <div class="col-sm-2">
                             <label>Salary Type</label>
                             <select class="form-control reset-field" name="salaryType" id="salaryTypeId">
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label>Pay Head</label>
+                            <select class="form-control" name="payHead" id="payHead">
+                                <option value="NS">Net Salary</option>
+                                <option value="SSF 31">SSF</option>
+                                <option value="PF20">PF</option>
+                                <option value="GT33">Gratuity</option>
                             </select>
                         </div>
                         <div class="col-sm-2" id='companyDiv'>
@@ -91,21 +104,21 @@ $this->headScript()
                             </select>
                         </div> -->
                     </div>
-                    
+
                     <div class="row margin-top-10">
                         <div class="col-sm-4 col-sm-offset-8">
                             <button id="reset" class="btn default btn-sm pull-right">
                                 Reset
                                 <i class="fa fa-refresh"></i>
                             </button>
-                            <button  id="searchEmployeesBtn" class="btn btn-default btn-sm pull-right">
+                            <button id="searchEmployeesBtn" class="btn btn-default btn-sm pull-right">
                                 Search
                                 <i class="fa fa-search"></i>
                             </button>
                         </div>
                     </div>
-                        
-                        
+
+
                 </div>
             </div>
 
@@ -122,16 +135,16 @@ $this->headScript()
                                 <i class="fa fa-angle-down "></i>
                             </a>
                             <ul class="dropdown-menu pull-right">
-                                <li >
+                                <li>
                                     <a href="javascript:;" id="excelExport">
-                                        <i class="fa fa-file-excel-o" ></i>
+                                        <i class="fa fa-file-excel-o"></i>
                                         Export to Excel
                                     </a>
                                 </li>
-                                <li >
+                                <li>
                                     <a href="javascript:;" id="pdfExport">
-                                        <i class="fa fa-file-pdf-o" ></i> 
-                                        Export to PDF 
+                                        <i class="fa fa-file-pdf-o"></i>
+                                        Export to PDF
                                     </a>
                                 </li>
                             </ul>
@@ -140,14 +153,14 @@ $this->headScript()
 
                 </div>
                 <div class="portlet-body">
-                        <div id="table" style="padding:5%;">
+                    <div id="table" style="padding:5%;">
                     </div>
-					 <div id="kendoTable" style="padding:5%; display:none;">
+                    <div id="kendoTable" style="padding:5%; display:none;">
                     </div>
-                        
+
                 </div>
-                
-                
+
+
 
 
 

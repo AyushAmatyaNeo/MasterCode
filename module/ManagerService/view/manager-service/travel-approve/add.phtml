@@ -1,0 +1,239 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'))
+    ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
+
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+$this->headScript()->appendFile($this->basePath('js/SelfService/travel-request/add.js'))
+    ->appendFile($this->basePath('dropzone/dropzone.min.js'));
+
+$form->setAttribute('role', 'form');
+$form->setAttribute('id', 'travelRequest-form');
+
+$employeeId = $form->get('employeeId');
+$employeeId->setValueOptions($employees);
+$fromDate = $form->get('fromDate');
+$toDate = $form->get('toDate');
+$destination = $form->get('destination');
+$departure = $form->get('departure');
+$requestedAmount = $form->get('requestedAmount');
+$requestedType = $form->get('requestedType');
+$requestedType->setValueOptions($requestTypes);
+$transportType = $form->get('transportType');
+$transportType->setValueOptions($transportTypes);
+$purpose = $form->get('purpose');
+$remarks = $form->get('remarks');
+$noOfDays = $form->get('noOfDays');
+
+$submit = $form->get('submit');
+$submit->setAttribute('value', 'SUBMIT');
+$submit->setAttribute('id', 'request');
+
+$form->setAttribute('action', $this->url('travelApprove', ['action' => 'add']));
+
+
+$form->prepare();
+?>
+<script>
+    document.wsValidateTravelRequest = '<?= $this->url("travelRequest", ["action" => "validateTravelRequest"]) ?>';
+    document.pushTravelFileLink = '<?php echo $this->url('travelApply', ['action' => 'pushTravelFileLink']); ?>';
+    document.uploadUrl = '<?= $this->url('travelApply', ['action' => 'fileUpload']); ?>';
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\travelApply')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<div class="row margin-top-20">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>New Entry
+                </div>
+                <div class="actions">
+                    <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <?php
+                print $this->form()->openTag($form);
+                ?>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($employeeId); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($employeeId); ?>
+                            <?php print $this->formElementErrors()->render($employeeId, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($fromDate); ?>
+                                    <span class="required" aria-required="true">*</span>
+                                    <?php print $this->formElement($fromDate); ?>
+                                    <?php print $this->formElementErrors()->render($fromDate, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliStartDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <?php print $this->formLabel($toDate); ?>
+                                    <?php print $this->formElement($toDate); ?>
+                                    <?php print $this->formElementErrors()->render($toDate, ['class' => 'help-block']); ?>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="nepaliEndDate">&nbsp;</label>
+                                    <div class="input-group">
+                                        <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($departure); ?>
+                            <?php print $this->formElement($departure); ?>
+                            <?php print $this->formElementErrors()->render($departure, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($destination); ?>
+                            <?php print $this->formElement($destination); ?>
+                            <?php print $this->formElementErrors()->render($destination, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($purpose); ?>
+                            <?php print $this->formElement($purpose); ?>
+                            <?php print $this->formElementErrors()->render($purpose, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($requestedAmount); ?>
+                            <?php print $this->formElement($requestedAmount); ?>
+                            <?php print $this->formElementErrors()->render($requestedAmount, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($noOfDays); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($noOfDays); ?>
+                            <span id="errorMsg" style="font-size:11px; color:red;"></span>
+                        </div>
+                        <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($requestedType); ?>
+                            <?php print $this->formElement($requestedType); ?>
+                            <?php print $this->formElementErrors()->render($requestedType, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($transportType); ?>
+                            <?php print $this->formElement($transportType); ?>
+                            <?php print $this->formElementErrors()->render($transportType, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <?php print $this->formLabel($remarks); ?>
+                            <?php print $this->formElement($remarks); ?>
+                            <?php print $this->formElementErrors()->render($remarks, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="applyOption">Apply Status</label>
+                        <?php print $this->formElement($applyOption); ?>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <!-- <div class="col-sm-4">
+                        <label for="substituteEmployee">Substitute Employee </label>
+                        <span class="required" aria-required="true">*</span>
+                        <select id="travelEmpSub" required class="form-control reset-field" name="travelSubstitute" style="cursor: pointer;">
+                            <?php foreach ($employees as $key => $value) { ?>
+                                <option style="cursor: pointer;" value="<?php echo $key; ?>"><?php echo $value; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div> -->
+
+
+
+                </div>
+
+
+
+                <?php
+                print $this->formSubmit($submit);
+                ?>
+
+                <button id="reset" type="reset" class="btn default btn-sm hris-reset-btn">Reset<i class="fa fa-refresh"></i></button>
+
+                <?php
+                print $this->form()->closeTag();
+                ?>
+            </div>
+
+        </div>
+    </div>
+</div>

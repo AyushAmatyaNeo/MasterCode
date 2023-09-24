@@ -1,0 +1,163 @@
+<?php
+$this->headLink()
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+
+$this->headScript()
+        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+        ->appendFile($this->basePath('js/search.js'))
+        ->appendFile($this->basePath('js/table2excel/src/jquery.table2excel.js'))
+        ->appendFile($this->basePath('js/LeaveManagement/leave-report-card/index.js'));
+?>
+
+<style>
+    /* td,th,table{
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 1%;
+        text-align: center;
+    } */
+
+    #table table tr td{
+        font-size: 80%;
+        vertical-align: middle;
+    }
+ 
+    #table{
+        overflow: auto;
+    }
+</style>
+ 
+<script>
+    document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.pullLeaveReportCardLink = '<?= $this->url("leaveapprove", ["action" => "leaveReportCard"]) ?>';
+    document.acl =<?php echo json_encode($acl); ?>;
+    document.employeeDetail =<?php echo json_encode($employeeDetail); ?>;
+    document.preference =<?php echo json_encode($preference) ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\leavebalance')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages =<?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<div class="portlet light bg-inverse">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="icon-paper-plane font-green-haze"></i>
+            <span class="caption-subject bold font-green-haze uppercase">Select an Employee to generate Leave Report card</span>
+        </div>
+        <div class="tools">
+            <a href="" class="collapse" data-original-title="" title=""> </a>
+            <a href="" class="fullscreen" data-original-title="" title=""> </a>
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li>
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o" ></i> 
+                            Export to Excel 
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o" ></i> 
+                            Export to PDF 
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="portlet-body">
+	<!--<div class="row">
+             <div class="col-sm-2">
+                <label>Company</label>
+                <select multiple class="form-control" name="company" id="companyId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Branch</label>
+                <select multiple class="form-control" name="branchId" id="branchId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Department</label>
+                <select multiple class="form-control" name="department" id="departmentId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Designation</label>
+                <select multiple class="form-control" name="designation" id="designationId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Position</label>
+                <select multiple class="form-control" name="position" id="positionId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Service Type</label>
+                <select multiple class="form-control" name="serviceType" id="serviceTypeId">
+                </select>
+            </div> 
+        </div> -->
+        <div class="row margin-top-10">
+		<!-- <div class="col-sm-2">
+                <label>Service Event Type</label>
+                <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Employee Type</label>
+                <select multiple class="form-control" name="employeeType" id="employeeTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Functional Type</label>
+                <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                </select>
+            </div> -->
+            <div class="col-sm-2">
+                <label>Employee</label>
+                <select multiple class="form-control" name="employee" id="employeeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Leave</label>
+                <?php print $this->formElement($leaves); ?>
+                </select>
+            </div>
+            <div class="col-sm-2 ">
+            <label>----------------</label>
+                <button id="search" class="btn btn-default btn-sm">
+                        Search
+                        <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="table">
+</div>

@@ -11,39 +11,45 @@ use Application\Model\Model;
 use SelfService\Model\LeaveSubstitute;
 use LeaveManagement\Model\LeaveApply;
 
-class LeaveSubstituteRepository implements RepositoryInterface {
+class LeaveSubstituteRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->tableGateway = new TableGateway(LeaveSubstitute::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function delete($id) {
-        
+    public function delete($id)
+    {
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
         $tempData = $model->getArrayCopyForDB();
         $this->tableGateway->update($tempData, [LeaveSubstitute::LEAVE_REQUEST_ID => $id]);
     }
 
-    public function fetchAll() {
-        
+    public function fetchAll()
+    {
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $result = $this->tableGateway->select([LeaveSubstitute::LEAVE_REQUEST_ID => $id]);
         return $result->current();
     }
 
-    public function fetchByEmployeeId($employeeId) {
+    public function fetchByEmployeeId($employeeId)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -64,30 +70,29 @@ class LeaveSubstituteRepository implements RepositoryInterface {
             new Expression("LA.ID AS ID"),
             new Expression("LA.RECOMMENDED_BY AS RECOMMENDED_BY"),
             new Expression("LA.APPROVED_BY AS APPROVED_BY")
-                ], true);
+        ], true);
 
         $select->from(['LA' => LeaveApply::TABLE_NAME])
-                ->join(['L' => 'HRIS_LEAVE_MASTER_SETUP'], "L.LEAVE_ID=LA.LEAVE_ID", ['LEAVE_CODE', 'LEAVE_ENAME' => new Expression("INITCAP(L.LEAVE_ENAME)")])
-                ->join(['LS' => "HRIS_LEAVE_SUBSTITUTE"], "LS.LEAVE_REQUEST_ID=LA.ID", [
-                    "SUB_EMPLOYEE_ID" => "EMPLOYEE_ID",
-                    "SUB_APPROVED_DATE" => new Expression("INITCAP(TO_CHAR(LS.APPROVED_DATE, 'DD-MON-YYYY'))"),
-                    "SUB_APPROVED_FLAG" => new Expression("(CASE WHEN ( LS.APPROVED_FLAG IS NULL OR LS.APPROVED_FLAG = 'N') THEN 'Yes' ELSE 'No' END)")
-                        ], "left")
-                ->join(['E' => 'HRIS_EMPLOYEES'], 'LA.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=LA.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=LA.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=LA.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+            ->join(['L' => 'HRIS_LEAVE_MASTER_SETUP'], "L.LEAVE_ID=LA.LEAVE_ID", ['LEAVE_CODE', 'LEAVE_ENAME' => new Expression("INITCAP(L.LEAVE_ENAME)")])
+            ->join(['LS' => "HRIS_LEAVE_SUBSTITUTE"], "LS.LEAVE_REQUEST_ID=LA.ID", [
+                "SUB_EMPLOYEE_ID" => "EMPLOYEE_ID",
+                "SUB_APPROVED_DATE" => new Expression("INITCAP(TO_CHAR(LS.APPROVED_DATE, 'DD-MON-YYYY'))"),
+                "SUB_APPROVED_FLAG" => new Expression("(CASE WHEN ( LS.APPROVED_FLAG IS NULL OR LS.APPROVED_FLAG = 'N') THEN 'Yes' ELSE 'No' END)")
+            ], "left")
+            ->join(['E' => 'HRIS_EMPLOYEES'], 'LA.EMPLOYEE_ID=E.EMPLOYEE_ID', ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=LA.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+            ->join(['E3' => "HRIS_EMPLOYEES"], "E3.EMPLOYEE_ID=LA.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E3.FULL_NAME)")], "left")
+            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=LA.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
         $select->where([
             "L.STATUS='E'",
             "LS.EMPLOYEE_ID=" . $employeeId
         ]);
-        $select->order("LA.REQUESTED_DT DESC");
+        $select->order("LA.START_DATE DESC");
         $statement = $sql->prepareStatementForSqlObject($select);
         $result = $statement->execute();
         return $result;
     }
-
 }

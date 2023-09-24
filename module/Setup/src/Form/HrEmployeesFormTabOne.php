@@ -5,7 +5,8 @@ namespace Setup\Form;
 use Application\Model\Model;
 use Zend\Form\Annotation;
 
-class HrEmployeesFormTabOne extends Model {
+class HrEmployeesFormTabOne extends Model
+{
 
     /**
      * @Annotation\Type("Zend\Form\Element\Text")
@@ -263,7 +264,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Attributes({ "id":"addrPermZoneId","class":"form-control"})
      */
     public $addrPermZoneId;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
@@ -328,7 +329,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Attributes({ "id":"addrTempZoneId","class":"form-control"})
      */
     public $addrTempZoneId;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Select")
      * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
@@ -337,7 +338,7 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Attributes({ "id":"addrTempProvinceId","class":"form-control"})
      */
     public $addrTempProvinceId;
-    
+
     /**
      * @Annotation\Type("Zend\Form\Element\Textarea")
      * @Annotation\Required(false)
@@ -346,8 +347,16 @@ class HrEmployeesFormTabOne extends Model {
      * @Annotation\Attributes({"id":"abroadAddress","rows":"6","cols":"120","style":"width: 100%; resize: none;"})
      */
     public $abroadAddress;
-    
-    
+
+    /**
+     * @Annotation\Type("Zend\Form\Element\Textarea")
+     * @Annotation\Required(false)
+     * @Annotation\Filter({"name":"StripTags","name":"StringTrim"})
+     * @Annotation\Options({"label":"Description"})
+     * @Annotation\Attributes({"id":"descriptionDetail","rows":"6","cols":"120","style":"width: 100%; resize: none;"})
+     */
+    public $descriptionDetail;
+
     public $addrPermCountryId;
     public $addrTempCountryId;
     public $status;
@@ -401,6 +410,6 @@ class HrEmployeesFormTabOne extends Model {
         'abroadAddress' => 'ABROAD_ADDRESS',
         'addrPermProvinceId' => 'ADDR_PERM_PROVINCE_ID',
         'addrTempProvinceId' => 'ADDR_TEMP_PROVINCE_ID',
+        'descriptionDetail' => 'DESCRIPTION_DETAIL',
     ];
-
 }

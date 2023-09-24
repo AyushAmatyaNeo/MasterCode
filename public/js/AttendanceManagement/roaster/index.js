@@ -3,14 +3,14 @@
     $(document).ready(function () {
         $('select').select2();
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, false);
-//        
+        //        
         var $table = $('#table');
         app.searchTable($table, ['FULL_NAME', 'EMPLOYEE_CODE']);
         var $fromDate = $('#fromDate');
         var $toDate = $('#toDate');
         var $search = $('#search');
-        var columns = [{title: "Code", field: "EMPLOYEE_CODE", width: 80},
-            {title: "Employee", field: "FULL_NAME", width: 100}];
+        var columns = [{ title: "Code", field: "EMPLOYEE_CODE", width: 80 },
+        { title: "Employee", field: "FULL_NAME", width: 100 }];
 
         var selectedFromDate;
         var selectedToDate;
@@ -26,8 +26,8 @@
                 if (grid.dataSource.total() === 0) {
                     var colCount = grid.columns.length;
                     $(e.sender.wrapper)
-                            .find('tbody')
-                            .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" class="no-data">There is no data to show in the grid.</td></tr>');
+                        .find('tbody')
+                        .append('<tr class="kendo-data-row"><td colspan="' + colCount + '" class="no-data">There is no data to show in the grid.</td></tr>');
                 }
 
                 $('.r-cell').each(function () {
@@ -40,7 +40,7 @@
             pageable: {
                 input: true,
                 numeric: false,
-//                 refresh: true,
+                //                 refresh: true,
                 pageSizes: true,
             },
             columns: columns,
@@ -48,7 +48,7 @@
         };
 
         var cellTemplate = function (forDate, shiftId) {
-            return  `<select class="r-cell" employee-id="#:EMPLOYEE_ID#" for-date="#:${forDate}#" shift-id="#:${shiftId}#"></select>`;
+            return `<select class="r-cell" employee-id="#:EMPLOYEE_ID#" for-date="#:${forDate}#" shift-id="#:${shiftId}#"></select>`;
         };
         var initialize = function ($table, kendoConfig) {
             $table.kendoGrid(kendoConfig);
@@ -83,39 +83,39 @@
             columns.splice(2);
             for (var i in dateRange) {
                 var columnTitle = dateRange[i].getFullYear() + "-" + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + "-" + ("0" + dateRange[i].getDate()).slice(-2) + " " + "(" + weekday[dateRange[i].getDay()] + ")";
-//                var forDate = "f" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2);
-//                var shiftId = "s" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2);
+                //                var forDate = "f" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2);
+                //                var shiftId = "s" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2);
                 var forDate = "F" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2) + "_D";
                 var shiftId = "F" + dateRange[i].getFullYear() + ("0" + (dateRange[i].getMonth() + 1)).slice(-2) + ("0" + dateRange[i].getDate()).slice(-2) + "_S";
-                columns.push({title: columnTitle, width: 170, field: [forDate, "EMPLOYEE_ID", shiftId], template: cellTemplate(forDate, shiftId)});
+                columns.push({ title: columnTitle, width: 170, field: [forDate, "EMPLOYEE_ID", shiftId], template: cellTemplate(forDate, shiftId) });
             }
 
             initialize($table, kendoConfig);
             getRoaster(function (rData) {
-//                var employees = document.searchManager.getSelectedEmployee();
-//
-//                var data = [];
-//                var searchInRData = function (on, by, datecheck) {
-//                    for (var i in on) {
-//                        if (on[i]['EMPLOYEE_ID'] == by['EMPLOYEE_ID'] && on[i]['FOR_CHECK'] == by[datecheck]) {
-//                            return on[i];
-//                        }
-//                    }
-//                    return false;
-//                };
-//
-//                for (var i in employees) {
-//                    var cell = {'FULL_NAME': employees[i]['FULL_NAME']};
-//                    for (var j in dateRange) {
-//                        var columndate = nepaliDatePickerExt.getFormatedDate(dateRange[j]);
-//                        var dateCheckString = "f" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2);
-//                        cell["f" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2)] = columndate;
-//                        cell['EMPLOYEE_ID'] = employees[i]['EMPLOYEE_ID'];
-//                        var check = searchInRData(rData, cell, dateCheckString);
-//                        cell["s" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2)] = check != false ? check['SHIFT_ID'] : '';
-//                    }
-//                    data.push(cell);
-//                }
+                //                var employees = document.searchManager.getSelectedEmployee();
+                //
+                //                var data = [];
+                //                var searchInRData = function (on, by, datecheck) {
+                //                    for (var i in on) {
+                //                        if (on[i]['EMPLOYEE_ID'] == by['EMPLOYEE_ID'] && on[i]['FOR_CHECK'] == by[datecheck]) {
+                //                            return on[i];
+                //                        }
+                //                    }
+                //                    return false;
+                //                };
+                //
+                //                for (var i in employees) {
+                //                    var cell = {'FULL_NAME': employees[i]['FULL_NAME']};
+                //                    for (var j in dateRange) {
+                //                        var columndate = nepaliDatePickerExt.getFormatedDate(dateRange[j]);
+                //                        var dateCheckString = "f" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2);
+                //                        cell["f" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2)] = columndate;
+                //                        cell['EMPLOYEE_ID'] = employees[i]['EMPLOYEE_ID'];
+                //                        var check = searchInRData(rData, cell, dateCheckString);
+                //                        cell["s" + dateRange[j].getFullYear() + ("0" + (dateRange[j].getMonth() + 1)).slice(-2) + ("0" + dateRange[j].getDate()).slice(-2)] = check != false ? check['SHIFT_ID'] : '';
+                //                    }
+                //                    data.push(cell);
+                //                }
                 app.renderKendoGrid($table, rData);
                 $('.r-cell').each(function () {
                     var $this = $(this);
@@ -123,9 +123,9 @@
                     app.populateSelect($this, document.shifts, 'SHIFT_ID', 'SHIFT_ENAME', 'Select Shift', -1, selectedShift != "" ? selectedShift : null);
                 });
 
-/////////------
+                /////////------
 
-//app.renderKendoGrid($table, rData);
+                //app.renderKendoGrid($table, rData);
 
 
 
@@ -136,7 +136,7 @@
             var q = document.searchManager.getSearchValues();
             q['fromDate'] = $fromDate.val();
             q['toDate'] = $toDate.val();
-            app.pullDataById(document.getRoasterListLink, {q}).then(function (response) {
+            app.pullDataById(document.getRoasterListLink, { q }).then(function (response) {
                 var data = response.data;
                 fn(data);
                 for (var i in data) {
@@ -151,7 +151,7 @@
             var data = [];
             $('.r-cell').each(function () {
                 var $this = $(this);
-//                if ($this.val() !== null && $this.val() != -1) {
+                //                if ($this.val() !== null && $this.val() != -1) {
                 if ($this.val() !== null) {
                     data.push({
                         'EMPLOYEE_ID': $this.attr('employee-id'),
@@ -160,10 +160,10 @@
                     });
                 }
             });
-            app.serverRequest(document.assignRoasterLink, {'data': data}).then(function (response) {
+            app.serverRequest(document.assignRoasterLink, { 'data': data }).then(function (response) {
                 app.showMessage('Roster assigned successfully.');
+                window.location.reload();
             }, function (error) {
-
             });
 
         });
@@ -173,8 +173,8 @@
         $table.on("click", ".r-cell", function () {
             var $this = $(this);
             let row = $(this).closest("tr"),
-                    grid = $('#table').data("kendoGrid"),
-                    dataItem = grid.dataItem(row);
+                grid = $('#table').data("kendoGrid"),
+                dataItem = grid.dataItem(row);
             var ds = grid.dataSource;
             var selectedRow = ds.getByUid(dataItem.uid);
             var selectedShiftId = $this.val();

@@ -1,0 +1,308 @@
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/ladda/ladda-themeless.min.css'));
+
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/moment.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/combodate/js/combodate.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/ladda/spin.min.js'));
+$this->headScript()->appendFile($this->basePath('assets/global/plugins/ladda/ladda.min.js'));
+$this->headScript()
+    ->appendFile($this->basePath('js/SelfService/travel-request/expense-add.js'))
+    ->appendFile($this->basePath('js/angular.min.js'))
+    ->appendFile($this->basePath('js/travel/travel-status/expenseEdit.js?'));
+?>
+<?php $all_data = json_encode(file_get_contents("https://gist.githubusercontent.com/aaronhayes/5fef481815ac75f771d37b16d16d35c9/raw/edbec8eea5cc9ace57a79409cc390b7b9bcf24f6/currencies.json")); ?>
+<script>
+    document.urlExpenseEdit = '<?= $this->url("travelRequest", ["action" => "expenseEdit"]) ?>';
+    document.urlExpense = '<?= $this->url("travelStatus", ["action" => "index"]) ?>';
+    document.urlExpenseDetailList = '<?= $this->url("travelRequest", ["action" => "expenseDetailList"]) ?>';
+    document.urlDeleteExpenseDetail = '<?= $this->url("travelRequest", ["action" => "deleteExpenseDetail"]) ?>';
+    document.expenseDtlList = <?= $expenseDtlList ?>;
+    document.currencyList = <?php echo json_decode($all_data) ?>;
+</script>
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\travelRequest')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+<?php
+if ($this->messages && (sizeof($this->messages) > 1)) {
+    print '<div class="alert alert-warning alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true"></button>
+    <strong>Warning!</strong> ';
+    print $this->messages[1];
+    print '</div>';
+}
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+<div class="row margin-top-20" ng-app="hris" ng-controller="expenseDtlController">
+    <div class="col-sm-12">
+        <div class="portlet box custom-box">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-user"></i>Travel Expense Request Detail
+                </div>
+            </div>
+            <div class="portlet-body div-font-11">
+                <form name="travelExpenseForm" id="travelRequest-form" ng-submit="submitExpenseDtl()" novalidate>
+                    <input type="hidden" id="travelId" value="<?php echo $id; ?>" />
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <table>
+                                <tr>
+                                    <td width="40%">
+                                        <label for="purpose">Purpose :</label>
+                                    </td>
+                                    <td>
+                                        <input type="text" disabled="disabled" value="<?php echo $detail['PURPOSE']; ?>" name="purpose" required="required" id="purpose" class="form-control">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <table>
+                                <tr>
+                                    <td width="40%">
+                                        <label for="advanceAmount">Advance Amount :</label>
+                                    </td>
+                                    <td>
+                                        <input type="text" disabled="disabled" value="<?php echo $detail['REQUESTED_AMOUNT']; ?>" name="advanceAmount" required="required" id="advanceAmount" class="form-control">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <table>
+                                <tr>
+                                    <td width="40%">
+                                        <label for="departure">Departure :</label>
+                                    </td>
+                                    <td>
+                                        <input type="text" disabled="disabled" value="<?php echo $detail['DEPARTURE'] ?>" name="departure" required="required" id="departure" class="form-control">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <table>
+                                <tr>
+                                    <td width="40%">
+                                        <label for="departureDate">Departure Date :</label>
+                                    </td>
+                                    <td>
+                                        <input type="text" disabled="disabled" value="<?php echo $detail['FROM_DATE'] ?>" name="fromdate" required="required" id="fromdate" class="form-control">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <table>
+                                <tr>
+                                    <td width="40%">
+                                        <label for="employeeCode">Returned Date :</label>
+                                    </td>
+                                    <td>
+                                        <input type="text" disabled="disabled" value="<?php echo $detail['TO_DATE'] ?>" name="returndate" required="required" id="returnDate" class="form-control">
+
+                                        <!-- <input dvalue="{{travelDetail.returnedDate}}" datepicker value="" type="text" ng-model="travelDetail.returnedDate" required="required" name="returnedDate" id="returnedDate" class="form-control"> 
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.returnedDate.$touched">
+                                            <ul ng-show="travelExpenseForm.returnedDate.$error.required" class="help-block error">
+                                                <li>Returned Date is required.</li>
+                                            </ul>
+                                        </div> -->
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                            <!-- <div style="color: red;">Notes : <br>Nepali Currency-NPR <br> Indian Currency-INR <br> Chinese Currency-CNY</div> -->
+
+                        </div>
+
+                    </div>
+                    <div class="margin-top-10 scrollbar-horizantal">
+                        <table width="100%" align="center" class="table table-striped table-bordered table-hover no-footer customTable div-font-11" id="travelExpense">
+                            <thead style="font-size:11px !important;">
+                                <tr>
+                                    <th colspan="6" align="center">Description of Travel and Place</th>
+                                    <th rowspan="3">Mode of Travel</th>
+                                    <th rowspan="3">Fare</th>
+                                    <th rowspan="3">Daily Allowance</th>
+                                    <th rowspan="3">Local Conveyence</th>
+                                    <th rowspan="3">Misc. Expenses</th>
+                                    <th rowspan="3">Currency</th>
+                                    <th rowspan="3">Standard Exchange Rate</th>
+                                    <th rowspan="3">Exchange Rate</th>
+                                    <th rowspan="3">Total</th>
+                                    <th rowspan="3">Remarks</th>
+                                    <th rowspan="3"></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3">Departure</th>
+                                    <th colspan="3">Destination</th>
+                                </tr>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Place</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Place</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="expenseDtlForm in expenseDtlFormList">
+                                    <td>
+                                        {{expenseDtlForm.total = ((expenseDtlForm.fare +expenseDtlForm.allowance+ expenseDtlForm.localConveyence + expenseDtlForm.miscExpense)*(expenseDtlForm.exchangeRate?expenseDtlForm.exchangeRate:expenseDtlForm.standardExchangeRate)) ; ""}}
+                                        <input dvalue="{{expenseDtlForm.departureDate}}" datepicker type="text" required="required" name="departureDate_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.departureDate" size="11" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.departureDate_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.departureDate_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Departure Date is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" dvalue="{{expenseDtlForm.departureTime}}" timepicker required="required" name="departureTime_{{expenseDtlForm.checkbox}}" size="7" ng-model="expenseDtlForm.departureTime" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.departureTime_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.departureTime_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Departure Time is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" required="required" name="departurePlace_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.departurePlace" size="11" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.departurePlace_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.departurePlace_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Departure Place is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input dvalue="{{expenseDtlForm.destinationDate}}" datepicker type="text" required="required" name="destinationDate_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.destinationDate" size="11" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.destinationDate_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.destinationDate_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Destination Date is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" dvalue="{{expenseDtlForm.destinationTime}}" timepicker required="required" name="destinationTime_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.destinationTime" size="7" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.destinationTime_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.destinationTime_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Destination Time is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" required="required" name="destinationPlace_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.destinationPlace" size="11" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.destinationPlace_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.destinationPlace_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Destination Place is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select style="width: 110px;" name="transportType" ng-model="expenseDtlForm.transportType" ng-options="transportTypes.name for transportTypes in transportTypeList track by transportTypes.id" required="required" id="transportType" class="form-control">
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" required="required" name="fare_{{expenseDtlForm.checkbox}}" ng-model="expenseDtlForm.fare" style="width: 60px;" step="0.01" min="0" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.fare_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.fare_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Fare is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" ng-model="expenseDtlForm.allowance" style="width: 60px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="number" ng-model="expenseDtlForm.localConveyence" style="width: 69px;" step="0.01" min="0" />
+                                    </td>
+
+                                    <td>
+                                        <input type="number" ng-model="expenseDtlForm.miscExpense" style="width: 60px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <select style="width: 110px;" name="currencyType" ng-model="expenseDtlForm.currencyType" ng-options="currencyTypes.code for currencyTypes in currencyTypeList track by currencyTypes.code" id="currencyType" class="form-control currencyType">
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input readonly type="number" ng-model="expenseDtlForm.standardExchangeRate" style="width: 100px;" step="0.01" min="0" class="form-control standardExchangeRate" id='standardExchangeRate' />
+                                    </td>
+                                    <td>
+                                        <input type="number" ng-model="expenseDtlForm.exchangeRate" style="width: 80px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="number" id="total_{{expenseDtlForm.checkbox}}" readonly="readonly" ng-model="expenseDtlForm.total" name="total_{{expenseDtlForm.checkbox}}" style="width: 72px;" step="0.01" min="0" />
+                                        <div ng-show="travelExpenseForm.$submitted || travelExpenseForm.total_{{expenseDtlForm.checkbox}}.$touched">
+                                            <ul ng-show="travelExpenseForm.total_{{expenseDtlForm.checkbox}}.$error.required" class="help-block error">
+                                                <li>Total is required.</li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="text" ng-model="expenseDtlForm.remarks" size="11" />
+                                    </td>
+                                    <td width="1%" class="checkboxgap">
+                                        <div class="md-checkbox">
+                                            <input type="checkbox" id="{{expenseDtlForm.checkbox}}" class="md-check" ng-model="expenseDtlForm.checked">
+                                            <label for="{{expenseDtlForm.checkbox}}">
+                                                <span class="inc"></span>
+                                                <span class="check"></span>
+                                                <span class="box"></span>
+                                            </label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><b>Total:</b></td>
+                                    <td>
+                                        <input type="number" id="sumAllTotal" step="0.01" min="0" readonly="readonly" style="width: 72px;" value="{{sumAllTotal(expenseDtlFormList)}}" />
+                                    </td>
+                                    <td>
+                                        <a href="javascript:;" class="btn btn-icon-only default pull-right addExpense" ng-click="addExpenseDtl()">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:;" class="btn btn-icon-only default deleteExpense" ng-click="deleteExpenseDtl()">
+                                            <i class="fa fa-trash-o"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="submit_button" style="margin-top:2%;">
+                        <button class="btn btn-sm green mt-ladda-btn ladda-button mt-progress-demo" id="submitBtn" name="submit" type="submit">
+                            SUBMIT
+                            <i class="fa fa-edit"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,15 +9,15 @@
                 $('#tab' + (index + 1) + " select").select2();
                 switch (index + 1) {
                     case 1:
-                        app.datePickerWithNepaliRestrictDate('birthdate', 'nepaliBirthDate');
+                        app.datePickerWithNepali('birthdate', 'nepaliBirthDate');
                         break;
                     case 2:
-                        app.datePickerWithNepaliRestrictDate('famSpouseBirthDate', 'famSpouseBirthDateNepali');
+                        app.datePickerWithNepali('famSpouseBirthDate', 'famSpouseBirthDateNepali');
                         app.datePickerWithNepali('famSpouseWeddingAnniversary', 'weddingAnniversaryDateNepali');
                         break;
                     case 3:
                         app.datePickerWithNepali('idDrivingLicenseExpiry', 'drivingLicenseExpiaryNepali');
-                        app.datePickerWithNepaliRestrictDate('idCitizenshipIssueDate', 'citizenshipIssueDateNepali');
+                        app.datePickerWithNepali('idCitizenshipIssueDate', 'citizenshipIssueDateNepali');
                         app.datePickerWithNepali('idPassportExpiry', 'passportExpiryNepali');
                         break;
                     case 4:
@@ -29,7 +29,9 @@
                         app.datePickerWithNepali('permanentDate', 'permanentDateNepali');
                         app.datePickerWithNepali('gratuityDate', 'nepaligratuityDate');
                         break;
-                    case 7:
+                    case 8:
+                        break;
+                    case 5:
                         break;
                 }
 
@@ -54,9 +56,15 @@
 
             }, onNext: function (tab, navigation, index) {
                 if (typeof document.currentTab !== 'undefined') {
-                    if (index <= 4 || index == 7 || index == 8|| index == 9) {
-                        $('#btnform' + index).click();
-                    } else if (index == 5) {
+                    if (index <= 4 || index == 5 || index == 8 || index == 9|| index == 10) {
+                        if(index>5){
+                            $('#btnform' + (index - 1)).click();
+                        }else if(index==5){
+                            $('#btnform' + 12).click();
+                        }else{
+                            $('#btnform' + index).click();
+                        }
+                    } else if (index == 6) {
                         angular.element('#quaConId').scope().addQualification();
                         return true;
                     } else {

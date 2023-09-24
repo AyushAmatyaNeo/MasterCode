@@ -1,13 +1,13 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/manager-service/leave-approve/index.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/manager-service/leave-approve/index.js'));
 ?>
 
 <script>
@@ -28,7 +28,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div class="margin-top-20">
@@ -39,6 +39,8 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 <a href="" class="fullscreen" data-original-title="" title=""> </a>
             </div>
             <div class="actions">
+                <a href="<?= $this->url('leaveapprove', ['action' => 'add']) ?>" class="btn default btn-sm">
+                    <i class="fa fa-plus-square icon-black"></i> New </a>
                 <div class="btn-group">
                     <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-copy"></i> Tools
@@ -47,14 +49,14 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <ul class="dropdown-menu pull-right">
                         <li>
                             <a href="javascript:;" id="excelExport">
-                                <i class="fa fa-file-excel-o" ></i> 
-                                Export to Excel 
+                                <i class="fa fa-file-excel-o"></i>
+                                Export to Excel
                             </a>
                         </li>
                         <li>
                             <a href="javascript:;" id="pdfExport">
-                                <i class="fa fa-file-excel-o" ></i> 
-                                Export to PDF 
+                                <i class="fa fa-file-excel-o"></i>
+                                Export to PDF
                             </a>
                         </li>
                     </ul>
@@ -64,7 +66,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 
         <div id="table">
         </div>
-        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv" >
+        <div style="display: none;" class="row margin-top-20" id="acceptRejectDiv">
             <div class="col-sm-2 ">
                 <button id="btnReject" class="btn btn-danger btnApproveReject">Reject</button>
             </div>

@@ -14,20 +14,23 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
-class HolidayWorkApproveRepository {
+class HolidayWorkApproveRepository
+{
 
-    private $tableGateway;
-    private $adapter;
+  private $tableGateway;
+  private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
-        $this->adapter = $adapter;
-        $this->tableGateway = new TableGateway(WorkOnHoliday::TABLE_NAME, $adapter);
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    $this->adapter = $adapter;
+    $this->tableGateway = new TableGateway(WorkOnHoliday::TABLE_NAME, $adapter);
+  }
 
-    public function edit(Model $model, $id) {
-        $temp = $model->getArrayCopyForDB();
-        $this->tableGateway->update($temp, [WorkOnHoliday::ID => $id]);
-        $sql = "
+  public function edit(Model $model, $id)
+  {
+    $temp = $model->getArrayCopyForDB();
+    $this->tableGateway->update($temp, [WorkOnHoliday::ID => $id]);
+    $sql = "
             DECLARE
                   V_ID HRIS_EMPLOYEE_WORK_HOLIDAY.ID%TYPE;
                   V_STATUS HRIS_EMPLOYEE_WORK_HOLIDAY.STATUS%TYPE;
@@ -52,55 +55,57 @@ class HolidayWorkApproveRepository {
                   END IF;
                 END;
             ";
-        EntityHelper::rawQueryResult($this->adapter, $sql);
-    }
+    EntityHelper::rawQueryResult($this->adapter, $sql);
+  }
 
-    public function fetchById($id) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns([
-            new Expression("WH.ID AS ID"),
-            new Expression("WH.EMPLOYEE_ID AS EMPLOYEE_ID"),
-            new Expression("WH.HOLIDAY_ID AS HOLIDAY_ID"),
-            new Expression("INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
-            new Expression("INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
-            new Expression("BS_DATE(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS"),
-            new Expression("INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE"),
-            new Expression("INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE_AD"),
-            new Expression("BS_DATE(WH.FROM_DATE) AS FROM_DATE_BS"),
-            new Expression("INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE"),
-            new Expression("INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE_AD"),
-            new Expression("BS_DATE(WH.TO_DATE) AS TO_DATE_BS"),
-            new Expression("WH.DURATION AS DURATION"),
-            new Expression("WH.REMARKS AS REMARKS"),
-            new Expression("WH.STATUS AS STATUS"),
-            new Expression("LEAVE_STATUS_DESC(WH.STATUS)                     AS STATUS_DETAIL"),
-            new Expression("WH.RECOMMENDED_BY AS RECOMMENDED_BY"),
-            new Expression("INITCAP(TO_CHAR(WH.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
-            new Expression("WH.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
-            new Expression("WH.APPROVED_BY AS APPROVED_BY"),
-            new Expression("INITCAP(TO_CHAR(WH.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
-            new Expression("WH.APPROVED_REMARKS AS APPROVED_REMARKS"),
-            new Expression("INITCAP(TO_CHAR(WH.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
-                ], true);
+  public function fetchById($id)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns([
+      new Expression("WH.ID AS ID"),
+      new Expression("WH.EMPLOYEE_ID AS EMPLOYEE_ID"),
+      new Expression("WH.HOLIDAY_ID AS HOLIDAY_ID"),
+      new Expression("INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
+      new Expression("INITCAP(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
+      new Expression("BS_DATE(TO_CHAR(WH.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS"),
+      new Expression("INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE"),
+      new Expression("INITCAP(TO_CHAR(WH.FROM_DATE, 'DD-MON-YYYY')) AS FROM_DATE_AD"),
+      new Expression("BS_DATE(WH.FROM_DATE) AS FROM_DATE_BS"),
+      new Expression("INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE"),
+      new Expression("INITCAP(TO_CHAR(WH.TO_DATE, 'DD-MON-YYYY')) AS TO_DATE_AD"),
+      new Expression("BS_DATE(WH.TO_DATE) AS TO_DATE_BS"),
+      new Expression("WH.DURATION AS DURATION"),
+      new Expression("WH.REMARKS AS REMARKS"),
+      new Expression("WH.STATUS AS STATUS"),
+      new Expression("LEAVE_STATUS_DESC(WH.STATUS)                     AS STATUS_DETAIL"),
+      new Expression("WH.RECOMMENDED_BY AS RECOMMENDED_BY"),
+      new Expression("INITCAP(TO_CHAR(WH.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
+      new Expression("WH.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
+      new Expression("WH.APPROVED_BY AS APPROVED_BY"),
+      new Expression("INITCAP(TO_CHAR(WH.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
+      new Expression("WH.APPROVED_REMARKS AS APPROVED_REMARKS"),
+      new Expression("INITCAP(TO_CHAR(WH.MODIFIED_DATE, 'DD-MON-YYYY')) AS MODIFIED_DATE"),
+    ], true);
 
-        $select->from(['WH' => WorkOnHoliday::TABLE_NAME])
-                ->join(['H' => "HRIS_HOLIDAY_MASTER_SETUP"], "H.HOLIDAY_ID=WH.HOLIDAY_ID", ["HOLIDAY_ENAME"], "left")
-                ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=WH.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-                ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=WH.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-                ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WH.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-                ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WH.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-                ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-                ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
-        $select->where(["WH.ID=" . $id]);
+    $select->from(['WH' => WorkOnHoliday::TABLE_NAME])
+      ->join(['H' => "HRIS_HOLIDAY_MASTER_SETUP"], "H.HOLIDAY_ID=WH.HOLIDAY_ID", ["HOLIDAY_ENAME"], "left")
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=WH.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=WH.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+      ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=WH.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+      ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=WH.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+      ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+      ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+    $select->where(["WH.ID=" . $id]);
 
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result->current();
-    }
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-    public function getAllRequest($id = null): Traversable {
-        $sql = "SELECT 
+  public function getAllRequest($id = null): Traversable
+  {
+    $sql = "SELECT 
                     WH.ID,
                     WH.EMPLOYEE_ID,
                     E.EMPLOYEE_CODE AS EMPLOYEE_CODE,
@@ -166,28 +171,29 @@ class HolidayWorkApproveRepository {
                 )
                 AND WH.STATUS IN ('RC')) )
                 AND U.EMPLOYEE_ID={$id}
-                    ORDER BY WH.REQUESTED_DATE DESC";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
-    }
+                    ORDER BY WH.FROM_DATE DESC";
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 
-    public function getWOHRuleType($employeeId) {
-        return EntityHelper::rawQueryResult($this->adapter, "
+  public function getWOHRuleType($employeeId)
+  {
+    return EntityHelper::rawQueryResult($this->adapter, "
                 SELECT E.EMPLOYEE_ID,
                   P.WOH_FLAG
                 FROM HRIS_EMPLOYEES E
                 JOIN HRIS_POSITIONS P
                 ON (E.POSITION_ID   = P.POSITION_ID)
                 WHERE E.EMPLOYEE_ID ={$employeeId}")->current();
-    }
+  }
 
-    public function wohReward($wohId) {
-      // echo '<pre>';print_r($wohId);die;
-        EntityHelper::rawQueryResult($this->adapter, "
+  public function wohReward($wohId)
+  {
+    // echo '<pre>';print_r($wohId);die;
+    EntityHelper::rawQueryResult($this->adapter, "
                     BEGIN
                       HRIS_WOH_REWARD({$wohId});
                     END;");
-    }
-
+  }
 }

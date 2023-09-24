@@ -9,51 +9,53 @@ use Zend\Db\Sql\Select;
 use Application\Repository\RepositoryInterface;
 use Setup\Model\HrEmployees;
 
-class LoanStatusRepository implements RepositoryInterface {
+class LoanStatusRepository implements RepositoryInterface
+{
 
-    private $adapter;
+  private $adapter;
 
-    public function __construct(\Zend\Db\Adapter\AdapterInterface $adapter) {
-        $this->adapter = $adapter;
-    }
+  public function __construct(\Zend\Db\Adapter\AdapterInterface $adapter)
+  {
+    $this->adapter = $adapter;
+  }
 
-    public function add(\Application\Model\Model $model) {
-        
-    }
+  public function add(\Application\Model\Model $model)
+  {
+  }
 
-    public function delete($id) {
-        
-    }
+  public function delete($id)
+  {
+  }
 
-    public function edit(\Application\Model\Model $model, $id) {
-        
-    }
+  public function edit(\Application\Model\Model $model, $id)
+  {
+  }
 
-    public function fetchAll() {
-        
-    }
+  public function fetchAll()
+  {
+  }
 
-    public function fetchById($id) {
-        
-    }
+  public function fetchById($id)
+  {
+  }
 
-    public function getFilteredRecord($data, $recomApproveId) {
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $loanId = $data['loanId'];
-        $loanRequestStatusId = $data['loanRequestStatusId'];
-        $employeeTypeId = $data['employeeTypeId'];
+  public function getFilteredRecord($data, $recomApproveId)
+  {
 
-
-        $sql = "SELECT INITCAP(L.LOAN_NAME) AS LOAN_NAME,
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $loanId = $data['loanId'];
+    $loanRequestStatusId = $data['loanRequestStatusId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $sql = "SELECT INITCAP(L.LOAN_NAME) AS LOAN_NAME,
                   LR.REQUESTED_AMOUNT,
                   INITCAP(TO_CHAR(LR.LOAN_DATE, 'DD-MON-YYYY'))                   AS LOAN_DATE_AD,
                   BS_DATE(TO_CHAR(LR.LOAN_DATE, 'DD-MON-YYYY'))                   AS LOAN_DATE_BS,
@@ -121,79 +123,80 @@ class LoanStatusRepository implements RepositoryInterface {
                     THEN ('E')
                   END
                 OR APRV.STATUS   IS NULL)
-                AND U.EMPLOYEE_ID = {$recomApproveId}";
-        if ($loanRequestStatusId != -1) {
-            $sql .= " AND  LR.STATUS='{$loanRequestStatusId}') ";
-        }
-
-        if ($loanId != -1) {
-            $sql .= " AND LR.LOAN_ID ='" . $loanId . "'";
-        }
-
-        if ($fromDate != null) {
-            $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
-        }
-
-        if ($toDate != null) {
-            $sql .= "AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
-        }
-
-        if ($employeeTypeId != null && $employeeTypeId != -1) {
-            $sql .= "AND E.EMPLOYEE_TYPE='" . $employeeTypeId . "' ";
-        }
-
-        if ($employeeId != -1) {
-            $sql .= "AND E." . HrEmployees::EMPLOYEE_ID . " = $employeeId";
-        }
-
-        if ($companyId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::COMPANY_ID . "= $companyId)";
-        }
-        if ($branchId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)";
-        }
-        if ($departmentId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DEPARTMENT_ID . "= $departmentId)";
-        }
-        if ($designationId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DESIGNATION_ID . "= $designationId)";
-        }
-        if ($positionId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::POSITION_ID . "= $positionId)";
-        }
-        if ($serviceTypeId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_TYPE_ID . "= $serviceTypeId)";
-        }
-        if ($serviceEventTypeId != -1) {
-            $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_EVENT_TYPE_ID . "= $serviceEventTypeId)";
-        }
-
-        $sql .= " ORDER BY LR.REQUESTED_DATE DESC";
-
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
+                AND U.EMPLOYEE_ID = {$recomApproveId} ";
+    if ($loanRequestStatusId > 0) {
+      $sql .= " AND  LR.STATUS='{$loanRequestStatusId}') ";
     }
 
-    public function getLoanRequestList($searchQuery) {
-        $fromDate = $searchQuery['fromDate'];
-        $toDate = $searchQuery['toDate'];
-        $employeeId = $searchQuery['employeeId'];
-        $companyId = $searchQuery['companyId'];
-        $branchId = $searchQuery['branchId'];
-        $departmentId = $searchQuery['departmentId'];
-        $designationId = $searchQuery['designationId'];
-        $positionId = $searchQuery['positionId'];
-        $serviceTypeId = $searchQuery['serviceTypeId'];
-        $serviceEventTypeId = $searchQuery['serviceEventTypeId'];
-        $loanId = $searchQuery['loanId'];
-        $loanRequestStatusId = $searchQuery['loanRequestStatusId'];
-        $employeeTypeId = $searchQuery['employeeTypeId'];
-        $loanStatus = $searchQuery['loanStatus'];
-		
-		$searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
+    if ($loanId > 0) {
+      $sql .= " AND LR.LOAN_ID ='" . $loanId . "'";
+    }
 
-        $sql = "SELECT
+    if ($fromDate != null) {
+      $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
+    }
+
+    if ($toDate != null) {
+      $sql .= "AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
+    }
+
+    if ($employeeTypeId != null && $employeeTypeId > 0) {
+      $sql .= "AND E.EMPLOYEE_TYPE='" . $employeeTypeId . "' ";
+    }
+
+    if ($employeeId > 0) {
+      $sql .= "AND E." . HrEmployees::EMPLOYEE_ID . " = $employeeId";
+    }
+
+    if ($companyId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::COMPANY_ID . "= $companyId)";
+    }
+    if ($branchId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::BRANCH_ID . "= $branchId)";
+    }
+    if ($departmentId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DEPARTMENT_ID . "= $departmentId)";
+    }
+    if ($designationId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::DESIGNATION_ID . "= $designationId)";
+    }
+    if ($positionId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::POSITION_ID . "= $positionId)";
+    }
+    if ($serviceTypeId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_TYPE_ID . "= $serviceTypeId)";
+    }
+    if ($serviceEventTypeId > 0) {
+      $sql .= " AND E." . HrEmployees::EMPLOYEE_ID . " IN (SELECT " . HrEmployees::EMPLOYEE_ID . " FROM " . HrEmployees::TABLE_NAME . " WHERE " . HrEmployees::SERVICE_EVENT_TYPE_ID . "= $serviceEventTypeId)";
+    }
+
+    $sql .= " ORDER BY LR.LOAN_DATE DESC";
+    $statement = $this->adapter->query($sql);
+
+    $result = $statement->execute();
+    return $result;
+  }
+
+  public function getLoanRequestList($searchQuery)
+  {
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
+    $employeeId = $searchQuery['employeeId'];
+    $companyId = $searchQuery['companyId'];
+    $branchId = $searchQuery['branchId'];
+    $departmentId = $searchQuery['departmentId'];
+    $designationId = $searchQuery['designationId'];
+    $positionId = $searchQuery['positionId'];
+    $serviceTypeId = $searchQuery['serviceTypeId'];
+    $serviceEventTypeId = $searchQuery['serviceEventTypeId'];
+    $loanId = $searchQuery['loanId'];
+    $loanRequestStatusId = $searchQuery['loanRequestStatusId'];
+    $employeeTypeId = $searchQuery['employeeTypeId'];
+    $loanStatus = $searchQuery['loanStatus'];
+
+    $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
+
+    $sql = "SELECT
                   E.EMPLOYEE_CODE as EMPLOYEE_CODE, 
                   INITCAP(L.LOAN_NAME) AS LOAN_NAME,
                   LR.REQUESTED_AMOUNT,
@@ -250,35 +253,36 @@ class LoanStatusRepository implements RepositoryInterface {
                     THEN ('E')
                   END
                 OR APRV.STATUS   IS NULL) */ ";
-        if ($loanRequestStatusId != -1) {
-            $sql .= " AND  LR.STATUS='{$loanRequestStatusId}') ";
-        }
-
-        if ($loanId != -1) {
-            $sql .= " AND LR.LOAN_ID ='" . $loanId . "'";
-        }
-
-        if ($fromDate != null) {
-            $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
-        }
-
-        if ($toDate != null) {
-            $sql .= "AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
-        }
-
-        if ($loanStatus != 'BOTH') {
-          $sql .= " AND LR.LOAN_STATUS = '".$loanStatus."'";
-        }
-
-        $sql .= " ORDER BY LR.LOAN_REQUEST_ID DESC";
-		//print_r($sql);die;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
+    if ($loanRequestStatusId != -1) {
+      $sql .= " AND  LR.STATUS='{$loanRequestStatusId}') ";
     }
 
-    public function editList($id){
-      $sql = "SELECT HLPD.SNO, HLPD.PAYMENT_ID, HE.FULL_NAME, HLMS.INTEREST_RATE, HLMS.LOAN_NAME,
+    if ($loanId != -1) {
+      $sql .= " AND LR.LOAN_ID ='" . $loanId . "'";
+    }
+
+    if ($fromDate != null) {
+      $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
+    }
+
+    if ($toDate != null) {
+      $sql .= "AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
+    }
+
+    if ($loanStatus != 'BOTH') {
+      $sql .= " AND LR.LOAN_STATUS = '" . $loanStatus . "'";
+    }
+
+    $sql .= " ORDER BY LR.LOAN_REQUEST_ID DESC";
+
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
+
+  public function editList($id)
+  {
+    $sql = "SELECT HLPD.SNO, HLPD.PAYMENT_ID, HE.FULL_NAME, HLMS.INTEREST_RATE, HLMS.LOAN_NAME,
       HLPD.FROM_DATE, HLPD.TO_DATE, 
       HLPD.AMOUNT, 
       HLPD.PRINCIPLE_AMOUNT, HLPD.INTEREST_AMOUNT, HLPD.PAID_FLAG AS PAID 
@@ -287,70 +291,76 @@ class LoanStatusRepository implements RepositoryInterface {
       JOIN HRIS_EMPLOYEES HE ON HELR.EMPLOYEE_ID = HE.EMPLOYEE_ID
       JOIN HRIS_LOAN_MASTER_SETUP HLMS ON HLMS.LOAN_ID = HELR.LOAN_ID
       WHERE HELR.LOAN_REQUEST_ID = $id ORDER BY HLPD.SNO";
-     
-      $statement = $this->adapter->query($sql);
-      $result = $statement->execute();
-      return $result;
-    }
 
-    public function skipMonth($requestId, $id){ 
-      $sql = "BEGIN
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
+
+  public function skipMonth($requestId, $id)
+  {
+    $sql = "BEGIN
       HRIS_LOAN_PAYMENT_DETAILS({$requestId},{$id}); 
       END;
       ";
 
-      $statement = $this->adapter->query($sql); 
-      $statement->execute(); 
-    }
+    $statement = $this->adapter->query($sql);
+    $statement->execute();
+  }
 
-    public function getPaidStatus($requestId, $id){
-      $sql = "SELECT PAID_FLAG, AMOUNT FROM HRIS_LOAN_PAYMENT_DETAIL WHERE PAYMENT_ID = $id";
+  public function getPaidStatus($requestId, $id)
+  {
+    $sql = "SELECT PAID_FLAG, AMOUNT FROM HRIS_LOAN_PAYMENT_DETAIL WHERE PAYMENT_ID = $id";
 
-      $statement = $this->adapter->query($sql); 
-      return $statement->execute();
-    }
- 
-    public function getLoanRequestId($id){
-      $sql = "SELECT DISTINCT LOAN_REQUEST_ID FROM HRIS_LOAN_PAYMENT_DETAIL WHERE 
+    $statement = $this->adapter->query($sql);
+    return $statement->execute();
+  }
+
+  public function getLoanRequestId($id)
+  {
+    $sql = "SELECT DISTINCT LOAN_REQUEST_ID FROM HRIS_LOAN_PAYMENT_DETAIL WHERE 
       PAYMENT_ID = $id";
 
-      $statement = $this->adapter->query($sql);
-      $result = $statement->execute();
-      return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 
-    public function getCashPaymentList($searchConditon){
-		$searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
-		
-		$sql = "SELECT * FROM HRIS_LOAN_CASH_PAYMENT WHERE 1=1 {$searchConditon}";
-		$statement = $this->adapter->query($sql); 
-		return $statement->execute();
-	}
-    
-    public function getApprovedStatus($id){
-      $sql = "SELECT STATUS FROM HRIS_EMPLOYEE_LOAN_REQUEST WHERE LOAN_REQUEST_ID = $id";
-      $statement = $this->adapter->query($sql); 
-      return $statement->execute();
-    }
+  public function getCashPaymentList($searchConditon)
+  {
+    $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
 
-    public function getLoanDetails($searchQuery){
-      $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
-	  
-		$fromDate = $searchQuery['fromDate'];
-        $toDate = $searchQuery['toDate'];
-        $employeeId = $searchQuery['employeeId'];
-        $companyId = $searchQuery['companyId'];
-        $branchId = $searchQuery['branchId'];
-        $departmentId = $searchQuery['departmentId'];
-        $designationId = $searchQuery['designationId'];
-        $positionId = $searchQuery['positionId'];
-        $serviceTypeId = $searchQuery['serviceTypeId'];
-        $serviceEventTypeId = $searchQuery['serviceEventTypeId'];
-        $loanId = $searchQuery['loanId'] != null ? implode(',', $searchQuery['loanId']) : null;
-        $loanStatus = $searchQuery['loanRequestStatusId'];
-        $employeeTypeId = $searchQuery['employeeTypeId'];
-		
-        $sql = "SELECT DISTINCT
+    $sql = "SELECT * FROM HRIS_LOAN_CASH_PAYMENT WHERE 1=1 {$searchConditon}";
+    $statement = $this->adapter->query($sql);
+    return $statement->execute();
+  }
+
+  public function getApprovedStatus($id)
+  {
+    $sql = "SELECT STATUS FROM HRIS_EMPLOYEE_LOAN_REQUEST WHERE LOAN_REQUEST_ID = $id";
+    $statement = $this->adapter->query($sql);
+    return $statement->execute();
+  }
+
+  public function getLoanDetails($searchQuery)
+  {
+    $searchConditon = EntityHelper::getSearchConditon($searchQuery['companyId'], $searchQuery['branchId'], $searchQuery['departmentId'], $searchQuery['positionId'], $searchQuery['designationId'], $searchQuery['serviceTypeId'], $searchQuery['serviceEventTypeId'], $searchQuery['employeeTypeId'], $searchQuery['employeeId'], $searchQuery['genderId'], $searchQuery['locationId'], $searchQuery['functionalTypeId']);
+
+    $fromDate = $searchQuery['fromDate'];
+    $toDate = $searchQuery['toDate'];
+    $employeeId = $searchQuery['employeeId'];
+    $companyId = $searchQuery['companyId'];
+    $branchId = $searchQuery['branchId'];
+    $departmentId = $searchQuery['departmentId'];
+    $designationId = $searchQuery['designationId'];
+    $positionId = $searchQuery['positionId'];
+    $serviceTypeId = $searchQuery['serviceTypeId'];
+    $serviceEventTypeId = $searchQuery['serviceEventTypeId'];
+    $loanId = $searchQuery['loanId'] != null ? implode(',', $searchQuery['loanId']) : null;
+    $loanStatus = $searchQuery['loanRequestStatusId'];
+    $employeeTypeId = $searchQuery['employeeTypeId'];
+
+    $sql = "SELECT DISTINCT
 					l.*,
 					s.total_amount,
           Hris_Loan_Balance(l.employee_id, l.loan_id) balance
@@ -372,19 +382,19 @@ class LoanStatusRepository implements RepositoryInterface {
 				and lr.loan_status = 'OPEN'
                  {$searchConditon}";
 
-        if ($loanId == -1 || $loanId != null) {
-            $sql .= " AND LR.LOAN_ID in ({$loanId})";
-        }
+    if ($loanId == -1 || $loanId != null) {
+      $sql .= " AND LR.LOAN_ID in ({$loanId})";
+    }
 
-        if ($fromDate != null) {
-            $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
-        }
+    if ($fromDate != null) {
+      $sql .= " AND LR.LOAN_DATE>=TO_DATE('" . $fromDate . "','DD-MM-YYYY')";
+    }
 
-        if ($toDate != null) {
-            $sql .= " AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
-        }
-		
-        $sql .= " ) l
+    if ($toDate != null) {
+      $sql .= " AND LR.LOAN_DATE<=TO_DATE('" . $toDate . "','DD-MM-YYYY')";
+    }
+
+    $sql .= " ) l
     JOIN (
         SELECT
             loan_id,
@@ -400,10 +410,10 @@ class LoanStatusRepository implements RepositoryInterface {
         AND
             l.loan_id = s.loan_id
     )) order by l.employee_id";
-		
-// echo '<pre>';print_r($sql);die;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
-    }
+
+    // echo '<pre>';print_r($sql);die;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 }

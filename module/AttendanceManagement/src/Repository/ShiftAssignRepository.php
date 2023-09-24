@@ -9,103 +9,110 @@ use Application\Repository\HrisRepository;
 use AttendanceManagement\Model\ShiftAssign;
 use Zend\Db\Adapter\AdapterInterface;
 
-class ShiftAssignRepository extends HrisRepository {
+class ShiftAssignRepository extends HrisRepository
+{
 
-     public function __construct(AdapterInterface $adapter) {
-         parent::__construct($adapter, ShiftAssign::TABLE_NAME);
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    parent::__construct($adapter, ShiftAssign::TABLE_NAME);
+  }
 
-    public function add(Model $model) {
-        $this->tableGateway->insert($model->getArrayCopyForDB());
-    }
+  public function add(Model $model)
+  {
+    $this->tableGateway->insert($model->getArrayCopyForDB());
+  }
 
-    public function edit(Model $model, $id) {
-        $this->tableGateway->update($model->getArrayCopyForDB(), [ShiftAssign::EMPLOYEE_ID . "=$id[0]", ShiftAssign::SHIFT_ID . " =$id[1]"]);
-    }
+  public function edit(Model $model, $id)
+  {
+    $this->tableGateway->update($model->getArrayCopyForDB(), [ShiftAssign::EMPLOYEE_ID . "=$id[0]", ShiftAssign::SHIFT_ID . " =$id[1]"]);
+  }
 
-    public function fetchAll() {
-        return $this->tableGateway->select();
-    }
+  public function fetchAll()
+  {
+    return $this->tableGateway->select();
+  }
 
-    public function fetchById($id) {
-        
-    }
+  public function fetchById($id)
+  {
+  }
 
-    public function delete($id) {
-        
-    }
+  public function delete($id)
+  {
+  }
 
-    public function fetchByEmployeeId($employeeId) {
-        $result = $this->tableGateway->select([ShiftAssign::EMPLOYEE_ID . "=" . $employeeId, ShiftAssign::STATUS => 'E']);
-        // echo '<pre>';print_r($result);die;
-        return $result->current();
-    }
+  public function fetchByEmployeeId($employeeId)
+  {
+    $result = $this->tableGateway->select([ShiftAssign::EMPLOYEE_ID . "=" . $employeeId, ShiftAssign::STATUS => 'E']);
+    // echo '<pre>';print_r($result);die;
+    return $result->current();
+  }
 
-    public function fetchShiftAssignWithDetail($data) {
-        
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
+  public function fetchShiftAssignWithDetail($data)
+  {
 
-        $boundedParams = [];
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
-        
-//        $companyCondition = "";
-//        $branchCondition = "";
-//        $departmentCondition = "";
-//        $designationCondition = "";
-//        $positionCondition = "";
-//        $serviceTypeCondition = "";
-//        $serviceEventTypeConditon = "";
-//        $employeeCondition = "";
-//        $employeeTypeCondition = "";
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
 
-//        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
-//            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
-//        }
-//        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
-//            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
-//        }
-//        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
-//            $departmentCondition = "AND E.DEPARTMENT_ID in (SELECT DEPARTMENT_ID FROM
-//                         HRIS_DEPARTMENTS 
-//                        START WITH PARENT_DEPARTMENT in ({$data['departmentId']})
-//                        CONNECT BY PARENT_DEPARTMENT= PRIOR DEPARTMENT_ID
-//                        UNION 
-//                        SELECT DEPARTMENT_ID FROM HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN ({$data['departmentId']})
-//                        UNION
-//                        SELECT  TO_NUMBER(TRIM(REGEXP_SUBSTR(EXCEPTIONAL,'[^,]+', 1, LEVEL) )) DEPARTMENT_ID
-//  FROM (SELECT EXCEPTIONAL  FROM  HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN  ({$data['departmentId']}))
-//   CONNECT BY  REGEXP_SUBSTR(EXCEPTIONAL, '[^,]+', 1, LEVEL) IS NOT NULL
-//                        )";
-//        }
-//        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
-//            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
-//        }
-//        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
-//            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
-//        }
-//        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
-//            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
-//        }
-//        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
-//            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
-//        }
-//        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
-//            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
-//        }
-//        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
-//            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
-//        }
-//        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
-        $sql = <<<EOT
+    $boundedParams = [];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+    $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+
+    //        $companyCondition = "";
+    //        $branchCondition = "";
+    //        $departmentCondition = "";
+    //        $designationCondition = "";
+    //        $positionCondition = "";
+    //        $serviceTypeCondition = "";
+    //        $serviceEventTypeConditon = "";
+    //        $employeeCondition = "";
+    //        $employeeTypeCondition = "";
+
+    //        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
+    //            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
+    //        }
+    //        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
+    //            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
+    //        }
+    //        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
+    //            $departmentCondition = "AND E.DEPARTMENT_ID in (SELECT DEPARTMENT_ID FROM
+    //                         HRIS_DEPARTMENTS 
+    //                        START WITH PARENT_DEPARTMENT in ({$data['departmentId']})
+    //                        CONNECT BY PARENT_DEPARTMENT= PRIOR DEPARTMENT_ID
+    //                        UNION 
+    //                        SELECT DEPARTMENT_ID FROM HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN ({$data['departmentId']})
+    //                        UNION
+    //                        SELECT  TO_NUMBER(TRIM(REGEXP_SUBSTR(EXCEPTIONAL,'[^,]+', 1, LEVEL) )) DEPARTMENT_ID
+    //  FROM (SELECT EXCEPTIONAL  FROM  HRIS_DEPARTMENTS WHERE DEPARTMENT_ID IN  ({$data['departmentId']}))
+    //   CONNECT BY  REGEXP_SUBSTR(EXCEPTIONAL, '[^,]+', 1, LEVEL) IS NOT NULL
+    //                        )";
+    //        }
+    //        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
+    //            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
+    //        }
+    //        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
+    //            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
+    //        }
+    //        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
+    //            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
+    //        }
+    //        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
+    //            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
+    //        }
+    //        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
+    //            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
+    //        }
+    //        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
+    //            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
+    //        }
+    //        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
+    $sql = <<<EOT
                 SELECT C.COMPANY_NAME,
                   E.EMPLOYEE_CODE AS EMPLOYEE_CODE,
                   B.BRANCH_NAME,
@@ -144,112 +151,116 @@ class ShiftAssignRepository extends HrisRepository {
                   SA.START_DATE
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParams);
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParams);
+    return Helper::extractDbData($result);
+  }
 
-    public function bulkEdit($id, $shiftId, $fromDate, $toDate, $createdBy) {
-        $boundedParams = [];
-        $sql = <<<EOT
+  public function bulkEdit($id, $shiftId, $fromDate, $toDate, $createdBy)
+  {
+    $boundedParams = [];
+    $sql = <<<EOT
                 BEGIN
                   HRIS_SHIFT_EDIT(:id,:shiftId,:fromDate,:toDate,:createdBy);
                 END;
 EOT;
-        $boundedParams['id'] = $id;
-        $boundedParams['shiftId'] = $shiftId;
-        $boundedParams['fromDate'] = $fromDate;
-        $boundedParams['toDate'] = $toDate;
-        $boundedParams['createdBy'] = $createdBy;
-        $statement = $this->adapter->query($sql);
-        // echo '<pre>';print_r($boundedParams);die;
-        $statement->execute($boundedParams);
-    }
+    $boundedParams['id'] = $id;
+    $boundedParams['shiftId'] = $shiftId;
+    $boundedParams['fromDate'] = $fromDate;
+    $boundedParams['toDate'] = $toDate;
+    $boundedParams['createdBy'] = $createdBy;
+    $statement = $this->adapter->query($sql);
+    // echo '<pre>';print_r($boundedParams);die;
+    $statement->execute($boundedParams);
+  }
 
-    public function bulkDelete($id) {
-        $boundedParams = [];
-        $sql = <<<EOT
+  public function bulkDelete($id)
+  {
+    $boundedParams = [];
+    $sql = <<<EOT
                 BEGIN
                   HRIS_SHIFT_DELETE(:id);
                 END;
 EOT;
-        $boundedParams['id'] = $id;
-        $statement = $this->adapter->query($sql);
-        $statement->execute($boundedParams);
-    }
+    $boundedParams['id'] = $id;
+    $statement = $this->adapter->query($sql);
+    $statement->execute($boundedParams);
+  }
 
-    public function bulkAdd($employeeId, $shiftId, $fromDate, $toDate, $createdBy) {
-         $boundedParams = [];
-        $sql = <<<EOT
+  public function bulkAdd($employeeId, $shiftId, $fromDate, $toDate, $createdBy)
+  {
+    $boundedParams = [];
+    $sql = <<<EOT
                 BEGIN
                   HRIS_SHIFT_ADD(:employeeId,:shiftId,:fromDate,:toDate,:createdBy);
                 END;
 EOT;
-        $boundedParams['employeeId'] = $employeeId;
-        $boundedParams['shiftId'] = $shiftId;
-        $boundedParams['fromDate'] = $fromDate;
-        $boundedParams['toDate'] = $toDate;
-        $boundedParams['createdBy'] = $createdBy;
+    $boundedParams['employeeId'] = $employeeId;
+    $boundedParams['shiftId'] = $shiftId;
+    $boundedParams['fromDate'] = $fromDate;
+    $boundedParams['toDate'] = $toDate;
+    $boundedParams['createdBy'] = $createdBy;
 
-        $statement = $this->adapter->query($sql);
-        $statement->execute($boundedParams);
-    }
+    $statement = $this->adapter->query($sql);
+    $statement->execute($boundedParams);
+  }
 
-    public function fetchEmployeeList($data) {
-        
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
+  public function fetchEmployeeList($data)
+  {
 
-        $boundedParams = [];
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
 
-//        $companyCondition = "";
-//        $branchCondition = "";
-//        $departmentCondition = "";
-//        $designationCondition = "";
-//        $positionCondition = "";
-//        $serviceTypeCondition = "";
-//        $serviceEventTypeConditon = "";
-//        $employeeCondition = "";
-//        $employeeTypeCondition = "";
-//
-//        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
-//            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
-//        }
-//        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
-//            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
-//        }
-//        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
-//            $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
-//        }
-//        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
-//            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
-//        }
-//        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
-//            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
-//        }
-//        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
-//            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
-//        }
-//        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
-//            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
-//        }
-//        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
-//            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
-//        }
-//        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
-//            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
-//        }
-//        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
-        $sql = <<<EOT
+    $boundedParams = [];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+    $boundedParams = array_merge($boundedParams, $searchCondition['parameter']);
+
+    //        $companyCondition = "";
+    //        $branchCondition = "";
+    //        $departmentCondition = "";
+    //        $designationCondition = "";
+    //        $positionCondition = "";
+    //        $serviceTypeCondition = "";
+    //        $serviceEventTypeConditon = "";
+    //        $employeeCondition = "";
+    //        $employeeTypeCondition = "";
+    //
+    //        if (isset($data['companyId']) && $data['companyId'] != null && $data['companyId'] != -1) {
+    //            $companyCondition = "AND E.COMPANY_ID = {$data['companyId']}";
+    //        }
+    //        if (isset($data['branchId']) && $data['branchId'] != null && $data['branchId'] != -1) {
+    //            $branchCondition = "AND E.BRANCH_ID = {$data['branchId']}";
+    //        }
+    //        if (isset($data['departmentId']) && $data['departmentId'] != null && $data['departmentId'] != -1) {
+    //            $departmentCondition = "AND E.DEPARTMENT_ID = {$data['departmentId']}";
+    //        }
+    //        if (isset($data['designationId']) && $data['designationId'] != null && $data['designationId'] != -1) {
+    //            $designationCondition = "AND E.DESIGNATION_ID = {$data['designationId']}";
+    //        }
+    //        if (isset($data['positionId']) && $data['positionId'] != null && $data['positionId'] != -1) {
+    //            $positionCondition = "AND E.POSITION_ID = {$data['positionId']}";
+    //        }
+    //        if (isset($data['serviceTypeId']) && $data['serviceTypeId'] != null && $data['serviceTypeId'] != -1) {
+    //            $serviceTypeCondition = "AND E.SERVICE_TYPE_ID = {$data['serviceTypeId']}";
+    //        }
+    //        if (isset($data['serviceEventTypeId']) && $data['serviceEventTypeId'] != null && $data['serviceEventTypeId'] != -1) {
+    //            $serviceEventTypeConditon = "AND E.SERVICE_EVENT_TYPE_ID = {$data['serviceEventTypeId']}";
+    //        }
+    //        if (isset($data['employeeId']) && $data['employeeId'] != null && $data['employeeId'] != -1) {
+    //            $employeeCondition = "AND E.EMPLOYEE_ID = {$data['employeeId']}";
+    //        }
+    //        if (isset($data['employeeTypeId']) && $data['employeeTypeId'] != null && $data['employeeTypeId'] != -1) {
+    //            $employeeTypeCondition = "AND E.EMPLOYEE_TYPE = '{$data['employeeTypeId']}'";
+    //        }
+    //        $condition = $companyCondition . $branchCondition . $departmentCondition . $designationCondition . $positionCondition . $serviceTypeCondition . $serviceEventTypeConditon . $employeeCondition . $employeeTypeCondition;
+    $sql = <<<EOT
                 SELECT C.COMPANY_NAME,
                   B.BRANCH_NAME,
                   DEP.DEPARTMENT_NAME,
@@ -282,14 +293,15 @@ EOT;
                 ORDER BY E.FULL_NAME               
 EOT;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParams);
-        return Helper::extractDbData($result);
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParams);
+    return Helper::extractDbData($result);
+  }
 
-    public function fetchEmployeeShifts($employeeId) {
-         $boundedParams = [];
-        $sql = <<<EOT
+  public function fetchEmployeeShifts($employeeId)
+  {
+    $boundedParams = [];
+    $sql = <<<EOT
                 SELECT S.SHIFT_ENAME,
                   TO_CHAR(SA.START_DATE,'DD-MON-YYYY') AS FROM_DATE_AD,
                   BS_DATE(SA.START_DATE)               AS FROM_DATE_BS,
@@ -302,11 +314,10 @@ EOT;
                 ORDER BY SA.START_DATE ASC,
                   SA.END_DATE DESC       
 EOT;
-        $boundedParams['employeeId'] = $employeeId;
+    $boundedParams['employeeId'] = $employeeId;
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute($boundedParams);
-        return Helper::extractDbData($result);
-    }
-
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute($boundedParams);
+    return Helper::extractDbData($result);
+  }
 }

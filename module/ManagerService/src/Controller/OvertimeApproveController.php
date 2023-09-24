@@ -10,23 +10,29 @@ use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\OvertimeRequestForm;
 use SelfService\Model\Overtime;
+use SelfService\Model\OvertimeDetail;
 use SelfService\Repository\OvertimeDetailRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use SelfService\Repository\OvertimeRepository;
 
-class OvertimeApproveController extends HrisController {
+class OvertimeApproveController extends HrisController
+{
 
     private $overtimeDetailRepository;
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(\Overtime\Repository\OvertimeStatusRepository::class);
         $this->initializeForm(OvertimeRequestForm::class);
+        $this->overtimeRepository = new OvertimeRepository($adapter);
         $this->overtimeDetailRepository = new OvertimeDetailRepository($adapter);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -39,7 +45,8 @@ class OvertimeApproveController extends HrisController {
         return $this->stickFlashMessagesTo([]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         $role = $this->params()->fromRoute('role');
 
@@ -59,12 +66,12 @@ class OvertimeApproveController extends HrisController {
         $authApprover = $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'];
         $recommenderId = $detail['RECOMMENDED_BY'] == null ? $detail['RECOMMENDER_ID'] : $detail['RECOMMENDED_BY'];
         $overtimeDetailResult = $this->overtimeDetailRepository->fetchByOvertimeId($detail['OVERTIME_ID']);
-		//print_r($overtimeDetailResult); die;
+        //print_r($overtimeDetailResult); die;
         $overtimeDetails = [];
         foreach ($overtimeDetailResult as $overtimeDetailRow) {
             array_push($overtimeDetails, $overtimeDetailRow);
         }
-		//print_r($overtimeDetails); die;
+        //print_r($overtimeDetails); die;
         if ($request->isPost()) {
             $postedData = (array) $request->getPost();
             $action = $postedData['submit'];
@@ -73,26 +80,27 @@ class OvertimeApproveController extends HrisController {
         }
         $overtimeModel->exchangeArrayFromDB($detail);
         $this->form->bind($overtimeModel);
-		
+
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'employeeName' => $employeeName,
-                    'requestedDate' => $detail['REQUESTED_DATE'],
-                    'role' => $role,
-                    'recommender' => $authRecommender,
-                    'approver' => $authApprover,
-                    'status' => $status,
-                    'recommendedBy' => $recommenderId,
-                    'approvedDT' => $approvedDT,
-                    'employeeId' => $this->employeeId,
-                    'requestedEmployeeId' => $requestedEmployeeID,
-                    'overtimeDetails' => $overtimeDetails,
-                    'totalHour' => $detail['TOTAL_HOUR_DETAIL']
+            'form' => $this->form,
+            'id' => $id,
+            'employeeName' => $employeeName,
+            'requestedDate' => $detail['REQUESTED_DATE'],
+            'role' => $role,
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'status' => $status,
+            'recommendedBy' => $recommenderId,
+            'approvedDT' => $approvedDT,
+            'employeeId' => $this->employeeId,
+            'requestedEmployeeId' => $requestedEmployeeID,
+            'overtimeDetails' => $overtimeDetails,
+            'totalHour' => $detail['TOTAL_HOUR_DETAIL']
         ]);
     }
 
-    public function statusAction() {
+    public function statusAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -112,13 +120,14 @@ class OvertimeApproveController extends HrisController {
         }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'requestStatusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return Helper::addFlashMessagesToArray($this, [
-                    'status' => $statusSE,
-                    'recomApproveId' => $this->employeeId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'status' => $statusSE,
+            'recomApproveId' => $this->employeeId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }
 
-    public function batchApproveRejectAction() {
+    public function batchApproveRejectAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
@@ -129,7 +138,8 @@ class OvertimeApproveController extends HrisController {
         }
     }
 
-    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false)
+    {
         $notificationEvent = null;
         $message = null;
         $model = new Overtime();
@@ -166,7 +176,8 @@ class OvertimeApproveController extends HrisController {
         }
     }
 
-    public function getAllList() {
+    public function getAllList()
+    {
         $list = $this->repository->getAllRequest($this->employeeId);
         $overtimeRequest = [];
         foreach ($list as $row) {
@@ -180,5 +191,52 @@ class OvertimeApproveController extends HrisController {
         }
         return $overtimeRequest;
     }
+    public function addAction()
+    {
+        // $this->initializeForm();
+        $request = $this->getRequest();
 
+        $model = new Overtime();
+        if ($request->isPost()) {
+            $postData = $request->getPost();
+            $this->form->setData($postData);
+            if ($this->form->isValid()) {
+                $postDataArray = $postData->getArrayCopy();
+                $model->exchangeArrayFromForm($this->form->getData());
+                $model->overtimeId = ((int) Helper::getMaxId($this->adapter, Overtime::TABLE_NAME, Overtime::OVERTIME_ID)) + 1;
+                $model->employeeId = $postData['employeeId'];
+                $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->status = 'AP';
+                $model->allTotalHour = Helper::hoursToMinutes($postDataArray['allTotalHour']);
+                $this->overtimeRepository->add($model);
+
+                $overtimeDetailModel = new OvertimeDetail();
+                for ($i = 0; $i < sizeof($postDataArray['startTime']); $i++) {
+                    $startTime = $postDataArray['startTime'][$i];
+                    $endTime = $postDataArray['endTime'][$i];
+                    $totalHour = $postDataArray['totalHour'][$i];
+                    $overtimeDetailModel->overtimeId = $model->overtimeId;
+                    $overtimeDetailModel->detailId = ((int) Helper::getMaxId($this->adapter, OvertimeDetail::TABLE_NAME, OvertimeDetail::DETAIL_ID)) + 1;
+                    $overtimeDetailModel->startTime = Helper::getExpressionTime($startTime);
+                    $overtimeDetailModel->endTime = Helper::getExpressionTime($endTime);
+                    $overtimeDetailModel->totalHour = Helper::hoursToMinutes($totalHour);
+                    $overtimeDetailModel->status = 'E';
+                    $overtimeDetailModel->createdBy = $this->employeeId;
+                    $overtimeDetailModel->createdDate = Helper::getcurrentExpressionDate();
+                    $this->overtimeDetailRepository->add($overtimeDetailModel);
+                }
+                $this->flashmessenger()->addMessage("Overtime Request Successfully added!!!");
+                return $this->redirect()->toRoute("overtimeApprove", [
+                    'Controller' => 'OvertimeApproveController',
+                    'action' => 'status'
+                ]);
+            }
+        }
+        $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+        return Helper::addFlashMessagesToArray($this, [
+            'form' => $this->form,
+            'employees' => $employees['data'],
+            // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => "E", 'RETIRED_FLAG' => 'N'], "FULL_NAME", "ASC", " ", false, true),
+        ]);
+    }
 }

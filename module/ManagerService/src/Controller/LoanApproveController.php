@@ -14,6 +14,7 @@ use SelfService\Form\LoanRequestForm;
 use SelfService\Model\LoanRequest;
 use SelfService\Repository\LoanRequestRepository;
 use Setup\Model\Loan;
+use SelfService\Model\LoanRequest as LoanRequestModel;
 use Zend\Authentication\AuthenticationService;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Annotation\AnnotationBuilder;
@@ -21,32 +22,38 @@ use Zend\Form\Element\Select;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\JsonModel;
 
-class LoanApproveController extends AbstractActionController {
+class LoanApproveController extends AbstractActionController
+{
 
     private $loanApproveRepository;
     private $employeeId;
     private $adapter;
     private $form;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->adapter = $adapter;
         $this->loanApproveRepository = new LoanApproveRepository($adapter);
+        $this->loanRequesteRepository = new LoanRequestRepository($adapter);
         $auth = new AuthenticationService();
         $this->employeeId = $auth->getStorage()->read()['employee_id'];
     }
 
-    public function initializeForm() {
+    public function initializeForm()
+    {
         $builder = new AnnotationBuilder();
         $form = new LoanRequestForm();
         $this->form = $builder->createForm($form);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $loanApprove = $this->getAllList();
         return Helper::addFlashMessagesToArray($this, ['loanApprove' => $loanApprove, 'id' => $this->employeeId]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $this->initializeForm();
 
         $id = (int) $this->params()->fromRoute('id');
@@ -84,7 +91,7 @@ class LoanApproveController extends AbstractActionController {
                     $loanRequestModel->status = "RC";
                     $this->flashmessenger()->addMessage("Loan Request Approved!!!");
                     $this->loanApproveRepository->addToDetails($id);
-                } 
+                }
                 $loanRequestModel->recommendedRemarks = $getData->recommendedRemarks;
                 $this->loanApproveRepository->edit($loanRequestModel, $id);
                 $loanRequestModel->loanRequestId = $id;
@@ -120,23 +127,24 @@ class LoanApproveController extends AbstractActionController {
             return $this->redirect()->toRoute("loanApprove");
         }
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'employeeName' => $employeeName,
-                    'requestedDate' => $detail['REQUESTED_DATE'],
-                    'role' => $role,
-                    'recommender' => $authRecommender,
-                    'approver' => $authApprover,
-                    'status' => $status,
-                    'recommendedBy' => $recommenderId,
-                    'approvedDT' => $approvedDT,
-                    'employeeId' => $this->employeeId,
-                    'requestedEmployeeId' => $requestedEmployeeID,
-                    'loans' => EntityHelper::getTableKVListWithSortOption($this->adapter, Loan::TABLE_NAME, Loan::LOAN_ID, [Loan::LOAN_NAME], [Loan::STATUS => "E"], Loan::LOAN_ID, "ASC", null, false, true)
+            'form' => $this->form,
+            'id' => $id,
+            'employeeName' => $employeeName,
+            'requestedDate' => $detail['REQUESTED_DATE'],
+            'role' => $role,
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'status' => $status,
+            'recommendedBy' => $recommenderId,
+            'approvedDT' => $approvedDT,
+            'employeeId' => $this->employeeId,
+            'requestedEmployeeId' => $requestedEmployeeID,
+            'loans' => EntityHelper::getTableKVListWithSortOption($this->adapter, Loan::TABLE_NAME, Loan::LOAN_ID, [Loan::LOAN_NAME], [Loan::STATUS => "E"], Loan::LOAN_ID, "ASC", null, false, true)
         ]);
     }
 
-    public function statusAction() {
+    public function statusAction()
+    {
         $loanFormElement = new Select();
         $loanFormElement->setName("loan");
         $loans = EntityHelper::getTableKVListWithSortOption($this->adapter, Loan::TABLE_NAME, Loan::LOAN_ID, [Loan::LOAN_NAME], [Loan::STATUS => 'E'], null, null, null, false, true);
@@ -159,14 +167,15 @@ class LoanApproveController extends AbstractActionController {
         $loanStatusFormElement->setLabel("Status");
 
         return Helper::addFlashMessagesToArray($this, [
-                    'loans' => $loanFormElement,
-                    'loanStatus' => $loanStatusFormElement,
-                    'recomApproveId' => $this->employeeId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'loans' => $loanFormElement,
+            'loanStatus' => $loanStatusFormElement,
+            'recomApproveId' => $this->employeeId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }
 
-    public function batchApproveRejectAction() {
+    public function batchApproveRejectAction()
+    {
         $request = $this->getRequest();
         try {
             if (!$request->ispost()) {
@@ -209,7 +218,6 @@ class LoanApproveController extends AbstractActionController {
                             try {
                                 HeadNotification::pushNotification(($loanRequestModel->status == 'RC') ? NotificationEvents::LOAN_RECOMMEND_ACCEPTED : NotificationEvents::LOAN_RECOMMEND_REJECTED, $loanRequestModel, $this->adapter, $this);
                             } catch (Exception $e) {
-                                
                             }
                         } else if ($role == 3 || $role == 4) {
                             $loanRequestModel->approvedDate = Helper::getcurrentExpressionDate();
@@ -228,7 +236,6 @@ class LoanApproveController extends AbstractActionController {
                             try {
                                 HeadNotification::pushNotification(($loanRequestModel->status == 'AP') ? NotificationEvents::LOAN_APPROVE_ACCEPTED : NotificationEvents::LOAN_APPROVE_REJECTED, $loanRequestModel, $this->adapter, $this);
                             } catch (Exception $e) {
-                                
                             }
                         }
                     }
@@ -244,16 +251,18 @@ class LoanApproveController extends AbstractActionController {
         }
     }
 
-    public function getAllList() {
+    public function getAllList()
+    {
         $list = $this->loanApproveRepository->getAllRequest($this->employeeId);
         return Helper::extractDbData($list);
     }
 
-    public function pullLoanRequestStatusListAction() {
+    public function pullLoanRequestStatusListAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
-
+            $data['recomApproveId'] = $this->employeeId;
             $loanStatusRepository = new LoanStatusRepository($this->adapter);
             $result = $loanStatusRepository->getFilteredRecord($data, $data['recomApproveId']);
 
@@ -268,4 +277,42 @@ class LoanApproveController extends AbstractActionController {
         }
     }
 
+    public function addAction()
+    {
+        $this->initializeForm();
+        $request = $this->getRequest();
+        $model = new LoanRequestModel();
+
+        if ($request->isPost()) {
+            $this->form->setData($request->getPost());
+            if ($this->form->isValid()) {
+                $model->exchangeArrayFromForm($this->form->getData());
+                $model->loanRequestId = ((int) Helper::getMaxId($this->adapter, LoanRequestModel::TABLE_NAME, LoanRequestModel::LOAN_REQUEST_ID)) + 1;
+                $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->status = 'AP';
+                $model->printFlag = 'Y';
+                $model->deductOnSalary = 'Y';
+                /*if($model->loanId = 6){
+                    $model->interestRate = 0;   
+                } */
+                $this->loanRequesteRepository->add($model);
+                $this->loanApproveRepository->addToDetails($model->loanRequestId);
+                $this->flashmessenger()->addMessage("Loan Request Successfully added!!!");
+                return $this->redirect()->toRoute('loanApprove', [
+                    'controller' => 'LoanApproveController',
+                    'action' =>  'status'
+                ]);
+            }
+        }
+        $rateDetails = $this->loanRequesteRepository->getLoanDetails();
+        $employees = EntityHelper::getRAWiseEmployeeList($this->adapter, $this->employeeId);
+
+        return Helper::addFlashMessagesToArray($this, [
+            'form' => $this->form,
+            'rateDetails' => Helper::extractDbData($rateDetails),
+            'employees' => $employees['data'],
+            // 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE, $this->employeeId),
+            'loans' => EntityHelper::getTableKVListWithSortOption($this->adapter, Loan::TABLE_NAME, Loan::LOAN_ID, [Loan::LOAN_NAME], [Loan::STATUS => "E"], Loan::LOAN_ID, "ASC", NULL, FALSE, TRUE)
+        ]);
+    }
 }

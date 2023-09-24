@@ -18,6 +18,7 @@ use ManagerService\Controller\Subordinate;
 use ManagerService\Controller\TrainingApproveController;
 use ManagerService\Controller\EventApproveController;
 use ManagerService\Controller\TravelApproveController;
+use ManagerService\Controller\NewTravelApproveController;
 use Zend\Router\Http\Segment;
 
 return [
@@ -63,6 +64,16 @@ return [
                     ]
                 ]
             ],
+            'newtravelApprove' => [
+                'type' => Segment::class,
+                'options' => [
+                    'route' => '/managerservice/newtravelApprove[/:action[/:id][/:role]]',
+                    'defaults' => [
+                        'controller' => NewTravelApproveController::class,
+                        'action' => 'index'
+                    ]
+                ]
+            ],
             'dayoffWorkApprove' => [
                 'type' => Segment::class,
                 'options' => [
@@ -93,7 +104,7 @@ return [
                     ]
                 ]
             ],
-             'eventApprove' => [
+            'eventApprove' => [
                 'type' => Segment::class,
                 'options' => [
                     'route' => '/managerservice/eventApprove[/:action[/:id][/:role]]',
@@ -304,6 +315,45 @@ return [
                 ]
             ]
         ],
+        'newtravelApprove' => [
+            [
+                'label' => 'Travel Request',
+                'route' => 'newtravelApprove',
+            ],
+            [
+                'label' => 'Travel Request',
+                'route' => 'newtravelApprove',
+                'pages' => [
+                    [
+                        'label' => 'List',
+                        'route' => 'newtravelApprove',
+                        'action' => 'index',
+                    ],
+                    [
+                        'label' => 'List',
+                        'route' => 'newtravelApprove',
+                        'action' => 'status',
+                    ],
+                    [
+                        'label' => 'View',
+                        'route' => 'newtravelApprove',
+                        'action' => 'view',
+                    ],
+                ]
+            ],
+            [
+                'label' => 'Expense Reimbursement',
+                'route' => 'newtravelApprove',
+                'action' => 'expenseIndex',
+                'pages' => [
+                    [
+                        'label' => 'Expense Detail',
+                        'route' => 'newtravelApprove',
+                        'action' => 'expenseDetail',
+                    ]
+                ]
+            ]
+        ],
         'travelApprove' => [
             [
                 'label' => 'Travel Request',
@@ -328,18 +378,11 @@ return [
                         'route' => 'travelApprove',
                         'action' => 'view',
                     ],
-                ]  
-                ],
-            [
-                'label' => 'Expense Reimbursement',
-                'route' => 'travelApprove',
-                'action' => 'expenseIndex',
-                'pages' => [
                     [
-                        'label' => 'Expense Detail',
+                        'label' => 'View',
                         'route' => 'travelApprove',
                         'action' => 'expenseDetail',
-                    ]
+                    ],
                 ]
             ]
         ],
@@ -601,6 +644,7 @@ return [
             LoanApproveController::class => ControllerFactory::class,
             Controller\SalaryReviewController::class => ControllerFactory::class,
             TravelApproveController::class => ControllerFactory::class,
+            NewTravelApproveController::class => ControllerFactory::class,
             DayoffWorkApproveController::class => ControllerFactory::class,
             HolidayWorkApproveController::class => ControllerFactory::class,
             TrainingApproveController::class => ControllerFactory::class,
@@ -620,5 +664,3 @@ return [
         ],
     ],
 ];
-
-

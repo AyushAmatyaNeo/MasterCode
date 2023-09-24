@@ -60,10 +60,12 @@ class SalarySheetController extends HrisController
                 $companyWiseGroup = null;
             }
         }
-        // echo '<pre>';print_r($companyWiseGroup);die;
+        $allowExchangeRate = $this->repository->getExchnageRate();
+
         return Helper::addFlashMessagesToArray($this, [
             'data' => json_encode($data),
             'acl' => $this->acl,
+            'allowExchangeRate' => $allowExchangeRate['VALUE'],
             'companyWiseGroup' => $companyWiseGroup,
         ]);
         //return $this->stickFlashMessagesTo(['data' => json_encode($data)]);
@@ -123,7 +125,8 @@ class SalarySheetController extends HrisController
             $request = $this->getRequest();
             $data = $request->getPost();
             $stage = $data['stage'];
-            if ($data['overtime'] != null) {
+
+            if ($data['overtime'] != null && is_array($data['empList'])) {
                 foreach ($data['empList'] as $empId) {
                     $this->salarySheetRepo->updateOtValue($data, $empId);
                 }
@@ -196,6 +199,7 @@ class SalarySheetController extends HrisController
                         $taxSheet->val = $value;
                         $taxSheetRepo->add($taxSheet);
                     }
+                    $this->salarySheetRepo->updateAdvancePaymentFlag($employeeId, $sheetNo);
                     //to update loan Pyamnet Flag of employee start
                     $this->salarySheetRepo->updateLoanPaymentFlag($employeeId, $sheetNo);
                     //to update loan Pyamnet Flag of employee end
@@ -225,6 +229,7 @@ class SalarySheetController extends HrisController
                 $this->salarySheetRepo->updateOtValue($data, $data['employeeId']);
             }
             $checkData = $this->salarySheetRepo->checkApproveLock($sheetNo);
+
             if ($checkData[0]['LOCKED'] == 'Y' || $checkData[0]['APPROVED'] == 'Y') {
                 throw new Exception('Cant Regenerate approved or locked');
             }
@@ -335,6 +340,8 @@ class SalarySheetController extends HrisController
 
     public function payslipAction()
     {
+        $ExchangeRate = $this->repository->getExchnageRate();
+        $allowExchangeRate = $ExchangeRate['VALUE'];
         $salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
         $request = $this->getRequest();
         if ($request->isPost()) {
@@ -342,9 +349,10 @@ class SalarySheetController extends HrisController
                 $postedData = $request->getPost();
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetails($postedData['monthId'], $postedData['employeeId']);
-                if ($postedData['exchangeRate'] == 1) {
-                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHR($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                if ($postedData['exchangeRate'] == 1 && $allowExchangeRate == 'N') {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                 } else {
                     $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHR($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
                     foreach ($data['pay-detail'] as &$row) {
@@ -359,7 +367,7 @@ class SalarySheetController extends HrisController
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
-        return $this->stickFlashMessagesTo(['salaryType' => json_encode($salaryType)]);
+        return $this->stickFlashMessagesTo(['salaryType' => json_encode($salaryType), 'allowExchangeRate' => $allowExchangeRate]);
     }
 
     public function getGroupListAction()

@@ -3,7 +3,7 @@
 </div>
 <?php
 $this->headScript()
-        ->appendFile($this->basePath('js/manager-service/travel-approve/expense-detail.js'));
+    ->appendFile($this->basePath('js/manager-service/travel-approve/expense-detail.js'));
 
 $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'travelApprove-form');
@@ -28,12 +28,12 @@ print $this->form()->openTag($form);
 <script>
     document.urlCss = '<?= $this->basePath('css/custom.css') ?>';
 </script>
-<div class="row margin-top-20">  
-    <div class="col-sm-12">    
+<div class="row margin-top-20">
+    <div class="col-sm-12">
         <div class="portlet box custom-box">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-user"></i>Expense Reimbursement Detail
+                    <i class="fa fa-user"></i>Travel Expense Request Detail
                 </div>
             </div>
             <div class="portlet-body div-font-11">
@@ -56,9 +56,9 @@ print $this->form()->openTag($form);
                                     <label>Recommender :</label>
                                 </td>
                                 <td>
-                                    <input type="text" disabled="disabled" value="<?= $recommender ?>"  class="form-control">
+                                    <input type="text" disabled="disabled" value="<?= $recommender ?>" class="form-control">
                                 </td>
-                            </tr>     
+                            </tr>
                         </table>
                     </div>
                     <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
@@ -68,9 +68,9 @@ print $this->form()->openTag($form);
                                     <label>Approver :</label>
                                 </td>
                                 <td>
-                                    <input type="text" disabled="disabled" value="<?= $approver ?>"  class="form-control">
+                                    <input type="text" disabled="disabled" value="<?= $approver ?>" class="form-control">
                                 </td>
-                            </tr>     
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -79,8 +79,9 @@ print $this->form()->openTag($form);
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="travelCode">Expense Code :</label></td>
-                                <td><input type="text" disabled="disabled" value="<?php echo $detail['TRAVEL_CODE']; ?>" name="travelCode" id="travelCode" class="form-control"></td>
+                                    <label for="travelCode">Travel Code :</label>
+                                </td>
+                                <td><input type="text" disabled="disabled" value="<?php echo $detail['TRAVEL_ID']; ?>" name="travelCode" id="travelCode" class="form-control"></td>
                             </tr>
                         </table>
                     </div>
@@ -88,7 +89,7 @@ print $this->form()->openTag($form);
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="advanceAmount">Advance Amount :</label> 
+                                    <label for="advanceAmount">Advance Amount :</label>
                                 </td>
                                 <td>
                                     <input type="text" disabled="disabled" value="<?php echo $detail['REQUESTED_AMOUNT']; ?>" name="advanceAmount" id="advanceAmount" class="form-control">
@@ -100,24 +101,24 @@ print $this->form()->openTag($form);
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="departure">Departure :</label> 
+                                    <label for="departure">Departure :</label>
                                 </td>
                                 <td>
-                                    <input type="text" disabled="disabled" value="<?php echo $detail['DEPARTURE'] ?>" name="departure"  id="departure" class="form-control">
+                                    <input type="text" disabled="disabled" value="<?php echo $detail['DEPARTURE'] ?>" name="departure" id="departure" class="form-control">
                                 </td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="row">
-                     <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="destination">Destination :</label> 
+                                    <label for="destination">Destination :</label>
                                 </td>
                                 <td>
-                                    <input type="text" disabled="disabled" value="<?php echo $detail['DESTINATION'] ?>" name="destination"  id="destination" class="form-control">
+                                    <input type="text" disabled="disabled" value="<?php echo $detail['DESTINATION'] ?>" name="destination" id="destination" class="form-control">
                                 </td>
                             </tr>
                         </table>
@@ -126,10 +127,10 @@ print $this->form()->openTag($form);
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="purpose">Purpose :</label> 
+                                    <label for="purpose">Purpose :</label>
                                 </td>
                                 <td>
-                                    <input type="text" disabled="disabled" value="<?php echo $detail['PURPOSE']; ?>" name="purpose"  id="purpose" class="form-control">
+                                    <input type="text" disabled="disabled" value="<?php echo $detail['PURPOSE']; ?>" name="purpose" id="purpose" class="form-control">
                                 </td>
                             </tr>
                         </table>
@@ -141,7 +142,7 @@ print $this->form()->openTag($form);
                                     <label for="departureDate">Departure Date :</label>
                                 </td>
                                 <td>
-                                    <input  type="text" disabled="disabled" value="<?php echo $detail['FROM_DATE']; ?>" name="departureDate" id="departureDate" class="form-control">
+                                    <input type="text" disabled="disabled" value="<?php echo $detail['DEPARTURE_DATE']; ?>" name="departureDate" id="departureDate" class="form-control">
                                 </td>
                             </tr>
                         </table>
@@ -150,98 +151,128 @@ print $this->form()->openTag($form);
                         <table>
                             <tr>
                                 <td width="40%">
-                                    <label for="employeeCode">Returned Date :</label> 
+                                    <label for="employeeCode">Returned Date :</label>
                                 </td>
                                 <td>
-                                    <input  value="<?php echo $detail['TO_DATE']; ?>" type="text"  disabled="disabled" name="returnedDate" id="returnedDate" class="form-control"> 
+                                    <input value="<?php echo $detail['RETURNED_DATE']; ?>" type="text" disabled="disabled" name="returnedDate" id="returnedDate" class="form-control">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                        <table>
+                            <tr>
+                                <td width="40%">
+                                    <label for="advanceAmount">Requested Date :</label>
+                                </td>
+                                <td>
+                                    <input value="<?php echo $detail['REQUESTED_DATE']; ?>" type="text" disabled="disabled" name="returnedDate" id="returnedDate" class="form-control">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
+                        <table>
+                            <tr>
+                                <td width="40%">
+                                    <label for="status">Status :</label>
+                                </td>
+                                <td>
+                                    <input value="<?php echo $detail['STATUS_DETAIL']; ?>" type="text" disabled="disabled" name="status" id="status" class="form-control">
                                 </td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
-                        <table>
-                            <tr>
-                                <td width="40%">
-                                    <label for="advanceAmount">Requested Date :</label> 
-                                </td>
-                                <td>
-                                    <input  value="<?php echo $detail['REQUESTED_DATE']; ?>" type="text"  disabled="disabled" name="returnedDate" id="returnedDate" class="form-control"> 
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-xs-12 col-sm-4 col-md-4 col-box bottomgap">
-                        <table>
-                            <tr>
-                                <td width="40%">
-                                    <label for="status">Status :</label> 
-                                </td>
-                                <td>
-                                    <input  value="<?php echo $detail['STATUS_DETAIL']; ?>" type="text" disabled="disabled" name="status" id="status" class="form-control"> 
-                                </td>
-                            </tr>
-                        </table>
-                    </div> 
                 </div>
                 <div class="margin-top-10 scrollbar-horizantal">
                     <table width="100%" align="center" class="table table-striped table-bordered table-hover no-footer customTable div-font-11">
                         <thead style="font-size:11px !important;">
                             <tr>
-                                <th>ER Type</th>       
-                                <th>Location</th>       
-                                <th>Date</th>       
-                                <th>Ticket/Bill No</th>
-                                <th>Expense Head</th>
-                                <th>Currency</th> 
-                                <th>Exchange Rate</th>         
-                                <th>Amount</th>     
-                                <th>Remarks</th>
+                                <th colspan="6" align="center">Description of Travel and Place</th>
+                                <th rowspan="3">Mode of Travel</th>
+                                <th rowspan="3">Fare</th>
+                                <th rowspan="3">Daily Allowance</th>
+                                <th rowspan="3">Local Conveyence</th>
+                                <th rowspan="3">Misc. Expenses</th>
+                                <th rowspan="3">Currency</th>
+                                <th rowspan="3">Standard Exchange Rate</th>
+                                <th rowspan="3">Exchange Rate</th>
+                                <th rowspan="3">Total</th>
+                                <th rowspan="3">Remarks</th>
                             </tr>
-                            <!-- <tr>
+                            <tr>
                                 <th colspan="3">Departure</th>
                                 <th colspan="3">Destination</th>
-                            </tr> -->
-                            <!-- <tr>
+                            </tr>
+                            <tr>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Place</th>
                                 <th>Date</th>
                                 <th>Time</th>
                                 <th>Place</th>
-                            </tr> -->
+                            </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($expenseDtlList as $expenseDtlRow) { ?>
                                 <tr>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['ER_TYPE']; ?>"  readonly="readonly" name="departureDate" size="13"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DEPARTURE_DATE']; ?>" readonly="readonly" name="departureDate" size="13" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['LOCATIONG']; ?>"  readonly="readonly" name="departurePlace" size="11"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DEPARTURE_TIME']; ?>" readonly="readonly" name="departureTime" size="9" />
                                     </td>
                                     <td>
-                                        <input  type="text" class="form-control" value="<?= $expenseDtlRow['ADATE']; ?>"   readonly="readonly" name="destinationDate" size="13"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DEPARTURE_PLACE']; ?>" readonly="readonly" name="departurePlace" size="11" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['BILL_NO']; ?>"  readonly="readonly" name="destinationPlace" size="11"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DESTINATION_DATE']; ?>" readonly="readonly" name="destinationDate" size="13" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['EXPENSE_HEAD']; ?>" readonly="readonly" name="fare"  step="0.01" min="0"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DESTINATION_TIME']; ?>" readonly="readonly" name="destinationTime" size="9" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['CURRENCY']; ?>"  readonly="readonly"/>
+                                        <input type="text" value="<?= $expenseDtlRow['DESTINATION_PLACE']; ?>" readonly="readonly" name="destinationPlace" size="11" />
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" value="<?= $expenseDtlRow['EXCHANGE_RATE']; ?>"  readonly="readonly" style="width: 69px;" step="0.01" min="0"/>
+                                        <select style="width: 110px;" class="form-control" name="transportType" disabled="disabled" id="transportType">
+                                            <?php
+                                            foreach ($transportType as $key => $value) {
+                                                $selected = ($key == $expenseDtlRow['TRANSPORT_TYPE']) ? "selected" : "";
+                                            ?>
+                                                <option value="<?= $key; ?>" <?= $selected; ?>><?= $value; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </td>
-                                   
                                     <td>
-                                        <input type="number" class="form-control" value="<?= $expenseDtlRow['AMOUNT']; ?>"  id="total"  readonly="readonly" name="total" step="0.01" min="0"/>
+                                        <input type="number" value="<?= $expenseDtlRow['FARE']; ?>" readonly="readonly" name="fare" style="width: 60px;" step="0.01" min="0" />
                                     </td>
                                     <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['REMARKS']; ?>" readonly="readonly" size="11"/>
+                                        <input type="number" value="<?= $expenseDtlRow['ALLOWANCE']; ?>" readonly="readonly" style="width: 60px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="number" value="<?= $expenseDtlRow['LOCAL_CONVEYENCE']; ?>" readonly="readonly" style="width: 69px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="number" value="<?= $expenseDtlRow['MISC_EXPENSES']; ?>" readonly="readonly" style="width: 60px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="text" value="<?= $expenseDtlRow['CURRENCY']; ?>" readonly="readonly" style="width: 69px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="number" value="<?= $expenseDtlRow['STANDARD_EXCHANGE_RATE']; ?>" readonly="readonly" style="width: 60px;" step="0.01" min="0" />
+                                    </td>
+
+                                    <td>
+                                        <input type="text" value="<?= $expenseDtlRow['EXCHANGE_RATE']; ?>" readonly="readonly" size="11" />
+                                    </td>
+                                    <td>
+                                        <input type="number" value="<?= $expenseDtlRow['TOTAL_AMOUNT']; ?>" id="total" readonly="readonly" name="total" style="width: 72px;" step="0.01" min="0" />
+                                    </td>
+                                    <td>
+                                        <input type="text" value="<?= $expenseDtlRow['REMARKS']; ?>" readonly="readonly" size="11" />
                                     </td>
                                 </tr>
                             <?php } ?>
@@ -254,20 +285,29 @@ print $this->form()->openTag($form);
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td><b>Total: &nbsp;<?php echo $balance; ?></b></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                </td>
+                                <td><b>Total:</b></td>
+                                <td>
+                                    <input type="number" value="<?= $totalAmount ?>" readonly="readonly" id="sumAllTotal" step="0.01" min="0" readonly="readonly" style="width: 72px;" />
+                                </td>
+                                <td>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="submit_button" style="margin-top:2%;">
                     <?php $recommendedRemarks->setAttributes(['disabled' => 'disabled']); ?>
-                    <div
-                        class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
+                    <div class="form-group margin-top-10 required <?= empty($recommendedRemarks->getMessages()) ? "" : "error" ?>">
                         <label>Reason for action [From Recommender]</label>
                         <?php print $this->formElement($recommendedRemarks); ?>
                     </div>
-                    <div
-                        class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
+                    <div class="form-group required <?= empty($approvedRemarks->getMessages()) ? "" : "error" ?>">
                         <label>Reason for action [From Approver]</label>
                         <?php print $this->formElement($approvedRemarks); ?>
                     </div>
@@ -276,7 +316,7 @@ print $this->form()->openTag($form);
                     <?php if ($detail['STATUS'] == 'RQ' || ($detail['STATUS'] == 'RC')) { ?>
                         <?php print $this->formSubmit($submit); ?>
                         <input type="submit" name="submit" class="btn btn-success pull-right" value="Reject">
-                    <?php } ?>   
+                    <?php } ?>
                 </div>
 
             </div>
@@ -288,16 +328,19 @@ print $this->form()->openTag($form);
 print $this->form()->closeTag();
 ?>
 
-<div id="printableArea" class="col-md-8"  style="border:1px solid; display: none;">
+<div id="printableArea" class="col-md-8" style="border:1px solid; display: none;">
     <div class="wrapper">
         <div class="col-md-8 col-sm-offset-2">
             <ul id="headingList">
                 <li>
                     <?php if ($detail['COMPANY_FILE_PATH'] != null || $detail['COMPANY_FILE_PATH'] != "") { ?>
-                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50"/>
+                        <img src="<?= $this->basePath("uploads/" . $detail['COMPANY_FILE_PATH']); ?>" style="float:left;" height="50" width="50" />
                     <?php } ?>
-                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2></li>
-                <li id="underline"><h3>Travel Authorization Form</h3></li>
+                    <h2><?= strtoupper($detail['COMPANY_NAME']); ?></h2>
+                </li>
+                <li id="underline">
+                    <h3>Travel Authorization Form</h3>
+                </li>
             </ul>
         </div>
     </div>
@@ -324,18 +367,18 @@ print $this->form()->closeTag();
                 <li>
                     Purpose of Visit: <?= $detail['PURPOSE']; ?>
                 </li>
-                <li>Date of Expense Request: <?= $detail['REQUESTED_DATE']; ?></li>
+                <li>Date of Travel Order: <?= $detail['REQUESTED_DATE']; ?></li>
             </ul>
         </div>
-        <div  id="employeeTrvlDtl">
+        <div id="employeeTrvlDtl">
             <ul>
                 <li>
                     Designation: <?= $detail['DESIGNATION_TITLE']; ?>
                 </li>
                 <li>
-                    Departure Date:<?= $detail['FROM_DATE']; ?>
+                    Departure Date:<?= $detail['DEPARTURE_DATE']; ?>
                 </li>
-                <li>Returned Date: <?= $detail['TO_DATE']; ?></li>
+                <li>Returned Date: <?= $detail['RETURNED_DATE']; ?></li>
             </ul>
         </div>
     </div>
@@ -344,60 +387,114 @@ print $this->form()->closeTag();
         <table id="expenseDtlTbl" width="100%" align="center" class="customTable div-font-11">
             <thead style="font-size:11px !important;">
                 <tr>
-                    <th>ER Type</th>       
-                    <th>Location</th>       
-                    <th>Date</th>       
-                    <th>Ticket/Bill No</th>
-                    <th>Expense Head</th>
-                    <th>Currency</th> 
-                    <th>Exchange Rate</th>         
-                    <th>Amount</th>     
-                    <th>Remarks</th>              
+                    <th colspan="6" align="center">Description of Travel and Place</th>
+                    <th rowspan="3">Mode of Travel</th>
+                    <th rowspan="3">Fare</th>
+                    <th rowspan="3">Daily Allowance</th>
+                    <th rowspan="3">Local Conveyence</th>
+                    <th rowspan="3">Misc. Expenses</th>
+                    <th rowspan="3">Currency</th>
+                    <th rowspan="3">Standard Exchange Rate</th>
+                    <th rowspan="3">Exchange Rate</th>
+                    <th rowspan="3">Total</th>
+                    <th rowspan="3" class="lastColumn">Remarks</th>
+                </tr>
+                <tr>
+                    <th colspan="3">Departure</th>
+                    <th colspan="3">Destination</th>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Place</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Place</th>
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($expenseDtlList as $expenseDtlRow) { ?>
-                                <tr>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['ER_TYPE']; ?>"  readonly="readonly" name="departureDate" size="13"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['LOCATIONG']; ?>"  readonly="readonly" name="departurePlace" size="11"/>
-                                    </td>
-                                    <td>
-                                        <input  type="text" class="form-control" value="<?= $expenseDtlRow['ADATE']; ?>"   readonly="readonly" name="destinationDate" size="13"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['BILL_NO']; ?>"  readonly="readonly" name="destinationPlace" size="11"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['EXPENSE_HEAD']; ?>" readonly="readonly" name="fare"  step="0.01" min="0"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['CURRENCY']; ?>"  readonly="readonly"/>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control" value="<?= $expenseDtlRow['EXCHANGE_RATE']; ?>"  readonly="readonly" style="width: 69px;" step="0.01" min="0"/>
-                                    </td>
-                                   
-                                    <td>
-                                        <input type="number" class="form-control" value="<?= $expenseDtlRow['AMOUNT']; ?>"  id="total"  readonly="readonly" name="total" step="0.01" min="0"/>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" value="<?= $expenseDtlRow['REMARKS']; ?>" readonly="readonly" size="11"/>
-                                    </td>
-                                </tr>
-                            <?php } ?>
+                <?php
+                $fare = 0;
+                $allowance = 0;
+                $localConveyence = 0;
+                $miscExpense = 0;
+                $totalAmount = 0;
+                foreach ($expenseDtlList as $expenseDtlRow) {
+                    $fare += $expenseDtlRow['FARE'];
+                    $allowance += $expenseDtlRow['ALLOWANCE'];
+                    $localConveyence += $expenseDtlRow['LOCAL_CONVEYENCE'];
+                    $miscExpense += $expenseDtlRow['MISC_EXPENSES'];
+                    $category += $expenseDtlRow['CATEGORY_NAME'];
+                    $totalAmount += $expenseDtlRow['TOTAL_AMOUNT'];
+                ?>
+                    <tr>
+                        <td>
+                            <?= $expenseDtlRow['DEPARTURE_DATE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['DEPARTURE_TIME']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['DEPARTURE_PLACE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['DESTINATION_DATE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['DESTINATION_TIME']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['DESTINATION_PLACE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['TRANSPORT_TYPE_DETAIL']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['FARE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['ALLOWANCE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['LOCAL_CONVEYENCE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['MISC_EXPENSES']; ?>
+                        </td>
+
+                        <td>
+                            <?= $expenseDtlRow['CURRENCY']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['STANDARD_EXCHANGE_RATE']; ?>
+                        </td>
+
+                        <td>
+                            <?= $expenseDtlRow['EXCHANGE_RATE']; ?>
+                        </td>
+                        <td>
+                            <?= $expenseDtlRow['TOTAL_AMOUNT']; ?>
+                        </td>
+                        <td class="lastColumn">
+                            <?= $expenseDtlRow['REMARKS']; ?>
+                        </td>
+                    </tr>
+                <?php } ?>
                 <tr>
+                    <td>Total</td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
-                    <td><b>Total: &nbsp;<?php echo $balance; ?></b></td>
+                    <td><?= $fare; ?></td>
+                    <td><?= $allowance; ?></td>
+                    <td><?= $localConveyence; ?></td>
+                    <td><?= $miscExpense; ?></td>
+                    <td><?= $category; ?></td>
+                    <td><?= $totalAmount; ?></td>
+                    <td class="lastColumn"></td>
                 </tr>
             </tbody>
         </table>
@@ -406,7 +503,7 @@ print $this->form()->closeTag();
         <div id="employeeDtl1">
             <ul>
                 <li>
-                    <!-- Advance taken for travel in Rs. <?= $detail['REQUESTED_AMOUNT'] ?> expenses incured during travel in Rs. <?= $totalAmount; ?> -->
+                    Advance taken for travel in Rs. <?= $detail['REQUESTED_AMOUNT'] ?> expenses incured during travel in Rs. <?= $totalAmount; ?>
                     Balance amount after expenses Rs. <?php echo $balance; ?>
                 </li>
                 <li>Total Expenses(in words): <?php echo $totalAmountInWords; ?> </li>
@@ -428,7 +525,7 @@ print $this->form()->closeTag();
         <div class="signRecommender1">
             <p style="height:14px"><label><?php echo ucwords(strtolower($recommender)); ?></label></p>
             <div class="border-dotted" style="margin-left: 55px;">
-                Recommended By 
+                Recommended By
             </div>
         </div>
         <div class="signApprover1">

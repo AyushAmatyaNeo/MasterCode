@@ -17,24 +17,25 @@ $this->headScript()
 
 ?>
 <script>
-    document.data =<?php echo $data; ?>;
+    document.data = <?php echo $data; ?>;
     document.data['loading-icon'] = '<?php echo $this->basePath('img/voucher-icon.png'); ?>';
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarysheetlock', ['action' => 'getFiscalYearMonth']); ?>';
     document.pullGroupEmployeeLink = '<?php echo $this->url('salarysheetlock', ['action' => 'pullGroupEmployee']); ?>';
     document.bulkActionLink = '<?= $this->url("salarysheetlock", ["action" => "bulkApproveLock"]); ?>';
     document.generateVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "generateVoucher"]); ?>';
-    document.getAcl = <?php echo json_encode($acl); ?>;
-    document.getCompanyWiseGroup = <?php echo json_encode($companyWiseGroup); ?>;
+    document.regenerateVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "regenerateVoucher"]); ?>';
+    document.testVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "testVoucher"]); ?>';
 </script>
-<style> 
-.my-custom-scrollbar {
-position: relative;
-height: 500px;
-overflow: auto;
-}
-.table-wrapper-scroll-y {
-display: block;
-}
+<style>
+    .my-custom-scrollbar {
+        position: relative;
+        height: 500px;
+        overflow: auto;
+    }
+
+    .table-wrapper-scroll-y {
+        display: block;
+    }
 </style>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -54,7 +55,7 @@ display: block;
             </div>
             <div class="col-sm-2">
                 <label>Company</label>
-                <select  class="form-control" name="company" id="companyId">
+                <select class="form-control" name="company" id="companyId">
                 </select>
             </div>
             <div class="col-sm-2">
@@ -84,33 +85,33 @@ display: block;
 
         <div class="modal" id="myModal" style="height: 600px;">
             <div class="modal-dialog">
-            <div class="modal-content">
-            <button id="excelExport" type="button" class="btn btn-primary">Export to Excel
-        </button>
-                <!-- Modal body -->
-                <div id="unmapped-table" class="modal-body table-wrapper-scroll-y my-custom-scrollbar">
+                <div class="modal-content">
+                    <button id="excelExport" type="button" class="btn btn-primary">Export to Excel
+                    </button>
+                    <!-- Modal body -->
+                    <div id="unmapped-table" class="modal-body table-wrapper-scroll-y my-custom-scrollbar">
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+
                 </div>
-                
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                </div>
-                
-            </div>
             </div>
         </div>
 
         <button style="visibility: hidden;" id="modal-toggle" type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
         </button>
-        
+
         <div id="employeeTableDiv">
             <div id="sheetTable">
             </div>
-            <div style="display: none;" class="row margin-top-20" id="bulkActionDiv" >
+            <div style="display: none;" class="row margin-top-20" id="bulkActionDiv">
                 <div class="col-sm-2 " id="bulkApproveDiv">
                     <button action="approve" class="btn btn-primary">Approved</button>
                 </div>
-                <div class="col-sm-2 "id="bulkNotApproveDiv">
+                <div class="col-sm-2 " id="bulkNotApproveDiv">
                     <button action="unapprove" class="btn btn-primary">Not Approved</button>
                 </div>
                 <div class="col-sm-4 ">
@@ -121,13 +122,60 @@ display: block;
                 <div class="col-sm-2 " id="bulkUnlockDiv">
                     <button action="unlock" class="btn btn-primary">Unlocked</button>
                 </div>
-                <div class="col-sm-2 " id="bulkGenerateVoucherDiv">
-                    <button action="generate" class="btn btn-primary">Generate Voucher</button>
+                <!-- <div class="col-sm-4 ">
+                </div> -->
+                <div class="col-sm-4 " style="margin-top:12px;">
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="voucherDate">Voucher Date:</label>
+                            <input type="text" name="voucherDate" id="voucherDate" class="form-control" value="" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label for="nepaliVoucherDate">&nbsp;</label>
+                            <input type="text" name="nepaliVoucherDate" id="nepaliVoucherDate" class="form-control" value="">
+                        </div>
+                    </div>
                 </div>
+                <div class="col-sm-2 " id="bulkTestVoucherDiv" style="margin-top:25px;">
+                    <button action="testVoucher" class="btn btn-primary">Test Voucher</button>
+                </div>
+
+                <div class="col-sm-2 " id="bulkGenerateVoucherDiv" style="margin-top:25px;">
+                    <button action="generate" class="btn btn-primary" style="background-color: darkgreen;">Generate Voucher</button>
+                </div>
+
+                <div class="col-sm-2 " id="bulkRegenerateVoucherDiv" style="margin-top:25px;">
+                    <button action="regenerate" class="btn btn-primary" style="background-color: darkorange;">Regenerate Voucher</button>
+                </div>
+
+            </div>
         </div>
     </div>
-</div>
-<h4 class="close-please-wait" id="please-wait-options" >
-    <button type="button" class="btn red default btn-lg" id="cancelBtn">Cancel</button>
-    <!-- <button type="button" class="btn blue default btn-lg" action="pause" id="pauseBtn">Pause</button> -->
-</h4>
+    <h4 class="close-please-wait" id="please-wait-options">
+        <button type="button" class="btn red default btn-lg" id="cancelBtn">Cancel</button>
+        <!-- <button type="button" class="btn blue default btn-lg" action="pause" id="pauseBtn">Pause</button> -->
+    </h4>
+
+    <div class="modal" id="myModal" style="height: 600px;">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- <button id="excelExport" type="button" class="btn btn-primary">Export to Excel
+            </button> -->
+
+                <!-- Modal body -->
+                <div id="modal" class="modal-body table-wrapper-scroll-y my-custom-scrollbar">
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <button style="visibility: hidden;" id="modal-toggle1" type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    </button>

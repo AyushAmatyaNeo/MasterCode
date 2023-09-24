@@ -30,7 +30,9 @@ $applyLimit = $form->get('applyLimit');
 $fiscalYear->setValueOptions($fiscalYears);
 $hrOnly = $form->get('hrOnly');
 $enableOverride = $form->get('enableOverride');
-$viewOrder =$form->get('viewOrder');
+$viewOrder = $form->get('viewOrder');
+$isSubstitute = $form->get('isSubstitute');
+$inSubLeave = $form->get('inSubLeave');
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
@@ -43,8 +45,8 @@ print $this->form()->openTag($form);
 ?>
 <script>
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
-    document.searchValues =<?php echo json_encode($searchValues); ?>;
-    document.searchSelectedValues =<?php echo json_encode($searchSelectedValues); ?>;
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
+    document.searchSelectedValues = <?php echo json_encode($searchSelectedValues); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\leavesetup')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -67,7 +69,7 @@ print $this->form()->openTag($form);
                             <?php print $this->formLabel($leaveEname); ?>
                             <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($leaveEname); ?>
-                            <input type="hidden" id="leaveId" value="<?php echo $id; ?>"/>
+                            <input type="hidden" id="leaveId" value="<?php echo $id; ?>" />
                             <span class="errorMsg" style="font-size:11px; color:red;"></span>
                         </div>
                         <?php print $this->formElementErrors()->render($leaveEname, ['class' => 'help-block error']); ?>
@@ -258,6 +260,24 @@ print $this->form()->openTag($form);
                             </div>
                         </div>
                         <?php print $this->formElementErrors()->render($enableOverride, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($isSubstitute); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($isSubstitute); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($isSubstitute, ['class' => 'help-block error']); ?>
+                    </div>
+                    <div class=" col-sm-4 ">
+                        <div class="form-group padding-0">
+                            <?php print $this->formLabel($inSubLeave); ?>
+                            <div class="md-radio-inline">
+                                <?php $customRenderer($inSubLeave); ?>
+                            </div>
+                        </div>
+                        <?php print $this->formElementErrors()->render($inSubLeave, ['class' => 'help-block error']); ?>
                     </div>
                     <div class="col-sm-4">
                         <div class="form-group">
