@@ -114,6 +114,11 @@ return [
                         'route' => 'allreport',
                         'action' => 'ageGeneration',
                     ],
+                    [
+                        'label' => 'Department|Month',
+                        'route' => 'allreport',
+                        'action' => 'newDepartmentWiseDaily',
+                    ],
                 ],
             ],
         ],

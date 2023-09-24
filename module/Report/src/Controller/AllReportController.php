@@ -1022,4 +1022,39 @@ left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
             'employeeDetail' => $this->storageData['employee_detail']
         ];
     }
+    public function newDepartmentWiseDailyAction()
+    {
+        //        $monthId = (int) $this->params()->fromRoute('id1');
+        //        $departmentId = (int) $this->params()->fromRoute('id2');
+        //        $monthList = $this->repository->getMonthList();
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $data = $request->getPost();
+                $postedData = $request->getPost();
+                // $data = $this->repository->employeeDailyReport($postedData);
+
+                $monthData = $this->repository->getMonthDetails($postedData['monthCodeId']);
+                $data = $this->repository->newEmployeeDailyReport($postedData);
+
+                $data['monthData'] = $monthData;
+                return new JsonModel(['success' => true, 'data' => $data, 'error' => '']);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+            }
+        }
+
+        return $this->stickFlashMessagesTo([
+            //                'comBraDepList' => [
+            //                    'DEPARTMENT_LIST' => EntityHelper::getTableList($this->adapter, Department::TABLE_NAME, [Department::DEPARTMENT_ID, Department::DEPARTMENT_NAME, Department::COMPANY_ID, Department::BRANCH_ID], [Department::STATUS => "E"])
+            //                ],
+            //                'monthList' => $monthList,
+            //                'monthId' => $monthId,
+            //                'departmentId' => $departmentId,
+            'fiscalYearSE' => $this->getFiscalYearSE(),
+            'preference' => $this->preference,
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
+        ]);
+    }
 }
