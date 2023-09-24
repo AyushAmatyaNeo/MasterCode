@@ -139,11 +139,10 @@ class Payroll extends HrisController
                 $data['employeeId'] = $this->employeeId;
                 $groupId = $this->repository->getGroupId($this->employeeId);
                 $data['groupId'] = $groupId['GROUP_ID'];
-                // echo '<pre>';print_r($data);die;
                 $defaultColumnsList = $this->repository->getDefaultColumnsempWise('S', $data);
+
                 $resultData = $this->repository->getEmployeeWiseGroupReport('S', $data);
                 $result = [];
-
                 $result['success'] = true;
                 $result['data'] = Helper::extractDbData($resultData);
                 $result['columns'] = $defaultColumnsList;
@@ -154,14 +153,14 @@ class Payroll extends HrisController
             }
         }
         $fiscalYears = EntityHelper::getTableKVListWithSortOption($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], [FiscalYear::STATUS => 'E'], FiscalYear::FISCAL_YEAR_ID,  "DESC");
-        // echo '<pre>';print_r($fiscalYears);die;
+
         return Helper::addFlashMessagesToArray($this, [
             'preference' => $this->preference,
-            'fiscalYears' => $fiscalYears
+            'fiscalYears' => $fiscalYears,
+            'employeeId' => $this->employeeId
 
         ]);
     }
-
     public function taxSheetAction()
     {
 

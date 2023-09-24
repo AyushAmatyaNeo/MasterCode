@@ -120,8 +120,8 @@ class LeaveStatusRepository extends HrisRepository
 
         $sql = "SELECT INITCAP(L.LEAVE_ENAME) AS LEAVE_ENAME,
                   L.LEAVE_CODE,
-                  LA.NO_OF_DAYS,
-                  INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))                  AS START_DATE_AD,
+                  (CASE WHEN (LA.HALF_DAY IS NULL OR  LA.HALF_DAY = 'N')  THEN LA.NO_OF_DAYS else la.NO_OF_DAYS/2 end) as no_of_days,
+                INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))                  AS START_DATE_AD,
                   BS_DATE(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY'))                  AS START_DATE_BS,
                   INITCAP(TO_CHAR(LA.END_DATE, 'DD-MON-YYYY'))                    AS END_DATE_AD,
                   BS_DATE(TO_CHAR(LA.END_DATE, 'DD-MON-YYYY'))                    AS END_DATE_BS,

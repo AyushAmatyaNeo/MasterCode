@@ -1712,7 +1712,7 @@ from hris_variance
             LEFT JOIN HRIS_SALARY_SHEET_DETAIL SD ON (SS.SHEET_NO=SD.SHEET_NO AND SD.Pay_Id=VP.Pay_Id)
             LEFT JOIN HRIS_MONTH_CODE MC ON (MC.month_id = SS.month_id)
             LEFT JOIN HRIS_SALARY_TYPE ST ON (SS.SALARY_TYPE_ID = ST.SALARY_TYPE_ID)            
-            WHERE  V.STATUS='E' AND V.VARIABLE_TYPE='{$variableType}' 
+            WHERE  V.STATUS='E' AND V.VARIABLE_TYPE='{$variableType}' and ss.approved='Y'
             GROUP BY SD.EMPLOYEE_ID,V.VARIANCE_NAME,Vp.Variance_Id,SS.Month_ID,SS.SHEET_NO, MC.MONTH_NO, MC.MONTH_EDESC, MC.FISCAL_YEAR_ID, ST.SALARY_TYPE_NAME)
             PIVOT ( MAX( TOTAL )
                 FOR Variance_Id 
@@ -1729,6 +1729,7 @@ from hris_variance
                 {$searchCondition['sql']} {$companyConditionNew}
                  ORDER BY E.FULL_NAME,GB.SHEET_NO
              ";
+
         return $this->rawQuery($sql, $boundedParameter);
     }
     public function getDefaultColumnsForTaxSheet()

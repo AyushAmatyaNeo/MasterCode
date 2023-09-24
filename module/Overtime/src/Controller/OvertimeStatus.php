@@ -1,4 +1,5 @@
 <?php
+
 namespace Overtime\Controller;
 
 use Application\Controller\HrisController;
@@ -20,18 +21,21 @@ use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class OvertimeStatus extends HrisController {
+class OvertimeStatus extends HrisController
+{
 
     private $detailRepo;
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(OvertimeStatusRepository::class);
         $this->detailRepo = new OvertimeDetailRepository($this->adapter);
         $this->initializeForm(OvertimeRequestForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -49,15 +53,16 @@ class OvertimeStatus extends HrisController {
         }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', "id" => "requestStatusId", "class" => "form-control reset-field", 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                'status' => $statusSE,
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'preference' => $this->preference
+            'status' => $statusSE,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
 
         if ($id === 0) {
@@ -105,23 +110,24 @@ class OvertimeStatus extends HrisController {
             array_push($overtimeDetails, $overtimeDetailRow);
         }
         return Helper::addFlashMessagesToArray($this, [
-                'form' => $this->form,
-                'id' => $id,
-                'employeeId' => $employeeId,
-                'employeeName' => $employeeName,
-                'requestedDt' => $detail['REQUESTED_DATE'],
-                'recommender' => $authRecommender,
-                'approvedDT' => $detail['APPROVED_DATE'],
-                'approver' => $authApprover,
-                'status' => $status,
-                'customRenderer' => Helper::renderCustomView(),
-                'recommApprove' => $recommApprove,
-                'overtimeDetails' => $overtimeDetails,
-                'totalHour' => $detail['TOTAL_HOUR_DETAIL']
+            'form' => $this->form,
+            'id' => $id,
+            'employeeId' => $employeeId,
+            'employeeName' => $employeeName,
+            'requestedDt' => $detail['REQUESTED_DATE'],
+            'recommender' => $authRecommender,
+            'approvedDT' => $detail['APPROVED_DATE'],
+            'approver' => $authApprover,
+            'status' => $status,
+            'customRenderer' => Helper::renderCustomView(),
+            'recommApprove' => $recommApprove,
+            'overtimeDetails' => $overtimeDetails,
+            'totalHour' => $detail['TOTAL_HOUR_DETAIL']
         ]);
     }
 
-    public function calculateAction() {
+    public function calculateAction()
+    {
         $preferenceSetupRepo = new PreferenceSetupRepo($this->adapter);
         $employeeRepo = new EmployeeRepository($this->adapter);
         $overtimeModel = new Overtime();
@@ -131,7 +137,7 @@ class OvertimeStatus extends HrisController {
         $overtimeRequestSetting = $preferenceSetupRepo->fetchByPreferenceName("OVERTIME_REQUEST");
         $employeeAdmin = $employeeRepo->fetchByAdminFlag();
         foreach ($overtimeRequestSetting as $overtimeRequestSettingRow) {
-//            $attendanceDt = date(Helper::PHP_DATE_FORMAT);
+            //            $attendanceDt = date(Helper::PHP_DATE_FORMAT);
             $attendanceDt = "10-May-2017";
             $employeeResult = $employeeRepo->fetchByEmployeeTypeWidShift($overtimeRequestSettingRow['EMPLOYEE_TYPE'], $attendanceDt);
             $preferenceConstraint = $overtimeRequestSettingRow['PREFERENCE_CONSTRAINT'];
@@ -224,7 +230,8 @@ class OvertimeStatus extends HrisController {
         $this->redirect()->toRoute('overtimeStatus');
     }
 
-    public function bulkAction() {
+    public function bulkAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
@@ -235,7 +242,8 @@ class OvertimeStatus extends HrisController {
         }
     }
 
-    private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $approve, $remarks = null, $enableFlashNotification = false)
+    {
         $model = new Overtime();
         $model->overtimeId = $id;
         $model->recommendedDate = Helper::getcurrentExpressionDate();
@@ -244,7 +252,7 @@ class OvertimeStatus extends HrisController {
         $model->approvedDate = Helper::getcurrentExpressionDate();
         $model->approvedBy = $this->employeeId;
         $model->status = $approve ? "AP" : "R";
-        $message = $approve ? "Travel Request Approved" : "Travel Request Rejected";
+        $message = $approve ? "Overtime Request Approved" : "Overtime Request Rejected";
         $notificationEvent = $approve ? NotificationEvents::OVERTIME_APPROVE_ACCEPTED : NotificationEvents::OVERTIME_APPROVE_REJECTED;
         $this->repository->edit($model, $id);
         if ($enableFlashNotification) {

@@ -20,7 +20,7 @@ function setTemplate(temp) {
     } else if (temp == 'WD') {
         returnvalue = 'purple-soft';
     } else if (temp == 'WH') {
-        returnvalue = 'yellow-soft';
+        returnvalue = 'red-soft';
     } else if (temp == 'LV') {
         returnvalue = 'green';
     }
@@ -28,9 +28,9 @@ function setTemplate(temp) {
         returnvalue = 'blue';
     }
     else if (temp == 'TN') {
-        returnvalue = 'violet';
+        returnvalue = 'green-soft';
     } else if (temp == 'EC') {
-        returnvalue = 'brown';
+        returnvalue = 'blue-soft';
     }
     return returnvalue;
 }
@@ -83,7 +83,7 @@ function setAbbr(temp) {
         var $monthDetails = $("#monthDetails");
         var $leaveDetails = $("#leaveDetails");
         var $employeeId = $('#employeeId');
-        app.populateSelect($employeeId, document.employees, 'id', 'name', '--------', null, null, false);
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
 
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, false);
         var exportVals;
@@ -143,25 +143,62 @@ function setAbbr(temp) {
                 var leaveDetails = response.data.leaveDetails;
                 var kendoDetails = response.data.kendoDetails;
                 var monthData = response.data.monthData;
-
-                // console.log(kendoDetails);
                 var columns = generateColsForKendo(kendoDetails, monthData, leaveDetails);
-                // console.log(columns);
+                // console.log(kendoDetails);
+                // var newColumn = generateColsForKendo(kendoDetails, monthData, leaveDetails);
+
+
+
+                // var columnKeys = [];
+                // let iterator = response.data.data;
+                // for (const obj of iterator) {
+                //     for (const key in obj) {
+                //         if (!columnKeys.includes(key)) {
+                //             columnKeys.push(key);
+                //         }
+                //     }
+                // }
+                // var columnSum = [];
+                // for (const element of response.data.data) {
+                //     for (var el of columnKeys) {
+                //         const num = parseFloat(element[el]);
+                //         var val = 0;
+                //         if (!isNaN(num)) {
+                //             val = num;
+                //         } else {
+                //             val = 1;
+                //         }
+                //         if (element[el] != undefined) {
+                //             columnSum[el] = (columnSum[el] != undefined ? columnSum[el] : 0) + val;
+
+                //         }
+                //     }
+                // }
+                // var zeroColumn = [];
+                // for (var i of columnKeys) {
+                //     if (columnSum[i] == 0) {
+                //         zeroColumn.push(i);
+                //     }
+
+                // }
+                // var columns = newColumn.filter(function (value) {
+                //     return zeroColumn.indexOf(value.field) == -1;
+                // });
+
                 columns.forEach(function (column) {
                     column.headerAttributes = {
-                        "style": "text-align: center;"
+                        style: "text-align: center;"
                     };
                     column.attributes = {
-                        "style": "text-align: center;"
+                        style: "text-align: center;"
                     };
                 });
-
                 $table.empty();
 
                 $table.kendoGrid({
                     toolbar: ["excel"],
                     excel: {
-                        fileName: 'DepartmentWiseDaily',
+                        fileName: 'Department Wise Daily',
                         filterable: false,
                         allPages: true
                     },
@@ -314,13 +351,13 @@ function setAbbr(temp) {
                     field: 'WORK_DAYOFF',
                     title: "Work Dayoff",
                     template: '<span>#:WORK_DAYOFF#</span>',
-                    width: 90
+                    width: 70
                 });
                 cols.push({
                     field: 'WORK_HOLIDAY',
                     title: "Work Holiday",
                     template: '<span>#:WORK_HOLIDAY#</span>',
-                    width: 90
+                    width: 70
                 });
                 cols.push({
                     field: 'ABSENT',
@@ -332,22 +369,34 @@ function setAbbr(temp) {
                     field: 'TOTAL_ATTD',
                     title: "Total Attendance",
                     template: '<span>#:TOTAL_ATTD#</span>',
-                    width: 120
+                    width: 80
                 });
                 cols.push({
                     title: "Overtime",
                     columns: [
                         {
-                            field: "OT_DAYS",
+                            field: "TOTAL_OT_REQ_DAYS",
                             title: "Days",
-                            template: '<span>#:OT_DAYS#</span>',
-                            width: 55
+                            template: '<span>#:TOTAL_OT_REQ_DAYS#</span>',
+                            width: 55,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         },
                         {
-                            field: "TOTAL_OT_HOURS",
+                            field: "TOTAL_OT_REQ",
                             title: "Hour",
-                            template: '<span>#:TOTAL_OT_HOURS#</span>',
-                            width: 55
+                            template: '<span>#:TOTAL_OT_REQ#</span>',
+                            width: 55,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         }
                     ]
                 });
@@ -358,13 +407,25 @@ function setAbbr(temp) {
                             field: "LATEIN_DAYS",
                             title: "Days",
                             template: '<span>#:LATEIN_DAYS#</span>',
-                            width: 55
+                            width: 55,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         },
                         {
                             field: "TOTAL_LATEIN",
                             title: "Hours",
                             template: '<span>#:TOTAL_LATEIN#</span>',
-                            width: 70
+                            width: 60,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         }
                     ]
                 });
@@ -375,13 +436,25 @@ function setAbbr(temp) {
                             field: "EARLYOUT_DAYS",
                             title: "Days",
                             template: '<span>#:EARLYOUT_DAYS#</span>',
-                            width: 55
+                            width: 55,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         },
                         {
                             field: "TOTAL_EARLYOUT",
                             title: "Hours",
                             template: '<span>#:TOTAL_EARLYOUT#</span>',
-                            width: 70
+                            width: 60,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         }
                     ]
                 });
@@ -392,7 +465,13 @@ function setAbbr(temp) {
                             field: "MISSPUNCH_DAYS",
                             title: "Days",
                             template: '<span>#:MISSPUNCH_DAYS#</span>',
-                            width: 95
+                            width: 90,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         }
                     ]
                 });
@@ -419,7 +498,7 @@ function setAbbr(temp) {
                     field: 'TOTAL_HOUR_SUM',
                     title: "Total Hour",
                     template: '<span>#:TOTAL_HOUR_SUM#</span>',
-                    width: 80
+                    width: 60
                 });
                 exportVals['TOTAL_HOUR_SUM'] = 'Total Hour';
 
@@ -438,7 +517,13 @@ function setAbbr(temp) {
                     leaveHeadingObject.columns.push({
                         field: value.LEAVE_STRING,
                         title: value.LEAVE_ENAME,
-                        width: 150
+                        width: 70,
+                        headerAttributes: {
+                            style: "text-align: center;"
+                        },
+                        attributes: {
+                            style: "text-align: center;"
+                        }
                     });
                 });
 
@@ -492,13 +577,13 @@ function setAbbr(temp) {
                         field: 'WORK_DAYOFF',
                         title: "Work Dayoff",
                         template: '<span>#:WORK_DAYOFF#</span>',
-                        width: 90
+                        width: 70
                     });
                     cols.push({
                         field: 'WORK_HOLIDAY',
                         title: "Work Holiday",
                         template: '<span>#:WORK_HOLIDAY#</span>',
-                        width: 90
+                        width: 70
                     });
                     cols.push({
                         field: 'ABSENT',
@@ -510,25 +595,70 @@ function setAbbr(temp) {
                         field: 'TOTAL_ATTD',
                         title: "Total Attendance",
                         template: '<span>#:TOTAL_ATTD#</span>',
-                        width: 120
+                        width: 80
                     });
-                    cols.push({
-                        title: "Overtime",
-                        columns: [
-                            {
-                                field: "OT_DAYS",
-                                title: "Days",
-                                template: '<span>#:OT_DAYS#</span>',
-                                width: 55
-                            },
-                            {
-                                field: "TOTAL_OT_HOURS",
-                                title: "Hour",
-                                template: '<span>#:TOTAL_OT_HOURS#</span>',
-                                width: 55
-                            }
-                        ]
-                    });
+                    if (selectedCheckboxValues.includes('attdOT')) {
+                        cols.push({
+                            title: "Overtime",
+                            columns: [
+                                {
+                                    field: "OT_DAYS",
+                                    title: "Days",
+                                    template: '<span>#:OT_DAYS#</span>',
+                                    width: 55,
+                                    headerAttributes: {
+                                        style: "text-align: center;"
+                                    },
+                                    attributes: {
+                                        style: "text-align: center;"
+                                    }
+                                },
+                                {
+                                    field: "TOTAL_OT_HOURS",
+                                    title: "Hour",
+                                    template: '<span>#:TOTAL_OT_HOURS#</span>',
+                                    width: 55,
+                                    headerAttributes: {
+                                        style: "text-align: center;"
+                                    },
+                                    attributes: {
+                                        style: "text-align: center;"
+                                    }
+                                }
+                            ]
+                        });
+                    } else {
+                        cols.push({
+                            title: "Overtime",
+                            columns: [
+                                {
+                                    field: "TOTAL_OT_REQ_DAYS",
+                                    title: "Days",
+                                    template: '<span>#:TOTAL_OT_REQ_DAYS#</span>',
+                                    width: 55,
+                                    headerAttributes: {
+                                        style: "text-align: center;"
+                                    },
+                                    attributes: {
+                                        style: "text-align: center;"
+                                    }
+                                },
+                                {
+                                    field: "TOTAL_OT_REQ",
+                                    title: "Hour",
+                                    template: '<span>#:TOTAL_OT_REQ#</span>',
+                                    width: 55,
+                                    headerAttributes: {
+                                        style: "text-align: center;"
+                                    },
+                                    attributes: {
+                                        style: "text-align: center;"
+                                    }
+                                }
+                            ]
+                        });
+                    }
+
                     cols.push({
                         title: "Late In",
                         columns: [
@@ -536,13 +666,25 @@ function setAbbr(temp) {
                                 field: "LATEIN_DAYS",
                                 title: "Days",
                                 template: '<span>#:LATEIN_DAYS#</span>',
-                                width: 55
+                                width: 55,
+                                headerAttributes: {
+                                    style: "text-align: center;"
+                                },
+                                attributes: {
+                                    style: "text-align: center;"
+                                }
                             },
                             {
                                 field: "TOTAL_LATEIN",
                                 title: "Hours",
                                 template: '<span>#:TOTAL_LATEIN#</span>',
-                                width: 70
+                                width: 60,
+                                headerAttributes: {
+                                    style: "text-align: center;"
+                                },
+                                attributes: {
+                                    style: "text-align: center;"
+                                }
                             }
                         ]
                     });
@@ -553,13 +695,25 @@ function setAbbr(temp) {
                                 field: "EARLYOUT_DAYS",
                                 title: "Days",
                                 template: '<span>#:EARLYOUT_DAYS#</span>',
-                                width: 55
+                                width: 55,
+                                headerAttributes: {
+                                    style: "text-align: center;"
+                                },
+                                attributes: {
+                                    style: "text-align: center;"
+                                }
                             },
                             {
                                 field: "TOTAL_EARLYOUT",
                                 title: "Hours",
                                 template: '<span>#:TOTAL_EARLYOUT#</span>',
-                                width: 70
+                                width: 60,
+                                headerAttributes: {
+                                    style: "text-align: center;"
+                                },
+                                attributes: {
+                                    style: "text-align: center;"
+                                }
                             }
                         ]
                     });
@@ -570,7 +724,13 @@ function setAbbr(temp) {
                                 field: "MISSPUNCH_DAYS",
                                 title: "Days",
                                 template: '<span>#:MISSPUNCH_DAYS#</span>',
-                                width: 95
+                                width: 90,
+                                headerAttributes: {
+                                    style: "text-align: center;"
+                                },
+                                attributes: {
+                                    style: "text-align: center;"
+                                }
                             }
                         ]
                     });
@@ -600,7 +760,7 @@ function setAbbr(temp) {
                         field: 'TOTAL_HOUR_SUM',
                         title: "Total Hour",
                         template: '<span>#:TOTAL_HOUR_SUM#</span>',
-                        width: 80
+                        width: 60
                     });
                     exportVals['TOTAL_HOUR_SUM'] = 'Total Hour';
                 }
@@ -629,7 +789,13 @@ function setAbbr(temp) {
                         leaveHeadingObject.columns.push({
                             field: value.LEAVE_STRING,
                             title: value.LEAVE_ENAME,
-                            width: 150
+                            width: 70,
+                            headerAttributes: {
+                                style: "text-align: center;"
+                            },
+                            attributes: {
+                                style: "text-align: center;"
+                            }
                         });
                     });
                 }
@@ -655,10 +821,8 @@ function setAbbr(temp) {
                         var cell = row.cells[cellIndex];
                         var cellValue = cell.value;
 
-                        if (rowIndex === 0) {
-                            cell.hAlign = 'center';
-                            cell.verticalAlign = 'center';
-                        }
+                        cell.hAlign = 'center';
+                        cell.verticalAlign = 'center';
 
                         if (cellValue === 'AB') {
                             cell.color = '#FFFFFF';
@@ -686,14 +850,14 @@ function setAbbr(temp) {
                         }
                         else if (cellValue === 'WH') {
                             cell.color = '#FFFFFF';
-                            cell.background = '#ffff00';
+                            cell.background = '#F47174';
                         } else if (cellValue === 'TN') {
                             cell.color = '#FFFFFF';
-                            cell.background = '#7F00FF';
+                            cell.background = '#bfe3b4';
                         }
                         else if (cellValue === 'EC') {
                             cell.color = '#FFFFFF';
-                            cell.background = '#964B00';
+                            cell.background = '#6488ea';
                         }
                     }
                 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Overtime\Repository;
 
 use Application\Model\Model;
@@ -9,58 +10,63 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Predicate\Expression;
 use Zend\Db\Sql\Sql;
 
-class OvertimeStatusRepository extends HrisRepository {
+class OvertimeStatusRepository extends HrisRepository
+{
 
-    public function __construct(AdapterInterface $adapter) {
-        parent::__construct($adapter, Overtime::TABLE_NAME);
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    parent::__construct($adapter, Overtime::TABLE_NAME);
+  }
 
-    public function edit(Model $model, $id) {
-        $this->tableGateway->update($model->getArrayCopyForDB(), [Overtime::OVERTIME_ID => $id]);
-    }
+  public function edit(Model $model, $id)
+  {
+    $this->tableGateway->update($model->getArrayCopyForDB(), [Overtime::OVERTIME_ID => $id]);
+  }
 
-    public function fetchById($id) {
-        $sql = new Sql($this->adapter);
-        $select = $sql->select();
-        $select->columns([
-            new Expression("OT.OVERTIME_ID AS OVERTIME_ID"),
-            new Expression("OT.EMPLOYEE_ID AS EMPLOYEE_ID"),
-            new Expression("INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE"),
-            new Expression("INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_AD"),
-            new Expression("BS_DATE(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_BS"),
-            new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
-            new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
-            new Expression("BS_DATE(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS"),
-            new Expression("OT.DESCRIPTION AS DESCRIPTION"),
-            new Expression("OT.REMARKS AS REMARKS"),
-            new Expression("OT.TOTAL_HOUR AS TOTAL_HOUR"),
-            new Expression("MIN_TO_HOUR(OT.TOTAL_HOUR) AS TOTAL_HOUR_DETAIL"),
-            new Expression("OT.STATUS AS STATUS"),
-            new Expression("LEAVE_STATUS_DESC(OT.STATUS) AS STATUS_DETAIL"),
-            new Expression("OT.RECOMMENDED_BY AS RECOMMENDED_BY"),
-            new Expression("INITCAP(TO_CHAR(OT.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
-            new Expression("OT.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
-            new Expression("OT.APPROVED_BY AS APPROVED_BY"),
-            new Expression("INITCAP(TO_CHAR(OT.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
-            new Expression("OT.APPROVED_REMARKS AS APPROVED_REMARKS")
-        ]);
-        $select->from(['OT' => Overtime::TABLE_NAME])
-            ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
-            ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
-            ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
-            ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
-            ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
-            ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
+  public function fetchById($id)
+  {
+    $sql = new Sql($this->adapter);
+    $select = $sql->select();
+    $select->columns([
+      new Expression("OT.OVERTIME_ID AS OVERTIME_ID"),
+      new Expression("OT.EMPLOYEE_ID AS EMPLOYEE_ID"),
+      new Expression("INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE"),
+      new Expression("INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_AD"),
+      new Expression("BS_DATE(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_BS"),
+      new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE"),
+      new Expression("INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_AD"),
+      new Expression("BS_DATE(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY')) AS REQUESTED_DATE_BS"),
+      new Expression("OT.DESCRIPTION AS DESCRIPTION"),
+      new Expression("OT.REMARKS AS REMARKS"),
+      new Expression("OT.TOTAL_HOUR AS TOTAL_HOUR"),
+      new Expression("MIN_TO_HOUR(OT.TOTAL_HOUR) AS TOTAL_HOUR_DETAIL"),
+      new Expression("OT.STATUS AS STATUS"),
+      new Expression("LEAVE_STATUS_DESC(OT.STATUS) AS STATUS_DETAIL"),
+      new Expression("OT.RECOMMENDED_BY AS RECOMMENDED_BY"),
+      new Expression("INITCAP(TO_CHAR(OT.RECOMMENDED_DATE, 'DD-MON-YYYY')) AS RECOMMENDED_DATE"),
+      new Expression("OT.RECOMMENDED_REMARKS AS RECOMMENDED_REMARKS"),
+      new Expression("OT.APPROVED_BY AS APPROVED_BY"),
+      new Expression("INITCAP(TO_CHAR(OT.APPROVED_DATE, 'DD-MON-YYYY')) AS APPROVED_DATE"),
+      new Expression("OT.APPROVED_REMARKS AS APPROVED_REMARKS")
+    ]);
+    $select->from(['OT' => Overtime::TABLE_NAME])
+      ->join(['E' => "HRIS_EMPLOYEES"], "E.EMPLOYEE_ID=OT.EMPLOYEE_ID", ["FULL_NAME" => new Expression("INITCAP(E.FULL_NAME)")], "left")
+      ->join(['E1' => "HRIS_EMPLOYEES"], "E1.EMPLOYEE_ID=OT.RECOMMENDED_BY", ['RECOMMENDED_BY_NAME' => new Expression("INITCAP(E1.FULL_NAME)")], "left")
+      ->join(['E2' => "HRIS_EMPLOYEES"], "E2.EMPLOYEE_ID=OT.APPROVED_BY", ['APPROVED_BY_NAME' => new Expression("INITCAP(E2.FULL_NAME)")], "left")
+      ->join(['RA' => "HRIS_RECOMMENDER_APPROVER"], "RA.EMPLOYEE_ID=OT.EMPLOYEE_ID", ['RECOMMENDER_ID' => 'RECOMMEND_BY', 'APPROVER_ID' => 'APPROVED_BY'], "left")
+      ->join(['RECM' => "HRIS_EMPLOYEES"], "RECM.EMPLOYEE_ID=RA.RECOMMEND_BY", ['RECOMMENDER_NAME' => new Expression("INITCAP(RECM.FULL_NAME)")], "left")
+      ->join(['APRV' => "HRIS_EMPLOYEES"], "APRV.EMPLOYEE_ID=RA.APPROVED_BY", ['APPROVER_NAME' => new Expression("INITCAP(APRV.FULL_NAME)")], "left");
 
-        $select->where(["OT.OVERTIME_ID" => $id]);
-        $select->order("OT.REQUESTED_DATE DESC");
-        $statement = $sql->prepareStatementForSqlObject($select);
-        $result = $statement->execute();
-        return $result->current();
-    }
+    $select->where(["OT.OVERTIME_ID" => $id]);
+    $select->order("OT.REQUESTED_DATE DESC");
+    $statement = $sql->prepareStatementForSqlObject($select);
+    $result = $statement->execute();
+    return $result->current();
+  }
 
-    public function getAllRequest($id) {
-        $sql = "SELECT 
+  public function getAllRequest($id)
+  {
+    $sql = "SELECT 
                     OT.OVERTIME_ID,
                     OT.EMPLOYEE_ID,
                     INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE,
@@ -98,53 +104,54 @@ class OvertimeStatusRepository extends HrisRepository {
                     AND ((RA.RECOMMEND_BY= :id AND OT.STATUS='RQ') OR (RA.APPROVED_BY= :id AND OT.STATUS='RC') )
                     ORDER BY OT.REQUESTED_DATE DESC";
 
-        $boundedParameter = [];
-        $boundedParameter['id'] = $id;
-        return $this->rawQuery($sql, $boundedParameter);
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return $result;
+    $boundedParameter = [];
+    $boundedParameter['id'] = $id;
+    return $this->rawQuery($sql, $boundedParameter);
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return $result;
+  }
+
+  public function getFilteredRecord($data, $recomApproveId)
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+
+    $requestStatusId = $data['requestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+
+    $statusConditon = "";
+    $fromDateCondition = "";
+    $toDateCondition = "";
+
+    if ($requestStatusId != -1) {
+      $statusConditon = " AND OT.STATUS =:requestStatusId";
+      $boundedParameter['requestStatusId'] = $requestStatusId;
     }
 
-    public function getFilteredRecord($data, $recomApproveId) {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
+    if ($fromDate != null) {
+      $fromDateCondition = " AND OT.OVERTIME_DATE>=TO_DATE(:fromDate,'DD-MON-YYYY')";
+      $boundedParameter['fromDate'] = $fromDate;
+    }
 
-        $requestStatusId = $data['requestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
+    if ($toDate != null) {
+      $toDateCondition = "AND OT.OVERTIME_DATE<=TO_DATE(:toDate,'DD-MON-YYYY')";
+      $boundedParameter['toDate'] = $toDate;
+    }
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId);
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-
-        $statusConditon = "";
-        $fromDateCondition = "";
-        $toDateCondition = "";
-
-        if ($requestStatusId != -1) {
-            $statusConditon = " AND OT.STATUS =:requestStatusId";
-            $boundedParameter['requestStatusId'] = $requestStatusId;
-        }
-
-        if ($fromDate != null) {
-            $fromDateCondition = " AND OT.OVERTIME_DATE>=TO_DATE(:fromDate,'DD-MON-YYYY')";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
-
-        if ($toDate != null) {
-            $toDateCondition = "AND OT.OVERTIME_DATE<=TO_DATE(:toDate,'DD-MON-YYYY')";
-            $boundedParameter['toDate'] = $toDate;
-        }
-
-        $sql = "SELECT INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY'))          AS OVERTIME_DATE_AD,
+    $sql = "SELECT INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY'))          AS OVERTIME_DATE_AD,
                   BS_DATE(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY'))               AS OVERTIME_DATE_BS,
                   INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_AD,
                   BS_DATE(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY'))              AS REQUESTED_DATE_BS,
@@ -215,54 +222,55 @@ class OvertimeStatusRepository extends HrisRepository {
                 AND U.EMPLOYEE_ID = :recomApproveId {$searchCondition['sql']} {$statusConditon} {$fromDateCondition} {$toDateCondition}
                 ORDER BY OT.REQUESTED_DATE DESC";
 
-        $boundedParameter['recomApproveId'] = $recomApproveId;
-        return $this->rawQuery($sql, $boundedParameter);
+    $boundedParameter['recomApproveId'] = $recomApproveId;
+    return $this->rawQuery($sql, $boundedParameter);
 
-        // $statement = $this->adapter->query($sql);
-        // $result = $statement->execute();
-        // return $result;
+    // $statement = $this->adapter->query($sql);
+    // $result = $statement->execute();
+    // return $result;
+  }
+
+  public function getOTRequestList($data): array
+  {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $requestStatusId = $data['requestStatusId'];
+    $fromDate = $data['fromDate'];
+    $toDate = $data['toDate'];
+
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
+
+    $statusConditon = "";
+    $fromDateCondition = "";
+    $toDateCondition = "";
+
+    if ($requestStatusId != -1) {
+      $statusConditon = " AND OT.STATUS =:requestStatusId";
+      $boundedParameter['requestStatusId'] = $requestStatusId;
     }
 
-    public function getOTRequestList($data): array {
-        $employeeId = $data['employeeId'];
-        $companyId = $data['companyId'];
-        $branchId = $data['branchId'];
-        $departmentId = $data['departmentId'];
-        $designationId = $data['designationId'];
-        $positionId = $data['positionId'];
-        $serviceTypeId = $data['serviceTypeId'];
-        $serviceEventTypeId = $data['serviceEventTypeId'];
-        $employeeTypeId = $data['employeeTypeId'];
-        $functionalTypeId = $data['functionalTypeId'];
-        $requestStatusId = $data['requestStatusId'];
-        $fromDate = $data['fromDate'];
-        $toDate = $data['toDate'];
+    if ($fromDate != null) {
+      $fromDateCondition = " AND OT.OVERTIME_DATE>=TO_DATE(:fromDate,'DD-MON-YYYY')";
+      $boundedParameter['fromDate'] = $fromDate;
+    }
 
-        $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    if ($toDate != null) {
+      $toDateCondition = "AND OT.OVERTIME_DATE<=TO_DATE(:toDate,'DD-MON-YYYY')";
+      $boundedParameter['toDate'] = $toDate;
+    }
 
-        $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
-
-        $statusConditon = "";
-        $fromDateCondition = "";
-        $toDateCondition = "";
-
-        if ($requestStatusId != -1) {
-            $statusConditon = " AND OT.STATUS =:requestStatusId";
-            $boundedParameter['requestStatusId'] = $requestStatusId;
-        }
-
-        if ($fromDate != null) {
-            $fromDateCondition = " AND OT.OVERTIME_DATE>=TO_DATE(:fromDate,'DD-MON-YYYY')";
-            $boundedParameter['fromDate'] = $fromDate;
-        }
-
-        if ($toDate != null) {
-            $toDateCondition = "AND OT.OVERTIME_DATE<=TO_DATE(:toDate,'DD-MON-YYYY')";
-            $boundedParameter['toDate'] = $toDate;
-        }
-
-        $sql = "SELECT INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_AD,
+    $sql = "SELECT INITCAP(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY')) AS OVERTIME_DATE_AD,
                   BS_DATE(TO_CHAR(OT.OVERTIME_DATE, 'DD-MON-YYYY'))      AS OVERTIME_DATE_BS,
                   INITCAP(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY'))     AS REQUESTED_DATE_AD,
                   BS_DATE(TO_CHAR(OT.REQUESTED_DATE, 'DD-MON-YYYY'))     AS REQUESTED_DATE_BS,
@@ -315,7 +323,7 @@ class OvertimeStatusRepository extends HrisRepository {
                 OR APRV.STATUS IS NULL) {$searchCondition['sql']} {$statusConditon} {$fromDateCondition} {$toDateCondition}
                 ORDER BY OT.REQUESTED_DATE DESC";
 
-        $finalSql = $this->getPrefReportQuery($sql);
-        return $this->rawQuery($finalSql, $boundedParameter);
-    }
+    $finalSql = $this->getPrefReportQuery($sql);
+    return $this->rawQuery($finalSql, $boundedParameter);
+  }
 }

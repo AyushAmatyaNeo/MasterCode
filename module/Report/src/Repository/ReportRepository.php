@@ -3561,6 +3561,8 @@ CL.TRAVEL,
 CL.TRAINING,
 CL.HOLIDAY,
 CL.EVENT_CONF,
+CL.total_ot_req_days,
+Cl.total_ot_req,
 (CASE
 WHEN cl.TOTAL_OT_HOURS IS NULL  THEN '0'
 WHEN cl.TOTAL_OT_HOURS = 0 THEN '0'
@@ -3742,15 +3744,26 @@ WHEN SUM(ad.total_hour) IS NULL THEN '0'
 ELSE
    TO_CHAR(TRUNC(SUM(ad.total_hour) / 60), '990') || '.' ||
    LPAD(MOD(SUM(ad.total_hour), 60), 2, '0')
-END )AS total_hour_sum
+END )AS total_hour_sum,
+(CASE
+WHEN SUM(ot.total_hour) IS NULL THEN '0'
+ELSE TO_CHAR(TRUNC(SUM(ot.total_hour) / 60), '990') || '.' ||
+     LPAD(MOD(SUM(ot.total_hour), 60), 2, '0')
+END ) AS total_ot_req,
+COUNT(
+  CASE ot.status
+   WHEN 'AP'
+   THEN 1
+  END) AS total_ot_req_days
 FROM
 hris_attendance_detail ad
 LEFT JOIN
 hris_shifts hs
 ON
 ad.shift_id = hs.shift_id
+LEFT JOIN hris_overtime ot ON (ad.attendance_dt = ot.overtime_date AND ad.employee_id = ot.employee_id and ot.status='AP')
 WHERE ad.ATTENDANCE_DT BETWEEN TO_DATE('{$monthDetail['FROM_DATE']}','DD-MON-YY') AND TO_DATE('{$monthDetail['TO_DATE']}','DD-MON-YY')
-GROUP BY EMPLOYEE_ID
+GROUP BY ad.EMPLOYEE_ID
 )CL
 ON (PL.EMPLOYEE_ID=CL.EMPLOYEE_ID)
 LEFT JOIN
@@ -3763,8 +3776,8 @@ from
             FROM (SELECT *
                         FROM
                         (select employee_id, previous_year_bal, leave_id, total, 
-                       case when (Previous_year_bal+total-taken)<0 then 0 else  Previous_year_bal+total-taken end as balance,
-                        encashed, taken as taken from 
+                       case when (Previous_year_bal+total-takenNew)<0 then 0 else  Previous_year_bal+total-takenNew end as balance,
+                        encashed, takenNew as taken from 
                         (SELECT 
                         HA.EMPLOYEE_ID,
                                 HA.PREVIOUS_YEAR_BAL,
@@ -3777,7 +3790,7 @@ from
                                 ( HA.PREVIOUS_YEAR_BAL + ha.total_days - ha.balance - (case when
                                 HS.ENCASH_DAYS is null then 0 else HS.ENCASH_DAYS end)) AS taken,
 								(select nvl(sum(case when half_day ='N' then no_of_days else no_of_days/2 end),0) from hris_Employee_leave_request where status = 'AP' and leave_id = HA.leave_id
-and employee_id = ha.employee_id and start_date between 
+and employee_id = ha.employee_id and end_date between 
 (select start_date from hris_leave_years where leave_year_id = (select fiscal_year from hris_leave_master_setup where leave_id = HA.leave_id))
 and TO_DATE('{$monthDetail['TO_DATE']}','DD-MON-YY')
 )  - (case when
@@ -3806,7 +3819,7 @@ PIVOT ( MAX (LTBM) FOR LEAVE_ID IN (
 )
 ) MLD
 ON (PL.EMPLOYEE_ID=MLD.EMPLOYEE_ID)
-     
+order by PL.full_name 
 EOT;
 
     $statement = $this->adapter->query($sql);
