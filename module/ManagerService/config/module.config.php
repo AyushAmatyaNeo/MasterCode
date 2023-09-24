@@ -614,6 +614,24 @@ return [
                 ]
             ]
         ],
+        'managerReport' => [
+            [
+                'label' => 'Reports',
+                'route' => 'managerReport',
+            ],
+            [
+                'label' => 'Reports',
+                'route' => 'managerReport',
+                'pages' => [
+                    [
+                        'label' => 'Department|Month',
+                        'route' => 'allreport',
+                        'action' => 'newDepartmentWiseDaily',
+                    ],
+
+                ]
+            ]
+        ],
         'subordinate' => [
             [
                 'label' => 'Subordinate',

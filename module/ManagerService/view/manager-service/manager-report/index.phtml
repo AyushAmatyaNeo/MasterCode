@@ -1,32 +1,32 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.rtl.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.rtl.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.dataviz.default.min.css'));
 
 
 
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
 $this->headScript()->appendFile($this->basePath('js/angular.min.js'));
 $this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-        ->appendFile($this->basePath('js/manager-service/manager-report/index.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
+    ->appendFile($this->basePath('js/manager-service/manager-report/index.js'));
 ?>
 
 
 <script>
-    document.ids =<?php echo json_encode(["fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => "","statusId" => "All","employeeId" => -1]) ?>;
+    document.ids = <?php echo json_encode(["fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => "", "statusId" => "All", "employeeId" => -1]) ?>;
     document.url = '<?= $this->url("managerReport", ["action" => "pullAttendance"]) ?>';
-    document.currentEmployeeId = '<?= $currentEmployeeId?>';
+    document.currentEmployeeId = '<?= $currentEmployeeId ?>';
 </script>
 
 <div class="page-bar">
@@ -43,11 +43,11 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 
-<div ng-app="hris" ng-controller="attendanceController" >
+<div ng-app="hris" ng-controller="attendanceController">
     <div id="hris-page-content">
         <div class="margin-top-20">
 
@@ -70,7 +70,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                             <ul class="dropdown-menu pull-right">
                                 <li>
                                     <a href="javascript:;" id="export">
-                                        <i class="fa fa-pencil" ></i> Export to Excel </a>
+                                        <i class="fa fa-pencil"></i> Export to Excel </a>
                                 </li>
                             </ul>
                         </div>
@@ -87,32 +87,32 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label for="fromDate">From Date</label>
-                                                <input type="text" id="fromDate" name="fromDate" class="form-control reset-field"/>
+                                                <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" />
                                             </div>
 
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label for="nepaliFromDate">&nbsp;</label>
-                                                <input type="text" id="nepaliFromDate" name="nepaliFromDate"  class="form-control reset-field"/>
+                                                <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" />
                                             </div>
 
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label for="toDate">To Date</label>
-                                                <input type="text"  id="toDate" name="toDate"  class="form-control reset-field"/>
+                                                <input type="text" id="toDate" name="toDate" class="form-control reset-field" />
                                             </div>
                                         </div>
                                         <div class="col-sm-3">
                                             <div class="form-group">
                                                 <label for="nepaliToDate">&nbsp;</label>
-                                                <input type="text"  id="nepaliToDate" name="nepaliToDate" class="form-control reset-field"/>
+                                                <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -120,32 +120,32 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <div class='row'>
                         <div class="col-sm-3">
                             <label>Employee</label>
-                          <?php print $this->formElement($employeeFromElement); ?>
+                            <?php print $this->formElement($employeeFromElement); ?>
                         </div>
-                        
+
                         <div class="col-sm-2">
                             <label>Status</label>
                             <?php print $this->formElement($status); ?>
-                        </div> 
+                        </div>
                         <div class="col-sm-2">
-                            <div  style="float: left;margin-top: 1%;font-size: 12px;">
+                            <div style="float: left;margin-top: 1%;font-size: 12px;">
                                 <label>Missed-Punch Only</label>
                                 <label style="padding-left:0px!important;" class="mt-checkbox mt-checkbox-single mt-checkbox-outline">
-                                    <input class="reset-field" type="checkbox" id="missPunchOnly" name="missPunchOnly"/>
+                                    <input class="reset-field" type="checkbox" id="missPunchOnly" name="missPunchOnly" />
                                     <span></span>
                                 </label>
                             </div>
                         </div>
-                        
+
                         <div class=" col-sm-4 ">
-                                    <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
-                                        Reset
-                                        <i class="fa fa-refresh"></i>
-                                    </button>
-                                    <button ng-click="view()" id="myAttendance" class="btn btn-default btn-sm pull-right">
-                                        VIEW<i class="fa fa-search"></i>
-                                    </button>
-                                </div>
+                            <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                                Reset
+                                <i class="fa fa-refresh"></i>
+                            </button>
+                            <button ng-click="view()" id="myAttendance" class="btn btn-default btn-sm pull-right">
+                                VIEW<i class="fa fa-search"></i>
+                            </button>
+                        </div>
 
                     </div>
 
@@ -155,7 +155,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 
             <div id="attendanceTable">
             </div>
-<!--            <script id="rowTemplate" type="text/x-kendo-tmpl">
+            <!--            <script id="rowTemplate" type="text/x-kendo-tmpl">
                 <tr>
                 <td>
                 #: (FULL_NAME == null) ? '-' : FULL_NAME #

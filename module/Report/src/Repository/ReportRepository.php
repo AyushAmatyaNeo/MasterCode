@@ -3609,11 +3609,13 @@ FROM
 --    WHEN AD.OVERALL_STATUS = 'LV' AND AD.HALFDAY_FLAG!='N' THEN 'HL'||'-'||LMS.LEAVE_CODE
 --   ELSE AD.OVERALL_STATUS
 --  END AS OVERALL_STATUS,
-( CASE
-WHEN ad.total_hour IS NULL and ad.overall_status in ('PR','LA') THEN '0'
-WHEN ad.total_hour IS NULL and ad.overall_status NOT in ('PR') THEN ad.overall_status
-ELSE EXTRACT(MINUTE FROM NUMTODSINTERVAL(ad.total_hour, 'SECOND')) || '.' || 
-EXTRACT(SECOND FROM NUMTODSINTERVAL(ad.total_hour, 'SECOND'))
+(CASE
+    WHEN ad.total_hour IS NULL and ad.overall_status in ('PR','LA') THEN '0'
+    WHEN ad.total_hour IS NULL  and ad.overall_status NOT in ('PR') THEN ad.overall_status
+    WHEN ad.total_hour < 60 THEN '.' || TO_CHAR(TRUNC(ad.total_hour))
+    ELSE
+    TO_CHAR(TRUNC(ad.total_hour / 60), '990') || '.' ||
+   TO_CHAR(MOD(ad.total_hour, 60), 'FM00')
 END) AS total_hour,
  --AD.ATTENDANCE_DT,
  (AD.ATTENDANCE_DT-TO_DATE('{$fromDate}')+1) AS DAY_COUNT

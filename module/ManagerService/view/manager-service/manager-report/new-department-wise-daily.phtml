@@ -1,0 +1,302 @@
+<style>
+    .btn.green:not(.btn-outline),
+    .green {
+        background-color: #63AB6A !important;
+        border-color: #63AB6A !important;
+    }
+
+    abbr[title] {
+        border-bottom: none !important;
+        cursor: inherit !important;
+        text-decoration: none !important;
+    }
+</style>
+<?php
+$this->headLink()
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+
+$this->headLink()
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+
+
+$this->headScript()
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'));
+$this->headScript()->appendFile($this->basePath('js/search.js'));
+$this->headScript()->appendFile($this->basePath('js/manager-service/manager-report/newdepartment.js?1'));
+$this->headScript()
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+?>
+<?php if ($this->messages) { ?>
+    <script>
+        document.messages = <?php echo json_encode($this->messages); ?>
+    </script>
+<?php } ?>
+
+<script>
+    document.searchValues = <?php echo json_encode($searchValues) ?>;
+    document.getFiscalYearMonthLink = '<?php echo $this->url('allreport', ['action' => 'getFiscalYearMonth']); ?>';
+    document.preference = <?php echo json_encode($preference) ?>;
+    //    document.wsDepartmentWiseDailyReport = '<?php // echo $this->url('allreport', ['action' => 'departmentWiseDailyReport']); 
+                                                    ?>';
+    //    document.comBraDepList =<?php // echo json_encode($comBraDepList); 
+                                    ?>;
+    //    document.monthId =<?php // echo $monthId; 
+                            ?>;
+    //    document.departmentId =<?php // echo $departmentId; 
+                                    ?>;
+    document.acl = <?php echo json_encode($acl); ?>;
+    document.employeeDetail = <?php echo json_encode($employeeDetail); ?>;
+    document.employees = <?php echo json_encode($employees); ?>;
+</script>
+
+
+<div class="page-bar">
+    <?= $this->navigation('Zend\Navigation\allreport')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
+</div>
+
+
+<div class="portlet light bg-inverse">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="icon-paper-plane font-green-haze"></i>
+            <span class="caption-subject bold font-green-haze uppercase"> Employee Wise Daily </span>
+        </div>
+        <div class="tools">
+            <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+            <a href="" class="fullscreen" data-original-title="" title=""> </a>
+        </div>
+        <div class="actions">
+            <div class="btn-group">
+                <a class="btn btn-sm blue-soft" href="javascript:;" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-copy"></i> Tools
+                    <i class="fa fa-angle-down "></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <li>
+                        <a href="javascript:;" id="excelExport">
+                            <i class="fa fa-file-excel-o"></i> Export to Excel </a>
+                    </li>
+                    <li>
+                        <a href="javascript:;" id="pdfExport">
+                            <i class="fa fa-file-pdf-o"></i> Export to PDF </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div class="portlet-body">
+        <div class="hris-filter-container">
+            <div class="row">
+                <div class="col-sm-2">
+                    <label>Company</label>
+                    <select multiple class="form-control" name="company" id="companyId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Branch</label>
+                    <select multiple class="form-control" name="branchId" id="branchId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Department</label>
+                    <select multiple class="form-control" name="department" id="departmentId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Designation</label>
+                    <select multiple class="form-control" name="designation" id="designationId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Position</label>
+                    <select multiple class="form-control" name="position" id="positionId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Service Type</label>
+                    <select multiple class="form-control" name="serviceType" id="serviceTypeId">
+                    </select>
+                </div>
+            </div>
+            <div class="row margin-top-10">
+                <div class="col-sm-2">
+                    <label>Service Event Type</label>
+                    <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Employee Type</label>
+                    <select multiple class="form-control" name="employeeType" id="employeeTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Gender</label>
+                    <select multiple class="form-control" name="gender" id="genderId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Location</label>
+                    <select multiple class="form-control" name="location" id="locationId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Functional Type</label>
+                    <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <label>Employee</label>
+                    <select multiple class="form-control" name="employee" id="employeeId">
+                    </select>
+                </div>
+            </div>
+            <div class="row margin-top-10">
+                <div class="col-sm-2">
+                    <select class="form-control reset-field" id="fiscalYearId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control reset-field" id="monthId">
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" id="fromDate" name="fromDate" class="form-control" placeholder="From Date" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control" placeholder="From Date Nepali" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" id="toDate" name="toDate" class="form-control" placeholder="To Date" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control" placeholder="To Date Nepali" />
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <label for="checkbox1">Attendance</label>
+                    <input type="checkbox" id="attendance" name="checkboxChoices[]" value="attd">
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label for="checkbox2">Month Details</label>
+                        <input type="checkbox" id="monthDetails" name="checkboxChoices[]" value="month">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label for="checkbox3">Leave Details</label>
+                        <input type="checkbox" id="leaveDetails" name="checkboxChoices[]" value="leave">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label for="checkbox3">Company</label>
+                        <input type="checkbox" id="company" name="checkboxChoices[]" value="company">
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <label for="checkbox1">Department</label>
+                    <input type="checkbox" id="department" name="checkboxChoices[]" value="department">
+                </div>
+                <div class="col-sm-2">
+                    <div class="form-group">
+                        <label for="checkbox2">Code</label>
+                        <input type="checkbox" id="code" name="checkboxChoices[]" value="code">
+                    </div>
+                </div>
+                <!--                <div class="col-sm-2">
+                    <?php // print $this->formElement($fiscalYearSE); 
+                    ?>
+                </div>-->
+                <div class="col-sm-4 col-sm-offset-6">
+                    <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
+                        Reset
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <button id="search" class="btn btn-default btn-sm pull-right">
+                        Search
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="report">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+<!--<div class="portlet light bg-inverse">
+    <div class="portlet-title">
+        <div class="caption">
+            <div class="indicator">
+                <ul>
+                    <li>
+                        <div class="indicator-box indicator-color-present"></div> 
+                        <span>Present</span>
+                    </li>
+                    <li>
+                        <div class="indicator-box indicator-color-Absent"> </div>   
+                        <span>Absent</span>
+                    </li>
+                    <li>
+                        <div class="indicator-box indicator-color-leave"> </div> 
+                        <span>leave</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="actions">
+            <a class="btn btn-circle btn-icon-only btn-default fullscreen" href="javascript:;" data-original-title="" title=""> </a>
+        </div>
+    </div>
+    <div class="portlet-body">
+
+        <div class="row margin-top-10">
+            <div class="col-sm-2">
+                <select class="form-control"  id="fiscalYear" >
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <select class="form-control" id="fiscalMonth" >
+                </select>
+            </div>
+            <div class="  col-sm-3  bottomgap">
+                <select id="departmentList">
+                </select> 
+            </div>
+            <div class=" col-sm-3 bottomgap">
+                <button id="generateReport" class="btn btn-block btn-customized">
+                    Generate Report
+                </button>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="reportTable" class="kendo-report">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>-->

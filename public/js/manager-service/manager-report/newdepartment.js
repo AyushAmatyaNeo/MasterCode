@@ -83,7 +83,7 @@ function setAbbr(temp) {
         var $monthDetails = $("#monthDetails");
         var $leaveDetails = $("#leaveDetails");
         var $employeeId = $('#employeeId');
-        app.populateSelect($employeeId, document.employees, 'id', 'name', '--------', null, null, false);
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
 
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, false);
         var exportVals;
