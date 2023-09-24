@@ -177,6 +177,7 @@ class SalarySheetDetailRepo extends HrisRepository
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['employeeId'] = $employeeId;
+
         return $this->rawQuery($sql, $boundedParameter);
     }
     public function fetchEmployeePaySlipHRNep($monthId, $employeeId, $salaryTypeId = 1)

@@ -25,6 +25,7 @@ $this->headScript()
     document.generateVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "generateVoucher"]); ?>';
     document.regenerateVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "regenerateVoucher"]); ?>';
     document.testVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "testVoucher"]); ?>';
+    document.sendPayslipEmailLink = '<?= $this->url("salarysheetlock", ["action" => "sendPyslipEmail"]); ?>';
 </script>
 <style>
     .my-custom-scrollbar {
@@ -68,6 +69,10 @@ $this->headScript()
                 <select class="form-control" name="allSheetId" id="allSheetId">
                 </select>
             </div>
+            <div class="col-sm-4" style="margin-left: -20rem;margin-top: 2rem;">
+                <button id="emailBtn" type="button" style="margin-bottom: 20px;" class="btn btn-warning pull-right">Send Email</button>
+            </div>
+
         </div>
         <div class="row margin-top-10">
             <div class="col-sm-2">
@@ -79,9 +84,10 @@ $this->headScript()
                 </select>
             </div>
             <div class="col-sm-4">
-                <button id="viewBtn" style="margin-bottom: 20px;" class="btn yellow-saffron pull-right">View</button>
+                <button id="viewBtn" style="margin-bottom: 20px;" class="btn btn-info pull-right">View</button>
             </div>
         </div>
+
 
         <div class="modal" id="myModal" style="height: 600px;">
             <div class="modal-dialog">

@@ -36,10 +36,8 @@ class EmailHelper
     {
 
         if ('development' == APPLICATION_ENV || 'staging' == APPLICATION_ENV) {
-
             return true;
         }
-
         $transport = self::getSmtpTransport();
         $connectionConfig = $transport->getOptions()->getConnectionConfig();
         $mail->setFrom($connectionConfig['username']);

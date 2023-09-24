@@ -24,9 +24,9 @@ class SalarySheetRepo extends HrisRepository
         return $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function addSendPayslip($id, $employeeId)
+    public function addSendPayslip($id, $employeeId, $createdBy)
     {
-        $sql = "Insert into HRIS_PAYSLIP_EMAIL (id,employee_id) values ($id,$employeeId)";
+        $sql = "Insert into HRIS_PAYSLIP_EMAIL (id,employee_id,created_by,created_dt) values ($id,$employeeId,$createdBy,trunc(sysdate))";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         $result->current();
@@ -938,8 +938,9 @@ where SS.SHEET_NO=:sheetNo";
     public function getPayslipData($sheetNo)
     {
         $sql = "select distinct(hssd.employee_id),hssed.month_id,hss.salary_type_id from hris_salary_sheet_detail hssd,hris_salary_sheet_emp_detail hssed,
-        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo  order by hssd.employee_id desc";
+        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo  and hss.approved='Y' order by hssd.employee_id desc";
         $statement = $this->adapter->query($sql);
+
         $result = $statement->execute();
         return Helper::extractDbData($result);
     }
@@ -947,7 +948,7 @@ where SS.SHEET_NO=:sheetNo";
     public function getPayslipDataRest($sheetNo, $empId)
     {
         $sql = "select distinct(hssd.employee_id),hssed.month_id,hss.salary_type_id from hris_salary_sheet_detail hssd,hris_salary_sheet_emp_detail hssed,
-        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo and hssd.employee_id<$empId order by hssd.employee_id desc";
+        hris_salary_sheet hss where (hssd.sheet_no=hssed.sheet_no and hssd.employee_id=hssed.employee_id) and  (hssd.sheet_no=hss.sheet_no)and hssd.sheet_no=$sheetNo and hss.approved='Y'  and hssd.employee_id<$empId order by hssd.employee_id desc";
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return Helper::extractDbData($result);

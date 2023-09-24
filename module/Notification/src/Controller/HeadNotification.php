@@ -471,6 +471,7 @@ class HeadNotification
         $payslipModel = self::initializeNotificationModel(72, $payslipDetail->setProperty1['EMPLOYEE_ID'], PayslipEmailNotificationModel::class, $adapter);
         $property = $payslipDetail->setProperty2;
         $paySlipDetail = '';
+
         $paySlipDetail .= '
         <table class="table table-bordered" style="width: 100%; border-collapse: collapse;border:1px solid #dddddd;">
                 <tr style="text-align: center;padding-top: 8px;"><td colspan="4"><h2><b><span id="yearMonthDetails">PaySlip of ' . $payslipDetail->setProperty1['FULL_NAME'] . ' for ' . $payslipDetail->setProperty1['MONTH_EDESC'] . ' ' . $payslipDetail->setProperty1['YEAR'] . '</span></b></h2>  </td> </tr>
@@ -508,14 +509,19 @@ class HeadNotification
                     <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Designation Name </td>
                     <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['DESIGNATION_TITLE'] . '</td>
                 </tr>
-                <tr>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Exchange Rate </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['EXCHANGE_RATE'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
-                </tr>
-            </table>
             ';
+        if ($payslipDetail->setProperty1['EXCHANGE_RATE'] == 'Rs ') {
+            $exchangeRateHtml = ' </table>';
+        } else {
+            $exchangeRateHtml = '
+            <tr>
+             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Exchange Rate </td>
+             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['EXCHANGE_RATE'] . '</td>
+             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
+             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
+         </tr>
+         </table>';
+        }
         $tableHeader = '
             <table class="table table-bordered" style="width: 100%; border-collapse: collapse;border:1px solid #dddddd;">
                 <tr>
@@ -581,10 +587,9 @@ class HeadNotification
             </tr>
         </tbody>
         </table>';
-        $paySlipDetail .= $tableHeader . $additionRows . $tableFooter;
+        $paySlipDetail .= $exchangeRateHtml . $tableHeader . $additionRows . $tableFooter;
 
         $payslipModel->paySlipDetails = $paySlipDetail;
-
         self::sendEmail($payslipModel, 53, $adapter, $url);
     }
 
@@ -596,9 +601,7 @@ class HeadNotification
 
         $newUserModel->userName = $userSetup->userName;
         $newUserModel->password = $userSetup->password;
-        // echo '<pre>';
-        // print_r($newUserModel);
-        // die;
+
         self::sendEmail($newUserModel, 52, $adapter, $url);
     }
 

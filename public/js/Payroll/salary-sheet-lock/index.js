@@ -25,6 +25,7 @@
         var $toDate = $('#toDate');
         var $nepaliToDate = $('#nepaliToDate');
         var $viewBtn = $('#viewBtn');
+        var $emailBtn = $('#emailBtn');
         var $generateBtn = $('#generateBtn');
         var $companyId = $('#companyId');
         var $groupId = $('#groupId');
@@ -235,6 +236,24 @@
 
         $viewBtn.on('click', function () {
             groupChangeFn();
+        });
+
+        $emailBtn.on('click', function () {
+            var selectedValues = getSelectedSheets();
+            if (selectedValues.length == 0) {
+                app.showMessage('Select Sheet !!');
+                return;
+            }
+            app.serverRequest(document.sendPayslipEmailLink, { data: selectedValues }).then(function (response) {
+                $viewBtn.trigger('click');
+                if (response.success) {
+                    app.showMessage('Payslip send successfully!!');
+                } else {
+                    app.showMessage('Payslip will be send after approval of sheet!!');
+                }
+            }, function (error) {
+                app.showMessage(error);
+            });
         });
 
         function getSelectedSheets() {

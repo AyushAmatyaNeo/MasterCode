@@ -1,4 +1,5 @@
 <?php
+
 namespace HolidayManagement\Controller;
 
 use Application\Controller\HrisController;
@@ -18,15 +19,18 @@ use Zend\Form\Element\Select;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class HolidaySetup extends HrisController {
+class HolidaySetup extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(HolidayRepository::class);
         $this->initializeForm(HolidayForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $holidayFormElement = new Select();
         $holidayFormElement->setName("holiday");
         $holidays = ApplicationEntityHelper::getTableKVListWithSortOption($this->adapter, Holiday::TABLE_NAME, Holiday::HOLIDAY_ID, [Holiday::HOLIDAY_ENAME], ["STATUS" => "E"], Holiday::HOLIDAY_ENAME, "ASC", NULL, FALSE, TRUE);
@@ -36,15 +40,16 @@ class HolidaySetup extends HrisController {
         $holidayFormElement->setLabel("Holiday");
         $holidayList = $this->repository->fetchAll();
         $viewModel = new ViewModel(Helper::addFlashMessagesToArray($this, [
-                'holidayList' => $holidayList,
-                'holidayFormElement' => $holidayFormElement,
-                'form' => $this->form,
-                'customRenderer' => Helper::renderCustomView(),
+            'holidayList' => $holidayList,
+            'holidayFormElement' => $holidayFormElement,
+            'form' => $this->form,
+            'customRenderer' => Helper::renderCustomView(),
         ]));
         return $viewModel;
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $postData = $request->getPost();
@@ -64,17 +69,18 @@ class HolidaySetup extends HrisController {
                 return $this->redirect()->toRoute("holidaysetup");
             }
         }
-        $fiscalYearKV = EntityHelper::getTableKVList($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME]);
+        $fiscalYearKV = EntityHelper::getTableKVList($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME], null, null, null, FiscalYear::FISCAL_YEAR_ID, "DESC");
         return $this->stickFlashMessagesTo([
-                'form' => $this->form,
-                'customRenderer' => Helper::renderCustomView(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'fiscalYearKV' => $fiscalYearKV
+            'form' => $this->form,
+            'customRenderer' => Helper::renderCustomView(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'fiscalYearKV' => $fiscalYearKV
         ]);
     }
 
-    private function toCSV(&$out, $postData) {
-        $arrayToCSV = function(array $list, $isString = false ) {
+    private function toCSV(&$out, $postData)
+    {
+        $arrayToCSV = function (array $list, $isString = false) {
             $valuesinCSV = "";
             for ($i = 0; $i < sizeof($list); $i++) {
                 $value = $isString ? "'{$list[$i]}'" : $list[$i];
@@ -99,7 +105,8 @@ class HolidaySetup extends HrisController {
         $out['employeeId'] = isset($postData['employee']) ? $arrayToCSV($postData['employee']) : '';
     }
 
-    private function csvToArray($csvList) {
+    private function csvToArray($csvList)
+    {
         $array['companyId'] = str_getcsv($csvList['COMPANY_ID']);
         $array['branchId'] = str_getcsv($csvList['BRANCH_ID']);
         $array['departmentId'] = str_getcsv($csvList['DEPARTMENT_ID']);
@@ -112,7 +119,8 @@ class HolidaySetup extends HrisController {
         return $array;
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $id = (int) $this->params()->fromRoute("id", 0);
 
         if ($id === 0) {
@@ -142,16 +150,17 @@ class HolidaySetup extends HrisController {
         $fiscalYearKV = EntityHelper::getTableKVList($this->adapter, FiscalYear::TABLE_NAME, FiscalYear::FISCAL_YEAR_ID, [FiscalYear::FISCAL_YEAR_NAME]);
 
         return $this->stickFlashMessagesTo([
-                'id' => $id,
-                'form' => $this->form,
-                'customRenderer' => Helper::renderCustomView(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'searchSelectedValues' => $searchSelectedValues,
-                'fiscalYearKV' => $fiscalYearKV
+            'id' => $id,
+            'form' => $this->form,
+            'customRenderer' => Helper::renderCustomView(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'searchSelectedValues' => $searchSelectedValues,
+            'fiscalYearKV' => $fiscalYearKV
         ]);
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         $id = (int) $this->params()->fromRoute("id");
         if ($id === 0) {
             return $this->redirect()->toRoute("holidaysetup");
@@ -162,15 +171,17 @@ class HolidaySetup extends HrisController {
         return $this->redirect()->toRoute('holidaysetup');
     }
 
-    public function listAction() {
+    public function listAction()
+    {
         $list = $this->repository->fetchAll();
 
         return Helper::addFlashMessagesToArray($this, [
-                'holidayList' => $list,
+            'holidayList' => $list,
         ]);
     }
 
-    public function branchListAction() {
+    public function branchListAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -192,7 +203,8 @@ class HolidaySetup extends HrisController {
         }
     }
 
-    public function designationListAction() {
+    public function designationListAction()
+    {
         try {
             $request = $this->getRequest();
             if (!$request->isPost()) {
@@ -206,7 +218,8 @@ class HolidaySetup extends HrisController {
         }
     }
 
-    public function pullHolidayListAction() {
+    public function pullHolidayListAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();

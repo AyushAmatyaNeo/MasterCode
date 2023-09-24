@@ -54,7 +54,7 @@ class Roaster extends HrisController
             $request = $this->getRequest();
             $data = $request->getPost();
             foreach ($data['data'] as $item) {
-                $this->repository->merge($item['EMPLOYEE_ID'], $item['FOR_DATE'], $item['SHIFT_ID']);
+                $this->repository->merge($item['EMPLOYEE_ID'], $item['FOR_DATE'], $item['SHIFT_ID'], $this->employeeId);
             }
             $employeeData = [];
 

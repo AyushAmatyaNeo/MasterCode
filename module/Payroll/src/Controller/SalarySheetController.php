@@ -23,7 +23,11 @@ use Setup\Model\HrEmployees;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use Notification\Controller\HeadNotification;
+use Notification\Model\NotificationEvents;
+use Notification\Model\PaySlipDetailsModel;
 use Application\Model\FiscalYear;
+use Payroll\Model\PaySlipEmail;
 use Application\Model\Months;
 
 class SalarySheetController extends HrisController
@@ -349,7 +353,6 @@ class SalarySheetController extends HrisController
                 $postedData = $request->getPost();
                 $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-
                 $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetails($postedData['monthId'], $postedData['employeeId']);
                 if ($postedData['exchangeRate'] == 1 && $allowExchangeRate == 'N') {
                     $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
@@ -742,5 +745,43 @@ class SalarySheetController extends HrisController
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
+    }
+    public function sendPayslipEmailAction()
+    {
+        $ExchangeRate = $this->repository->getExchnageRate();
+        $allowExchangeRate = $ExchangeRate['VALUE'];
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $postedData = $request->getPost();
+                $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
+                $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+                $model = new PaySlipDetailsModel();
+                $data['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetails($postedData['monthId'], $postedData['employeeId']);
+                if ($postedData['exchangeRate'] == 1 && $allowExchangeRate == 'N') {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                } else {
+                    $data['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHR($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                    foreach ($data['pay-detail'] as &$row) {
+                        $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
+                        $val = str_replace(',', '', $row['VAL']);
+                        $result = $val * $exchangeRate['EXCHANGE_RATE'];
+                        $row['VAL'] = number_format($result, 2, '.', ',');
+                    }
+                }
+                $empDetailForPayslip = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($postedData['monthId'], $postedData['employeeId'], $postedData['salaryTypeId']);
+                $model->setProperty1 = $empDetailForPayslip;
+                $model->setProperty2 = ($data['pay-detail']);
+
+                HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
+                $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+                $mployeeId = $data['emp-detail']['EMPLOYEE_ID'];
+                $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
+                return new JsonModel(['success' => true, 'data' => $empDetailForPayslip, 'error' => '']);
+            } catch (Exception $e) {
+                return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+            }
+        }
+        return $this->stickFlashMessagesTo([]);
     }
 }

@@ -53,13 +53,14 @@ class RoasterRepo extends HrisRepository implements RepositoryInterface
   {
   }
 
-  public function merge($employeeId, $forDate, $shiftId)
+  public function merge($employeeId, $forDate, $shiftId, $createdBy)
   {
     EntityHelper::rawQueryResult($this->adapter, "
                 DECLARE
                   V_EMPLOYEE_ID  NUMBER :={$employeeId};
                   V_FOR_DATE     DATE   :=TO_DATE('{$forDate}','DD-MON-YYYY');
                   V_SHIFT_ID_NEW NUMBER :={$shiftId};
+                  V_CREATED_BY  NUMBER := {$createdBy};
                   V_SHIFT_ID_OLD NUMBER;
                 BEGIN
                 BEGIN
@@ -76,13 +77,17 @@ class RoasterRepo extends HrisRepository implements RepositoryInterface
                     (
                       EMPLOYEE_ID,
                       FOR_DATE,
-                      SHIFT_ID
+                      SHIFT_ID,
+                      CREATED_BY,
+                      CREATED_DT
                     )
                     VALUES
                     (
                       V_EMPLOYEE_ID,
                       V_FOR_DATE,
-                      V_SHIFT_ID_NEW
+                      V_SHIFT_ID_NEW,
+                      V_CREATED_BY,
+                      TRUNC(SYSDATE)
                     );
                     END IF;
                     END;
@@ -91,7 +96,7 @@ class RoasterRepo extends HrisRepository implements RepositoryInterface
                 DELETE FROM HRIS_EMPLOYEE_SHIFT_ROASTER WHERE EMPLOYEE_ID =V_EMPLOYEE_ID AND FOR_DATE=V_FOR_DATE;
                 ELSE
                   UPDATE HRIS_EMPLOYEE_SHIFT_ROASTER
-                  SET SHIFT_ID     = V_SHIFT_ID_NEW
+                  SET SHIFT_ID     = V_SHIFT_ID_NEW,MODIFIED_BY=V_CREATED_BY,MODIFED_DT=TRUNC(SYSDATE)
                   WHERE EMPLOYEE_ID=V_EMPLOYEE_ID
                   AND FOR_DATE     =V_FOR_DATE;
                 END IF;
