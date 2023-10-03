@@ -100,6 +100,11 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/age-generat
                 </select>
             </div>
             <div class="col-sm-2">
+                <label>Gender</label>
+                <select multiple class="form-control" name="gender" id="genderId">
+                </select>
+            </div>
+            <div class="col-sm-2">
                 <label>Generation</label>
                 <select class="form-control" id="ageGeneration" style="height: 5rem;">
                     <option value="0">Select</option>
@@ -110,7 +115,6 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/age-generat
                     <option value="5">Boomers I*(69-77)</option>
                 </select>
             </div>
-
         </div>
         <div class="hris-filter-container">
             <div class="row margin-top-10">

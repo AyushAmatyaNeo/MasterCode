@@ -13,6 +13,7 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/training-re
 <script>
     document.getSearchDataLink = '<?php echo $this->url('allreport', ['action' => 'getSearchData']); ?>';
     document.calenderType = '<?php echo $calenderType; ?>';
+    document.getFiscalYearMonthLink = '<?php echo $this->url('allreport', ['action' => 'getFiscalYearMonth']); ?>';
     document.preference = <?php echo json_encode($preference); ?>;
     document.acl = <?php echo json_encode($acl); ?>;
     document.pullHourLink = '<?php echo $this->url('allreport', ['action' => 'getHours']); ?>';
@@ -53,7 +54,7 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/training-re
     </div>
     <div class="portlet-body">
         <div class="hris-filter-container">
-            <!-- <div class="row">
+            <div class="row">
                 <div class="col-sm-2">
                     <label>Company</label>
                     <select multiple class="form-control" name="company" id="companyId">
@@ -84,8 +85,8 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/training-re
                     <select multiple class="form-control" name="serviceType" id="serviceTypeId">
                     </select>
                 </div>
-            </div> -->
-            <!-- <div class="row margin-top-10">
+            </div>
+            <div class="row margin-top-10">
                 <div class="col-sm-2">
                     <label>Service Event Type</label>
                     <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
@@ -116,12 +117,19 @@ $this->headScript()->appendFile($this->basePath('js/Report/AllReport/training-re
                     <select multiple class="form-control" name="employee" id="employeeId">
                     </select>
                 </div>
-            </div> -->
+            </div>
             <div class="row margin-top-10">
+                <div class="col-sm-2">
+                    <label>Fiscal Year</label>
+                    <select class="form-control reset-field" id="fiscalYearId">
+                    </select>
+                </div>
                 <div class="col-sm-2">
                     <label>Training</label>
                     <?php print $this->formElement($trainings); ?>
                 </div>
+            </div>
+            <div class="row margin-top-10">
 
                 <div class="col-sm-4 col-sm-offset-6">
                     <button id="reset" class="btn default btn-sm pull-right ">

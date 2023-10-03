@@ -1,23 +1,23 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/search.js'))
-        ->appendFile($this->basePath('js/Report/AllReport/age-report.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/search.js'))
+    ->appendFile($this->basePath('js/Report/AllReport/age-report.js'));
 $this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 ?>
 <script>
-    document.searchValues =<?php echo json_encode($searchValues); ?>;
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
     document.getFiscalYearMonthLink = '<?php echo $this->url('allreport', ['action' => 'getFiscalYearMonth']); ?>';
     document.ageWs = '<?php echo $this->url('allreport', ['action' => 'ageReport']); ?>';
-    document.preference =<?php echo json_encode($preference) ?>;
+    document.preference = <?php echo json_encode($preference) ?>;
 </script>
 
 <div class="page-bar">
@@ -42,9 +42,9 @@ $this->headScript()
                     <i class="fa fa-angle-down "></i>
                 </a>
                 <ul class="dropdown-menu pull-right">
-                    <li >
+                    <li>
                         <a id="export" href="javascript:;" class="hris-export-to-excel" hris-export-to-excel-target="withOTReport">
-                            <i class="fa fa-file-excel-o" ></i> Export to Excel </a>
+                            <i class="fa fa-file-excel-o"></i> Export to Excel </a>
                     </li>
                 </ul>
             </div>
@@ -53,28 +53,85 @@ $this->headScript()
     <div class="portlet-body">
         <div class="row">
             <div class="col-sm-2">
-                <label>Age > </label>
-                <input class="form-control reset-field" name="company" id="greaterThan">
-                </input>
+                <label>Company</label>
+                <select multiple class="form-control" name="company" id="companyId">
+                </select>
             </div>
             <div class="col-sm-2">
-                <label>Age < </label>
-                <input class="form-control reset-field" name="branchId" id="lessThan">
-                </input>
+                <label>Branch</label>
+                <select multiple class="form-control" name="branchId" id="branchId">
+                </select>
             </div>
-            <div class="col-sm-4" style="margin-top: 15px;">
-                <button  id="search" class="btn btn-default btn-sm ">
-                    Search
-                    <i class="fa fa-search"></i>
-                </button>
-                <button id="reset" class="btn default btn-sm  hris-reset-btn">
-                    Reset
-                    <i class="fa fa-refresh"></i>
-                </button>
+            <div class="col-sm-2">
+                <label>Department</label>
+                <select multiple class="form-control" name="department" id="departmentId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Designation</label>
+                <select multiple class="form-control" name="designation" id="designationId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Position</label>
+                <select multiple class="form-control" name="position" id="positionId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Service Type</label>
+                <select multiple class="form-control" name="serviceType" id="serviceTypeId">
+                </select>
+            </div>
+        </div>
+        <div class="row margin-top-10">
+            <div class="col-sm-2">
+                <label>Service Event Type</label>
+                <select multiple class="form-control" name="serviceEventType" id="serviceEventTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Employee Type</label>
+                <select multiple class="form-control" name="employeeType" id="employeeTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Functional Type</label>
+                <select multiple class="form-control" name="functionalType" id="functionalTypeId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Gender</label>
+                <select multiple class="form-control" name="gender" id="genderId">
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <label>Generation</label>
+                <select class="form-control" id="ageGeneration" style="height: 5rem;">
+                    <option value="0">Select</option>
+                    <option value="1">Gen Z(11-26)</option>
+                    <option value="2">Millennials(27-42)</option>
+                    <option value="3">Gen X(43-52)</option>
+                    <option value="4">Boomers II (a/k/a Generation Jones)*(52-68)</option>
+                    <option value="5">Boomers I*(69-77)</option>
+                </select>
+            </div>
+        </div>
+        <div class="hris-filter-container">
+            <div class="row margin-top-10">
+
+                <div class="col-sm-4 col-sm-offset-6">
+                    <button id="reset" class="btn default btn-sm pull-right ">
+                        Reset
+                        <i class="fa fa-refresh"></i>
+                    </button>
+                    <button id="search" class="btn btn-default btn-sm pull-right">
+                        Search
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="ageReport">
-</div>
+    <div id="ageReport">
+    </div>

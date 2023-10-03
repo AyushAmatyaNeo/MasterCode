@@ -2330,11 +2330,25 @@ EOT;
 
   public function checkAge($data)
   {
+
     $greaterCondition = "";
     $lessCondition = "";
     $bothCondition = "";
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
 
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
     $boundedParameter = [];
+
     if ($data['greaterThan'] != null && $data['lessThan'] == null) {
       $greaterCondition = "AND E.AGE >= :greaterThan";
       $boundedParameter['greaterThan'] = $data['greaterThan'];
@@ -2348,7 +2362,7 @@ EOT;
       $boundedParameter['greaterThan'] = $data['greaterThan'];
       $boundedParameter['lessThan'] = $data['lessThan'];
     }
-
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
     $sql = <<<EOT
                  SELECT E.EMPLOYEE_CODE,
                 E.FULL_NAME,
@@ -2361,11 +2375,11 @@ EOT;
                   DEPARTMENT_ID,
                   TO_CHAR(BIRTH_DATE, 'yyyy-MON-dd')           AS BIRTH_DATE,
                   TRUNC(months_between(sysdate,BIRTH_DATE)/12) AS AGE,
-                  STATUS
+                  STATUS,gender_id,branch_id,service_type_id,service_event_type_id,company_id,employee_type,functional_type_id,position_id,designation_id
                 FROM HRIS_EMPLOYEES
                 )E
               LEFT JOIN HRIS_DEPARTMENTS D
-              ON (E.DEPARTMENT_ID = D.DEPARTMENT_ID) WHERE E.STATUS = 'E' {$greaterCondition} {$lessCondition} {$bothCondition}
+              ON (E.DEPARTMENT_ID = D.DEPARTMENT_ID) WHERE E.STATUS = 'E' {$searchCondition['sql']}  {$greaterCondition} {$lessCondition} {$bothCondition}
 EOT;
 
     return $this->rawQuery($sql, $boundedParameter);
@@ -3110,8 +3124,26 @@ from
     $result = $statement->execute($boundedParam)->current();
     return $result;
   }
-  public function trainingReport($trainingId)
+  public function trainingReport($data)
   {
+    $employeeId = $data['employeeId'];
+    $companyId = $data['companyId'];
+    $branchId = $data['branchId'];
+    $departmentId = $data['departmentId'];
+    $designationId = $data['designationId'];
+    $positionId = $data['positionId'];
+    $serviceTypeId = $data['serviceTypeId'];
+    $serviceEventTypeId = $data['serviceEventTypeId'];
+    $employeeTypeId = $data['employeeTypeId'];
+    $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
+    $locationId = $data['locationId'];
+    $employeeId = $data['employeeId'];
+    $trainingId = $data['trainingId'];
+    $fiscalYear = $data['fiscalYear'];
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, $locationId, $functionalTypeId);
+    $boundedParameter = [];
+    $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
     $trainingCondition = "";
     if (isset($trainingId) && $trainingId != null && $trainingId != -1) {
       $trainingCondition = "and tr.training_id=$trainingId ";
@@ -3216,7 +3248,8 @@ from
   ON(RA.APPROVED_BY=RAA.EMPLOYEE_ID)
   LEFT JOIN hris_emp_training_attendance TD
   ON (TD.TRAINING_ID=TR.TRAINING_ID  AND TD.EMPLOYEE_ID=TR.EMPLOYEE_ID AND TD.TRAINING_DT=TR.START_DATE)
-  WHERE 1          =1   {$trainingCondition}
+  WHERE 1          =1   {$trainingCondition} AND T.START_DATE >=(SELECT START_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) AND T.END_DATE <=(SELECT END_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear )
+  {$searchCondition['sql']}
   union all 
   SELECT 
     TA.EMPLOYEE_ID,
@@ -3307,10 +3340,8 @@ from
   ON(RA.APPROVED_BY=RAA.EMPLOYEE_ID)
   LEFT JOIN hris_emp_training_attendance TD
   ON (TD.TRAINING_ID=ta.TRAINING_ID  AND TD.EMPLOYEE_ID=ta.EMPLOYEE_ID)
-  WHERE 1          =1  {$trainingAssignCondition})TRA order by TRA.training_id desc";
-    $statement = $this->adapter->query($sql);
-    $result = $statement->execute();
-    return Helper::extractDbData($result);
+  WHERE 1          =1  {$trainingAssignCondition} AND T.START_DATE >=(SELECT START_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) AND T.END_DATE <=(SELECT END_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) {$searchCondition['sql']})TRA order by TRA.training_id desc";
+    return $this->rawQuery($sql, $boundedParameter);
   }
 
   public function trainingHours($trainingId)
@@ -3333,8 +3364,9 @@ from
     $serviceEventTypeId = $data['serviceEventTypeId'];
     $employeeTypeId = $data['employeeTypeId'];
     $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
 
-    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
     $boundedParameter = [];
     $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
 
@@ -3396,10 +3428,12 @@ ORDER BY UPPER(HG.GENDER_NAME)";
     $serviceEventTypeId = $data['serviceEventTypeId'];
     $employeeTypeId = $data['employeeTypeId'];
     $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
+
 
     $monthId = $data['month'];
     $year = $data['year'];
-    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
     $boundedParameter = [];
     $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
     $sql = "select hssed.full_name,hssd1.val as basic_salary ,hssd2.val as allowance,hssd3.val as gross_amount,hssd4.val as ssf, ROUND(hssd5.val / 12, 2) as total_renumeration  from hris_salary_sheet_emp_detail hssed
@@ -3425,12 +3459,13 @@ ORDER BY UPPER(HG.GENDER_NAME)";
     $serviceEventTypeId = $data['serviceEventTypeId'];
     $employeeTypeId = $data['employeeTypeId'];
     $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
 
 
     $monthId = $data['month'];
     $year = $data['year'];
-    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
-    $searchCondition1 = EntityHelper::getSearchConditonBoundedJGI($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
+    $searchCondition1 = EntityHelper::getSearchConditonBoundedJGI($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
     $boundedParameter = [];
     $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
     $monthYrsCondition1 = "";
@@ -3496,8 +3531,9 @@ ORDER BY
     $serviceEventTypeId = $data['serviceEventTypeId'];
     $employeeTypeId = $data['employeeTypeId'];
     $functionalTypeId = $data['functionalTypeId'];
+    $genderId = $data['genderId'];
 
-    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, null, null, $functionalTypeId);
+    $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $employeeId, $genderId, null, $functionalTypeId);
     $boundedParameter = [];
     $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
     $sql = "";
@@ -3523,7 +3559,6 @@ ORDER BY
     } else {
       $sql = "select 'Boomers I*' as generation,'1946-1954' as born,'69-77' as current_age,count(*) as total from hris_employees E where E.status='E' and  E.birth_date between '01-jan-1946' and '31-dec-1954' {$searchCondition['sql']} ";
     }
-
     return $this->rawQuery($sql, $boundedParameter);
   }
   public function newEmployeeDailyReport($searchQuery)

@@ -403,13 +403,7 @@ class SalarySheetLockController extends HrisController
                                 $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
                                 $model = new PaySlipDetailsModel();
                                 $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                // foreach ($payslipDetails['pay-detail'] as &$row) {
-                                //     $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                //     $val = str_replace(',', '', $row['VAL']);
-                                //     $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                //     $row['VAL'] = number_format($result, 2, '.', ',');
-                                // }
+                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
                                 $model->setProperty1 = ($payslipDetails['emp-detail']);
                                 $model->setProperty2 = ($payslipDetails['pay-detail']);
                                 HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);

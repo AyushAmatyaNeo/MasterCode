@@ -11,7 +11,15 @@
         // var $bulkBtns = $(".btnApproveReject");
         var $superpower = $("#super_power");
         var hoursPerDay;
-
+        var months = null;
+        var $year = $('#fiscalYearId');
+        var $month = $('#monthId');
+        //        app.setFiscalMonth($year, $month, function (yearList, monthList, currentMonth) {
+        //            months = monthList;
+        //        });
+        app.setFiscalMonth($year, $month, function (yearList, monthList, currentMonth) {
+            months = monthList;
+        });
 
         app.initializeKendoGrid($table, [
             { field: "COMPANY_NAME", title: "Company" },
@@ -60,8 +68,7 @@
         $search.on('click', function () {
             var data = document.searchManager.getSearchValues();
             data['trainingId'] = $trainingId.val();
-            // data['fromDate'] = $fromDate.val();
-            // data['toDate'] = $toDate.val();
+            data['fiscalYear'] = $('#fiscalYearId').val();
             app.serverRequest('', data).then(function (response) {
                 if (response.success) {
                     app.renderKendoGrid($table, response.data);

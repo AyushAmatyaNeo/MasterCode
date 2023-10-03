@@ -910,7 +910,7 @@ left join HRIS_EMPLOYEE_FILE ef on (ef.file_code=e.PROFILE_PICTURE_ID)");
         if ($request->isPost()) {
             try {
                 $postedData = $request->getPost();
-                $data = $this->repository->trainingReport($postedData['trainingId']);
+                $data = $this->repository->trainingReport($postedData);
                 foreach ($data as &$item) { // loop through each element and add the key-value pair
                     $item["lDProgram"] = 'Training';
                 }
