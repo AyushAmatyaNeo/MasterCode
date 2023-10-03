@@ -12,20 +12,20 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'))
-        ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'))
+    ->appendStylesheet($this->basePath('dropzone/dropzone.min.css'));
 
 $this->headScript()
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'));
 
 $this->headScript()->appendFile($this->basePath('js/LeaveManagement/LeaveRequest/add.js?1'))
-        ->appendFile($this->basePath('dropzone/dropzone.min.js'));
+    ->appendFile($this->basePath('dropzone/dropzone.min.js'));
 ?>
 
 
@@ -57,13 +57,12 @@ print $this->form()->openTag($form);
     document.wsPullLeaveDetail = '<?= $this->url("leaverequest", ["action" => "pullLeaveDetail"]) ?>';
     document.wsFetchAvailableDays = '<?= $this->url("leaverequest", ["action" => "fetchAvailableDays"]) ?>';
     document.wsValidateLeaveRequest = '<?= $this->url("leaverequest", ["action" => "validateLeaveRequest"]) ?>';
-    document.subLeaveReference = '<?=$subLeaveReference?>';
-    document.subLeaveMaxDays = '<?=$subLeaveMaxDays?>';
-    document.allowPrevMnthLeave = '<?=$allowPrevMnthLeave?>';
-
+    document.subLeaveReference = '<?= $subLeaveReference ?>';
+    document.subLeaveMaxDays = '<?= $subLeaveMaxDays ?>';
+    document.allowPrevMnthLeave = '<?= $allowPrevMnthLeave ?>';
 </script>
 
-<div class="row margin-top-20" >
+<div class="row margin-top-20">
     <div class="col-sm-12">
         <div class="portlet box custom-box">
             <div class="portlet-title">
@@ -77,7 +76,7 @@ print $this->form()->openTag($form);
             </div>
             <div class="portlet-body">
                 <div class="form-group">
-                    <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>"/>
+                    <input type="hidden" id="employeeId" value="<?php echo $employeeId; ?>" />
                 </div>
 
                 <div class=" row">
@@ -86,7 +85,7 @@ print $this->form()->openTag($form);
                             <label for="leaveId">Leave Type</label>
                             <span class="required" aria-required="true">*</span>
                             <select name="leaveId" required="required" id="leaveId" class="form-control">
-                                <option value="" disabled="" selected="" >Please select</option>
+                                <option value="" disabled="" selected="">Please select</option>
                                 <?php foreach ($leave as $key => $value) { ?>
                                     <option value="<?php echo $key ?>"><?php echo $value ?></option>
                                 <?php } ?>
@@ -96,15 +95,15 @@ print $this->form()->openTag($form);
                     <div class="col-sm-4">
                         <div class="form-group disabled">
                             <label for="leaveId">Available Days</label>
-                            <input type="text" READONLY name="availableDays"  required="required" id="availableDays"  class="form-control"  value="">
+                            <input type="text" READONLY name="availableDays" required="required" id="availableDays" class="form-control" value="">
                             <?php print $this->formElementErrors()->render($noOfDays, ['class' => 'help-block error']); ?>
                         </div>
                     </div>
 
                     <div class="col-sm-4" id="SubReferenceDiv">
-                        <div class="form-group" >
+                        <div class="form-group">
                             <label>IN SUB LEAVE</label>
-                            <select name="subRefId" id="subRefId" class="form-control" >
+                            <select name="subRefId" id="subRefId" class="form-control">
                             </select>
                             <span id="errorMsgSubRef" style="font-size:11px; color:red;"></span>
                         </div>
@@ -123,14 +122,13 @@ print $this->form()->openTag($form);
                                     <?php print $this->formElement($startDate) ?>
                                 </div>
                                 <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block error']) ?>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliStartDate">&nbsp;</label>
-                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
-                                           class="form-control" value="">
+                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
                                 </div>
-                            </div>     
+                            </div>
                         </div>
 
                     </div>
@@ -139,29 +137,26 @@ print $this->form()->openTag($form);
 
                         <div class="row">
                             <div class="col-sm-6">
-                                <div
-                                    class="form-group required <?= empty($endDate->getMessages()) ? "" : "error" ?>">
-                                        <?php print $this->formLabel($endDate) ?>
+                                <div class="form-group required <?= empty($endDate->getMessages()) ? "" : "error" ?>">
+                                    <?php print $this->formLabel($endDate) ?>
                                     <span class="required" aria-required="true">*</span>
                                     <?php print $this->formElement($endDate) ?>
                                     <span id="errorMsgDate" style="font-size:11px; color:red;"></span>
                                 </div>
                                 <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block error']) ?>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliEndDate">&nbsp;</label>
-                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
-                                           class="form-control" value="">
+                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
                                 </div>
-                            </div>     
+                            </div>
                         </div>
 
                     </div>
                     <div class="col-sm-4">
-                        <div
-                            class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
-                                <?php print $this->formLabel($noOfDays); ?>
+                        <div class="form-group required <?= empty($noOfDays->getMessages()) ? "" : "error" ?>">
+                            <?php print $this->formLabel($noOfDays); ?>
                             <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($noOfDays); ?>
                             <span id="errorMsg" style="font-size:11px; color:red;"></span>
@@ -182,7 +177,7 @@ print $this->form()->openTag($form);
                         </select>
                     </div>
                     <div class=" col-sm-4 " id="gracePeriodCol">
-                        <div class="form-group" >
+                        <div class="form-group">
                             <?php print $this->formLabel($gracePeriod); ?>
                             <?php print $this->formElement($gracePeriod); ?>
                         </div>
@@ -190,7 +185,7 @@ print $this->form()->openTag($form);
                         <?php print $this->formElementErrors()->render($gracePeriod, ['class' => 'help-block error']); ?>
                     </div>
                     <div class=" col-sm-4 " id="halfDayCol">
-                        <div class="form-group" >
+                        <div class="form-group">
                             <?php print $this->formLabel($halfDay); ?>
                             <?php print $this->formElement($halfDay); ?>
                         </div>
@@ -212,7 +207,7 @@ print $this->form()->openTag($form);
                     <div class=" col-md-6 form-group">
                         <table id="fileDetailsTbl" class="table">
                             <tr>
-                                <th>Document</th> 
+                                <th>Document</th>
                                 <th>&nbsp;</th>
                                 <th>Action</th>
                             </tr>
@@ -248,21 +243,21 @@ print $this->form()->closeTag();
             </div>
             <div class="modal-body">
                 <div class="modal-body" id="modal-body">
-                    <div class="row">  
+                    <div class="row">
                         <div class="col-sm-12">
                             <!--<div id="dropZoneContainer" >-->
-                            <div id="dropZoneContainer"  class="dropzone">
+                            <div id="dropZoneContainer" class="dropzone">
                             </div>
                             <div id="uploadErr">Please upload Image.</div>
                         </div>
                     </div>
-                </div> 
+                </div>
             </div>
 
         </div>
         <div class="modal-footer">
-            <button id='uploadSubmitBtn' class="btn btn-primary" type="button" >OK</button>
-            <button id='uploadCancelBtn' class="btn btn-warning" type="button" >Cancel</button>
+            <button id='uploadSubmitBtn' class="btn btn-primary" type="button">OK</button>
+            <button id='uploadCancelBtn' class="btn btn-warning" type="button">Cancel</button>
             <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
         </div>
     </div>

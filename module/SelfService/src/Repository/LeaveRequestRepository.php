@@ -59,8 +59,10 @@ class LeaveRequestRepository implements RepositoryInterface
 
     public function edit(Model $model, $id)
     {
-        // TODO: Implement edit() method.
+        $currentDate = Helper::getcurrentExpressionDate();
+        $this->tableGateway->update([LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
     }
+
 
     public function fetchAll()
     {
@@ -734,7 +736,7 @@ and Sub_Ref_Id is not null
     public function cancelFromSubstitue($id)
     {
         $currentDate = Helper::getcurrentExpressionDate();
-        $this->tableGateway->update([LeaveApply::STATUS => 'C', LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
+        $this->tableGateway->update([LeaveApply::STATUS => 'RQ', LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
     }
 
     public function checkSubstitueBalance($employeeId, $leaveId, $endDate, $currentBal)

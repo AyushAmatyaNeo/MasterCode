@@ -18,7 +18,8 @@ use Zend\Form\Annotation\AnnotationBuilder;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
-class BankController extends AbstractActionController {
+class BankController extends AbstractActionController
+{
 
     private $repository;
     private $form;
@@ -27,7 +28,8 @@ class BankController extends AbstractActionController {
     private $storageData;
     private $acl;
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         $this->adapter = $adapter;
         $this->repository = new BankRepository($adapter);
         $this->storageData = $storage->read();
@@ -35,7 +37,8 @@ class BankController extends AbstractActionController {
         $this->acl = $this->storageData['acl'];
     }
 
-    public function initializeForm() {
+    public function initializeForm()
+    {
         $bankForm = new BankForm();
         $builder = new AnnotationBuilder();
         if (!$this->form) {
@@ -43,7 +46,8 @@ class BankController extends AbstractActionController {
         }
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -59,7 +63,8 @@ class BankController extends AbstractActionController {
         return Helper::addFlashMessagesToArray($this, ['acl' => $this->acl]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         ACLHelper::checkFor(ACLHelper::ADD, $this->acl, $this);
         $this->initializeForm();
         $request = $this->getRequest();
@@ -74,8 +79,8 @@ class BankController extends AbstractActionController {
                 $bank->bankId = ((int) Helper::getMaxId($this->adapter, Bank::TABLE_NAME, Bank::BANK_ID)) + 1;
                 $bank->createdDt = Helper::getcurrentExpressionDate();
                 $bank->createdBy = $this->employeeId;
-                $bank->comapnyAccNo=null;
-                $bank->branchName=null;
+                $bank->comapnyAccNo = null;
+                $bank->branchName = null;
                 $bank->status = 'E';
                 $this->repository->add($bank);
 
@@ -83,17 +88,20 @@ class BankController extends AbstractActionController {
                 return $this->redirect()->toRoute("bank");
             }
         }
-        return new ViewModel(Helper::addFlashMessagesToArray(
-                        $this, [
+        return new ViewModel(
+            Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'customRenderer' => Helper::renderCustomView(),
                     'form' => $this->form,
                     'messages' => $this->flashmessenger()->getMessages()
-                        ]
-                )
+                ]
+            )
         );
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         ACLHelper::checkFor(ACLHelper::UPDATE, $this->acl, $this);
         $id = (int) $this->params()->fromRoute("id");
         if ($id === 0) {
@@ -112,21 +120,24 @@ class BankController extends AbstractActionController {
             $this->form->setData($request->getPost());
             if ($this->form->isValid()) {
                 $bank->exchangeArrayFromForm($this->form->getData());
+                $bank->createdBy = $this->employeeId;
                 $this->repository->edit($bank, $id);
                 $this->flashmessenger()->addMessage("Bank Successfully Updated!!!");
                 return $this->redirect()->toRoute("bank");
             }
         }
         return Helper::addFlashMessagesToArray(
-                        $this, [
-                    'customRenderer' => Helper::renderCustomView(),
-                    'form' => $this->form,
-                    'id' => $id
-                        ]
+            $this,
+            [
+                'customRenderer' => Helper::renderCustomView(),
+                'form' => $this->form,
+                'id' => $id
+            ]
         );
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         if (!ACLHelper::checkFor(ACLHelper::DELETE, $this->acl, $this)) {
             return;
         };
@@ -135,9 +146,8 @@ class BankController extends AbstractActionController {
             return $this->redirect()->toRoute('bank');
         }
         // echo '<pre>';print_r($id);die;
-        $this->repository->delete($id);
+        $this->repository->deleteBank($id, $this->employeeId);
         $this->flashmessenger()->addMessage("Bank Successfully Deleted!!!");
         return $this->redirect()->toRoute('bank');
     }
-
 }

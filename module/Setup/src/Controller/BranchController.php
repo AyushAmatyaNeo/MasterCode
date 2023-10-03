@@ -18,7 +18,8 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Setup\Model\HrEmployees;
 use Application\Helper\EntityHelper;
 
-class BranchController extends AbstractActionController {
+class BranchController extends AbstractActionController
+{
 
     private $form;
     private $repository;
@@ -27,7 +28,8 @@ class BranchController extends AbstractActionController {
     private $storageData;
     private $acl;
 
-    function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         $this->adapter = $adapter;
         $this->repository = new BranchRepository($adapter);
         $this->storageData = $storage->read();
@@ -35,7 +37,8 @@ class BranchController extends AbstractActionController {
         $this->acl = $this->storageData['acl'];
     }
 
-    public function initializeForm() {
+    public function initializeForm()
+    {
         $branchForm = new BranchForm();
         $builder = new AnnotationBuilder();
         if (!$this->form) {
@@ -43,11 +46,12 @@ class BranchController extends AbstractActionController {
         }
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
-//                $result = $this->repository->fetchAllWithCompany();
+                //                $result = $this->repository->fetchAllWithCompany();
                 $result = $this->repository->fetchAllWithBranchManager(); //use where BranchManager is required
                 $branchList = Helper::extractDbData($result);
                 return new CustomViewModel(['success' => true, 'data' => $branchList, 'error' => '']);
@@ -58,7 +62,8 @@ class BranchController extends AbstractActionController {
         return Helper::addFlashMessagesToArray($this, ['acl' => $this->acl]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         ACLHelper::checkFor(ACLHelper::ADD, $this->acl, $this);
         $this->initializeForm();
         $request = $this->getRequest();
@@ -79,43 +84,46 @@ class BranchController extends AbstractActionController {
             }
         }
         $countryKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName("HRIS_COUNTRIES")
-                ->setColumnList(["COUNTRY_ID", "COUNTRY_NAME"])
-                ->setKeyValue("COUNTRY_ID", "COUNTRY_NAME")
-                ->setIncludeEmptyRow(true)
-                ->result();
+            ->setAdapter($this->adapter)
+            ->setTableName("HRIS_COUNTRIES")
+            ->setColumnList(["COUNTRY_ID", "COUNTRY_NAME"])
+            ->setKeyValue("COUNTRY_ID", "COUNTRY_NAME")
+            ->setIncludeEmptyRow(true)
+            ->result();
         $companyKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName(Company::TABLE_NAME)
-                ->setColumnList([Company::COMPANY_ID, Company::COMPANY_NAME])
-                ->setWhere([Company::STATUS => 'E'])
-                ->setKeyValue(Company::COMPANY_ID, Company::COMPANY_NAME)
-                ->setIncludeEmptyRow(true)
-                ->result();
+            ->setAdapter($this->adapter)
+            ->setTableName(Company::TABLE_NAME)
+            ->setColumnList([Company::COMPANY_ID, Company::COMPANY_NAME])
+            ->setWhere([Company::STATUS => 'E'])
+            ->setKeyValue(Company::COMPANY_ID, Company::COMPANY_NAME)
+            ->setIncludeEmptyRow(true)
+            ->result();
         $employeeKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName(HrEmployees::TABLE_NAME)
-                ->setColumnList([HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME])
-                ->setWhere([HrEmployees::STATUS => 'E'])
-                ->setKeyValue(HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME)
-                ->setIncludeEmptyRow(TRUE)
-                ->result();
-        
-        $provinces = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_PROVINCES", "PROVINCE_ID", ["PROVINCE_NAME"], null ,"PROVINCE_ID", "ASC", "-", true, true, null);
+            ->setAdapter($this->adapter)
+            ->setTableName(HrEmployees::TABLE_NAME)
+            ->setColumnList([HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME])
+            ->setWhere([HrEmployees::STATUS => 'E'])
+            ->setKeyValue(HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME)
+            ->setIncludeEmptyRow(TRUE)
+            ->result();
 
-        return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'countries' => $countryKV,
-                    'companies' => $companyKV,
-                    'employees' => $employeeKV,
-                    'customRenderer' => Helper::renderCustomView(),
-                    'provinces' => $provinces
-                        ]
+        $provinces = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_PROVINCES", "PROVINCE_ID", ["PROVINCE_NAME"], null, "PROVINCE_ID", "ASC", "-", true, true, null);
+
+        return Helper::addFlashMessagesToArray(
+            $this,
+            [
+                'form' => $this->form,
+                'countries' => $countryKV,
+                'companies' => $companyKV,
+                'employees' => $employeeKV,
+                'customRenderer' => Helper::renderCustomView(),
+                'provinces' => $provinces
+            ]
         );
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         ACLHelper::checkFor(ACLHelper::UPDATE, $this->acl, $this);
         $id = (int) $this->params()->fromRoute("id");
         $this->initializeForm();
@@ -138,54 +146,53 @@ class BranchController extends AbstractActionController {
             }
         }
         $countryKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName("HRIS_COUNTRIES")
-                ->setColumnList(["COUNTRY_ID", "COUNTRY_NAME"])
-                ->setKeyValue("COUNTRY_ID", "COUNTRY_NAME")
-                ->setIncludeEmptyRow(true)
-                ->result();
+            ->setAdapter($this->adapter)
+            ->setTableName("HRIS_COUNTRIES")
+            ->setColumnList(["COUNTRY_ID", "COUNTRY_NAME"])
+            ->setKeyValue("COUNTRY_ID", "COUNTRY_NAME")
+            ->setIncludeEmptyRow(true)
+            ->result();
         $companyKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName(Company::TABLE_NAME)
-                ->setColumnList([Company::COMPANY_ID, Company::COMPANY_NAME])
-                ->setWhere([Company::STATUS => 'E'])
-                ->setKeyValue(Company::COMPANY_ID, Company::COMPANY_NAME)
-                ->setIncludeEmptyRow(true)
-                ->result();
+            ->setAdapter($this->adapter)
+            ->setTableName(Company::TABLE_NAME)
+            ->setColumnList([Company::COMPANY_ID, Company::COMPANY_NAME])
+            ->setWhere([Company::STATUS => 'E'])
+            ->setKeyValue(Company::COMPANY_ID, Company::COMPANY_NAME)
+            ->setIncludeEmptyRow(true)
+            ->result();
         $employeeKV = HrisQuery::singleton()
-                ->setAdapter($this->adapter)
-                ->setTableName(HrEmployees::TABLE_NAME)
-                ->setColumnList([HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME])
-                ->setWhere([HrEmployees::STATUS => 'E'])
-                ->setKeyValue(HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME)
-                ->setIncludeEmptyRow(true)
-                ->result();
-        
-        $provinces = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_PROVINCES", "PROVINCE_ID", ["PROVINCE_NAME"], null ,"PROVINCE_ID", "ASC", "-", true, true, null);
-        
+            ->setAdapter($this->adapter)
+            ->setTableName(HrEmployees::TABLE_NAME)
+            ->setColumnList([HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME])
+            ->setWhere([HrEmployees::STATUS => 'E'])
+            ->setKeyValue(HrEmployees::EMPLOYEE_ID, HrEmployees::FULL_NAME)
+            ->setIncludeEmptyRow(true)
+            ->result();
+
+        $provinces = EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_PROVINCES", "PROVINCE_ID", ["PROVINCE_NAME"], null, "PROVINCE_ID", "ASC", "-", true, true, null);
+
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'countries' => $countryKV,
-                    'companies' => $companyKV,
-                    'employees' => $employeeKV,
-                    'customRenderer' => Helper::renderCustomView(),
-                    'provinces' => $provinces
+            'form' => $this->form,
+            'id' => $id,
+            'countries' => $countryKV,
+            'companies' => $companyKV,
+            'employees' => $employeeKV,
+            'customRenderer' => Helper::renderCustomView(),
+            'provinces' => $provinces
         ]);
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         if (!ACLHelper::checkFor(ACLHelper::DELETE, $this->acl, $this)) {
             return;
         };
         $id = (int) $this->params()->fromRoute("id");
-
         if (!$id) {
             return $this->redirect()->toRoute('branch');
         }
-        $this->repository->delete($id);
+        $this->repository->deleteBranch($id, $this->employeeId);
         $this->flashmessenger()->addMessage("Branch Successfully Deleted!!!");
         return $this->redirect()->toRoute('branch');
     }
-
 }

@@ -121,7 +121,7 @@ class LeaveRequest extends HrisController
         $request = $this->getRequest();
         if ($request->isPost()) {
             $postData = $request->getPost();
-            // print_r($postData); die;
+
             $this->form->setData($postData);
             $leaveSubstitute = $postData->leaveSubstitute;
             if ($this->form->isValid()) {
@@ -394,6 +394,115 @@ class LeaveRequest extends HrisController
             'leaves' => $leaveSE,
             'leaveStatus' => $leaveStatusFE,
             'employeeId' => $this->employeeId,
+        ]);
+    }
+
+    public function editAction()
+    {
+        $id = (int) $this->params()->fromRoute('id', 0);
+        if ($id === 0) {
+            return $this->redirect()->toRoute("leaveapprove");
+        }
+        $leaveApproveRepository = new LeaveApproveRepository($this->adapter);
+        $detail = $leaveApproveRepository->fetchById($id);
+        $request = $this->getRequest();
+
+        if ($request->isPost()) {
+            $postData = $request->getPost();
+            $this->form->setData($postData);
+            $leaveSubstitute = $postData->leaveSubstitute;
+            $leaveRequest = new LeaveApply();
+
+            $leaveRequest->id = $id;
+            $leaveRequest->employeeId = $detail['EMPLOYEE_ID'];
+            $leaveRequest->startDate = Helper::getExpressionDate($detail['EMPLOYEE_ID']);
+            $leaveRequest->endDate = Helper::getExpressionDate($detail['EMPLOYEE_ID']);
+            $leaveRequest->modifiedDt = Helper::getcurrentExpressionDate();
+            $leaveRequest->status = "RQ";
+            $this->repository->edit($leaveRequest, $id);
+            $this->flashmessenger()->addMessage("Leave Request Successfully edited!!!");
+
+            if ($leaveSubstitute !== null && $leaveSubstitute !== "") {
+                $leaveSubstituteModel = new LeaveSubstitute();
+                $leaveSubstituteRepo = new LeaveSubstituteRepository($this->adapter);
+
+
+                $leaveSubstituteModel->leaveRequestId = $id;
+                $leaveSubstituteModel->employeeId = $leaveSubstitute;
+                $leaveSubstituteModel->createdBy = $this->employeeId;
+                $leaveSubstituteModel->createdDate = Helper::getcurrentExpressionDate();
+                $leaveSubstituteModel->status = 'E';
+
+                // echo '<pre>';
+                // print_r($detail);
+                // die;
+                $leaveSubstituteRepo->add($leaveSubstituteModel);
+                try {
+                    HeadNotification::pushNotification(NotificationEvents::LEAVE_SUBSTITUTE_APPLIED, $leaveRequest, $this->adapter, $this);
+                } catch (Exception $e) {
+                    $this->flashmessenger()->addMessage($e->getMessage());
+                }
+            } else {
+                try {
+                    // echo '<pre>';print_r($this);die;
+                    HeadNotification::pushNotification(NotificationEvents::LEAVE_APPLIED, $leaveRequest, $this->adapter, $this);
+                } catch (Exception $e) {
+                    $this->flashmessenger()->addMessage($e->getMessage());
+                }
+            }
+            return $this->redirect()->toRoute("leaverequest");
+        }
+
+        if ($this->preference['displayHrApproved'] == 'Y' && $detail['HR_APPROVED'] == 'Y') {
+            $detail['APPROVER_ID'] = '-1';
+            $detail['APPROVER_NAME'] = 'HR';
+            $detail['RECOMMENDER_ID'] = '-1';
+            $detail['RECOMMENDER_NAME'] = 'HR';
+            $detail['RECOMMENDED_BY_NAME'] = 'HR';
+            $detail['APPROVED_BY_NAME'] = 'HR';
+        }
+
+        $fileDetails = $leaveApproveRepository->fetchAttachmentsById($id);
+        $authRecommender = $detail['RECOMMENDED_BY_NAME'] == null ? $detail['RECOMMENDER_NAME'] : $detail['RECOMMENDED_BY_NAME'];
+        $authApprover = $detail['APPROVED_BY_NAME'] == null ? $detail['APPROVER_NAME'] : $detail['APPROVED_BY_NAME'];
+
+
+
+        //to get the previous balance of selected leave from assigned leave detail
+        $result = $leaveApproveRepository->assignedLeaveDetail($detail['LEAVE_ID'], $detail['EMPLOYEE_ID']);
+        $preBalance = $result['BALANCE'];
+
+        $actualDays = ($detail['ACTUAL_DAYS'] < 1) ? '0' + $detail['ACTUAL_DAYS'] : $detail['ACTUAL_DAYS'];
+        $halfDayDetail = $detail['HALF_DAY_DETAIL'];
+
+        $leaveApply = new LeaveApply();
+        $leaveApply->exchangeArrayFromDB($detail);
+        $this->form->bind($leaveApply);
+
+        return Helper::addFlashMessagesToArray($this, [
+            'form' => $this->form,
+            'id' => $id,
+            'employeeName' => $detail['FULL_NAME'],
+            'requestedDt' => $detail['REQUESTED_DT'],
+            'availableDays' => $preBalance,
+            'status' => $detail['STATUS'],
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'remarksDtl' => $detail['REMARKS'],
+            'totalDays' => $result['TOTAL_DAYS'],
+            'recommendedBy' => $detail['RECOMMENDED_BY'],
+            'employeeId' => $this->employeeId,
+            'allowHalfDay' => $detail['ALLOW_HALFDAY'],
+            'leave' => $this->repository->getLeaveList($detail['EMPLOYEE_ID']),
+            'customRenderer' => Helper::renderCustomView(),
+            'subEmployeeId' => $detail['SUB_EMPLOYEE_ID'],
+            'subRemarks' => $detail['SUB_REMARKS'],
+            'subApprovedFlag' => $detail['SUB_APPROVED_FLAG'],
+            'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true),
+            'gp' => $detail['GRACE_PERIOD'],
+            'files' => $fileDetails,
+            'actualDays' => $actualDays,
+            'halfdayDetail' => $halfDayDetail
         ]);
     }
 }

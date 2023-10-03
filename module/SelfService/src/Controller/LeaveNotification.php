@@ -19,15 +19,18 @@ use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class LeaveNotification extends HrisController {
+class LeaveNotification extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(LeaveSubstituteRepository::class);
         $this->initializeForm(LeaveApplyForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -42,7 +45,8 @@ class LeaveNotification extends HrisController {
         return Helper::addFlashMessagesToArray($this, []);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id', 0);
         if ($id === 0) {
             return $this->redirect()->toRoute("leaveNotification");
@@ -72,6 +76,7 @@ class LeaveNotification extends HrisController {
                 $this->flashmessenger()->addMessage("Substitute Work Request Approved!!!");
             } else if ($action == 'Reject') {
                 $leaveSubstitute->approvedFlag = "N";
+                $leaveSubstitute->status = 'D';
                 $leaveRequestRepository->cancelFromSubstitue($id);
                 $this->flashmessenger()->addMessage("Substitute Work Request Rejected!!!");
             }
@@ -95,26 +100,25 @@ class LeaveNotification extends HrisController {
         $this->form->bind($leaveApply);
 
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'employeeName' => $detail['FULL_NAME'],
-                    'requestedDt' => $detail['REQUESTED_DT'],
-                    'availableDays' => $preBalance,
-                    'status' => $detail['STATUS'],
-                    'recommender' => $authRecommender,
-                    'approver' => $authApprover,
-                    'remarksDtl' => $detail['REMARKS'],
-                    'totalDays' => $result['TOTAL_DAYS'],
-                    'recommendedBy' => $detail['RECOMMENDED_BY'],
-                    'employeeId' => $this->employeeId,
-                    'allowHalfDay' => $detail['ALLOW_HALFDAY'],
-                    'leave' => $leaveRequestRepository->getLeaveList($detail['EMPLOYEE_ID']),
-                    'subEmployeeId' => $detail['SUB_EMPLOYEE_ID'],
-                    'subRemarks' => $detail['SUB_REMARKS'],
-                    'subApprovedFlag' => $detail['SUB_APPROVED_FLAG'],
-                    'customRenderer' => Helper::renderCustomView(),
-                    'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true)
+            'form' => $this->form,
+            'id' => $id,
+            'employeeName' => $detail['FULL_NAME'],
+            'requestedDt' => $detail['REQUESTED_DT'],
+            'availableDays' => $preBalance,
+            'status' => $detail['STATUS'],
+            'recommender' => $authRecommender,
+            'approver' => $authApprover,
+            'remarksDtl' => $detail['REMARKS'],
+            'totalDays' => $result['TOTAL_DAYS'],
+            'recommendedBy' => $detail['RECOMMENDED_BY'],
+            'employeeId' => $this->employeeId,
+            'allowHalfDay' => $detail['ALLOW_HALFDAY'],
+            'leave' => $leaveRequestRepository->getLeaveList($detail['EMPLOYEE_ID']),
+            'subEmployeeId' => $detail['SUB_EMPLOYEE_ID'],
+            'subRemarks' => $detail['SUB_REMARKS'],
+            'subApprovedFlag' => $detail['SUB_APPROVED_FLAG'],
+            'customRenderer' => Helper::renderCustomView(),
+            'employeeList' => EntityHelper::getTableKVListWithSortOption($this->adapter, HrEmployees::TABLE_NAME, HrEmployees::EMPLOYEE_ID, [HrEmployees::FIRST_NAME, HrEmployees::MIDDLE_NAME, HrEmployees::LAST_NAME], [HrEmployees::STATUS => "E", HrEmployees::RETIRED_FLAG => "N"], HrEmployees::FIRST_NAME, "ASC", " ", false, true)
         ]);
     }
-
 }

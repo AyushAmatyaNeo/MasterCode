@@ -20,41 +20,62 @@
                 <a class="btn btn-icon-only green" href="${document.viewLink}/#:ID#" style="height:17px;" title="View Detail">
                     <i class="fa fa-search"></i>
                 </a>
+                #if(STATUS==='RQ'){#
+                    <a class="btn btn-icon-only yellow" href="${document.editLink}/#:ID#" style="height:17px;" title="Edit">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    #}#
             </div>
         `;
-        app.initializeKendoGrid($table, [
-            {field: "LEAVE_ENAME", title: "Leave Name"},
-            {title: "Applied Date",
-                columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (REQUESTED_DT_AD == null) ? '-' : REQUESTED_DT_AD #</span>"},
-                    {field: "REQUESTED_DT_BS",
-                        title: "BS",
-                        template: "<span>#: (REQUESTED_DT_BS == null) ? '-' : REQUESTED_DT_BS #</span>"}]},
 
-            {title: "From Date",
+        app.initializeKendoGrid($table, [
+            { field: "LEAVE_ENAME", title: "Leave Name" },
+            {
+                title: "Applied Date",
                 columns: [{
-                        field: "FROM_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (FROM_DATE_AD == null) ? '-' : FROM_DATE_AD #</span>"},
-                    {field: "FROM_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (FROM_DATE_BS == null) ? '-' : FROM_DATE_BS #</span>"}]},
-            {title: "To Date",
+                    field: "REQUESTED_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (REQUESTED_DT_AD == null) ? '-' : REQUESTED_DT_AD #</span>"
+                },
+                {
+                    field: "REQUESTED_DT_BS",
+                    title: "BS",
+                    template: "<span>#: (REQUESTED_DT_BS == null) ? '-' : REQUESTED_DT_BS #</span>"
+                }]
+            },
+
+            {
+                title: "From Date",
                 columns: [{
-                        field: "TO_DATE_AD",
-                        title: "AD",
-                        template: "<span>#: (TO_DATE_AD == null) ? '-' : TO_DATE_AD #</span>"},
-                    {field: "TO_DATE_BS",
-                        title: "BS",
-                        template: "<span>#: (TO_DATE_BS == null) ? '-' : TO_DATE_BS #</span>"}]},
-            {field: "HALF_DAY_DETAIL", title: "Day Interval"},
-            {field: "GRACE_PERIOD_DETAIL", title: "Grace"},
-            {field: "NO_OF_DAYS", title: "Duration"},
-            {field: "HALF_DAY_DETAIL", title: "Type"},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: ["ID"], title: "Action", template: action}
+                    field: "FROM_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (FROM_DATE_AD == null) ? '-' : FROM_DATE_AD #</span>"
+                },
+                {
+                    field: "FROM_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (FROM_DATE_BS == null) ? '-' : FROM_DATE_BS #</span>"
+                }]
+            },
+            {
+                title: "To Date",
+                columns: [{
+                    field: "TO_DATE_AD",
+                    title: "AD",
+                    template: "<span>#: (TO_DATE_AD == null) ? '-' : TO_DATE_AD #</span>"
+                },
+                {
+                    field: "TO_DATE_BS",
+                    title: "BS",
+                    template: "<span>#: (TO_DATE_BS == null) ? '-' : TO_DATE_BS #</span>"
+                }]
+            },
+            { field: "HALF_DAY_DETAIL", title: "Day Interval" },
+            { field: "GRACE_PERIOD_DETAIL", title: "Grace" },
+            { field: "NO_OF_DAYS", title: "Duration" },
+            { field: "HALF_DAY_DETAIL", title: "Type" },
+            { field: "STATUS_DETAIL", title: "Status" },
+            { field: ["ID"], title: "Action", template: action }
         ], null, null, null, 'Leave Request List');
 
 
@@ -64,7 +85,7 @@
             var leaveRequestStatusId = $('#leaveRequestStatusId').val();
             var fromDate = $('#fromDate').val();
             var toDate = $('#toDate').val();
-            let leaveYear= $leaveYear.val();
+            let leaveYear = $leaveYear.val();
 
             app.pullDataById('', {
                 'employeeId': employeeId,
@@ -113,19 +134,19 @@
         $('#pdfExport').on('click', function () {
             app.exportToPDF($table, exportMap, 'Leave Request List');
         });
-        
-        
-        function leaveYearChange(leaveYear){
+
+
+        function leaveYearChange(leaveYear) {
             let leaveList = document.allLeaveForReport[leaveYear];
             app.populateSelect($leaveId, leaveList, 'LEAVE_ID', 'LEAVE_ENAME', 'All Leaves', -1, -1);
         }
         leaveYearChange($leaveYear.val());
-        
+
         $leaveYear.on('change', function () {
             let selectedLeaveYear = $(this).val();
             leaveYearChange(selectedLeaveYear);
-//            let leaveList = document.allLeaveForReport[selectedLeaveYear];
-//            app.populateSelect($leaveId, leaveList, 'LEAVE_ID', 'LEAVE_ENAME', 'All Leaves', -1, -1);
+            //            let leaveList = document.allLeaveForReport[selectedLeaveYear];
+            //            app.populateSelect($leaveId, leaveList, 'LEAVE_ID', 'LEAVE_ENAME', 'All Leaves', -1, -1);
         });
 
     });

@@ -41,6 +41,7 @@ class LeaveApproveController extends HrisController
         if ($request->isPost()) {
             try {
                 $rawList = $this->repository->getAllRequest($this->employeeId);
+
                 $list = Helper::extractDbData($rawList);
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
             } catch (Exception $e) {

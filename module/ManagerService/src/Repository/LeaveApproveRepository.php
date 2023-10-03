@@ -119,7 +119,7 @@ class LeaveApproveRepository implements RepositoryInterface
                 
                 
                 WHERE E.STATUS        ='E'
-                AND E.RETIRED_FLAG    ='N'
+                AND E.RETIRED_FLAG    ='N' and ls.STATUS        ='E'
                 AND ((
                 (
                 (
@@ -532,7 +532,7 @@ INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')' END AS LEAVE_ENAME
                 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID),
                   HRIS_LEAVE_MONTH_CODE MTH,
                   HRIS_EMPLOYEE_LEAVE_ASSIGN ELA
-                WHERE LA.ID = {$id}
+                WHERE LA.ID = {$id} and ls.status='E'
                 AND TRUNC(LA.START_DATE) BETWEEN MTH.FROM_DATE AND MTH.TO_DATE
                 AND LA.EMPLOYEE_ID            =ELA.EMPLOYEE_ID
                 AND LA.LEAVE_ID               =ELA.LEAVE_ID
@@ -551,7 +551,8 @@ INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')' END AS LEAVE_ENAME
                         from HRIS_LEAVE_MONTH_CODE
                     ) BETWEEN FROM_DATE AND TO_DATE)
                   END
-                OR ELA.FISCAL_YEAR_MONTH_NO IS NULL)";
+                OR ELA.FISCAL_YEAR_MONTH_NO IS NULL) ";
+
     $statement = $this->adapter->query($sql);
     $result = $statement->execute();
     return $result->current();
