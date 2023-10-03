@@ -1,4 +1,5 @@
 <?php
+
 namespace AttendanceManagement\Controller;
 
 use Application\Controller\HrisController;
@@ -18,15 +19,18 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Element\Select;
 use Zend\View\Model\JsonModel;
 
-class AttendanceByHr extends HrisController {
+class AttendanceByHr extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeForm(AttendanceByHrForm::class);
         $this->initializeRepository(AttendanceDetailRepository::class);
     }
 
-    private function getStatusSelect() {
+    private function getStatusSelect()
+    {
         $statusFormElement = new Select();
         $statusFormElement->setName("status");
         $status = array(
@@ -45,7 +49,8 @@ class AttendanceByHr extends HrisController {
         return $statusFormElement;
     }
 
-    private function getPresentStatusSelect() {
+    private function getPresentStatusSelect()
+    {
         $statusFormElement = new Select();
         $statusFormElement->setName("presentStatus");
         $status = array(
@@ -59,32 +64,34 @@ class AttendanceByHr extends HrisController {
         return $statusFormElement;
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $shiftRepo = new ShiftRepository($this->adapter);
         $shiftList = iterator_to_array($shiftRepo->fetchAll(), false);
         return Helper::addFlashMessagesToArray($this, [
-                'status' => $this->getStatusSelect(),
-                'presentStatus' => $this->getPresentStatusSelect(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl,
-                'shiftList' => $shiftList,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'allowShiftChange' =>  isset($this->preference['attAppShiftChangeable'])? $this->preference['attAppShiftChangeable']  : 'N',
-                'allowTimeChange' =>  isset($this->preference['attAppTimeChangeable'])? $this->preference['attAppTimeChangeable']  : 'N',
-                'preference' => $this->preference,
-                'provinces' => EntityHelper::getProvinceList($this->adapter),
-                'braProv' => EntityHelper::getBranchFromProvince($this->adapter),
+            'status' => $this->getStatusSelect(),
+            'presentStatus' => $this->getPresentStatusSelect(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'shiftList' => $shiftList,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'allowShiftChange' =>  isset($this->preference['attAppShiftChangeable']) ? $this->preference['attAppShiftChangeable']  : 'N',
+            'allowTimeChange' =>  isset($this->preference['attAppTimeChangeable']) ? $this->preference['attAppTimeChangeable']  : 'N',
+            'preference' => $this->preference,
+            'provinces' => EntityHelper::getProvinceList($this->adapter),
+            'braProv' => EntityHelper::getBranchFromProvince($this->adapter),
         ]);
     }
 
-    public function reportAction() {
+    public function reportAction()
+    {
         return Helper::addFlashMessagesToArray($this, [
-                'status' => $this->getStatusSelect(),
-                'presentStatus' => $this->getPresentStatusSelect(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'preference' => $this->preference
+            'status' => $this->getStatusSelect(),
+            'presentStatus' => $this->getPresentStatusSelect(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
@@ -135,7 +142,8 @@ class AttendanceByHr extends HrisController {
     }
     */
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
         try {
             if ($request->isPost()) {
@@ -146,29 +154,35 @@ class AttendanceByHr extends HrisController {
                     $data['status'] = 'AP';
                     $data['approvedBy'] = $this->employeeId;
                     $data['approvedRemarks'] = 'Auto Approved By HR';
+                    $data['createdBy'] = $this->employeeId;
                     $attendanceRepository = new AttendanceRepository($this->adapter);
                     $attendanceRepository->insertAttendance($data);
                     $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
                     return $this->redirect()->toRoute("attendancebyhr");
                 }
             }
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
-                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE","FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
                 ]
             );
         } catch (Exception $e) {
             $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
             $this->flashmessenger()->addMessage($e->getMessage());
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
                     'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
-                    ]
+                ]
             );
         }
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $id = (int) $this->params()->fromRoute("id");
         if ($id === 0) {
             return $this->redirect()->toRoute("attendancebyhr");
@@ -190,19 +204,22 @@ class AttendanceByHr extends HrisController {
                 return $this->redirect()->toRoute("attendancebyhr");
             }
         }
-        return Helper::addFlashMessagesToArray($this, [
+        return Helper::addFlashMessagesToArray(
+            $this,
+            [
                 'form' => $this->form,
                 'id' => $id,
                 'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", NULL, FALSE, TRUE)
-                ]
+            ]
         );
     }
 
-    public function deleteAction() {
-
+    public function deleteAction()
+    {
     }
 
-    public function pullAttendanceAction() {
+    public function pullAttendanceAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -235,61 +252,64 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-//    public function pullAttendanceAction() {
-//        try {
-//            $request = $this->getRequest();
-//            $data = $request->getPost();
-//
-//            $take = $data['take'];
-//            $skip = $data['skip'];
-//            $page = $data['page'];
-//            $pageSize = $data['pageSize'];
-//
-//            $max = $pageSize * $page;
-//            $min = $pageSize * ($page - 1);
-//
-//            $employeeId = isset($data['employeeId']) ? $data['employeeId'] : -1;
-//            $companyId = isset($data['companyId']) ? $data['companyId'] : -1;
-//            $branchId = isset($data['branchId']) ? $data['branchId'] : -1;
-//            $departmentId = isset($data['departmentId']) ? $data['departmentId'] : -1;
-//            $positionId = isset($data['positionId']) ? $data['positionId'] : -1;
-//            $designationId = isset($data['designationId']) ? $data['designationId'] : -1;
-//            $serviceTypeId = isset($data['serviceTypeId']) ? $data['serviceTypeId'] : -1;
-//            $serviceEventTypeId = isset($data['serviceEventTypeId']) ? $data['serviceEventTypeId'] : -1;
-//            $employeeTypeId = isset($data['employeeTypeId']) ? $data['employeeTypeId'] : -1;
-//            $fromDate = $data['fromDate'];
-//            $toDate = $data['toDate'];
-//            $status = $data['status'];
-//            $missPunchOnly = ((int) $data['missPunchOnly'] == 1) ? true : false;
-//            $results = $this->repository->filterRecord($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId, false, $missPunchOnly, $min, $max);
-//            $total = $this->repository->filterRecordCount($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId, false, $missPunchOnly);
-//
-//            $result = [];
-//            $result['total'] = $total['TOTAL'];
-//            $result['results'] = Helper::extractDbData($results);
-//
-//            return new CustomViewModel($result);
-//        } catch (Exception $e) {
-//            return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
-//        }
-//    }
+    //    public function pullAttendanceAction() {
+    //        try {
+    //            $request = $this->getRequest();
+    //            $data = $request->getPost();
+    //
+    //            $take = $data['take'];
+    //            $skip = $data['skip'];
+    //            $page = $data['page'];
+    //            $pageSize = $data['pageSize'];
+    //
+    //            $max = $pageSize * $page;
+    //            $min = $pageSize * ($page - 1);
+    //
+    //            $employeeId = isset($data['employeeId']) ? $data['employeeId'] : -1;
+    //            $companyId = isset($data['companyId']) ? $data['companyId'] : -1;
+    //            $branchId = isset($data['branchId']) ? $data['branchId'] : -1;
+    //            $departmentId = isset($data['departmentId']) ? $data['departmentId'] : -1;
+    //            $positionId = isset($data['positionId']) ? $data['positionId'] : -1;
+    //            $designationId = isset($data['designationId']) ? $data['designationId'] : -1;
+    //            $serviceTypeId = isset($data['serviceTypeId']) ? $data['serviceTypeId'] : -1;
+    //            $serviceEventTypeId = isset($data['serviceEventTypeId']) ? $data['serviceEventTypeId'] : -1;
+    //            $employeeTypeId = isset($data['employeeTypeId']) ? $data['employeeTypeId'] : -1;
+    //            $fromDate = $data['fromDate'];
+    //            $toDate = $data['toDate'];
+    //            $status = $data['status'];
+    //            $missPunchOnly = ((int) $data['missPunchOnly'] == 1) ? true : false;
+    //            $results = $this->repository->filterRecord($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId, false, $missPunchOnly, $min, $max);
+    //            $total = $this->repository->filterRecordCount($employeeId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, $serviceEventTypeId, $fromDate, $toDate, $status, $companyId, $employeeTypeId, false, $missPunchOnly);
+    //
+    //            $result = [];
+    //            $result['total'] = $total['TOTAL'];
+    //            $result['results'] = Helper::extractDbData($results);
+    //
+    //            return new CustomViewModel($result);
+    //        } catch (Exception $e) {
+    //            return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+    //        }
+    //    }
 
-    public function bulkAttendanceWSAction() {
+    public function bulkAttendanceWSAction()
+    {
         try {
             $request = $this->getRequest();
             $postedData = $request->getPost();
-			//print_r($postedData);die;
+            //print_r($postedData);die;
             $inTime = "TO_DATE('{$postedData['in_time']}', 'HH:MI AM')";
             $outTime = "TO_DATE('{$postedData['out_time']}', 'HH:MI AM')";
+            $createdBy = $this->employeeId;
             //return new JsonModel(['success' => true, 'data' => $postedData, 'error' => '']);
-            $this->repository->manualAttendance($postedData['employeeId'], Helper::getExpressionDate($postedData['attendanceDt'])->getExpression(), $postedData['action'], $postedData['impactOtherDays'] === 'true', $postedData['shiftId'], $inTime, $outTime,$postedData['outNextDay'] === 'true');
+            $this->repository->manualAttendance($postedData['employeeId'], Helper::getExpressionDate($postedData['attendanceDt'])->getExpression(), $postedData['action'], $postedData['impactOtherDays'] === 'true', $postedData['shiftId'], $inTime, $outTime, $postedData['outNextDay'] === 'true', $createdBy);
             return new JsonModel(['success' => true, 'data' => [], 'error' => '']);
         } catch (Exception $e) {
             return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
         }
     }
 
-    public function pullInOutTimeAction() {
+    public function pullInOutTimeAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -310,18 +330,20 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-    public function attendanceReportWithLocationAction() {
+    public function attendanceReportWithLocationAction()
+    {
         return Helper::addFlashMessagesToArray($this, [
-                'status' => $this->getStatusSelect(),
-                'presentStatus' => $this->getPresentStatusSelect(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'preference' => $this->preference
+            'status' => $this->getStatusSelect(),
+            'presentStatus' => $this->getPresentStatusSelect(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function pullAttendanceWithLocationAction() {
+    public function pullAttendanceWithLocationAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -351,26 +373,28 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-    public function dailyPerformanceReportAction() {
+    public function dailyPerformanceReportAction()
+    {
         $request = $this->getRequest();
         $data = $request->getPost();
 
-        if($request->isPost()){
+        if ($request->isPost()) {
             $reportData = Helper::extractDbData($this->repository->fetchDailyPerformanceReport($data));
             return new JsonModel(['success' => true, 'data' => $reportData, 'error' => '']);
         }
 
         return Helper::addFlashMessagesToArray($this, [
-                'status' => $this->getStatusSelect(),
-                'presentStatus' => $this->getPresentStatusSelect(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'preference' => $this->preference
+            'status' => $this->getStatusSelect(),
+            'presentStatus' => $this->getPresentStatusSelect(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'preference' => $this->preference
         ]);
     }
 
-    public function checkInAction() {
+    public function checkInAction()
+    {
         $request = $this->getRequest();
         try {
             if ($request->isPost()) {
@@ -382,21 +406,26 @@ class AttendanceByHr extends HrisController {
                     $data['approvedBy'] = $this->employeeId;
                     $data['approvedRemarks'] = 'Auto Approved By HR';
                     $data['totalHour'] = null;
+                    $data['createdBy'] = $this->employeeId;
                     $attendanceRepository = new AttendanceRepository($this->adapter);
                     $attendanceRepository->insertAttendance($data);
                     $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
                     return $this->redirect()->toRoute("attendancebyhr");
                 }
             }
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
-                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE","FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
                 ]
             );
         } catch (Exception $e) {
             $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
             $this->flashmessenger()->addMessage($e->getMessage());
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
                     'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
                 ]
@@ -404,7 +433,8 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-    public function checkOutAction() {
+    public function checkOutAction()
+    {
         $request = $this->getRequest();
         try {
             if ($request->isPost()) {
@@ -416,21 +446,26 @@ class AttendanceByHr extends HrisController {
                     $data['approvedBy'] = $this->employeeId;
                     $data['approvedRemarks'] = 'Auto Approved By HR';
                     $data['totalHour'] = null;
+                    $data['createdBy'] = $this->employeeId;
                     $attendanceRepository = new AttendanceRepository($this->adapter);
                     $attendanceRepository->insertAttendance($data);
                     $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
                     return $this->redirect()->toRoute("attendancebyhr");
                 }
             }
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
-                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE","FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
+                    'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["EMPLOYEE_CODE", "FULL_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", "-", FALSE, TRUE, $this->employeeId)
                 ]
             );
         } catch (Exception $e) {
             $this->flashmessenger()->addMessage("Attendance Submit Failed!!");
             $this->flashmessenger()->addMessage($e->getMessage());
-            return Helper::addFlashMessagesToArray($this, [
+            return Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
                     'employees' => EntityHelper::getTableKVListWithSortOption($this->adapter, "HRIS_EMPLOYEES", "EMPLOYEE_ID", ["FIRST_NAME", "MIDDLE_NAME", "LAST_NAME"], ["STATUS" => 'E', 'RETIRED_FLAG' => 'N'], "FIRST_NAME", "ASC", " ", FALSE, TRUE)
                 ]
@@ -438,7 +473,8 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-    public function reportOnlyAction() {
+    public function reportOnlyAction()
+    {
         return Helper::addFlashMessagesToArray($this, [
             'status' => $this->getStatusSelect(),
             'presentStatus' => $this->getPresentStatusSelect(),
@@ -450,23 +486,25 @@ class AttendanceByHr extends HrisController {
             'braProv' => EntityHelper::getBranchFromProvince($this->adapter),
         ]);
     }
-    
-    public function attdBotAction() {
+
+    public function attdBotAction()
+    {
         $shiftRepo = new ShiftRepository($this->adapter);
         $shiftList = iterator_to_array($shiftRepo->fetchAll(), false);
         return Helper::addFlashMessagesToArray($this, [
-                'status' => $this->getStatusSelect(),
-                'presentStatus' => $this->getPresentStatusSelect(),
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl, 
-                'shiftList' => $shiftList,
-                'employeeDetail' => $this->storageData['employee_detail'],
-                'allowShiftChange' =>  isset($this->preference['attAppShiftChangeable'])? $this->preference['attAppShiftChangeable']  : 'N',
-                'allowTimeChange' =>  isset($this->preference['attAppTimeChangeable'])? $this->preference['attAppTimeChangeable']  : 'N'
+            'status' => $this->getStatusSelect(),
+            'presentStatus' => $this->getPresentStatusSelect(),
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'shiftList' => $shiftList,
+            'employeeDetail' => $this->storageData['employee_detail'],
+            'allowShiftChange' =>  isset($this->preference['attAppShiftChangeable']) ? $this->preference['attAppShiftChangeable']  : 'N',
+            'allowTimeChange' =>  isset($this->preference['attAppTimeChangeable']) ? $this->preference['attAppTimeChangeable']  : 'N'
         ]);
-    } 
-    
-    public function pullAttendanceBotAction() {
+    }
+
+    public function pullAttendanceBotAction()
+    {
         try {
             $request = $this->getRequest();
             $data = $request->getPost();
@@ -486,7 +524,7 @@ class AttendanceByHr extends HrisController {
             $toDate = $data['toDate'];
             $status = $data['status'];
             $presentStatus = $data['presentStatus'];
-            
+
             $results = $this->repository->filterRecordBot($companyId, $branchId, $departmentId, $designationId, $positionId, $serviceTypeId, $serviceEventTypeId, $employeeTypeId, $genderId, $functionalTypeId, $employeeId, $fromDate, $toDate, $status, $presentStatus);
             $result = [];
             $result['success'] = true;
@@ -498,7 +536,8 @@ class AttendanceByHr extends HrisController {
         }
     }
 
-    public function rawAttendanceAction(){
+    public function rawAttendanceAction()
+    {
         $shiftRepo = new ShiftRepository($this->adapter);
         $shiftList = iterator_to_array($shiftRepo->fetchAll(), false);
         $request = $this->getRequest();
@@ -515,9 +554,9 @@ class AttendanceByHr extends HrisController {
             return new CustomViewModel($result);
         }
         return Helper::addFlashMessagesToArray($this, [
-                'searchValues' => EntityHelper::getSearchData($this->adapter),
-                'acl' => $this->acl, 
-                'employeeDetail' => $this->storageData['employee_detail']
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'acl' => $this->acl,
+            'employeeDetail' => $this->storageData['employee_detail']
         ]);
     }
 }

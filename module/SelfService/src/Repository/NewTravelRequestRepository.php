@@ -16,12 +16,15 @@ use SelfService\Model\TRAVELFILES;
 use Setup\Model\HrEmployees;
 use Zend\Http\Header\TE;
 use ZF\DevelopmentMode\Help;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class NewTravelRequestRepository extends HrisRepository implements RepositoryInterface
 {
 
     protected $tableGateway;
     protected $adapter;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter)
     {
@@ -29,6 +32,7 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         $this->tableGateway = new TableGateway(TravelRequest::TABLE_NAME, $adapter);
         $this->tableEmployeeGateway = new TableGateway(HrEmployees::TABLE_NAME, $adapter);
         $this->fileGateway = new TableGateway(TRAVELFILES::TABLE_NAME, $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
     }
     public function getFilteredRecords(array $search)
     { #passes value from view
@@ -358,15 +362,40 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         }
         //$this->linkTravelWithFiles();
         $this->linkTravelWithFiles();
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel request';
+        $logs->operation = 'I';
+        $logs->createdBy = $addData['CREATED_BY'];
+        $logs->createdDesc = 'Travel id - ' . $addData['TRAVEL_ID'];
+        $logs->tableDesc = 'HRIS_EMPLOYEE_TRAVEL_REQUEST';
+        $branch->insertLogs($logs);
     }
     public function addFiles($data)
     {
         $this->fileGateway->insert($data);
     }
-
+    public function updateFiles($data)
+    {
+        $sql = "UPDATE hris_travel_files SET file_name ='$data[FILE_NAME]',file_in_dir_name='$data[FILE_IN_DIR_NAME]' WHERE travel_id=$data[TRAVEL_ID] and file_id=$data[FILE_ID]";
+        $statement = $this->adapter->query($sql);
+        $statement->execute()->current();
+    }
     public function delete($id)
     {
+        // $this->tableGateway->update([TravelRequest::STATUS => 'C'], [TravelRequest::TRAVEL_ID => $id]);
+    }
+    public function deleteTravel($id, $employeeId)
+    {
         $this->tableGateway->update([TravelRequest::STATUS => 'C'], [TravelRequest::TRAVEL_ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel Request';
+        $logs->operation = 'D';
+        $logs->deletedBy = $employeeId;
+        $logs->deletedDesc = 'Travel id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_Travel_REQUEST';
+        $branch->deleteLogs($logs);
     }
 
     public function edit(Model $model, $id)
@@ -375,6 +404,15 @@ class NewTravelRequestRepository extends HrisRepository implements RepositoryInt
         $array = $model->getArrayCopyForDB();
         // var_dump($array); die;
         $this->tableGateway->update($array, [TravelRequest::TRAVEL_ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel request';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $array['CREATED_BY'];
+        $logs->modifiedDesc = 'Travel id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_Travel_REQUEST';
+
+        $branch->updateLogs($logs);
     }
 
     public function fetchAll()

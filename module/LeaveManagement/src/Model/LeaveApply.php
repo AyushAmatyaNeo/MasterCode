@@ -4,7 +4,8 @@ namespace LeaveManagement\Model;
 
 use Application\Model\Model;
 
-class LeaveApply extends Model { 
+class LeaveApply extends Model
+{
 
     const TABLE_NAME = "HRIS_EMPLOYEE_LEAVE_REQUEST";
     const EMPLOYEE_ID = "EMPLOYEE_ID";
@@ -23,6 +24,7 @@ class LeaveApply extends Model {
     const REMARKS = "REMARKS";
     const RECOMMENDED_REMARKS = "RECOMMENDED_REMARKS";
     const APPROVED_REMARKS = "APPROVED_REMARKS";
+    const CREATED_BY = "CREATED_BY";
     const MODIFIED_DT = "MODIFIED_DT";
     const GRACE_PERIOD = "GRACE_PERIOD";
     const CANCEL_REC_BY = "CANCEL_REC_BY";
@@ -37,7 +39,7 @@ class LeaveApply extends Model {
     public $leaveId;
     public $startDate;
     public $endDate;
-    public $noOfDays; 
+    public $noOfDays;
     public $status;
     public $recommendedBy;
     public $recommendedDt;
@@ -55,6 +57,7 @@ class LeaveApply extends Model {
     public $cancelRecDt;
     public $cancelAppDt;
     public $subRefId;
+    public $createdBy;
     public $hardcopySignedFlag;
     public $mappings = [
         'id' => self::ID,
@@ -80,7 +83,7 @@ class LeaveApply extends Model {
         'cancelRecDt' => self::CANCEL_REC_DT,
         'cancelAppDt' => self::CANCEL_APP_DT,
         'subRefId' => self::SUB_REF_ID,
+        'createdBy' => self::CREATED_BY,
         'hardcopySignedFlag' => self::HARDCOPY_SIGNED_FLAG
     ];
-
 }

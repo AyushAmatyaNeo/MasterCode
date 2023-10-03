@@ -10,18 +10,22 @@ use Application\Repository\RepositoryInterface;
 use AttendanceManagement\Model\RoasterModel;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class RoasterRepo extends HrisRepository implements RepositoryInterface
 {
 
   //    private $adapter;
   private $gateway;
+  private $logTable;
 
   public function __construct(AdapterInterface $adapter)
   {
     parent::__construct($adapter);
     //        $this->adapter = $adapter;
     $this->gateway = new TableGateway(RoasterModel::TABLE_NAME, $adapter);
+    $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
   }
 
   public function add(Model $model)
@@ -107,6 +111,14 @@ class RoasterRepo extends HrisRepository implements RepositoryInterface
                     END IF;
                     COMMIT;
                 END;");
+    $branch = new BranchRepository($this->adapter);
+    $logs = new Logs();
+    $logs->module = 'Roaster Assign';
+    $logs->operation = 'A';
+    $logs->createdBy = $createdBy;
+    $logs->createdDesc = 'Shift id-' . $shiftId . ' assigned to ' . 'Employee id - ' . $employeeId . ' for ' . $forDate;
+    $logs->tableDesc = 'HRIS_EMPLOYEE_SHIFT_ROASTER';
+    $branch->insertLogs($logs);
   }
 
   public function getshiftDetail($data)

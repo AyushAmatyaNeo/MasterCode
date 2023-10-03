@@ -12,17 +12,21 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class LeaveRequestRepository implements RepositoryInterface
 {
 
     private $tableGateway;
     private $adapter;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter)
     {
         $this->tableGateway = new TableGateway(LeaveApply::TABLE_NAME, $adapter);
         $this->tableGatewayLeaveAssign = new TableGateway(LeaveAssign::TABLE_NAME, $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
@@ -53,14 +57,33 @@ class LeaveRequestRepository implements RepositoryInterface
 
     public function add(Model $model)
     {
+        $array = $model->getArrayCopyForDB();
         $this->tableGateway->insert($model->getArrayCopyForDB());
         $this->linkLeaveWithFiles();
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave request';
+        $logs->operation = 'I';
+        $logs->createdBy = $array['EMPLOYEE_ID'];
+        $logs->createdDesc = 'Leave id - ' . $array['LEAVE_ID'];
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_REQUEST';
+        $branch->insertLogs($logs);
     }
 
     public function edit(Model $model, $id)
     {
         $currentDate = Helper::getcurrentExpressionDate();
+        $array = $model->getArrayCopyForDB();
         $this->tableGateway->update([LeaveApply::MODIFIED_DT => $currentDate], [LeaveApply::ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave request';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $array['EMPLOYEE_ID'];
+        $logs->modifiedDesc = 'Leave id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_REQUEST';
+
+        $branch->updateLogs($logs);
     }
 
 
@@ -436,6 +459,9 @@ end OR la.fiscal_year_month_no IS NULL ) )";
 
     public function delete($id)
     {
+    }
+    public function deleteLeave($id, $employeeId)
+    {
         $leaveStatus = $this->getLeaveFrontOrBack($id);
         $currentDate = Helper::getcurrentExpressionDate();
         $leaveStatusAction = $leaveStatus['CANCEL_ACTION'];
@@ -468,6 +494,14 @@ end OR la.fiscal_year_month_no IS NULL ) )";
                       END IF;
                     END;
     ", $boundedParameter);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave Request';
+        $logs->operation = 'D';
+        $logs->deletedBy = $employeeId;
+        $logs->deletedDesc = 'Leave id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_REQUEST';
+        $branch->deleteLogs($logs);
     }
 
     public function checkEmployeeLeave($employeeId, $date)

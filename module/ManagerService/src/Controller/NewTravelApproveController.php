@@ -870,6 +870,7 @@ class NewTravelApproveController extends HrisController
                 $model->requestedDate = Helper::getcurrentExpressionDate();
                 $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
                 $model->requestedType = 'ad';
+                $model->createdBy = $this->employeeId;
                 if ($postData['travelType'] == 'LTR') {
                     $model->currencyname = 'NPR';
                 } else {

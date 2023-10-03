@@ -20,6 +20,8 @@ use Setup\Model\HrEmployees;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Element\Select;
+use SelfService\Model\LeaveSubstitute;
+use SelfService\Repository\LeaveSubstituteRepository;
 use Zend\View\Model\JsonModel;
 use LeaveManagement\Repository\LeaveApplyRepository;
 use LeaveManagement\Repository\LeaveReportCardRepository;
@@ -579,6 +581,7 @@ class LeaveApproveController extends HrisController
                 $leaveRequest->startDate = Helper::getExpressionDate($leaveRequest->startDate);
                 $leaveRequest->endDate = Helper::getExpressionDate($leaveRequest->endDate);
                 $leaveRequest->requestedDt = Helper::getcurrentExpressionDate();
+                $leaveRequest->createdBy = $this->employeeId;
                 $leaveRequest->status = "RQ";
 
                 if (isset($postedData['subRefId']) && $postedData['subRefId'] != ' ') {
@@ -632,7 +635,7 @@ class LeaveApproveController extends HrisController
                 }
                 if ($leaveRequest->status == 'RC') {
                     try {
-                        HeadNotification::pushNotification(NotificationEvents::LEAVE_APPLIED_APPROVER, $leaveRequest, $this->adapter, $this);
+                        HeadNotification::pushNotification(NotificationEvents::LEAVE_APPLIED, $leaveRequest, $this->adapter, $this);
                     } catch (Exception $e) {
                         $this->flashmessenger()->addMessage($e->getMessage());
                     }

@@ -350,247 +350,78 @@ class SalarySheetLockController extends HrisController
                     if (empty($payslipData)) {
                         die;
                     }
+
                     $batchSize = 40; // Set the batch size
                     $index = 0;
-                    $batchPayslipData = array_slice($payslipData, $index, $batchSize);
-                    foreach ($batchPayslipData as $data1) {
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
+                    $totalEmployees = count($payslipData);
 
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
+                    while ($index < $totalEmployees) {
+                        $batchPayslipData = array_slice($payslipData, $index, $batchSize);
 
-                            foreach ($payslipDetails['pay-detail'] as &$row) {
-                                $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                $val = str_replace(',', '', $row['VAL']);
-                                $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                $row['VAL'] = number_format($result, 2, '.', ',');
+                        foreach ($batchPayslipData as $data) {
+                            try {
+                                $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
+                                $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+                                $model = new PaySlipDetailsModel();
+                                $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                                foreach ($payslipDetails['pay-detail'] as &$row) {
+                                    $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
+                                    $val = str_replace(',', '', $row['VAL']);
+                                    $result = $val * $exchangeRate['EXCHANGE_RATE'];
+                                    $row['VAL'] = number_format($result, 2, '.', ',');
+                                }
+                                $model->setProperty1 = ($payslipDetails['emp-detail']);
+                                $model->setProperty2 = ($payslipDetails['pay-detail']);
+                                HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
+                                $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+                                $mployeeId = $data['EMPLOYEE_ID'];
+                                $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
+                            } catch (Exception $e) {
+                                $this->flashmessenger()->addMessage($e->getMessage());
                             }
-
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data1['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
                         }
-                    }
-                    $data = $this->salarySheetRepo->lastPayslipEmp();
-                    $payslipDataRest = $this->salarySheetRepo->getPayslipDataRest($key, $data['EMPLOYEE_ID']);
-                    $numberOfPayslips2 = count($payslipDataRest);
-
-                    $index1 = 0;
-                    while ($index1 < $numberOfPayslips2) {
-                        $data2 = $payslipDataRest[$index1];
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-
-                            foreach ($payslipDetails['pay-detail'] as &$row) {
-                                $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                $val = str_replace(',', '', $row['VAL']);
-                                $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                $row['VAL'] = number_format($result, 2, '.', ',');
-                            }
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data2['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-
-                        $index1++;
+                        sleep(2);
+                        $index += $batchSize;
                     }
                 } else if ($allowPayslipInEmail == 'Y' && $allowExchangeRate == 'N') {
                     $payslipData = $this->salarySheetRepo->getPayslipData($key);
                     if (empty($payslipData)) {
                         die;
                     }
+
                     $batchSize = 40; // Set the batch size
                     $index = 0;
-                    $batchPayslipData = array_slice($payslipData, $index, $batchSize);
-                    foreach ($batchPayslipData as $data1) {
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
+                    $totalEmployees = count($payslipData);
 
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
+                    while ($index < $totalEmployees) {
+                        $batchPayslipData = array_slice($payslipData, $index, $batchSize);
 
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data1['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    }
-                    $data = $this->salarySheetRepo->lastPayslipEmp();
-                    $payslipDataRest = $this->salarySheetRepo->getPayslipDataRest($key, $data['EMPLOYEE_ID']);
-                    $numberOfPayslips2 = count($payslipDataRest);
-
-                    $index1 = 0;
-                    while ($index1 < $numberOfPayslips2) {
-                        $data2 = $payslipDataRest[$index1];
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data2['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-
-                        $index1++;
-                    }
-                } else if ($allowPayslipInEmail == 'N' && $allowExchangeRate == 'Y') {
-                    $payslipData = $this->salarySheetRepo->getPayslipData($key);
-                    if (empty($payslipData)) {
-                        die;
-                    }
-                    $batchSize = 40; // Set the batch size
-                    $index = 0;
-                    $batchPayslipData = array_slice($payslipData, $index, $batchSize);
-                    foreach ($batchPayslipData as $data1) {
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-
-                            foreach ($payslipDetails['pay-detail'] as &$row) {
-                                $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                $val = str_replace(',', '', $row['VAL']);
-                                $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                $row['VAL'] = number_format($result, 2, '.', ',');
+                        foreach ($batchPayslipData as $data) {
+                            try {
+                                $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
+                                $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+                                $model = new PaySlipDetailsModel();
+                                $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                                // foreach ($payslipDetails['pay-detail'] as &$row) {
+                                //     $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
+                                //     $val = str_replace(',', '', $row['VAL']);
+                                //     $result = $val * $exchangeRate['EXCHANGE_RATE'];
+                                //     $row['VAL'] = number_format($result, 2, '.', ',');
+                                // }
+                                $model->setProperty1 = ($payslipDetails['emp-detail']);
+                                $model->setProperty2 = ($payslipDetails['pay-detail']);
+                                HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
+                                $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+                                $mployeeId = $data['EMPLOYEE_ID'];
+                                $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
+                            } catch (Exception $e) {
+                                $this->flashmessenger()->addMessage($e->getMessage());
                             }
-
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data1['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
                         }
-                    }
-                    $data = $this->salarySheetRepo->lastPayslipEmp();
-                    $payslipDataRest = $this->salarySheetRepo->getPayslipDataRest($key, $data['EMPLOYEE_ID']);
-                    $numberOfPayslips2 = count($payslipDataRest);
-
-                    $index1 = 0;
-                    while ($index1 < $numberOfPayslips2) {
-                        $data2 = $payslipDataRest[$index1];
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-
-                            foreach ($payslipDetails['pay-detail'] as &$row) {
-                                $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                $val = str_replace(',', '', $row['VAL']);
-                                $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                $row['VAL'] = number_format($result, 2, '.', ',');
-                            }
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data2['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-
-                        $index1++;
-                    }
-                } else if ($allowPayslipInEmail == 'N' && $allowExchangeRate == 'N') {
-                    $payslipData = $this->salarySheetRepo->getPayslipData($key);
-                    if (empty($payslipData)) {
-                        die;
-                    }
-                    $batchSize = 40; // Set the batch size
-                    $index = 0;
-                    $batchPayslipData = array_slice($payslipData, $index, $batchSize);
-                    foreach ($batchPayslipData as $data1) {
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data1['MONTH_ID'], $data1['EMPLOYEE_ID'], $data1['SALARY_TYPE_ID']);
-
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data1['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                    }
-                    $data = $this->salarySheetRepo->lastPayslipEmp();
-                    $payslipDataRest = $this->salarySheetRepo->getPayslipDataRest($key, $data['EMPLOYEE_ID']);
-                    $numberOfPayslips2 = count($payslipDataRest);
-
-                    $index1 = 0;
-                    while ($index1 < $numberOfPayslips2) {
-                        $data2 = $payslipDataRest[$index1];
-                        try {
-                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                            $model = new PaySlipDetailsModel();
-
-                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data2['MONTH_ID'], $data2['EMPLOYEE_ID'], $data2['SALARY_TYPE_ID']);
-                            $model->setProperty1 = ($payslipDetails['emp-detail']);
-                            $model->setProperty2 = ($payslipDetails['pay-detail']);
-                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                            $mployeeId = $data2['EMPLOYEE_ID'];
-                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                        } catch (Exception $e) {
-                            $this->flashmessenger()->addMessage($e->getMessage());
-                        }
-                        $index1++;
+                        sleep(2);
+                        $index += $batchSize;
                     }
                 }
             }

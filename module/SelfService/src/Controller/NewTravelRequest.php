@@ -8,6 +8,7 @@ use Application\Helper\EntityHelper;
 use Application\Helper\Helper;
 use Application\Helper\NumberHelper;
 use Exception;
+use MobileApi\Controller\Employee;
 use SelfService\Model\TRAVELFILES;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
@@ -98,6 +99,7 @@ class NewTravelRequest extends HrisController
                 $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                 $model->employeeId = $this->employeeId;
                 $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->createdBy = $this->employeeId;
                 $model->status = 'RQ';
                 $model->requestedType = 'ad';
                 if ($postData['travelType'] == 'LTR') {
@@ -257,12 +259,12 @@ class NewTravelRequest extends HrisController
             if ($this->form->isValid()) {
                 $travelRequest->exchangeArrayFromForm($this->form->getData());
                 // var_dump($travelRequest); die;
-                $travelRequest->modifiedDt = Helper::getcurrentExpressionDate();
+                // $travelRequest->modifiedDt = Helper::getcurrentExpressionDate();
                 $travelRequest->employeeId = $this->employeeId;
                 $travelRequest->fromDate = Helper::getExpressionDate($travelRequest->fromDate);
                 $travelRequest->toDate = Helper::getExpressionDate($travelRequest->toDate);
                 $travelRequest->traveltype = $postedData['travelType'];
-
+                $travelRequest->createdBy = $this->employeeId;
                 $travelRequest->requestedType = 'ad';
 
 
@@ -283,15 +285,13 @@ class NewTravelRequest extends HrisController
                             $path = $fileDir . "/" . $newImageName;
                             move_uploaded_file($value['tmp_name'], $path);
                             $data = array(
-                                'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TRAVELFILES::TABLE_NAME, TRAVELFILES::FILE_ID)) + 1,
+                                'FILE_ID' => ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1,
                                 'FILE_NAME' => $newImageName,
                                 'TRAVEL_ID' => $id,
                                 'FILE_IN_DIR_NAME' =>  $path,
                                 'UPLOADED_DATE' => '',
                             );
-                            // echo '<pre>';print_r($data);die;
-
-                            $this->travelRequestRepository->updateFiles($data);
+                            $this->repository->updateFiles($data);
                         }
                     }
                 }
@@ -1132,7 +1132,7 @@ class NewTravelRequest extends HrisController
         if (!$id) {
             return $this->redirect()->toRoute('newtravelrequest');
         }
-        $this->repository->delete($id);
+        $this->repository->deleteTravel($id, $this->employeeId);
         $this->flashmessenger()->addMessage("Travel Request Successfully Cancelled!!!");
         return $this->redirect()->toRoute('newtravelrequest');
     }

@@ -8,6 +8,7 @@ use Application\Helper\Helper;
 use Application\Helper\NumberHelper;
 use Exception;
 use ManagerService\Repository\TravelApproveRepository;
+use MobileApi\Controller\Employee;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\TravelRequestForm;
@@ -869,6 +870,7 @@ class TravelApproveController extends HrisController
                 $model->exchangeArrayFromForm($this->form->getData());
                 $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                 $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->createdBy = $this->employeeId;
                 //                $model->status = 'RQ';
                 $model->deductOnSalary = 'Y';
                 $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';

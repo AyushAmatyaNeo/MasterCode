@@ -16,15 +16,18 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class LeaveSetup extends HrisController {
+class LeaveSetup extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(LeaveMasterRepository::class);
         $this->initializeForm(LeaveMasterForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -38,7 +41,8 @@ class LeaveSetup extends HrisController {
         return $this->stickFlashMessagesTo(['acl' => $this->acl]);
     }
 
-    public function addAction() {
+    public function addAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             $postData = $request->getPost();
@@ -57,20 +61,23 @@ class LeaveSetup extends HrisController {
                 return $this->redirect()->toRoute("leavesetup");
             }
         }
-        return new ViewModel(Helper::addFlashMessagesToArray(
-                        $this, [
+        return new ViewModel(
+            Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
                     'customRenderer' => Helper::renderCustomView(),
                     'companies' => EntityHelper::getTableKVListWithSortOption($this->adapter, Company::TABLE_NAME, Company::COMPANY_ID, [Company::COMPANY_NAME], ["STATUS" => "E"], Company::COMPANY_NAME, "ASC", NULL, TRUE, TRUE),
-                    'fiscalYears' => EntityHelper::getTableKVList($this->adapter, "HRIS_LEAVE_YEARS", "LEAVE_YEAR_ID", ["LEAVE_YEAR_NAME"], null,null,null,"LEAVE_YEAR_ID",'DESC'),
+                    'fiscalYears' => EntityHelper::getTableKVList($this->adapter, "HRIS_LEAVE_YEARS", "LEAVE_YEAR_ID", ["LEAVE_YEAR_NAME"], null, null, null, "LEAVE_YEAR_ID", 'DESC'),
                     'searchValues' => EntityHelper::getSearchData($this->adapter),
-                        ]
-                )
+                ]
+            )
         );
     }
 
-    private function arrayToCSV(LeaveMaster &$model, $postData) {
-        $arrayToCSV = function(array $list, $isString = false ) {
+    private function arrayToCSV(LeaveMaster &$model, $postData)
+    {
+        $arrayToCSV = function (array $list, $isString = false) {
             $valuesinCSV = "";
             for ($i = 0; $i < sizeof($list); $i++) {
                 $value = $isString ? "'{$list[$i]}'" : $list[$i];
@@ -105,7 +112,8 @@ class LeaveSetup extends HrisController {
         $model->employeeId = isset($postData['employee']) ? $arrayToCSV($postData['employee']) : '';
     }
 
-    private function csvToArray($csvList) {
+    private function csvToArray($csvList)
+    {
         $array['companyId'] = str_getcsv($csvList['COMPANY_ID']);
         $array['branchId'] = str_getcsv($csvList['BRANCH_ID']);
         $array['departmentId'] = str_getcsv($csvList['DEPARTMENT_ID']);
@@ -118,7 +126,8 @@ class LeaveSetup extends HrisController {
         return $array;
     }
 
-    public function editAction() {
+    public function editAction()
+    {
         $id = (int) $this->params()->fromRoute("id");
 
         if ($id === 0) {
@@ -145,8 +154,10 @@ class LeaveSetup extends HrisController {
         $this->form->bind($leaveMaster);
         $searchSelectedValues = $this->csvToArray($leaveMasterArray);
 
-        return new ViewModel(Helper::addFlashMessagesToArray(
-                        $this, [
+        return new ViewModel(
+            Helper::addFlashMessagesToArray(
+                $this,
+                [
                     'form' => $this->form,
                     'id' => $id,
                     'customRenderer' => Helper::renderCustomView(),
@@ -154,12 +165,13 @@ class LeaveSetup extends HrisController {
                     'fiscalYears' => EntityHelper::getTableKVList($this->adapter, "HRIS_LEAVE_YEARS", "LEAVE_YEAR_ID", ["LEAVE_YEAR_NAME"], null),
                     'searchValues' => EntityHelper::getSearchData($this->adapter),
                     'searchSelectedValues' => $searchSelectedValues
-                        ]
-                )
+                ]
+            )
         );
     }
 
-    public function deleteAction() {
+    public function deleteAction()
+    {
         if (!ACLHelper::checkFor(ACLHelper::DELETE, $this->acl, $this)) {
             return;
         };
@@ -167,9 +179,9 @@ class LeaveSetup extends HrisController {
         if (!$id) {
             return $this->redirect()->toRoute('leavesetup');
         }
-        $this->repository->delete($id);
+        $this->repository->deleteLeave($id, $this->employeeId);
+        // $this->repository->delete($id);
         $this->flashmessenger()->addMessage("Leave Successfully Deleted!!!");
         return $this->redirect()->toRoute('leavesetup');
     }
-
 }

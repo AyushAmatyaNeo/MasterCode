@@ -116,6 +116,7 @@ class NewTravelApply extends HrisController
                 $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                 $model->employeeId = $postData['employeeId'];
                 $model->requestedDate = Helper::getcurrentExpressionDate();
+                $model->createdBy = $this->employeeId;
                 $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
                 $model->requestedType = 'ad';
                 if ($postData['travelType'] == 'LTR') {

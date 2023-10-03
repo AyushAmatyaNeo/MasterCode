@@ -105,6 +105,7 @@ class TravelApply extends HrisController
                 $model->requestedDate = Helper::getcurrentExpressionDate();
                 //                $model->status = 'RQ';
                 $model->deductOnSalary = 'Y';
+                $model->createdBy = $this->employeeId;
                 $model->status = ($postData['applyStatus'] == 'AP') ? 'AP' : 'RQ';
 
                 if ($model->status == 'AP') {

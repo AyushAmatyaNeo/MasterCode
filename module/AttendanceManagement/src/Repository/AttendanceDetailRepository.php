@@ -13,16 +13,20 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class AttendanceDetailRepository implements RepositoryInterface
 {
 
     private $tableGateway;
     private $adapter;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter)
     {
         $this->tableGateway = new TableGateway(AttendanceDetail::TABLE_NAME, $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
@@ -779,7 +783,7 @@ class AttendanceDetailRepository implements RepositoryInterface
         return $result->current();
     }
 
-    public function manualAttendance($employeeId, $attendanceDt, $action, $impactOtherDays, $shiftId = null, $in_time = null, $out_time = null, $outNextDay = false)
+    public function manualAttendance($employeeId, $attendanceDt, $action, $impactOtherDays, $shiftId = null, $in_time = null, $out_time = null, $outNextDay = false, $createdBy)
     {
         //        if($outNextDay){
         //            
@@ -795,11 +799,18 @@ class AttendanceDetailRepository implements RepositoryInterface
                   HRIS_MANUAL_ATTENDANCE({$employeeId},{$attendanceDt},'{$action}', {$shiftId}, {$in_time}, {$out_time});
                 END;";
         }
-        // echo '<pre>';
-        // print_r($sql);
-        // die;
+
         $statement = $this->adapter->query($sql);
         $statement->execute();
+
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Attendance request';
+        $logs->operation = 'I';
+        $logs->createdBy = $createdBy;
+        $logs->createdDesc = 'Employee id - ' . $employeeId . 'Absent/Present';
+        $logs->tableDesc = 'HRIS_ATTENDANCE_REQUEST';
+        $branch->insertLogs($logs);
     }
 
     public function filterRecordWithLocation($employeeId = null, $branchId = null, $departmentId = null, $positionId = null, $designationId = null, $serviceTypeId = null, $serviceEventTypeId = null, $fromDate = null, $toDate = null, $status = null, $companyId = null, $employeeTypeId = null, $presentStatus, $min = null, $max = null)

@@ -201,7 +201,8 @@ class LeaveRequest extends HrisController
         if (!$id) {
             return $this->redirect()->toRoute('leaverequest', ['action' => 'cancel']);
         }
-        $this->repository->delete($id);
+        // $this->repository->delete($id);
+        $this->repository->deleteLeave($id, $this->employeeId);
         $this->flashmessenger()->addMessage("Leave Request Successfully Cancelled!!!");
         $leaveRequest = new LeaveApply();
         $leaveRequestDetail = $this->repository->fetchById($id);

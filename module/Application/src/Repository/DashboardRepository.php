@@ -670,7 +670,7 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                   FROM HRIS_MONTH_CODE
                   WHERE TRUNC(SYSDATE) BETWEEN FROM_DATE AND TO_DATE
                   ) M
-                WHERE E.JOIN_DATE BETWEEN M.FROM_DATE AND M.TO_DATE
+                WHERE E.JOIN_DATE BETWEEN M.FROM_DATE AND M.TO_DATE AND E.STATUS='E'
                     ";
     $statement = $this->adapter->query($sql);
     $result = $statement->execute();

@@ -68,6 +68,7 @@ class BranchRepository implements RepositoryInterface
             SYSTIMESTAMP,
             '$array[CREATED_DESC]'
         )";
+
         $statement = $this->adapter->query($sql);
         $statement->execute()->current();
     }

@@ -12,17 +12,21 @@ use Zend\Db\Sql\Sql;
 use Application\Helper\Helper;
 use Zend\Db\TableGateway\TableGateway;
 use Application\Repository\HrisRepository;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class TravelRequestRepository extends HrisRepository implements RepositoryInterface
 {
 
     protected $tableGateway;
     protected $adapter;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
         $this->tableGateway = new TableGateway(TravelRequest::TABLE_NAME, $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
     }
 
 
@@ -86,7 +90,6 @@ class TravelRequestRepository extends HrisRepository implements RepositoryInterf
     public function add(Model $model)
     {
         $addData = $model->getArrayCopyForDB();
-
         $this->tableGateway->insert($addData);
 
         if ($addData['STATUS'] == 'AP' && date('Y-m-d', strtotime($model->fromDate)) <= date('Y-m-d')) {
@@ -100,9 +103,17 @@ class TravelRequestRepository extends HrisRepository implements RepositoryInterf
             $boundedParameter['toDate'] = $model->toDate;
             $this->rawQuery($sql, $boundedParameter);
         }
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel request';
+        $logs->operation = 'I';
+        $logs->createdBy = $addData['CREATED_BY'];
+        $logs->createdDesc = 'Travel id - ' . $addData['TRAVEL_ID'];
+        $logs->tableDesc = 'HRIS_EMPLOYEE_TRAVEL_REQUEST';
+        $branch->insertLogs($logs);
     }
 
-    public function delete($id)
+    public function deleteTravel($id, $employeeId)
     {
         $this->tableGateway->update([TravelRequest::STATUS => 'C'], [TravelRequest::TRAVEL_ID => $id]);
         EntityHelper::rawQueryResult($this->adapter, "
@@ -135,13 +146,32 @@ class TravelRequestRepository extends HrisRepository implements RepositoryInterf
                   DBMS_OUTPUT.PUT('NO DATA FOUND FOR ID =>'|| V_TRAVEL_ID);
                 END;
 ");
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel Request';
+        $logs->operation = 'D';
+        $logs->deletedBy = $employeeId;
+        $logs->deletedDesc = 'Travel id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_Travel_REQUEST';
+        $branch->deleteLogs($logs);
     }
-
+    public function delete($id)
+    {
+    }
     public function edit(Model $model, $id)
     {
         $array = $model->getArrayCopyForDB();
         unset($array['EMPLOYEE_ID']);
         $this->tableGateway->update($array, [TravelRequest::TRAVEL_ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Travel request';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $array['CREATED_BY'];
+        $logs->modifiedDesc = 'Travel id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_Travel_REQUEST';
+
+        $branch->updateLogs($logs);
     }
 
     public function editHrTravel(Model $model, $id)

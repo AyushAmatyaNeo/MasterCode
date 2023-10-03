@@ -9,16 +9,20 @@ use AttendanceManagement\Model\Attendance;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Select;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class AttendanceRepository implements RepositoryInterface
 {
 
   private $tableGateway;
   private $adapter;
+  private $logTable;
 
   public function __construct(AdapterInterface $adapter)
   {
     $this->tableGateway = new TableGateway(Attendance::TABLE_NAME, $adapter);
+    $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
     $this->adapter = $adapter;
   }
 
@@ -177,6 +181,7 @@ class AttendanceRepository implements RepositoryInterface
 
   function insertAttendance($data)
   {
+
     $inTime = $data['inTime'] == null ? 'null' : "TO_DATE('{$data['attendanceDt']} {$data['inTime']}', 'DD-MON-YYYY HH:MI AM')";
     if ($data['nextDay']) {
       $outNextDay = 'Y';
@@ -230,5 +235,13 @@ class AttendanceRepository implements RepositoryInterface
       END;";
     $statement = $this->adapter->query($sql);
     $statement->execute();
+    $branch = new BranchRepository($this->adapter);
+    $logs = new Logs();
+    $logs->module = 'Attendance request';
+    $logs->operation = 'I';
+    $logs->createdBy = $data['createdBy'];
+    $logs->createdDesc = 'Employee id - ' . $data['employeeId'];
+    $logs->tableDesc = 'HRIS_ATTENDANCE_REQUEST';
+    $branch->insertLogs($logs);
   }
 }

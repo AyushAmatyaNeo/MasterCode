@@ -6,23 +6,26 @@ use Application\Helper\Helper;
 use Zend\Authentication\AuthenticationService;
 use Zend\Db\Adapter\AdapterInterface;
 
-class DashboardRepository {
+class DashboardRepository
+{
 
-    private $adapter;
-    private $fiscalYr;
+  private $adapter;
+  private $fiscalYr;
 
-    public function __construct(AdapterInterface $adapter) {
-        $this->adapter = $adapter;
-        $auth = new AuthenticationService();
-        $this->fiscalYr = $auth->getStorage()->read()['fiscal_year'];
-    }
+  public function __construct(AdapterInterface $adapter)
+  {
+    $this->adapter = $adapter;
+    $auth = new AuthenticationService();
+    $this->fiscalYr = $auth->getStorage()->read()['fiscal_year'];
+  }
 
-    /*
+  /*
      * EMPLOYEE DASHBOARD FUNCTIONS
      */
 
-    public function fetchEmployeeDashboardDetail($employeeId, $startDate, $endDate) {
-        $sql = "
+  public function fetchEmployeeDashboardDetail($employeeId, $startDate, $endDate)
+  {
+    $sql = "
             SELECT EMPLOYEE_TBL.*,
               LATE_ATTEN_TBL.\"'L'\"+LATE_ATTEN_TBL.\"'B'\"+LATE_ATTEN_TBL.\"'Y'\" LATE_IN,
               LATE_ATTEN_TBL.\"'E'\"+LATE_ATTEN_TBL.\"'B'\" EARLY_OUT,
@@ -82,15 +85,16 @@ FROM HRIS_ATTENDANCE_DETAIL ad
               ) LATE_ATTEN_TBL
             ON (EMPLOYEE_TBL.EMPLOYEE_ID = LATE_ATTEN_TBL.EMPLOYEE_ID)
           ";
-            //echo $sql; die;
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
-    }
+    //echo $sql; die;
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute()->current();
+    return $result;
+  }
 
-    public function fetchUpcomingHolidays($employeeId = null) {
-        if ($employeeId == null) {
-            $sql = "SELECT HM.HOLIDAY_ID,
+  public function fetchUpcomingHolidays($employeeId = null)
+  {
+    if ($employeeId == null) {
+      $sql = "SELECT HM.HOLIDAY_ID,
                   HM.HOLIDAY_ENAME,
                   TO_CHAR(HM.START_DATE,'Day, fmddth Month') START_DATE,
                   TO_CHAR(HM.END_DATE,'Day, fmddth Month') END_DATE,
@@ -99,8 +103,8 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                   HM.START_DATE - TRUNC(SYSDATE) DAYS_REMAINING
                 FROM HRIS_HOLIDAY_MASTER_SETUP HM
                 WHERE  HM.START_DATE > TRUNC(SYSDATE) ORDER BY HM.START_DATE";
-        } else {
-            $sql = "SELECT HM.HOLIDAY_ID,
+    } else {
+      $sql = "SELECT HM.HOLIDAY_ID,
                   HM.HOLIDAY_ENAME,
                   TO_CHAR(HM.START_DATE,'Day, fmddth Month') START_DATE,
                   TO_CHAR(HM.END_DATE,'Day, fmddth Month') END_DATE,
@@ -111,21 +115,22 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 JOIN HRIS_EMPLOYEE_HOLIDAY EH
                 ON (HM.HOLIDAY_ID   =EH.HOLIDAY_ID)
                 WHERE EH.EMPLOYEE_ID={$employeeId} AND HM.START_DATE > TRUNC(SYSDATE) ORDER BY HM.START_DATE";
-        }
-
-
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-
-        return $result;
     }
 
-    public function fetchEmployeeNotice($employeeId = null) {
-        $where = "";
-        if ($employeeId != null) {
-            $where = "AND {$employeeId} IN (SELECT EMPLOYEE_ID FROM HRIS_NEWS_EMPLOYEE WHERE NEWS_ID = N.NEWS_ID)";
-        }
-        $sql = "SELECT N.NEWS_ID,
+
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+
+    return $result;
+  }
+
+  public function fetchEmployeeNotice($employeeId = null)
+  {
+    $where = "";
+    if ($employeeId != null) {
+      $where = "AND {$employeeId} IN (SELECT EMPLOYEE_ID FROM HRIS_NEWS_EMPLOYEE WHERE NEWS_ID = N.NEWS_ID)";
+    }
+    $sql = "SELECT N.NEWS_ID,
                       N.NEWS_DATE,
                       TO_CHAR(N.NEWS_DATE, 'DD') NEWS_DAY,
                       TO_CHAR(N.NEWS_DATE, 'Mon YYYY') NEWS_MONTH_YEAR,
@@ -136,14 +141,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                     AND N.STATUS = 'E'
                     {$where}
                     ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return $result;
-    }
+    return $result;
+  }
 
-    public function fetchEmployeeTask($employeeId) {
-        $sql = "SELECT TSK.TASK_ID,
+  public function fetchEmployeeTask($employeeId)
+  {
+    $sql = "SELECT TSK.TASK_ID,
                         ( CASE
                           WHEN EMP.MIDDLE_NAME IS NULL THEN EMP.FIRST_NAME || ' ' || EMP.LAST_NAME
                           ELSE EMP.FIRST_NAME || ' ' || EMP.MIDDLE_NAME || ' ' || EMP.LAST_NAME
@@ -159,14 +165,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                         AND TSK.EMPLOYEE_ID = {$employeeId}
                         AND (TSK.END_DATE> TRUNC(SYSDATE) OR TSK.STATUS = 'O')";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return Helper::extractDbData($result);
-    }
+    return Helper::extractDbData($result);
+  }
 
-    public function fetchEmployeesBirthday() {
-        $sql = "
+  public function fetchEmployeesBirthday()
+  {
+    $sql = "
                 SELECT EMP.*,
                   DSG.DESIGNATION_TITLE,
                   EFL.FILE_PATH,
@@ -212,24 +219,25 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 ORDER BY TO_CHAR(EMP.BIRTH_DATE,'MMDD')
                 ";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        $birthdayResult = array();
-        foreach ($result as $rs) {
-            if ('TODAY' == strtoupper($rs['BIRTHDAYFOR'])) {
-                $birthdayResult['TODAY'][$rs['EMPLOYEE_ID']] = $rs;
-            }
-            if ('UPCOMING' == strtoupper($rs['BIRTHDAYFOR'])) {
-                $birthdayResult['UPCOMING'][$rs['EMPLOYEE_ID']] = $rs;
-            }
-        }
-
-        return $birthdayResult;
+    $birthdayResult = array();
+    foreach ($result as $rs) {
+      if ('TODAY' == strtoupper($rs['BIRTHDAYFOR'])) {
+        $birthdayResult['TODAY'][$rs['EMPLOYEE_ID']] = $rs;
+      }
+      if ('UPCOMING' == strtoupper($rs['BIRTHDAYFOR'])) {
+        $birthdayResult['UPCOMING'][$rs['EMPLOYEE_ID']] = $rs;
+      }
     }
 
-    public function fetchEmployeeCalendarData($employeeId, $startDate, $endDate) {
-        $sql = "SELECT TO_CHAR(ATN.ATTENDANCE_DT, 'YYYY-MM-DD') MONTH_DAY,
+    return $birthdayResult;
+  }
+
+  public function fetchEmployeeCalendarData($employeeId, $startDate, $endDate)
+  {
+    $sql = "SELECT TO_CHAR(ATN.ATTENDANCE_DT, 'YYYY-MM-DD') MONTH_DAY,
                   ATN.EMPLOYEE_ID,
                   TO_CHAR(ATN.ATTENDANCE_DT, 'YYYY-MM-DD') ATTENDANCE_DT,
                   TO_CHAR(ATN.IN_TIME, 'HH24:MI') IN_TIME,
@@ -316,14 +324,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 AND (ATN.ATTENDANCE_DT BETWEEN TO_DATE('{$startDate}','YYYY-MM-DD') AND TO_DATE('{$endDate}','YYYY-MM-DD') )
                 AND ATN.EMPLOYEE_ID = {$employeeId}
                 ORDER BY ATN.ATTENDANCE_DT ASC";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return Helper::extractDbData($result);
-    }
+    return Helper::extractDbData($result);
+  }
 
-    public function fetchUpcomingLeaves($employeeId) {
-        $sql = "
+  public function fetchUpcomingLeaves($employeeId)
+  {
+    $sql = "
             SELECT L.LEAVE_ENAME,
              TO_CHAR( EL.START_DATE, 'DD-MON-YYYY') AS START_DATE,
              TO_CHAR( EL.END_DATE,'DD-MON-YYYY' )   AS END_DATE,
@@ -335,22 +344,23 @@ FROM HRIS_ATTENDANCE_DETAIL ad
             AND TRUNC(SYSDATE) < EL.START_DATE
             AND EL.EMPLOYEE_ID ={$employeeId}
             ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return Helper::extractDbData($result);
-    }
+    return Helper::extractDbData($result);
+  }
 
-    /*
+  /*
      * END FOR EMPLOYEE DASHBOARD FUNCTIONS
      */
 
-    /*
+  /*
      * ADMIN DASHBOARD FUNCTIONS
      */
 
-    public function fetchAdminDashboardDetail($employeeId, $date) {
-        $sql = "
+  public function fetchAdminDashboardDetail($employeeId, $date)
+  {
+    $sql = "
             SELECT EMPLOYEE_TBL.*,
               LATE_ATTEN_TBL.\"'L'\"+LATE_ATTEN_TBL.\"'B'\"+LATE_ATTEN_TBL.\"'Y'\" LATE_IN,
               LATE_ATTEN_TBL.\"'E'\"+LATE_ATTEN_TBL.\"'B'\" EARLY_OUT,
@@ -399,13 +409,14 @@ FROM HRIS_ATTENDANCE_DETAIL ad
               ) LATE_ATTEN_TBL   
            
 ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute()->current();
+    return $result;
+  }
 
-    public function fetchAllEmployee($employeeId = null) {
-        $sql = "SELECT EMP.EMPLOYEE_ID,
+  public function fetchAllEmployee($employeeId = null)
+  {
+    $sql = "SELECT EMP.EMPLOYEE_ID,
                   EMP.EMPLOYEE_CODE,
                   EMP.FIRST_NAME,
                   EMP.MIDDLE_NAME,
@@ -423,21 +434,22 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 AND EMP.STATUS = 'E'
                 AND EMP.RETIRED_FLAG = 'N'";
 
-        if ($employeeId != null) {
-            $sql .= " AND (RECOMMEND_BY=$employeeId OR APPROVED_BY = $employeeId)";
-        }
-
-        $sql .= " AND EMP.IS_ADMIN='N'
-                ORDER BY UPPER(EMP.FULL_NAME)";
-
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-
-        return $result;
+    if ($employeeId != null) {
+      $sql .= " AND (RECOMMEND_BY=$employeeId OR APPROVED_BY = $employeeId)";
     }
 
-    public function fetchGenderHeadCount() {
-        $sql = "SELECT COUNT (*) HEAD_COUNT, HE.GENDER_ID, HG.GENDER_NAME
+    $sql .= " AND EMP.IS_ADMIN='N'
+                ORDER BY UPPER(EMP.FULL_NAME)";
+
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+
+    return $result;
+  }
+
+  public function fetchGenderHeadCount()
+  {
+    $sql = "SELECT COUNT (*) HEAD_COUNT, HE.GENDER_ID, HG.GENDER_NAME
                     FROM HRIS_EMPLOYEES HE, HRIS_GENDERS HG
                    WHERE HE.GENDER_ID(+) = HG.GENDER_ID
                      AND HG.STATUS = 'E'
@@ -446,14 +458,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 GROUP BY HE.GENDER_ID, HG.GENDER_NAME
                 ORDER BY UPPER(HG.GENDER_NAME)";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return $result;
-    }
+    return $result;
+  }
 
-    public function fetchDepartmentHeadCount() {
-        $sql = "SELECT COUNT (*) HEAD_COUNT, HD.DEPARTMENT_ID , HD.DEPARTMENT_NAME
+  public function fetchDepartmentHeadCount()
+  {
+    $sql = "SELECT COUNT (*) HEAD_COUNT, HD.DEPARTMENT_ID , HD.DEPARTMENT_NAME
                     FROM HRIS_EMPLOYEES HE, HRIS_DEPARTMENTS HD
                    WHERE HE.DEPARTMENT_ID(+) = HD.DEPARTMENT_ID
                    AND HD.STATUS = 'E'
@@ -462,14 +475,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 GROUP BY HD.DEPARTMENT_ID, HD.DEPARTMENT_NAME
                 ORDER BY UPPER(HD.DEPARTMENT_NAME)";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return $result;
-    }
+    return $result;
+  }
 
-    public function fetchLocationHeadCount() {
-        $sql = "SELECT COUNT (*) HEAD_COUNT, HB.BRANCH_ID , HB.BRANCH_NAME
+  public function fetchLocationHeadCount()
+  {
+    $sql = "SELECT COUNT (*) HEAD_COUNT, HB.BRANCH_ID , HB.BRANCH_NAME
                     FROM HRIS_EMPLOYEES HE, HRIS_BRANCHES HB
                    WHERE HE.BRANCH_ID(+) = HB.BRANCH_ID
                    AND HB.STATUS = 'E'
@@ -478,14 +492,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 GROUP BY HB.BRANCH_ID, HB.BRANCH_NAME
                 ORDER BY UPPER(HB.BRANCH_NAME)";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return $result;
-    }
+    return $result;
+  }
 
-    public function fetchDepartmentAttendance() {
-        $sql = "SELECT * FROM (
+  public function fetchDepartmentAttendance()
+  {
+    $sql = "SELECT * FROM (
                     SELECT HD.DEPARTMENT_CODE,
                            HD.DEPARTMENT_NAME,
                            'PRESENT' AS PRESENT_STATUS,
@@ -525,14 +540,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 )
                 ORDER BY UPPER(DEPARTMENT_NAME)";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        return $result;
-    }
+    return $result;
+  }
 
-    public function fetchEmployeeContracts() {
-        $sql = "
+  public function fetchEmployeeContracts()
+  {
+    $sql = "
                 SELECT EMP.EMPLOYEE_ID,
                   EMP.FULL_NAME,
                   EF.FILE_PATH,
@@ -580,24 +596,25 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 ";
 
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
 
-        $employeeContract = array();
-        foreach ($result as $rs) {
-            if ('EXPIRED' == strtoupper($rs['TYPE'])) {
-                $employeeContract['EXPIRED'][$rs['EMPLOYEE_ID']] = $rs;
-            }
-            if ('EXPIRING' == strtoupper($rs['TYPE'])) {
-                $employeeContract['EXPIRING'][$rs['EMPLOYEE_ID']] = $rs;
-            }
-        }
-
-        return $employeeContract;
+    $employeeContract = array();
+    foreach ($result as $rs) {
+      if ('EXPIRED' == strtoupper($rs['TYPE'])) {
+        $employeeContract['EXPIRED'][$rs['EMPLOYEE_ID']] = $rs;
+      }
+      if ('EXPIRING' == strtoupper($rs['TYPE'])) {
+        $employeeContract['EXPIRING'][$rs['EMPLOYEE_ID']] = $rs;
+      }
     }
 
-    public function fetchJoinedEmployees() {
-        $sql = "
+    return $employeeContract;
+  }
+
+  public function fetchJoinedEmployees()
+  {
+    $sql = "
                 SELECT E.FULL_NAME,
                   EF.FILE_PATH,
                   B.BRANCH_NAME,
@@ -619,13 +636,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                   ) M
                 WHERE E.JOIN_DATE BETWEEN M.FROM_DATE AND M.TO_DATE
                     ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
-    }
 
-    public function fetchLeftEmployees() {
-        $sql = "
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
+
+  public function fetchLeftEmployees()
+  {
+    $sql = "
                 SELECT E.FULL_NAME,
                   EF.FILE_PATH,
                   B.BRANCH_NAME,
@@ -655,21 +674,22 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                 WHERE E.EMPLOYEE_ID= R.EMPLOYEE_ID
 ";
 
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result;
+  }
 
-    /*
+  /*
      * END FOR ADMIN DASHBOARD FUNCTIONS
      */
 
-    /*
+  /*
      * MANAGER DASHBOARD FUNCTIONS
      */
 
-    public function fetchManagerDashboardDetail($employeeId, $date) {
-        $sql = "
+  public function fetchManagerDashboardDetail($employeeId, $date)
+  {
+    $sql = "
                 SELECT EMPLOYEE_TBL.*,
                   NVL(JOINED_THIS_MONTH_TBL.JOINED_THIS_MONTH, 0) JOINED_THIS_MONTH
                 FROM
@@ -706,13 +726,14 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                   ) JOINED_THIS_MONTH_TBL
                 ON JOINED_THIS_MONTH_TBL.EMPLOYEE_ID = EMPLOYEE_TBL.EMPLOYEE_ID               
 ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute()->current();
+    return $result;
+  }
 
-    public function fetchManagerAttendanceDetail($employeeId) {
-        $sql = "
+  public function fetchManagerAttendanceDetail($employeeId)
+  {
+    $sql = "
             SELECT 
               LATE_ATTEN_TBL.\"'L'\"+LATE_ATTEN_TBL.\"'B'\"+LATE_ATTEN_TBL.\"'Y'\" LATE_IN,
               LATE_ATTEN_TBL.\"'E'\"+LATE_ATTEN_TBL.\"'B'\" EARLY_OUT,
@@ -752,32 +773,34 @@ FROM HRIS_ATTENDANCE_DETAIL ad
               ) LATE_ATTEN_TBL   
            
 ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
-    }
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute()->current();
+    return $result;
+  }
 
-    /*
+  /*
      * END FOR MANAGER DASHBOARD FUNCTIONS
      */
 
-    public function fetchAllNews($employeeId) {
-        $sql = "select * from HRIS_NEWS_TYPE WHERE STATUS='E' ORDER BY NEWS_TYPE_ID";
-        $statement = $this->adapter->query($sql);
-        $newsTypeResult = $statement->execute();
+  public function fetchAllNews($employeeId)
+  {
+    $sql = "select * from HRIS_NEWS_TYPE WHERE STATUS='E' ORDER BY NEWS_TYPE_ID";
+    $statement = $this->adapter->query($sql);
+    $newsTypeResult = $statement->execute();
 
-        $returnData = [];
-        foreach ($newsTypeResult as $data) {
-            $tempNewsData = $this->allNewsTypeWise($data['NEWS_TYPE_ID'], $employeeId);
-            $data['news'] = $tempNewsData;
-            array_push($returnData, $data);
-        }
-
-        return $returnData;
+    $returnData = [];
+    foreach ($newsTypeResult as $data) {
+      $tempNewsData = $this->allNewsTypeWise($data['NEWS_TYPE_ID'], $employeeId);
+      $data['news'] = $tempNewsData;
+      array_push($returnData, $data);
     }
 
-    public function allNewsTypeWise($typeId, $employeeId) {
-        $sql = "SELECT N.NEWS_ID,
+    return $returnData;
+  }
+
+  public function allNewsTypeWise($typeId, $employeeId)
+  {
+    $sql = "SELECT N.NEWS_ID,
                     N.NEWS_DATE,
                     N.NEWS_TYPE,
                     N.NEWS_TITLE,
@@ -791,14 +814,15 @@ FROM HRIS_ATTENDANCE_DETAIL ad
                     )
                 AND (TRUNC(SYSDATE) BETWEEN N.NEWS_DATE AND N.NEWS_EXPIRY_DT)
                 ORDER BY N.NEWS_DATE DESC";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
-    
-    
-    public function empOnLeaveToday($companyId){
-        $sql="SELECT E.FULL_NAME,LMS.LEAVE_ENAME,LR.START_DATE,LR.END_DATE,LR.ID,B.BRANCH_NAME
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+
+  public function empOnLeaveToday($companyId)
+  {
+    $sql = "SELECT E.FULL_NAME,LMS.LEAVE_ENAME,LR.START_DATE,LR.END_DATE,LR.ID,B.BRANCH_NAME
 FROM HRIS_ATTENDANCE_DETAIL AD 
 LEFT JOIN HRIS_EMPLOYEES E ON (E.EMPLOYEE_ID=AD.EMPLOYEE_ID)
 LEFT JOIN HRIS_LEAVE_MASTER_SETUP LMS ON (LMS.LEAVE_ID=AD.LEAVE_ID)
@@ -807,13 +831,14 @@ LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
 WHERE AD.ATTENDANCE_DT=TRUNC(SYSDATE)
 AND AD.OVERALL_STATUS='LV'
 --AND E.COMPANY_ID={$companyId}";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
-    
-    public function empOnTravelToday($companyId){
-        $sql="SELECT E.FULL_NAME,TR.PURPOSE,TR.DESTINATION,TR.FROM_DATE,TR.TO_DATE,B.BRANCH_NAME
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
+
+  public function empOnTravelToday($companyId)
+  {
+    $sql = "SELECT E.FULL_NAME,TR.PURPOSE,TR.DESTINATION,TR.FROM_DATE,TR.TO_DATE,B.BRANCH_NAME
  --,FULL_NAME||TR.PURPOSE||TR.DESTINATION||TR.FROM_DATE||TR.TO_DATE AS TRAVEL_DETAIL
 FROM HRIS_ATTENDANCE_DETAIL AD 
 LEFT JOIN HRIS_EMPLOYEES E ON (E.EMPLOYEE_ID=AD.EMPLOYEE_ID)
@@ -822,10 +847,8 @@ LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
 WHERE AD.ATTENDANCE_DT=TRUNC(SYSDATE)
 AND AD.OVERALL_STATUS='TV' 
 --AND E.COMPANY_ID={$companyId}";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute();
-        return Helper::extractDbData($result);
-    }
-    
-
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return Helper::extractDbData($result);
+  }
 }

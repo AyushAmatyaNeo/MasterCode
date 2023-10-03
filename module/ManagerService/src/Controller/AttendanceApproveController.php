@@ -214,6 +214,7 @@ class AttendanceApproveController extends HrisController
                 $data['approvedBy'] = $this->employeeId;
                 $data['approvedRemarks'] = 'Auto Approved By Manager';
                 $data['totalHour'] = null;
+                $data['createdBy'] = $this->employeeId;
                 $attendanceRepository = new AttendanceRepository($this->adapter);
                 $attendanceRepository->insertAttendance($data);
                 $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
@@ -259,6 +260,7 @@ class AttendanceApproveController extends HrisController
                 $data['approvedBy'] = $this->employeeId;
                 $data['approvedRemarks'] = 'Auto Approved By Manager';
                 $data['totalHour'] = null;
+                $data['createdBy'] = $this->employeeId;
                 $attendanceRepository = new AttendanceRepository($this->adapter);
                 $attendanceRepository->insertAttendance($data);
                 $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");
@@ -304,6 +306,7 @@ class AttendanceApproveController extends HrisController
                     $data['status'] = 'AP';
                     $data['approvedBy'] = $this->employeeId;
                     $data['approvedRemarks'] = 'Auto Approved By Manager';
+                    $data['createdBy'] = $this->employeeId;
                     $attendanceRepository = new AttendanceRepository($this->adapter);
                     $attendanceRepository->insertAttendance($data);
                     $this->flashmessenger()->addMessage("Attendance Submitted Successfully!!");

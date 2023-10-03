@@ -85,6 +85,7 @@ class TravelRequest extends HrisController
                 $model->requestedAmount = ($model->requestedAmount == null) ? 0 : $model->requestedAmount;
                 $model->travelId = ((int) Helper::getMaxId($this->adapter, TravelRequestModel::TABLE_NAME, TravelRequestModel::TRAVEL_ID)) + 1;
                 $model->employeeId = $this->employeeId;
+                $model->createdBy = $this->employeeId;
                 $model->requestedDate = Helper::getcurrentExpressionDate();
                 $model->status = 'RQ';
                 // echo '<pre>';print_r($model);die;
@@ -178,7 +179,7 @@ class TravelRequest extends HrisController
         if (!$id) {
             return $this->redirect()->toRoute('travelRequest');
         }
-        $this->repository->delete($id);
+        $this->repository->deleteTravel($id, $this->employeeId);
         $this->flashmessenger()->addMessage("Travel Request Successfully Cancelled!!!");
         return $this->redirect()->toRoute('travelRequest');
     }
@@ -371,6 +372,7 @@ class TravelRequest extends HrisController
                 $travelRequest->exchangeArrayFromForm($this->form->getData());
                 $travelRequest->modifiedDt = Helper::getcurrentExpressionDate();
                 $travelRequest->employeeId = $this->employeeId;
+                $travelRequest->createdBy = $this->employeeId;
                 $this->repository->edit($travelRequest, $id);
                 $this->flashmessenger()->addMessage("Travel Request Successfully Edited!!!");
                 return $this->redirect()->toRoute("travelRequest");

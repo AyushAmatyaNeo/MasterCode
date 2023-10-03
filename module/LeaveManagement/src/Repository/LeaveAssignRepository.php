@@ -1,4 +1,5 @@
 <?php
+
 namespace LeaveManagement\Repository;
 
 use Application\Helper\EntityHelper;
@@ -7,37 +8,68 @@ use Application\Repository\HrisRepository;
 use LeaveManagement\Model\LeaveAssign;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Sql;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
+use Zend\Db\TableGateway\TableGateway;
 
-class LeaveAssignRepository extends HrisRepository {
 
-    public function __construct(AdapterInterface $adapter, $tableName = null) {
+class LeaveAssignRepository extends HrisRepository
+{
+    private $logTable;
+
+    public function __construct(AdapterInterface $adapter, $tableName = null)
+    {
         if ($tableName == null) {
             $tableName = LeaveAssign::TABLE_NAME;
+            $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
         }
         parent::__construct($adapter, $tableName);
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
+        $array = $model->getArrayCopyForDB();
         $this->tableGateway->insert($model->getArrayCopyForDB());
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave Assign';
+        $logs->operation = 'A';
+        $logs->createdBy = $array['CREATED_BY'];
+        $logs->createdDesc = 'leave id - ' . $array['LEAVE_ID'] . ',' . 'Employee id-' . $array['EMPLOYEE_ID'];
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_ASSIGN';
+        $branch->insertLogs($logs);
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
+        $array = $model->getArrayCopyForDB();
         $this->tableGateway->update($model->getArrayCopyForDB(), [LeaveAssign::LEAVE_ID => $id[0], LeaveAssign::EMPLOYEE_ID => $id[1]]);
-              
+
         $boundedParameter = [];
         $boundedParameter['leaveId'] = $id[0];
         $boundedParameter['employeeId'] = $id[1];
-        $sql="BEGIN
+        $sql = "BEGIN
               HRIS_RECALCULATE_LEAVE(:employeeId,:leaveId);
             END;";
         $this->executeStatement($sql, $boundedParameter);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave Assign';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $array['MODIFIED_BY'];
+        $logs->modifiedDesc = 'leave id - ' . $id[0] . ',' . 'Employee id-' . $id[1];
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_ASSIGN';
+
+        $branch->updateLogs($logs);
     }
 
-    public function fetchAll() {
+    public function fetchAll()
+    {
         return $this->tableGateway->select();
     }
 
-    public function fetchByEmployeeId($id) {
+    public function fetchByEmployeeId($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->from(['A' => LeaveAssign::TABLE_NAME])
@@ -47,12 +79,13 @@ class LeaveAssignRepository extends HrisRepository {
         return $result;
     }
 
-    public function filter($branchId, $departmentId, $genderId, $designationId, $serviceTypeId, $employeeId, $companyId, $positionId, $employeeTypeId, $leaveId): array {
+    public function filter($branchId, $departmentId, $genderId, $designationId, $serviceTypeId, $employeeId, $companyId, $positionId, $employeeTypeId, $leaveId): array
+    {
 
         $searchCondition = EntityHelper::getSearchConditonBounded($companyId, $branchId, $departmentId, $positionId, $designationId, $serviceTypeId, null, $employeeTypeId, $employeeId, $genderId);
 
         $boundedParameter = [];
-        $boundedParameter=array_merge($boundedParameter, $searchCondition['parameter']);
+        $boundedParameter = array_merge($boundedParameter, $searchCondition['parameter']);
 
         $orderByString = EntityHelper::getOrderBy('E.FULL_NAME ASC', null, 'E.SENIORITY_LEVEL', 'P.LEVEL_NO', 'E.JOIN_DATE', 'DES.ORDER_NO', 'E.FULL_NAME');
 
@@ -112,43 +145,43 @@ class LeaveAssignRepository extends HrisRepository {
         return $this->rawQuery($sql, $boundedParameter);
     }
 
-    public function filterByLeaveEmployeeId($leaveId, $employeeId) {
+    public function filterByLeaveEmployeeId($leaveId, $employeeId)
+    {
         $result = $this->tableGateway->select([LeaveAssign::LEAVE_ID => $leaveId, LeaveAssign::EMPLOYEE_ID => $employeeId]);
         return $result->current();
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $rowset = $this->tableGateway->select([LeaveAssign::EMPLOYEE_LEAVE_ASSIGN_ID => $id]);
         return $rowset->current();
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $this->tableGateway->delete([LeaveAssign::EMPLOYEE_LEAVE_ASSIGN_ID => $id]);
     }
 
-    public function updatePreYrBalance($employeeId, $leaveId, $preYrBalance, $totalDays, $balance) {
+    public function updatePreYrBalance($employeeId, $leaveId, $preYrBalance, $totalDays, $balance)
+    {
         $this->tableGateway->update([LeaveAssign::PREVIOUS_YEAR_BAL => $preYrBalance, LeaveAssign::TOTAL_DAYS => $totalDays, LeaveAssign::BALANCE => $balance], [LeaveAssign::EMPLOYEE_ID => $employeeId, LeaveAssign::LEAVE_ID => $leaveId]);
     }
-    
-    
-    public function editMonthlyLeave($employeeId,$leaveDetails,$monthId,$totalDays=null,$previousBalance=null){
-        $boundedParams = [];
-        $monthlyDays=($totalDays !=null )?$totalDays:$leaveDetails['DEFAULT_DAYS'];
-        $boundedParams['monthlyDays'] = $monthlyDays;
-        $boundedParams['monthId'] = $monthId;
-        $boundedParams['employeeId'] = $employeeId;
-        $boundedParams['leaveId'] = $leaveDetails['LEAVE_ID'];
-        $boundedParams['previousBalance'] = $previousBalance;
-        $boundedParams['carryForward'] = $leaveDetails['CARRY_FORWARD'];
-        $sql="DECLARE
-            V_DEFAULT_LEAVE_DAYS NUMBER:= :monthlyDays;
-            V_LEAVE_ID NUMBER:= :leaveId;
-            V_MONTH_ID NUMBER:= :monthId;
+
+
+
+    public function editMonthlyLeave($employeeId, $leaveDetails, $monthId, $totalDays = null, $previousBalance = null, $createdBy)
+    {
+        $monthlyDays = ($totalDays != null) ? $totalDays : $leaveDetails['DEFAULT_DAYS'];
+        $sql = "DECLARE
+            V_DEFAULT_LEAVE_DAYS NUMBER:={$monthlyDays};
+            V_LEAVE_ID NUMBER:={$leaveDetails['LEAVE_ID']};
+            V_MONTH_ID NUMBER:={$monthId};
+            V_CREATED_BY NUMBER:={$createdBy};
      V_COUNT NUMBER;
-     V_EMPLOYEE_ID NUMBER:= :employeeId;
+     V_EMPLOYEE_ID NUMBER:={$employeeId};
          V_MONTH_COUNT NUMBER:=1;
-         V_CARRY_FORWARD CHAR(1 BYTE):= :carryForward;
-         V_PREVIOUS_YEAR_BAL NUMBER:= :previousBalance;
+         V_CARRY_FORWARD CHAR(1 BYTE):='{$leaveDetails['CARRY_FORWARD']}';
+         V_PREVIOUS_YEAR_BAL NUMBER:={$previousBalance};
     BEGIN
     
             IF(V_PREVIOUS_YEAR_BAL IS NULL)
@@ -172,7 +205,8 @@ class LeaveAssignRepository extends HrisRepository {
                     TOTAL_DAYS,
                     BALANCE,
                     FISCAL_YEAR_MONTH_NO,
-                    CREATED_DT
+                    CREATED_DT,
+                    CREATED_BY
                   )
                   VALUES
                   (
@@ -182,7 +216,8 @@ class LeaveAssignRepository extends HrisRepository {
                     (V_DEFAULT_LEAVE_DAYS*V_MONTH_COUNT)+V_PREVIOUS_YEAR_BAL,
                     (V_DEFAULT_LEAVE_DAYS*V_MONTH_COUNT)+V_PREVIOUS_YEAR_BAL,
                     i,
-                    TRUNC(SYSDATE)
+                    TRUNC(SYSDATE),
+                    V_CREATED_BY
                   );
               
               IF(V_CARRY_FORWARD='Y') THEN
@@ -194,11 +229,16 @@ class LeaveAssignRepository extends HrisRepository {
          BEGIN
          HRIS_RECALC_MONTHLY_LEAVES(V_EMPLOYEE_ID,V_LEAVE_ID);
         END;
-        
         END;";
+        $this->executeStatement($sql);
 
-         $this->executeStatement($sql, $boundedParams);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Leave Assign';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $createdBy;
+        $logs->modifiedDesc = 'leave id - ' . $leaveDetails['LEAVE_ID'] . ',' . 'Employee id-' . $employeeId;
+        $logs->tableDesc = 'HRIS_EMPLOYEE_LEAVE_ASSIGN';
+        $branch->updateLogs($logs);
     }
-    
-    
 }

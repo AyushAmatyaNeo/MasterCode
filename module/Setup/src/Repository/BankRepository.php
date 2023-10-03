@@ -32,7 +32,6 @@ class BankRepository implements RepositoryInterface
 
         $this->tableGateway->insert($model->getArrayCopyForDB());
         $array = $model->getArrayCopyForDB();
-
         $branch = new BranchRepository($this->adapter);
         $logs = new Logs();
         $logs->module = 'Bank';

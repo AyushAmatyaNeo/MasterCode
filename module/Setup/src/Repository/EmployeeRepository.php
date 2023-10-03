@@ -24,6 +24,8 @@ use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Select;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class EmployeeRepository extends HrisRepository implements RepositoryInterface
 {
@@ -32,6 +34,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
     private $districtGateway;
     private $zoneGateway;
     private $provinceGateway;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter, $tableName = null)
     {
@@ -40,6 +43,7 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
         $this->districtGateway = new TableGateway('HRIS_DISTRICTS', $adapter);
         $this->zoneGateway = new TableGateway('HRIS_ZONES', $adapter);
         $this->provinceGateway = new TableGateway('HRIS_PROVINCES', $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
     }
 
     public function fetchAll()
@@ -370,9 +374,15 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
         // for hr with empower nbb bank start
         $employeeData['EMPLOYEE_STATUS'] = 'Working';
         // for hr with empower nbb bank end
-
-        // echo '<pre>';print_r($employeeData );die;
         $this->tableGateway->insert($employeeData);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Employee';
+        $logs->operation = 'I';
+        $logs->createdBy = $employeeData['CREATED_BY'];
+        $logs->createdDesc = 'Employee id - ' . $employeeData['EMPLOYEE_ID'];
+        $logs->tableDesc = 'HRIS_EMPLOYEES';
+        $branch->insertLogs($logs);
     }
 
     public function delete($model)
@@ -387,6 +397,14 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         //        $this->tableGateway->update(['STATUS' => 'D', 'DELETED_DATE' => $model->deletedDate, 'DELETED_BY' => $model->deletedBy], ['EMPLOYEE_ID' => $model->employeeId]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Employee';
+        $logs->operation = 'D';
+        $logs->deletedBy = $model->deletedBy;
+        $logs->deletedDesc = 'Employee id - ' . $model->employeeId;
+        $logs->tableDesc = 'HRIS_EMPLOYEES';
+        $branch->deleteLogs($logs);
     }
 
 
@@ -398,6 +416,15 @@ class EmployeeRepository extends HrisRepository implements RepositoryInterface
             $tempArray['WOH_FLAG'] = $this->getWohRewardFromPosition($tempArray['POSITION_ID'])['WOH_FLAG'];
         }
         $this->tableGateway->update($tempArray, ['EMPLOYEE_ID' => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Employee';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $tempArray['MODIFIED_BY'];
+        $logs->modifiedDesc = 'Employee id - ' . $id;
+        $logs->tableDesc = 'HRIS_EMPLOYEES';
+
+        $branch->updateLogs($logs);
     }
 
     public function getWohRewardFromPosition($positionId)

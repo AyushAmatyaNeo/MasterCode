@@ -9,28 +9,50 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
+use Setup\Repository\BranchRepository;
+use Setup\Model\Logs;
 
 class AttendanceRequestRepository implements RepositoryInterface
 {
 
     private $adapter;
     private $tableGateway;
+    private $logTable;
 
     public function __construct(AdapterInterface $adapter)
     {
         $this->tableGateway = new TableGateway(AttendanceRequestModel::TABLE_NAME, $adapter);
+        $this->logTable = new TableGateway(Logs::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
     }
 
     public function add(Model $model)
     {
+        $addData = $model->getArrayCopyForDB();
         $this->tableGateway->insert($model->getArrayCopyForDB());
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Attendance request';
+        $logs->operation = 'I';
+        $logs->createdBy = $addData['CREATED_BY'];
+        $logs->createdDesc = 'Attendance id - ' . $addData['ID'];
+        $logs->tableDesc = 'HRIS_ATTENDANCE_REQUEST';
+        $branch->insertLogs($logs);
     }
 
     public function edit(Model $model, $id)
     {
         $array = $model->getArrayCopyForDB();
         $this->tableGateway->update($array, [AttendanceRequestModel::ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Attendance request';
+        $logs->operation = 'U';
+        $logs->modifiedBy = $array['CREATED_BY'];
+        $logs->modifiedDesc = 'Attendance id - ' . $id;
+        $logs->tableDesc = 'HRIS_ATTENDANCE_REQUEST';
+
+        $branch->updateLogs($logs);
     }
 
     public function fetchAll()
@@ -116,7 +138,18 @@ class AttendanceRequestRepository implements RepositoryInterface
     {
         $this->tableGateway->update([AttendanceRequestModel::STATUS => 'C'], [AttendanceRequestModel::ID => $id]);
     }
-
+    public function deleteAttd($id, $employeeId)
+    {
+        $this->tableGateway->update([AttendanceRequestModel::STATUS => 'C'], [AttendanceRequestModel::ID => $id]);
+        $branch = new BranchRepository($this->adapter);
+        $logs = new Logs();
+        $logs->module = 'Attendance Request';
+        $logs->operation = 'D';
+        $logs->deletedBy = $employeeId;
+        $logs->deletedDesc = 'Attendance id - ' . $id;
+        $logs->tableDesc = 'HRIS_ATTENDANCE_REQUEST';
+        $branch->deleteLogs($logs);
+    }
     public function getFilterRecords($data)
     {
         $employeeId = $data['employeeId'];
