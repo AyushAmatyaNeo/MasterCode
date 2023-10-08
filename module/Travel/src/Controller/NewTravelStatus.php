@@ -108,7 +108,6 @@ class NewTravelStatus extends HrisController
         }
         $travelRequestModel = new TravelRequest();
         $detail = $this->travelApproveRepository->fetchById($id);
-
         if ($this->preference['displayHrApproved'] == 'Y' && $detail['HARDCOPY_SIGNED_FLAG'] == 'Y') {
             $detail['APPROVER_ID'] = '-1';
             $detail['APPROVER_NAME'] = 'HR';
