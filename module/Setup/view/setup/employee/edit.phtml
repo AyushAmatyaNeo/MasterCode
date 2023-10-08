@@ -90,11 +90,14 @@ $this->headScript()
                     <i class="fa fa-info-circle ticon"></i> Status & Integration
                 </a>
             </li>
-            <li class="">
-                <a data-toggle="tab" href="#tab12">
-                    <i class="fa fa-money ticon"></i> Salary History
-                </a>
-            </li>
+            <?php if ($viewSalaryHistoryFlag == 'Y') { ?>
+                <li class="">
+                    <a data-toggle="tab" href="#tab12">
+                        <i class="fa fa-money ticon"></i> Salary History
+                    </a>
+                </li>
+            <?php } ?>
+
             <li class="">
                 <a data-toggle="tab" href="#tab5">
                     <i class="fa fa-graduation-cap ticon" aria-hidden="true"></i> Qualification

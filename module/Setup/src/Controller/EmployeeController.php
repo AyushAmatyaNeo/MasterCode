@@ -418,6 +418,7 @@ class EmployeeController extends HrisController
             'PER' => 'Percentage'
         );
         $previousSalary = $this->repository->getPreviousSalary($id);
+        $viewSalaryHistory = $this->repository->getSalaryHistory();
         $previousSalary = $previousSalary['VAL'];
         $programKVList = ApplicationHelper::getTableKVListWithSortOption($this->adapter, "HRIS_ACADEMIC_PROGRAMS", "ACADEMIC_PROGRAM_ID", ["ACADEMIC_PROGRAM_NAME"], ["STATUS" => 'E'], "ACADEMIC_PROGRAM_NAME", "ASC", null, false, true);
         $programSE = $this->getSelectElement(['name' => 'academicProgramId', 'id' => 'academicProgramId', 'label' => "Academic Program", 'class' => 'form-control'], $programKVList);
@@ -435,6 +436,7 @@ class EmployeeController extends HrisController
             'formNine' => $this->formNine,
             'employeeCode' => $employeeCode,
             'previousSalary' => $previousSalary,
+            'viewSalaryHistoryFlag' => $viewSalaryHistory['VALUE'],
             'filetypes' => ApplicationHelper::getTableKVList($this->adapter, 'HRIS_FILE_TYPE', 'FILETYPE_CODE', ['NAME'], "Status='E'"),
             'serviceTypes' => ApplicationHelper::getTableKVListWithSortOption($this->adapter, "HRIS_SERVICE_TYPES", "SERVICE_TYPE_ID", ["SERVICE_TYPE_NAME"], ["STATUS" => 'E'], "SERVICE_TYPE_NAME", "ASC", null, true, true),
             'positions' => ApplicationHelper::getTableKVListWithSortOption($this->adapter, "HRIS_POSITIONS", "POSITION_ID", ["POSITION_NAME"], ["STATUS" => 'E'], "POSITION_NAME", "ASC", null, true, true),

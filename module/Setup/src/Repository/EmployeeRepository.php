@@ -1686,4 +1686,11 @@ GROUP BY IARA.EMPLOYEE_ID) AA ON (AA.EMPLOYEE_ID=E.EMPLOYEE_ID)
         $result = $statement->execute()->current();
         return $result;
     }
+    public function getSalaryHistory()
+    {
+        $sql = "select value from hris_preferences where key='SALARY_HISTORY'";
+        $statement = $this->adapter->query($sql);
+        $result = $statement->execute()->current();
+        return $result;
+    }
 }

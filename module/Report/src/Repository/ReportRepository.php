@@ -2461,8 +2461,7 @@ EOT;
               LEFT JOIN HRIS_BRANCHES B
               ON E.BRANCH_ID = B.BRANCH_ID
               WHERE E.STATUS = 'E'
-              {$searchCondition['sql']} {$fromDateCondition} {$toDateCondition}";
-
+              {$searchCondition['sql']} {$fromDateCondition} {$toDateCondition}  order by s.start_date desc";
     $statement = $this->adapter->query($sql);
     $result = $statement->execute($boundedParameter);
     return Helper::extractDbData($result);
@@ -3340,7 +3339,7 @@ from
   ON(RA.APPROVED_BY=RAA.EMPLOYEE_ID)
   LEFT JOIN hris_emp_training_attendance TD
   ON (TD.TRAINING_ID=ta.TRAINING_ID  AND TD.EMPLOYEE_ID=ta.EMPLOYEE_ID)
-  WHERE 1          =1  {$trainingAssignCondition} AND T.START_DATE >=(SELECT START_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) AND T.END_DATE <=(SELECT END_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) {$searchCondition['sql']})TRA order by TRA.training_id desc";
+  WHERE 1          =1  {$trainingAssignCondition} AND T.START_DATE >=(SELECT START_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) AND T.END_DATE <=(SELECT END_DATE FROM HRIS_FISCAL_YEARS WHERE FISCAL_YEAR_ID=$fiscalYear ) {$searchCondition['sql']})TRA order by TO_DATE(TRA.START_DATE,'DD-MON-YYYY') desc";
     return $this->rawQuery($sql, $boundedParameter);
   }
 
