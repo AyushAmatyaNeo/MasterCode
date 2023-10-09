@@ -10,6 +10,7 @@ use ManagerService\Repository\EventApproveRepository;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\EventRequestForm;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Model\EventRequest;
 use Setup\Repository\EventsRepository;
 use Zend\Authentication\Storage\StorageInterface;
@@ -84,9 +85,16 @@ class EventApproveController extends HrisController
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'status', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
             'status' => $statusSE,
+            'employees' => $employees,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);

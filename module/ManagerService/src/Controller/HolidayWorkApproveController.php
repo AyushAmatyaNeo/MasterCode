@@ -12,6 +12,7 @@ use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\WorkOnHolidayForm;
 use SelfService\Model\WorkOnHoliday;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Repository\WorkOnHolidayRepository;
 use WorkOnHoliday\Repository\WorkOnHolidayStatusRepository;
 use Zend\Authentication\Storage\StorageInterface;
@@ -78,10 +79,16 @@ class HolidayWorkApproveController extends HrisController
         $holidayList = EntityHelper::getTableKVListWithSortOption($this->adapter, Holiday::TABLE_NAME, Holiday::HOLIDAY_ID, [Holiday::HOLIDAY_ENAME], [Holiday::STATUS => 'E'], Holiday::HOLIDAY_ENAME, "ASC", NULL, [-1 => 'All Holiday'], TRUE);
         $holidaySE = $this->getSelectElement(['name' => 'holiday', 'id' => 'holidayId', 'class' => 'form-control reset-field', 'label' => 'Holiday'], $holidayList);
         $statusSE = $this->getStatusSelectElement(['name' => 'requestStatusId', 'id' => 'requestStatusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
-
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         return Helper::addFlashMessagesToArray($this, [
             'holidays' => $holidaySE,
             'status' => $statusSE,
+            'employees' => $employees,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);

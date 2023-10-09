@@ -75,9 +75,12 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
             <div class="col-sm-2">
                 <button id="viewBtn" class="btn btn-info pull-right" style="cursor: pointer;">View</button>
             </div>
-            <div class="col-sm-2" style="margin-left: -5rem;">
-                <button id="mailBtn" class="btn btn-warning pull-right">Send mail</button>
-            </div>
+            <?php if ($sendPayslipEmail == 'Y') { ?>
+
+                <div class="col-sm-2" style="margin-left: -5rem;">
+                    <button id="mailBtn" class="btn btn-warning pull-right">Send mail</button>
+                </div>
+            <?php } ?>
         </div>
 
 

@@ -209,7 +209,6 @@ class LeaveStatusRepository extends HrisRepository
                 OR LS.EMPLOYEE_ID IS NULL)
                 AND U.EMPLOYEE_ID  ={$recomApproveId} {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
                 ORDER BY LA.START_DATE DESC";
-
         $statement = $this->adapter->query($sql);
         $result = $statement->execute();
         return $result;

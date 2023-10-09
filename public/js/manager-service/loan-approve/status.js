@@ -5,32 +5,39 @@
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
         var $tableContainer = $("#loanRequestStatusTable");
         var $search = $('#search');
-
+        var $employeeId = $('#employee');
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
         var columns = [
-            {field: "FULL_NAME", title: "Employee", width: 200},
-            {field: "LOAN_NAME", title: "Loan", width: 120},
-            {title: "Requested Date",
+            { field: "FULL_NAME", title: "Employee", width: 200 },
+            { field: "LOAN_NAME", title: "Loan", width: 120 },
+            {
+                title: "Requested Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "AD"},
-                    {field: "REQUESTED_DATE_BS",
-                        title: "BS",
-                    }
+                    field: "REQUESTED_DATE_AD",
+                    title: "AD"
+                },
+                {
+                    field: "REQUESTED_DATE_BS",
+                    title: "BS",
+                }
                 ]
             },
-            {title: "Loan Date",
+            {
+                title: "Loan Date",
                 columns: [{
-                        field: "LOAN_DATE_AD",
-                        title: "AD",
-                    },
-                    {
-                        field: "LOAN_DATE_BS",
-                        title: "BS",
-                    }]},
-            {field: "REQUESTED_AMOUNT", title: "Requested Amount", width: 150},
-            {field: "YOUR_ROLE", title: "Your Role", width: 150},
-            {field: "STATUS", title: "Status", width: 90},
-            {field: ["LOAN_REQUEST_ID", "ROLE"], title: "Action", template: `
+                    field: "LOAN_DATE_AD",
+                    title: "AD",
+                },
+                {
+                    field: "LOAN_DATE_BS",
+                    title: "BS",
+                }]
+            },
+            { field: "REQUESTED_AMOUNT", title: "Requested Amount", width: 150 },
+            { field: "YOUR_ROLE", title: "Your Role", width: 150 },
+            { field: "STATUS", title: "Status", width: 90 },
+            {
+                field: ["LOAN_REQUEST_ID", "ROLE"], title: "Action", template: `
             <span> 
                 <a class="btn  btn-icon-only btn-success" href="${document.viewLink}/#: LOAN_REQUEST_ID #/#: ROLE #" style="height:17px;" title="view">
                     <i class="fa fa-search-plus"></i>
@@ -65,7 +72,7 @@
             q['fromDate'] = $('#fromDate').val();
             q['toDate'] = $('#toDate').val();
             q['recomApproveId'] = $('#recomApproveId').val();
-            App.blockUI({target: "#hris-page-content"});
+            App.blockUI({ target: "#hris-page-content" });
             window.app.pullDataById(document.pullLoanRequestStatusListLink, q).then(function (success) {
                 App.unblockUI("#hris-page-content");
                 app.renderKendoGrid($tableContainer, success.data);
@@ -79,11 +86,11 @@
         $('#pdfExport').on('click', function () {
             app.exportToPDF($tableContainer, map, "Loan Request List.pdf");
         });
-        
-//        $("#reset").on("click", function () {
-//            $(".form-control").val("");
-//            $("#fromDate").val("");
-//        });
+
+        //        $("#reset").on("click", function () {
+        //            $(".form-control").val("");
+        //            $("#fromDate").val("");
+        //        });
 
 
 

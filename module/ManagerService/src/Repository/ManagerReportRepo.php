@@ -45,9 +45,9 @@ class ManagerReportRepo implements RepositoryInterface
                 FROM HRIS_RECOMMENDER_APPROVER  RA
                 LEFT join HRIS_EMPLOYEES E ON (E.EMPLOYEE_ID=RA.EMPLOYEE_ID)
                   WHERE (RA.RECOMMEND_BY={$employeeId}
-                  OR RA.APPROVED_BY    = {$employeeId} OR E.EMPLOYEE_ID={$employeeId})
-                  AND E.STATUS = 'E'
-                AND E.RETIRED_FLAG = 'N'";
+                  OR RA.APPROVED_BY    = {$employeeId})
+                  AND E.STATUS = 'E'  AND (E.SERVICE_TYPE_ID IN (SELECT SERVICE_TYPE_ID FROM HRIS_SERVICE_TYPES WHERE TYPE NOT IN ('RESIGNED','RETIRED')) OR E.SERVICE_TYPE_ID IS NULL)
+                AND E.RETIRED_FLAG = 'N' AND E.RESIGNED_FLAG = 'N'";
     $statement = $this->adapter->query($sql);
     $result = $statement->execute();
 

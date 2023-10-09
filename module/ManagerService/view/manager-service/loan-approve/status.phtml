@@ -22,6 +22,7 @@ $this->headScript()
     document.ids = <?php echo json_encode(["loanId" => -1, "loanRequestStatusId" => -1, "fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => ""]) ?>;
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
     document.searchValues = <?php echo json_encode($searchValues) ?>;
+    document.employees = <?php echo json_encode($employees); ?>;
     document.viewLink = '<?= $this->url("loanApprove", ["action" => "view"]) ?>';
     document.pullLoanRequestStatusListLink = '<?= $this->url("loanApprove", ["action" => "pullLoanRequestStatusList"]) ?>';
 </script>
@@ -126,7 +127,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <label>Employee</label>
-                <select multiple class="form-control" name="employee" id="employeeId">
+                <select multiple class="form-control" name="employee" id="employee">
                 </select>
             </div>
             <div class="col-sm-2 ">

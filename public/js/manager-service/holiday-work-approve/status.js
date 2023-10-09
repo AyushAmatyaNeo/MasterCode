@@ -5,6 +5,8 @@
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
         var $tableContainer = $("#holidayWorkRequestStatusTable");
         var $search = $('#search');
+        var $employeeId = $('#employee');
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
         var columns = [
             { field: "EMPLOYEE_CODE", title: "Code" },
             { field: "FULL_NAME", title: "Employee" },

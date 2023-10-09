@@ -1,25 +1,26 @@
 <?php
 $this->headLink()
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
-        ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.common.min.css'))
+    ->appendStylesheet($this->basePath('telerik_kendoui/styles/kendo.default.min.css'));
 $this->headLink()
-        ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
+    ->appendStylesheet($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.css'));
 
 
 $this->headScript()
-        ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
-        ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
-        ->appendFile($this->basePath('js/angular.min.js'))
-        ->appendFile($this->basePath('js/search.js'))
-        ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
-        ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-        ->appendFile($this->basePath('js/manager-service/attendance-approve/status.js'));
+    ->appendFile($this->basePath('jszip/dist/jszip.min.js'))
+    ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
+    ->appendFile($this->basePath('js/angular.min.js'))
+    ->appendFile($this->basePath('js/search.js'))
+    ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
+    ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
+    ->appendFile($this->basePath('js/manager-service/attendance-approve/status.js?1'));
 ?>
 
 <script>
-    document.ids =<?php echo json_encode(["attendanceRequestStatusId" => -1, "fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => ""]) ?>;
+    document.ids = <?php echo json_encode(["attendanceRequestStatusId" => -1, "fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => ""]) ?>;
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
-    document.searchValues =<?php echo json_encode($searchValues) ?>;
+    document.employees = <?php echo json_encode($employees); ?>;
+    document.searchValues = <?php echo json_encode($searchValues) ?>;
     document.viewLink = '<?= $this->url("attedanceapprove", ["action" => "view"]) ?>';
     document.pullAttendanceRequestStatusListLink = '<?= $this->url("attedanceapprove", ["action" => "pullAttendanceRequestStatusList"]) ?>';
 </script>
@@ -37,11 +38,11 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div>
-    <input type="hidden" id="approverId" value="<?php echo $approverId; ?>"/>
+    <input type="hidden" id="approverId" value="<?php echo $approverId; ?>" />
     <div class="portlet light bg-inverse">
         <div class="portlet-title">
             <div class="caption">
@@ -61,17 +62,17 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <ul class="dropdown-menu pull-right">
                         <li>
                             <a href="javascript:;" id="excelExport">
-                                <i class="fa fa-file-excel-o" ></i>
+                                <i class="fa fa-file-excel-o"></i>
                                 Export to Excel
                             </a>
                             <a href="javascript:;" id="pdfExport">
-                                <i class="fa fa-file-pdf-o" ></i>
+                                <i class="fa fa-file-pdf-o"></i>
                                 Export to PDF
                             </a>
                         </li>
                         <li>
                             <a href="javascript:;" id="export">
-                                <i class="fa fa-file-excel-o" ></i>
+                                <i class="fa fa-file-excel-o"></i>
                                 Export to Excel
                             </a>
                         </li>
@@ -125,33 +126,33 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                 </div>
                 <div class="col-sm-2">
                     <label>Employee</label>
-                    <select multiple class="form-control" name="employee" id="employeeId">
+                    <select multiple class="form-control" name="employee" id="employee">
                     </select>
                 </div>
                 <div class="col-sm-2">
                     <label>Status</label>
                     <?php print $this->formElement($attendanceStatus); ?>
-                </div> 
+                </div>
             </div>
             <div class="row margin-top-10">
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input type="text" id="fromDate" name="fromDate"  class="form-control reset-field" placeholder="From Date"/>
+                        <input type="text" id="fromDate" name="fromDate" class="form-control reset-field" placeholder="From Date" />
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali"/>
+                        <input type="text" id="nepaliFromDate" name="nepaliFromDate" class="form-control reset-field" placeholder="From Date Nepali" />
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date"/>
+                        <input type="text" id="toDate" name="toDate" class="form-control reset-field" placeholder="To Date" />
                     </div>
                 </div>
                 <div class="col-sm-2">
                     <div class="form-group">
-                        <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali"/>
+                        <input type="text" id="nepaliToDate" name="nepaliToDate" class="form-control reset-field" placeholder="To Date Nepali" />
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -159,7 +160,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         Reset
                         <i class="fa fa-refresh"></i>
                     </button>
-                    <button  id="search" class="btn btn-default btn-sm pull-right">
+                    <button id="search" class="btn btn-default btn-sm pull-right">
                         Search
                         <i class="fa fa-search"></i>
                     </button>
@@ -167,8 +168,8 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
         </div>
     </div>
-    <div class="margin-top-20">   
+    <div class="margin-top-20">
         <div id="attendanceRequestStatusTable">
         </div>
     </div>
-</div>    
+</div>

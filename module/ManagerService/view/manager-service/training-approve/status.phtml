@@ -21,6 +21,7 @@ $this->headScript()
 <script>
     document.searchValues = <?php echo json_encode($searchValues) ?>;
     document.viewLink = '<?= $this->url("trainingApprove", ["action" => "view"]) ?>';
+    document.employees = <?php echo json_encode($employees); ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\trainingApprove')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -118,7 +119,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <label>Employee</label>
-                <select multiple class="form-control" name="employee" id="employeeId">
+                <select multiple class="form-control" name="employee" id="employee">
                 </select>
             </div>
 

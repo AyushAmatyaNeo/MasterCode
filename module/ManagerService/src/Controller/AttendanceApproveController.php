@@ -10,6 +10,7 @@ use Exception;
 use ManagerService\Repository\AttendanceApproveRepository;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
+use ManagerService\Repository\ManagerReportRepo;
 use AttendanceManagement\Form\AttendanceByHrForm;
 use SelfService\Form\AttendanceRequestForm;
 use SelfService\Model\AttendanceRequestModel;
@@ -153,10 +154,16 @@ class AttendanceApproveController extends HrisController
         $attendanceStatusFormElement->setValueOptions($attendanceStatus);
         $attendanceStatusFormElement->setAttributes(["id" => "attendanceRequestStatusId", "class" => "form-control reset-field"]);
         $attendanceStatusFormElement->setLabel("Status");
-
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         return Helper::addFlashMessagesToArray($this, [
             'attendanceStatus' => $attendanceStatusFormElement,
             'approverId' => $this->employeeId,
+            'employees' => $employees,
             'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }

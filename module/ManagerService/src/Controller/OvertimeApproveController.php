@@ -11,6 +11,7 @@ use Notification\Model\NotificationEvents;
 use SelfService\Form\OvertimeRequestForm;
 use SelfService\Model\Overtime;
 use SelfService\Model\OvertimeDetail;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Repository\OvertimeDetailRepository;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
@@ -118,9 +119,16 @@ class OvertimeApproveController extends HrisController
                 return new JsonModel(['success' => false, 'data' => null, 'message' => $e->getMessage()]);
             }
         }
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'requestStatusId', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return Helper::addFlashMessagesToArray($this, [
             'status' => $statusSE,
+            'employees' => $employees,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);

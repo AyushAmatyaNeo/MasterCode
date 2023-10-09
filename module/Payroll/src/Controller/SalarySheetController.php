@@ -346,6 +346,7 @@ class SalarySheetController extends HrisController
     {
         $ExchangeRate = $this->repository->getExchnageRate();
         $allowExchangeRate = $ExchangeRate['VALUE'];
+        $sendPayslipEmail = $this->repository->getEmailNoti();
         $salaryType = iterator_to_array($this->salarySheetRepo->fetchAllSalaryType(), false);
         $request = $this->getRequest();
         if ($request->isPost()) {
@@ -370,7 +371,8 @@ class SalarySheetController extends HrisController
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
-        return $this->stickFlashMessagesTo(['salaryType' => json_encode($salaryType), 'allowExchangeRate' => $allowExchangeRate]);
+
+        return $this->stickFlashMessagesTo(['salaryType' => json_encode($salaryType), 'allowExchangeRate' => $allowExchangeRate, 'sendPayslipEmail' => $sendPayslipEmail['VALUE']]);
     }
 
     public function getGroupListAction()

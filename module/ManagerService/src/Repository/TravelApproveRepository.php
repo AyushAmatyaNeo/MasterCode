@@ -378,18 +378,16 @@ class TravelApproveRepository implements RepositoryInterface
                 WHERE 1               =1
 
 
-                AND TR.REQUESTED_TYPE != 'ep'
+                -- AND TR.REQUESTED_TYPE != 'ep'
                 -- AND (TS.APPROVED_FLAG =
                 --   CASE
                 --     WHEN TS.EMPLOYEE_ID IS NOT NULL
                 --     THEN ('Y')
                 --   END
                 -- OR TS.EMPLOYEE_ID IS NULL)
-                -- AND U.EMPLOYEE_ID  ={$search['employeeId']} 
+                AND U.EMPLOYEE_ID  ={$search['employeeId']} 
                 {$condition} ORDER BY TR.FROM_DATE DESC
                 ";
-        // echo '<pre>';print_r($sql);die;
-
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
     public function getAllFilteredE($search)
@@ -623,7 +621,7 @@ class TravelApproveRepository implements RepositoryInterface
                 and TR.TRAVEL_TYPE='LTR' order by TR.FROM_DATE desc
                 
                 ";
-        // echo '<pre>';print_r($sql);die;   
+
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 

@@ -21,6 +21,7 @@ $this->headScript()
 <script>
     document.ids = <?php echo json_encode(["holidayId" => -1, "requestStatusId" => -1, "fromDate" => "", "nepaliFromDate" => "", "toDate" => "", "nepaliToDate" => ""]) ?>;
     document.url = '<?= $this->url("restful", ["action" => "index"]) ?>';
+    document.employees = <?php echo json_encode($employees); ?>;
     document.searchValues = <?php echo json_encode($searchValues) ?>;
     document.viewLink = '<?= $this->url("holidayWorkApprove", ["action" => "view"]) ?>';
     document.pullHoliayWorkRequestStatusListLink = '<?= $this->url("holidayWorkApprove", ["action" => "pullHoliayWorkRequestStatusList"]) ?>';
@@ -121,7 +122,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <label>Employee</label>
-                <select multiple class="form-control" name="employee" id="employeeId">
+                <select multiple class="form-control" name="employee" id="employee">
                 </select>
             </div>
             <div class="col-sm-2 ">

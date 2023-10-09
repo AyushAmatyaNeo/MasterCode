@@ -12,6 +12,7 @@ use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\WorkOnDayoffForm;
 use SelfService\Model\WorkOnDayoff;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Repository\WorkOnDayoffRepository;
 use WorkOnDayoff\Repository\WorkOnDayoffStatusRepository;
 use Zend\Authentication\Storage\StorageInterface;
@@ -140,8 +141,15 @@ class DayoffWorkApproveController extends HrisController
     public function statusAction()
     {
         $statusSE = $this->getStatusSelectElement(['name' => 'status', "id" => "requestStatusId", "class" => "form-control reset-field", 'label' => 'Status']);
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         return $this->stickFlashMessagesTo([
             'status' => $statusSE,
+            'employees' => $employees,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);

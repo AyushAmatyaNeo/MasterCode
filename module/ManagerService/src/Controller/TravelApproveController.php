@@ -237,13 +237,14 @@ class TravelApproveController extends HrisController
             try {
                 $searchQuery = $request->getPost();
                 $searchQuery['employeeId'] = $this->employeeId;
+
                 $rawList = $this->repository->getAllFilteredA((array) $searchQuery);
                 $list = Helper::extractDbData($rawList);
                 return new JsonModel(['success' => true, 'data' => $list, 'error' => '']);
             } catch (Exception $e) {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
-        }
+        };
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'status', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
             'travelStatus' => $statusSE,

@@ -12,19 +12,23 @@ use Notification\Model\NotificationEvents;
 use SelfService\Form\TrainingRequestForm;
 use SelfService\Model\TrainingRequest;
 use Setup\Repository\TrainingRepository;
+use ManagerService\Repository\ManagerReportRepo;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 
-class TrainingApproveController extends HrisController {
+class TrainingApproveController extends HrisController
+{
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
+    {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(TrainingApproveRepository::class);
         $this->initializeForm(TrainingRequestForm::class);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -39,7 +43,8 @@ class TrainingApproveController extends HrisController {
         return $this->stickFlashMessagesTo([]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         $role = $this->params()->fromRoute('role');
 
@@ -59,15 +64,16 @@ class TrainingApproveController extends HrisController {
         $trainingRequestModel->exchangeArrayFromDB($detail);
         $this->form->bind($trainingRequestModel);
         return Helper::addFlashMessagesToArray($this, [
-                    'form' => $this->form,
-                    'id' => $id,
-                    'role' => $role,
-                    'detail' => $detail,
-                    'customRenderer' => Helper::renderCustomView()
+            'form' => $this->form,
+            'id' => $id,
+            'role' => $role,
+            'detail' => $detail,
+            'customRenderer' => Helper::renderCustomView()
         ]);
     }
 
-    public function statusAction() {
+    public function statusAction()
+    {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -79,15 +85,23 @@ class TrainingApproveController extends HrisController {
                 return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
             }
         }
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         $statusSE = $this->getStatusSelectElement(['name' => 'status', 'id' => 'status', 'class' => 'form-control reset-field', 'label' => 'Status']);
         return $this->stickFlashMessagesTo([
-                    'status' => $statusSE,
-                    'recomApproveId' => $this->employeeId,
-                    'searchValues' => EntityHelper::getSearchData($this->adapter),
+            'status' => $statusSE,
+            'employees' => $employees,
+            'recomApproveId' => $this->employeeId,
+            'searchValues' => EntityHelper::getSearchData($this->adapter),
         ]);
     }
 
-    public function batchApproveRejectAction() {
+    public function batchApproveRejectAction()
+    {
         $request = $this->getRequest();
         try {
             $postData = $request->getPost();
@@ -98,7 +112,8 @@ class TrainingApproveController extends HrisController {
         }
     }
 
-    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false) {
+    private function makeDecision($id, $role, $approve, $remarks = null, $enableFlashNotification = false)
+    {
         $notificationEvent = null;
         $message = null;
         $model = new TrainingRequest();
@@ -141,7 +156,8 @@ class TrainingApproveController extends HrisController {
         'CC' => 'Company Contribution'
     );
 
-    private function getTrainingList($employeeId) {
+    private function getTrainingList($employeeId)
+    {
         if ($this->trainingList === null) {
             $trainingRepo = new TrainingRepository($this->adapter);
             $trainingResult = $trainingRepo->selectAll($employeeId);
@@ -156,5 +172,4 @@ class TrainingApproveController extends HrisController {
         }
         return $this->trainingList;
     }
-
 }

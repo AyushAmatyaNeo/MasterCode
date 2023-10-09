@@ -69,10 +69,11 @@ $this->headScript()
                 <select class="form-control" name="allSheetId" id="allSheetId">
                 </select>
             </div>
-            <div class="col-sm-4" style="margin-left: -20rem;margin-top: 2rem;">
-                <button id="emailBtn" type="button" style="margin-bottom: 20px;" class="btn btn-warning pull-right">Send Email</button>
-            </div>
-
+            <?php if ($sendPayslipEmail == 'Y') { ?>
+                <div class="col-sm-4" style="margin-left: -20rem;margin-top: 2rem;">
+                    <button id="emailBtn" type="button" style="margin-bottom: 20px;" class="btn btn-warning pull-right">Send Email</button>
+                </div>
+            <?php } ?>
         </div>
         <div class="row margin-top-10">
             <div class="col-sm-2">

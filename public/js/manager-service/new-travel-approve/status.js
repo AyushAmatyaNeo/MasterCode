@@ -7,6 +7,8 @@
         var $status = $('#status');
         var $fromDate = $('#fromDate');
         var $toDate = $('#toDate');
+        var $employeeId = $('#employee');
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
         var action = `
             <div class="clearfix">
                 #if(REQUESTED_TYPE=='ad' || REQUESTED_TYPE=='ia'){#

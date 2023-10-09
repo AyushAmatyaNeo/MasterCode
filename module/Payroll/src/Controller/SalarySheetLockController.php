@@ -52,9 +52,13 @@ class SalarySheetLockController extends HrisController
                 $companyWiseGroup = null;
             }
         }
+        $payRepo = new PayrollRepository($this->adapter);
+        $sendPayslipEmail = $payRepo->getEmailNoti();
+
         return Helper::addFlashMessagesToArray($this, [
             'data' => json_encode($data),
             'acl' => $this->acl,
+            'sendPayslipEmail' => $sendPayslipEmail['VALUE'],
             'employeeDetail' => $this->storageData['employee_detail'],
             'companyWiseGroup' => $companyWiseGroup,
         ]);
@@ -340,12 +344,10 @@ class SalarySheetLockController extends HrisController
         try {
             foreach ($data as $key) {
                 $payRepo = new PayrollRepository($this->adapter);
-                $sendPayslipEmail = $payRepo->getEmailNoti();
-                $allowPayslipInEmail = $sendPayslipEmail['VALUE'];
+
                 $ExchangeRate = $payRepo->getExchnageRate();
                 $allowExchangeRate = $ExchangeRate['VALUE'];
-
-                if ($allowPayslipInEmail == 'Y' && $allowExchangeRate == 'Y') {
+                if ($allowExchangeRate == 'Y') {
                     $payslipData = $this->salarySheetRepo->getPayslipData($key);
                     if (empty($payslipData)) {
                         die;
@@ -384,7 +386,7 @@ class SalarySheetLockController extends HrisController
                         sleep(2);
                         $index += $batchSize;
                     }
-                } else if ($allowPayslipInEmail == 'Y' && $allowExchangeRate == 'N') {
+                } else if ($allowExchangeRate == 'N') {
                     $payslipData = $this->salarySheetRepo->getPayslipData($key);
                     if (empty($payslipData)) {
                         die;

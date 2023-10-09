@@ -11,6 +11,7 @@ use ManagerService\Repository\LoanApproveRepository;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use SelfService\Form\LoanRequestForm;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Model\LoanRequest;
 use SelfService\Repository\LoanRequestRepository;
 use Setup\Model\Loan;
@@ -152,7 +153,12 @@ class LoanApproveController extends AbstractActionController
         $loanFormElement->setValueOptions($loans1);
         $loanFormElement->setAttributes(["id" => "loanId", "class" => "form-control reset-field"]);
         $loanFormElement->setLabel("Loan Type");
-
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         $loanStatus = [
             '-1' => 'All Status',
             'RQ' => 'Pending',
@@ -168,6 +174,7 @@ class LoanApproveController extends AbstractActionController
 
         return Helper::addFlashMessagesToArray($this, [
             'loans' => $loanFormElement,
+            'employees' => $employees,
             'loanStatus' => $loanStatusFormElement,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),

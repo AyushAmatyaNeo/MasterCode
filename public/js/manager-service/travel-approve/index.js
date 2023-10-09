@@ -16,22 +16,22 @@
             </div>
         `;
 
-        var rowTemplateString = "<tr  class='#: (PRI_SEC=='SECONDARY')  ? 'bg-primary' : '' #' data-uid='#: uid #'>" +
-          "<td><input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label></td>" +
-          "<td>#: EMPLOYEE_CODE #</td>" +
-          "<td>#: EMPLOYEE_NAME #</td>" +
-          "<td>#: FROM_DATE_AD #</td>" +
-          "<td>#: FROM_DATE_BS #</td>" +
-          "<td>#: TO_DATE_AD #</td>" +
-          "<td>#: TO_DATE_BS #</td>" +
-          "<td>#: REQUESTED_DATE_AD #</td>" +
-          "<td>#: REQUESTED_DATE_BS #</td>" +
-          "<td>#: DESTINATION #</td>" +
-          "<td>#: REQUESTED_AMOUNT #</td>" +
-          "<td>#: TRANSPORT_TYPE_DETAIL #</td>" +
-          "<td>#: STATUS_DETAIL #</td>" +
-          "<td>"+action+"</td>" +
-          "</tr>";
+        var rowTemplateString = "<tr  class='#:  #' data-uid='#: uid #'>" +
+            "<td><input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label></td>" +
+            "<td>#: EMPLOYEE_CODE #</td>" +
+            "<td>#: EMPLOYEE_NAME #</td>" +
+            "<td>#: FROM_DATE_AD #</td>" +
+            "<td>#: FROM_DATE_BS #</td>" +
+            "<td>#: TO_DATE_AD #</td>" +
+            "<td>#: TO_DATE_BS #</td>" +
+            "<td>#: REQUESTED_DATE_AD #</td>" +
+            "<td>#: REQUESTED_DATE_BS #</td>" +
+            "<td>#: DESTINATION #</td>" +
+            "<td>#: REQUESTED_AMOUNT #</td>" +
+            "<td>#: TRANSPORT_TYPE_DETAIL #</td>" +
+            "<td>#: STATUS_DETAIL #</td>" +
+            "<td>" + action + "</td>" +
+            "</tr>";
 
         app.initializeKendoGrid($table, [
             {
@@ -40,40 +40,48 @@
                 template: "<input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label>",
                 width: 40
             },
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "EMPLOYEE_NAME", title: "Employee"},
-            {title: "Start Date",
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "EMPLOYEE_NAME", title: "Employee" },
+            {
+                title: "Start Date",
                 columns: [{
-                        field: "FROM_DATE_AD",
-                        title: "English",
-                    },
-                    {
-                        field: "FROM_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "To Date",
+                    field: "FROM_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "FROM_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "TO_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "TO_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "Applied Date",
+                    field: "TO_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "TO_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "Applied Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "REQUESTED_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {field: "DESTINATION", title: "Destination"},
-            {field: "REQUESTED_AMOUNT", title: "Request Amt."},
+                    field: "REQUESTED_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "REQUESTED_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            { field: "DESTINATION", title: "Destination" },
+            { field: "REQUESTED_AMOUNT", title: "Request Amt." },
             //{field: "REQUESTED_TYPE_DETAIL", title: "Request For"},
-            {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action}
-        ], null, null, {rowTemplate : rowTemplateString}, 'Travel Request List');
+            { field: "TRANSPORT_TYPE_DETAIL", title: "Transport" },
+            { field: "STATUS_DETAIL", title: "Status" },
+            { field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action }
+        ], null, null, { rowTemplate: rowTemplateString }, 'Travel Request List');
 
 
         app.serverRequest('', {}).then(function (response) {
@@ -82,7 +90,7 @@
                 selectItems = {};
                 var data = response.data;
                 for (var i in data) {
-                    selectItems[data[i]['TRAVEL_ID']] = {'checked': false, 'role': data[i]['ROLE']};
+                    selectItems[data[i]['TRAVEL_ID']] = { 'checked': false, 'role': data[i]['ROLE'] };
                 }
             } else {
                 app.showMessage(response.error, 'error');
@@ -158,7 +166,7 @@
             var selectedValues = [];
             for (var i in selectItems) {
                 if (selectItems[i].checked) {
-                    selectedValues.push({id: i, role: selectItems[i]['role'], btnAction: btnId});
+                    selectedValues.push({ id: i, role: selectItems[i]['role'], btnAction: btnId });
                 }
             }
             app.bulkServerRequest(document.approveRejectUrl, selectedValues, function () {

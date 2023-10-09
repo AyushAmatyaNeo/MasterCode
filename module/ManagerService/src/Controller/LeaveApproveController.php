@@ -20,6 +20,7 @@ use Setup\Model\HrEmployees;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Form\Element\Select;
+use ManagerService\Repository\ManagerReportRepo;
 use SelfService\Model\LeaveSubstitute;
 use SelfService\Repository\LeaveSubstituteRepository;
 use Zend\View\Model\JsonModel;
@@ -214,11 +215,15 @@ class LeaveApproveController extends HrisController
         $leaveStatusFormElement->setValueOptions($leaveStatus);
         $leaveStatusFormElement->setAttributes(["id" => "leaveRequestStatusId", "class" => "form-control reset-field"]);
         $leaveStatusFormElement->setLabel("Status");
-
-
-
+        $managerRepo = new ManagerReportRepo($this->adapter);
+        $employee = $managerRepo->fetchAllEmployee($this->employeeId);
+        $employees = [];
+        foreach ($employee as $key => $value) {
+            array_push($employees, ["id" => $key, "name" => $value]);
+        }
         return Helper::addFlashMessagesToArray($this, [
             'leaves' => $leaveFormElement,
+            'employees' => $employees,
             'leaveStatus' => $leaveStatusFormElement,
             'recomApproveId' => $this->employeeId,
             'searchValues' => EntityHelper::getSearchData($this->adapter),

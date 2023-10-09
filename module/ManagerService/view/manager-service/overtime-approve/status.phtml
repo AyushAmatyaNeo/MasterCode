@@ -17,6 +17,7 @@ $this->headScript()
 
 <script>
     document.searchValues = <?php echo json_encode($searchValues) ?>;
+    document.employees = <?php echo json_encode($employees); ?>;
     document.viewLink = '<?= $this->url("overtimeApprove", ["action" => "view"]) ?>';
 </script>
 <div class="page-bar">
@@ -115,7 +116,7 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
             </div>
             <div class="col-sm-2">
                 <label>Employee</label>
-                <select multiple class="form-control" name="employee" id="employeeId">
+                <select multiple class="form-control" name="employee" id="employee">
                 </select>
             </div>
 

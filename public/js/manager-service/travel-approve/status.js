@@ -7,6 +7,8 @@
         var $status = $('#status');
         var $fromDate = $('#fromDate');
         var $toDate = $('#toDate');
+        var $employeeId = $('#employee');
+        app.populateSelect($employeeId, document.employees, 'id', 'name', null, null, false);
         var action = `
             <div class="clearfix">
                 #if(REQUESTED_TYPE=='ad'){#
@@ -27,39 +29,47 @@
                 template: "<input type='checkbox' id='#:TRAVEL_ID#' role-id='#:ROLE#'  class='k-checkbox row-checkbox'><label class='k-checkbox-label' for='#:TRAVEL_ID#'></label>",
                 width: 40
             },
-            {field: "EMPLOYEE_CODE", title: "Code"},
-            {field: "EMPLOYEE_NAME", title: "Employee"},
-            {title: "Start Date",
+            { field: "EMPLOYEE_CODE", title: "Code" },
+            { field: "EMPLOYEE_NAME", title: "Employee" },
+            {
+                title: "Start Date",
                 columns: [{
-                        field: "FROM_DATE_AD",
-                        title: "English",
-                    },
-                    {
-                        field: "FROM_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "To Date",
+                    field: "FROM_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "FROM_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "To Date",
                 columns: [{
-                        field: "TO_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "TO_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {title: "Applied Date",
+                    field: "TO_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "TO_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            {
+                title: "Applied Date",
                 columns: [{
-                        field: "REQUESTED_DATE_AD",
-                        title: "English",
-                    },
-                    {field: "REQUESTED_DATE_BS",
-                        title: "Nepali",
-                    }]},
-            {field: "DESTINATION", title: "Destination"},
-            {field: "REQUESTED_AMOUNT", title: "Request Amt."},
-            {field: "REQUESTED_TYPE_DETAIL", title: "Request For"},
-            {field: "TRANSPORT_TYPE_DETAIL", title: "Transport"},
-            {field: "STATUS_DETAIL", title: "Status"},
-            {field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action}
+                    field: "REQUESTED_DATE_AD",
+                    title: "English",
+                },
+                {
+                    field: "REQUESTED_DATE_BS",
+                    title: "Nepali",
+                }]
+            },
+            { field: "DESTINATION", title: "Destination" },
+            { field: "REQUESTED_AMOUNT", title: "Request Amt." },
+            { field: "REQUESTED_TYPE_DETAIL", title: "Request For" },
+            { field: "TRANSPORT_TYPE_DETAIL", title: "Transport" },
+            { field: "STATUS_DETAIL", title: "Status" },
+            { field: ["TRAVEL_ID", "REQUESTED_TYPE", "ROLE"], title: "Action", template: action }
         ], null, null, null, 'Travel Request List');
         $search.on('click', function () {
             app.pullDataById('', {
@@ -108,9 +118,9 @@
         $('#pdfExport').on('click', function () {
             app.exportToPDF($table, exportMap, 'Travel Request List.pdf');
         });
-        
-//        $("#reset").on("click", function () {
-//            $(".form-control").val("");
-//        });
+
+        //        $("#reset").on("click", function () {
+        //            $(".form-control").val("");
+        //        });
     });
 })(window.jQuery, window.app);
