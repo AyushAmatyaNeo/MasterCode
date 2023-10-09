@@ -1,5 +1,5 @@
 (function ($, app) {
-    'use strict';
+    // 'use strict';
     $(document).ready(function () {
         app.startEndDatePickerWithNepali('nepaliFromDate', 'fromDate', 'nepaliToDate', 'toDate', null, true);
         var $tableContainer = $("#leaveRequestStatusTable");
@@ -10,8 +10,8 @@
         var $bulkBtns = $(".btnApproveReject");
         var $superpower = $("#super_power");
         var $employeeId = $('#employeeId');
-
-
+        var $leaveDetails = $("#leaveDetails");
+        var SubstituteDetails;
         app.populateSelect($employeeId, document.employees, 'id', 'name', '--------', null, null, false);
 
         $.each(document.searchManager.getIds(), function (key, value) {
@@ -20,7 +20,23 @@
 
         $leave.select2();
         $status.select2();
-
+        $search.on('click', function () {
+            var q = document.searchManager.getSearchValues();
+            SubstituteDetails = $leaveDetails.prop('checked');
+            q['leaveId'] = $leave.val();
+            q['leaveRequestStatusId'] = $status.val();
+            q['fromDate'] = $('#fromDate').val();
+            q['toDate'] = $('#toDate').val();
+            q['recomApproveId'] = $('#recomApproveId').val();
+            App.blockUI({ target: "#hris-page-content" });
+            app.pullDataById(document.pullLeaveRequestStatusListLink, q).then(function (success) {
+                App.unblockUI("#hris-page-content");
+                useSubstituteDetails(SubstituteDetails);
+                app.renderKendoGrid($tableContainer, success.data);
+            }, function (failure) {
+                App.unblockUI("#hris-page-content");
+            });
+        });
         var columns = [
             { field: "EMPLOYEE_CODE", title: "Code" },
             { field: "SAP_ID", title: "SAP ID" },
@@ -68,15 +84,39 @@
             { field: "NO_OF_DAYS", title: "Duration" },
             { field: "HALF_DAY_DETAIL", title: "Type" },
             { field: "STATUS", title: "Status" },
-            {
-                field: "ID", title: "Action", template: `
-            <span>                                  
-                <a class="btn  btn-icon-only btn-success" href="${document.viewLink}/#: ID #" style="height:17px; width:13px" title="view">
-                <i class="fa fa-search-plus"></i>
-                </a>
-            </span>`}
+            // {
+            //     field: "ID", title: "Action", template: `
+            // <span>                                  
+            //     <a class="btn  btn-icon-only btn-success" href="${document.viewLink}/#: ID #" style="height:17px; width:13px" title="view">
+            //     <i class="fa fa-search-plus"></i>
+            //     </a>
+            // </span>`}
         ];
+
+        function useSubstituteDetails(SubstituteDetails) {
+            if (SubstituteDetails) {
+                columns.push(
+                    { field: "SUB_EMPLOYEE_NAME", title: "Substitute Employee" },
+                    { field: "SUB_REMARKS", title: "Substitute Remarks" }
+                );
+            }
+        }
+
+        columns.push(
+            {
+                field: "ID",
+                title: "Action",
+                template: `
+                    <span>                                  
+                        <a class="btn btn-icon-only btn-success" href="${document.viewLink}/#: ID #" style="height:17px; width:13px" title="view">
+                        <i class="fa fa-search-plus"></i>
+                        </a>
+                    </span>
+                `
+            }
+        );
         columns = app.prependPrefColumns(columns);
+        console.log(columns);
         var pk = 'ID';
         var grid = app.initializeKendoGrid($tableContainer, columns, null, {
             id: pk, atLast: false, fn: function (selected) {
@@ -110,26 +150,14 @@
             'APPROVED_BY_NAME': 'Approved By',
             'RECOMMENDED_REMARKS': 'Recommended Remarks',
             'APPROVED_REMARKS': 'Approved Remarks',
+            'SUB_EMPLOYEE_NAME': 'Substitute Name',
+            'SUB_REMARKS': 'Substitute Employee Remarks',
             'RECOMMENDED_DT': 'Approved Date',
             'APPROVED_DT': 'Approved Date'
         };
         map = app.prependPrefExportMap(map);
 
-        $search.on('click', function () {
-            var q = document.searchManager.getSearchValues();
-            q['leaveId'] = $leave.val();
-            q['leaveRequestStatusId'] = $status.val();
-            q['fromDate'] = $('#fromDate').val();
-            q['toDate'] = $('#toDate').val();
-            q['recomApproveId'] = $('#recomApproveId').val();
-            App.blockUI({ target: "#hris-page-content" });
-            app.pullDataById(document.pullLeaveRequestStatusListLink, q).then(function (success) {
-                App.unblockUI("#hris-page-content");
-                app.renderKendoGrid($tableContainer, success.data);
-            }, function (failure) {
-                App.unblockUI("#hris-page-content");
-            });
-        });
+
 
         $('#excelExport').on('click', function () {
             app.excelExport($tableContainer, map, "Leave Request List.xlsx");

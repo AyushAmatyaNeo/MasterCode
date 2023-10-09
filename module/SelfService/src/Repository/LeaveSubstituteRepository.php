@@ -44,7 +44,7 @@ class LeaveSubstituteRepository implements RepositoryInterface
 
     public function fetchById($id)
     {
-        $result = $this->tableGateway->select([LeaveSubstitute::LEAVE_REQUEST_ID => $id]);
+        $result = $this->tableGateway->select([LeaveSubstitute::LEAVE_REQUEST_ID => $id, LeaveSubstitute::STATUS => 'E']);
         return $result->current();
     }
 

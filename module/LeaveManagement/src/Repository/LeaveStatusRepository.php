@@ -444,7 +444,9 @@ AS LEAVE_ENAME,
                   LA.HARDCOPY_SIGNED_FLAG                            AS HARDCOPY_SIGNED_FLAG,
                   LS.APPROVED_FLAG                                   AS SUB_APPROVED_FLAG,
                   INITCAP(TO_CHAR(LS.APPROVED_DATE, 'DD-MON-YYYY'))  AS SUB_APPROVED_DATE,
-                  LS.EMPLOYEE_ID                                     AS SUB_EMPLOYEE_ID
+                  LS.EMPLOYEE_ID                                     AS SUB_EMPLOYEE_ID,
+                  HLS.FULL_NAME                                      AS SUB_EMPLOYEE_NAME,
+                  LS.REMARKS                                         AS SUB_REMARKS
                 FROM HRIS_EMPLOYEE_LEAVE_REQUEST LA
                 LEFT OUTER JOIN HRIS_LEAVE_MASTER_SETUP L
                 ON L.LEAVE_ID=LA.LEAVE_ID
@@ -462,6 +464,8 @@ AS LEAVE_ENAME,
                 ON APRV.EMPLOYEE_ID = RA.APPROVED_BY
                 LEFT OUTER JOIN HRIS_LEAVE_SUBSTITUTE LS
                 ON LA.ID       = LS.LEAVE_REQUEST_ID
+                LEFT OUTER JOIN HRIS_EMPLOYEES HLS
+                ON LS.EMPLOYEE_ID=HLS.EMPLOYEE_ID
                 LEFT JOIN 
                 (SELECT 
 WOD_ID AS ID
@@ -487,6 +491,9 @@ LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
                 AND E.STATUS   ='E'
                 {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
                 ORDER BY LA.START_DATE DESC";
+        // echo '<pre>';
+        // print_r($sql);
+        // die;
         $finalSql = $this->getPrefReportQuery($sql);
         return $this->rawQuery($finalSql);
     }

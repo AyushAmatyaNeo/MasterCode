@@ -1163,7 +1163,6 @@ class HeadNotification
 
         $leaveSubstituteRepo = new LeaveSubstituteRepository($adapter);
         $leaveSubstituteDetail = $leaveSubstituteRepo->fetchById($request->id);
-
         $notification = self::initializeNotificationModel($request->employeeId, $leaveSubstituteDetail['EMPLOYEE_ID'], LeaveSubNotificationModel::class, $adapter);
 
         $leaveName = self::getName($request->leaveId, new LeaveMasterRepository($adapter), 'LEAVE_ENAME');

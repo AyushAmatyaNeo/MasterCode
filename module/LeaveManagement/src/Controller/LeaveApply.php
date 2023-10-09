@@ -108,7 +108,7 @@ class LeaveApply extends HrisController
                     if ($leaveSubstitute !== null && $leaveSubstitute !== "") {
                         $leaveSubstituteModel = new LeaveSubstitute();
                         $leaveSubstituteRepo = new LeaveSubstituteRepository($this->adapter);
-
+                        $leaveSubstituteModel->id = (int) Helper::getMaxId($this->adapter, LeaveSubstitute::TABLE_NAME, LeaveSubstitute::ID) + 1;
                         $leaveSubstituteModel->leaveRequestId = $leaveRequest->id;
                         $leaveSubstituteModel->employeeId = $leaveSubstitute;
                         $leaveSubstituteModel->createdBy = $this->employeeId;

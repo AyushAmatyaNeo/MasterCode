@@ -144,7 +144,7 @@ class LeaveRequest extends HrisController
                     $leaveSubstituteModel = new LeaveSubstitute();
                     $leaveSubstituteRepo = new LeaveSubstituteRepository($this->adapter);
 
-
+                    $leaveSubstituteModel->id = (int) Helper::getMaxId($this->adapter, LeaveSubstitute::TABLE_NAME, LeaveSubstitute::ID) + 1;
                     $leaveSubstituteModel->leaveRequestId = $leaveRequest->id;
                     $leaveSubstituteModel->employeeId = $leaveSubstitute;
                     $leaveSubstituteModel->createdBy = $this->employeeId;
@@ -416,10 +416,11 @@ class LeaveRequest extends HrisController
 
             $leaveRequest->id = $id;
             $leaveRequest->employeeId = $detail['EMPLOYEE_ID'];
-            $leaveRequest->startDate = Helper::getExpressionDate($detail['EMPLOYEE_ID']);
+            $leaveRequest->startDate = Helper::getExpressionDate($detail['START_DATE']);
             $leaveRequest->endDate = Helper::getExpressionDate($detail['EMPLOYEE_ID']);
             $leaveRequest->modifiedDt = Helper::getcurrentExpressionDate();
             $leaveRequest->status = "RQ";
+
             $this->repository->edit($leaveRequest, $id);
             $this->flashmessenger()->addMessage("Leave Request Successfully edited!!!");
 
@@ -427,16 +428,13 @@ class LeaveRequest extends HrisController
                 $leaveSubstituteModel = new LeaveSubstitute();
                 $leaveSubstituteRepo = new LeaveSubstituteRepository($this->adapter);
 
-
+                $leaveSubstituteModel->id = (int) Helper::getMaxId($this->adapter, LeaveSubstitute::TABLE_NAME, LeaveSubstitute::ID) + 1;
                 $leaveSubstituteModel->leaveRequestId = $id;
                 $leaveSubstituteModel->employeeId = $leaveSubstitute;
                 $leaveSubstituteModel->createdBy = $this->employeeId;
                 $leaveSubstituteModel->createdDate = Helper::getcurrentExpressionDate();
                 $leaveSubstituteModel->status = 'E';
 
-                // echo '<pre>';
-                // print_r($detail);
-                // die;
                 $leaveSubstituteRepo->add($leaveSubstituteModel);
                 try {
                     HeadNotification::pushNotification(NotificationEvents::LEAVE_SUBSTITUTE_APPLIED, $leaveRequest, $this->adapter, $this);

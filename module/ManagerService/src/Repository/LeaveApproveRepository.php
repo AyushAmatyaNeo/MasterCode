@@ -243,7 +243,7 @@ class LeaveApproveRepository implements RepositoryInterface
                 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID),
                   HRIS_LEAVE_MONTH_CODE MTH,
                   HRIS_EMPLOYEE_LEAVE_ASSIGN ELA
-                WHERE LA.ID = {$id}
+                  WHERE LA.ID = {$id} and ls.id in (select max(id) from hris_leave_substitute where leave_request_id=$id)
                 AND TRUNC(LA.START_DATE) BETWEEN MTH.FROM_DATE AND MTH.TO_DATE
                 AND LA.EMPLOYEE_ID            =ELA.EMPLOYEE_ID
                 AND LA.LEAVE_ID               =ELA.LEAVE_ID
@@ -263,13 +263,12 @@ class LeaveApproveRepository implements RepositoryInterface
                         ) BETWEEN FROM_DATE AND TO_DATE)
                   END
                 OR ELA.FISCAL_YEAR_MONTH_NO IS NULL)";
-    // echo '<pre>';
-    // print_r($sql);
-    // die;
+
     $statement = $this->adapter->query($sql);
     $result = $statement->execute();
     return $result->current();
   }
+
 
   public function fetchAttachmentsById($id)
   {
