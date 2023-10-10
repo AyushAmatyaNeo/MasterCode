@@ -158,9 +158,21 @@ class LeaveApproveRepository implements RepositoryInterface
   {
     // TODO: Implement fetchAll() method.
   }
-
+  public function checkSubstituteLeave($id)
+  {
+    $sql = "select max(id) as id from hris_leave_substitute where leave_request_id=$id";
+    $statement = $this->adapter->query($sql);
+    $result = $statement->execute();
+    return $result->current();
+  }
   public function fetchById($id)
   {
+    $substituteLeave = $this->checkSubstituteLeave($id);
+
+    $substute = "";
+    if ($substituteLeave['ID'] != null) {
+      $substute = " and ls.id=$substituteLeave[ID]";
+    }
     $sql = "SELECT INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
                   INITCAP(TO_CHAR(LA.REQUESTED_DT, 'DD-MON-YYYY'))    AS REQUESTED_DT,
                   INITCAP(TO_CHAR(LA.APPROVED_DT, 'DD-MON-YYYY'))     AS APPROVED_DT,
@@ -243,7 +255,8 @@ class LeaveApproveRepository implements RepositoryInterface
                 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID),
                   HRIS_LEAVE_MONTH_CODE MTH,
                   HRIS_EMPLOYEE_LEAVE_ASSIGN ELA
-                  WHERE LA.ID = {$id} and ls.id in (select max(id) from hris_leave_substitute where leave_request_id=$id)
+                  WHERE LA.ID = {$id} {$substute}
+                  and ls.id in (select max(id) from hris_leave_substitute where leave_request_id=$id)
                 AND TRUNC(LA.START_DATE) BETWEEN MTH.FROM_DATE AND MTH.TO_DATE
                 AND LA.EMPLOYEE_ID            =ELA.EMPLOYEE_ID
                 AND LA.LEAVE_ID               =ELA.LEAVE_ID
@@ -268,7 +281,6 @@ class LeaveApproveRepository implements RepositoryInterface
     $result = $statement->execute();
     return $result->current();
   }
-
 
   public function fetchAttachmentsById($id)
   {

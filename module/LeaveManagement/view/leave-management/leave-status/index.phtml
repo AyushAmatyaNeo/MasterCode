@@ -11,7 +11,7 @@ $this->headScript()
     ->appendFile($this->basePath('telerik_kendoui/js/kendo.all.min.js'))
     ->appendFile($this->basePath('assets/global/plugins/nepalidate/nepali.datepicker.v2.1.min.js'))
     ->appendFile($this->basePath('js/nepali-datepicker-ext.js'))
-    ->appendFile($this->basePath('js/LeaveManagement/LeaveStatus/index.js'));
+    ->appendFile($this->basePath('js/LeaveManagement/LeaveStatus/index.js?1'));
 ?>
 
 <script>
@@ -165,9 +165,13 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <label><input id="super_power" type="checkbox" class="reset-field">Use Super Power</label>
                 </div>
             <?php }      ?>
-            <div class="col-sm-2">
-                <label><input id="leaveDetails" type="checkbox">Substitute Leave</label>
-            </div>
+
+            <!-- <div class="col-sm-2">
+                <div class="form-group">
+                    <label for="checkbox2">Substitute Leave</label>
+                    <input type="checkbox" id="leaveDetails" name="checkboxChoices[]" value="leaveDetails">
+                </div>
+            </div> -->
             <div class=" col-sm-offset-8 col-sm-4">
                 <button id="reset" class="btn default btn-sm pull-right hris-reset-btn">
                     Reset
