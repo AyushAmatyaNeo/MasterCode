@@ -171,6 +171,7 @@ class LeaveApproveRepository implements RepositoryInterface
 
     $substute = "";
     if ($substituteLeave['ID'] != null) {
+
       $substute = " and ls.id=$substituteLeave[ID]";
     }
     $sql = "SELECT INITCAP(TO_CHAR(LA.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
@@ -256,7 +257,6 @@ class LeaveApproveRepository implements RepositoryInterface
                   HRIS_LEAVE_MONTH_CODE MTH,
                   HRIS_EMPLOYEE_LEAVE_ASSIGN ELA
                   WHERE LA.ID = {$id} {$substute}
-                  and ls.id in (select max(id) from hris_leave_substitute where leave_request_id=$id)
                 AND TRUNC(LA.START_DATE) BETWEEN MTH.FROM_DATE AND MTH.TO_DATE
                 AND LA.EMPLOYEE_ID            =ELA.EMPLOYEE_ID
                 AND LA.LEAVE_ID               =ELA.LEAVE_ID
@@ -511,7 +511,7 @@ INITCAP(L.LEAVE_ENAME)||'('||SLR.SUB_NAME||')' END AS LEAVE_ENAME
                 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID),
                   HRIS_LEAVE_MONTH_CODE MTH,
                   HRIS_EMPLOYEE_LEAVE_ASSIGN ELA
-                WHERE LA.ID = {$id} and ls.status='E'
+                WHERE LA.ID = {$id} 
                 AND TRUNC(LA.START_DATE) BETWEEN MTH.FROM_DATE AND MTH.TO_DATE
                 AND LA.EMPLOYEE_ID            =ELA.EMPLOYEE_ID
                 AND LA.LEAVE_ID               =ELA.LEAVE_ID

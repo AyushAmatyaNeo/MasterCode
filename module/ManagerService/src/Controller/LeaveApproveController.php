@@ -63,6 +63,7 @@ class LeaveApproveController extends HrisController
         $role = $this->params()->fromRoute('role');
 
         if ($id === 0) {
+
             return $this->redirect()->toRoute("leaveapprove");
         }
         $leaveApply = new LeaveApply();
@@ -161,7 +162,8 @@ class LeaveApproveController extends HrisController
             return $this->redirect()->toRoute("leaveapprove");
         }
         $fileDetails = $this->repository->fetchAttachmentsById($id);
-        // echo '<pre>';print_r($role);die;
+
+
         return Helper::addFlashMessagesToArray($this, [
             'form' => $this->form,
             'id' => $id,
