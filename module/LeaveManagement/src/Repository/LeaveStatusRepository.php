@@ -463,7 +463,7 @@ AS LEAVE_ENAME,
                 LEFT OUTER JOIN HRIS_EMPLOYEES APRV
                 ON APRV.EMPLOYEE_ID = RA.APPROVED_BY
                 LEFT OUTER JOIN HRIS_LEAVE_SUBSTITUTE LS
-                ON LA.ID       = LS.LEAVE_REQUEST_ID
+                ON LA.ID       = LS.LEAVE_REQUEST_ID and ls.status='E'
                 LEFT OUTER JOIN HRIS_EMPLOYEES HLS
                 ON LS.EMPLOYEE_ID=HLS.EMPLOYEE_ID
                 LEFT JOIN 
@@ -487,7 +487,7 @@ JOIN Hris_Employee_Work_Holiday WH ON (LA.WOH_ID=WH.ID)
 LEFT JOIN Hris_Holiday_Master_Setup H ON (WH.HOLIDAY_ID=H.HOLIDAY_ID)) SLR ON (SLR.ID=LA.SUB_REF_ID AND SLR.EMPLOYEE_ID=LA.EMPLOYEE_ID)
 LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT
     ON E.FUNCTIONAL_TYPE_ID=FUNT.FUNCTIONAL_TYPE_ID                
-                WHERE L.STATUS ='E'
+                WHERE L.STATUS ='E' 
                 AND E.STATUS   ='E'
                 {$searchCondition} {$statusCondition} {$leaveCondition} {$fromDateCondition} {$toDateCondition}
                 ORDER BY LA.START_DATE DESC";
