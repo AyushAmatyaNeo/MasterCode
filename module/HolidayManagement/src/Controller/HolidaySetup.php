@@ -144,6 +144,7 @@ class HolidaySetup extends HrisController
             }
         }
         $resultSet = (array) $this->repository->fetchById($id);
+
         $holiday->exchangeArrayFromDB($resultSet);
         $this->form->bind($holiday);
         $searchSelectedValues = $this->csvToArray($resultSet);

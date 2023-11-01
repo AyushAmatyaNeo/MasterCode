@@ -14,28 +14,34 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
+use Zend\Db\Sql\Select;
 
-class HolidayRepository implements RepositoryInterface {
+class HolidayRepository implements RepositoryInterface
+{
 
     private $tableGateway;
     private $adapter;
 
-    public function __construct(AdapterInterface $adapter) {
+    public function __construct(AdapterInterface $adapter)
+    {
         $this->tableGateway = new TableGateway(Holiday::TABLE_NAME, $adapter);
         $this->adapter = $adapter;
         $auth = new AuthenticationService();
         $this->fiscalYr = $auth->getStorage()->read()['fiscal_year']['FISCAL_YEAR_ID'];
     }
 
-    public function add(Model $model) {
+    public function add(Model $model)
+    {
         $this->tableGateway->insert($model->getArrayCopyForDB());
     }
 
-    public function edit(Model $model, $id) {
+    public function edit(Model $model, $id)
+    {
         $this->tableGateway->update($model->getArrayCopyForDB(), [Holiday::HOLIDAY_ID => $id]);
     }
 
-    public function fetchAll($today = null) {
+    public function fetchAll($today = null)
+    {
         $sql = "
             SELECT  
             INITCAP(TO_CHAR(A.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
@@ -46,7 +52,7 @@ class HolidayRepository implements RepositoryInterface {
             INITCAP(A.HOLIDAY_LNAME) AS HOLIDAY_LNAME,
             A.HALFDAY
                 FROM HRIS_HOLIDAY_MASTER_SETUP A 
-                WHERE A.STATUS='E' " ;
+                WHERE A.STATUS='E' ";
         if ($today != null) {
             $sql .= " AND (" . $today->getExpression() . " between A.START_DATE AND A.END_DATE) OR " . $today->getExpression() . " <= A.START_DATE";
         }
@@ -56,7 +62,8 @@ class HolidayRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function fetchById($id) {
+    public function fetchById($id)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
         $select->columns([
@@ -68,6 +75,7 @@ class HolidayRepository implements RepositoryInterface {
             new Expression("INITCAP(HOLIDAY_LNAME) AS HOLIDAY_LNAME"),
             new Expression("STATUS AS STATUS"),
             new Expression("HALFDAY AS HALFDAY"),
+            new Expression("FISCAL_YEAR AS FISCAL_YEAR"),
             new Expression("ASSIGN_ON_EMPLOYEE_SETUP AS ASSIGN_ON_EMPLOYEE_SETUP"),
             new Expression("REMARKS AS REMARKS"),
             new Expression("COMPANY_ID AS COMPANY_ID"),
@@ -79,7 +87,7 @@ class HolidayRepository implements RepositoryInterface {
             new Expression("EMPLOYEE_TYPE AS EMPLOYEE_TYPE"),
             new Expression("GENDER_ID AS GENDER_ID"),
             new Expression("EMPLOYEE_ID AS EMPLOYEE_ID"),
-                ], true);
+        ], true);
 
         $select->from(Holiday::TABLE_NAME);
 
@@ -92,12 +100,14 @@ class HolidayRepository implements RepositoryInterface {
         return $result->current();
     }
 
-    public function delete($id) {
+    public function delete($id)
+    {
         $this->tableGateway->update([Holiday::STATUS => 'D'], [Holiday::HOLIDAY_ID => $id]);
     }
 
-    public function filterRecords($fromDate, $toDate) {
-        $boundedParameter=[];
+    public function filterRecords($fromDate, $toDate)
+    {
+        $boundedParameter = [];
         $sql = "
                 SELECT INITCAP(TO_CHAR(A.START_DATE, 'DD-MON-YYYY')) AS START_DATE,
                  BS_DATE(TO_CHAR(A.START_DATE, 'DD-MON-YYYY')) AS START_DATE_N,
@@ -122,16 +132,16 @@ class HolidayRepository implements RepositoryInterface {
 
         if ($fromDate != null) {
             $sql .= " AND A.START_DATE>=TO_DATE(:fromDate,'DD-MM-YYYY')";
-            $boundedParameter['fromDate']=$fromDate;
+            $boundedParameter['fromDate'] = $fromDate;
         }
 
         if ($toDate != null) {
             $sql .= " AND A.END_DATE<=TO_DATE(:toDate,'DD-MM-YYYY')";
-            $boundedParameter['toDate']=$toDate;
+            $boundedParameter['toDate'] = $toDate;
         }
-//        if ($fromDate == null && $toDate == null) {
-//            $sql .= " AND A.FISCAL_YEAR=" . $this->fiscalYr;
-//        }
+        //        if ($fromDate == null && $toDate == null) {
+        //            $sql .= " AND A.FISCAL_YEAR=" . $this->fiscalYr;
+        //        }
 
         $sql .= " ORDER BY A.START_DATE DESC";
         $statement = $this->adapter->query($sql);
@@ -139,11 +149,13 @@ class HolidayRepository implements RepositoryInterface {
         return $result;
     }
 
-    public function filter($branchId, $genderId, Expression $date) {
+    public function filter($branchId, $genderId, Expression $date)
+    {
         throw new Exception("HolidayRepository => filter is changed. plz use ");
     }
 
-    public function filterHoliday($employeeId, Expression $afterDate = null) {
+    public function filterHoliday($employeeId, Expression $afterDate = null)
+    {
         $sql = new Sql($this->adapter);
         $select = $sql->select();
 
@@ -162,9 +174,10 @@ class HolidayRepository implements RepositoryInterface {
         return $statement->execute();
     }
 
-    public function holidayAssign(int $holidayId) {
+    public function holidayAssign(int $holidayId)
+    {
         EntityHelper::rawQueryResult($this->adapter, "BEGIN HRIS_HOLIDAY_ASSIGN_AUTO({$holidayId}); END;");
-        $sql="SELECT
+        $sql = "SELECT
         hr.start_date,
         hr.end_date,
         he.employee_id
@@ -173,17 +186,15 @@ class HolidayRepository implements RepositoryInterface {
         left join hris_employee_holiday he on (hr.holiday_id=he.holiday_id)
     WHERE
         hr.holiday_id = $holidayId";
-        $statement=$this->adapter->query($sql);
-        $result=Helper::extractDbData($statement->execute());
-        $length=count($result);
-        for ( $j = 0; $j < $length; $j++) {
-            $sql="BEGIN 
+        $statement = $this->adapter->query($sql);
+        $result = Helper::extractDbData($statement->execute());
+        $length = count($result);
+        for ($j = 0; $j < $length; $j++) {
+            $sql = "BEGIN 
               HRIS_REATTENDANCE('{$result[$j]['START_DATE']}',{$result[$j]['EMPLOYEE_ID']},'{$result[$j]['END_DATE']}');
                  END; ";
-                //  echo '<pre>';print_r($sql);die;
-                EntityHelper::rawQueryResult($this->adapter, $sql);
+            //  echo '<pre>';print_r($sql);die;
+            EntityHelper::rawQueryResult($this->adapter, $sql);
         }
-        
     }
-
 }

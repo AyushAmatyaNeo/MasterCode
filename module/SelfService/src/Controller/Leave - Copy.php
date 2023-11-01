@@ -12,17 +12,14 @@ use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class Leave extends HrisController
-{
+class Leave extends HrisController {
 
-    public function __construct(AdapterInterface $adapter, StorageInterface $storage)
-    {
+    public function __construct(AdapterInterface $adapter, StorageInterface $storage) {
         parent::__construct($adapter, $storage);
         $this->initializeRepository(LeaveRepository::class);
     }
 
-    public function indexAction()
-    {
+    public function indexAction() {
         $request = $this->getRequest();
         if ($request->isPost()) {
             try {
@@ -39,7 +36,7 @@ class Leave extends HrisController
             }
         }
         $leaveMonthDataSql = "SELECT * FROM HRIS_LEAVE_MONTH_CODE 
-                    WHERE LEAVE_YEAR_ID=(SELECT LEAVE_YEAR_ID from HRIS_LEAVE_YEARS WHERE TRUNC(SYSDATE) BETWEEN START_DATE AND END_DATE) ORDER BY LEAVE_YEAR_MONTH_NO";
+                    WHERE LEAVE_YEAR_ID=(SELECT max(LEAVE_YEAR_ID) from HRIS_LEAVE_YEARS) ORDER BY LEAVE_YEAR_MONTH_NO";
         $leaveMonthData = EntityHelper::rawQueryResult($this->adapter, $leaveMonthDataSql);
         $currentMonth = Helper::extractDbData(EntityHelper::rawQueryResult($this->adapter, "SELECT NVL(MAX(LEAVE_YEAR_MONTH_NO),0) AS MONTH_NO FROM HRIS_LEAVE_MONTH_CODE WHERE TRUNC(SYSDATE) BETWEEN FROM_DATE AND TO_DATE"));
         return new ViewModel([
@@ -47,4 +44,5 @@ class Leave extends HrisController
             "currentMonth" => $currentMonth[0]['MONTH_NO']
         ]);
     }
+
 }

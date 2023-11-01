@@ -34,8 +34,8 @@ $form->prepare();
 ?>
 
 <script>
-    document.searchValues =<?php echo json_encode($searchValues); ?>;
-    document.searchSelectedValues =<?php echo json_encode($searchSelectedValues); ?>;
+    document.searchValues = <?php echo json_encode($searchValues); ?>;
+    document.searchSelectedValues = <?php echo json_encode($searchSelectedValues); ?>;
 </script>
 
 <div class="page-bar">
@@ -59,9 +59,10 @@ $form->prepare();
                         <div class="form-group">
                             <?php print $this->formLabel($fiscalYear); ?>
                             <?php print $this->formElement($fiscalYear); ?>
-                            <?php print $this->formElementErrors()->render($fiscalYear, ['class' => 'help-block error']); ?>                        
+                            <?php print $this->formElementErrors()->render($fiscalYear, ['class' => 'help-block error']); ?>
                         </div>
                     </div>
+
                 </div>
                 <div class="row">
                     <div class="col-sm-6">
@@ -97,15 +98,14 @@ $form->prepare();
                                     <?php print $this->formElement($startDate) ?>
                                 </div>
                                 <?php print $this->formElementErrors()->render($startDate, ['class' => 'help-block error']) ?>
-                            </div>    
+                            </div>
 
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliStartDate">&nbsp;</label>
-                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate1"
-                                           class="form-control" value="">
-                                </div>    
-                            </div> 
+                                    <input type="text" name="nepaliStartDate" id="nepaliStartDate1" class="form-control" value="">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -118,15 +118,14 @@ $form->prepare();
                                     <?php print $this->formElement($endDate) ?>
                                 </div>
                                 <?php print $this->formElementErrors()->render($endDate, ['class' => 'help-block error']) ?>
-                            </div>     
+                            </div>
                             <div class="col-sm-6">
                                 <div class="form-group">
                                     <label for="nepaliEndDate">&nbsp;</label>
-                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate1"
-                                           class="form-control" value="">
+                                    <input type="text" name="nepaliEndDate" id="nepaliEndDate1" class="form-control" value="">
                                 </div>
-                            </div>     
-                        </div>   
+                            </div>
+                        </div>
 
                     </div>
                 </div>
