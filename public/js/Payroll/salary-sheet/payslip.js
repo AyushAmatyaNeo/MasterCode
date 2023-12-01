@@ -12,11 +12,6 @@
         var $excelExport = $('#excelExport');
         var $pdfExport = $('#pdfExport');
         var $salaryTypeId = $('#salaryTypeId');
-        var $exchangeRateVal = $('input[name="exchangeRate"]:checked').val();
-        $("input[name='exchangeRate']").change(function () {
-            $exchangeRateVal = $(this).val();
-        });
-
         app.populateSelect($salaryTypeId, document.salaryType, 'SALARY_TYPE_ID', 'SALARY_TYPE_NAME', null, null, 1);
 
         var employeeList = null;
@@ -55,9 +50,9 @@
                 }
                 netSum = additionSum - deductionSum;
             });
-            add = (additionSum.toLocaleString('en-US', { minimumFractionDigits: 2 }));
-            sub = (deductionSum.toLocaleString('en-US', { minimumFractionDigits: 2 }));
-            net = (netSum.toLocaleString('en-US', { minimumFractionDigits: 2 }
+            add = (additionSum.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+            sub = (deductionSum.toLocaleString('en-IN', { minimumFractionDigits: 2 }));
+            net = (netSum.toLocaleString('en-IN', { minimumFractionDigits: 2 }
             ));
             var maxRows = (additionCounter > deductionCounter) ? additionCounter : deductionCounter;
             for (var i = 0; i < maxRows; i++) {
@@ -93,7 +88,6 @@
             var monthId = $month.val();
             var employeeId = $employeeId.val();
             var salaryTypeId = $salaryTypeId.val();
-            var exchangeRate = $exchangeRateVal;
             var employee = employeeList.find(function (item) {
                 return item['EMPLOYEE_ID'] == employeeId;
             });
@@ -102,8 +96,7 @@
                 employeeId: employeeId,
                 companyId: employee['COMPANY_ID'],
                 groupId: employee['GROUP_ID'],
-                salaryTypeId: salaryTypeId,
-                exchangeRate: exchangeRate
+                salaryTypeId: salaryTypeId
             }).then(function (response) {
                 showPaySlip(response.data['pay-detail']);
                 showEmpDetail(response.data['emp-detail']);
@@ -112,11 +105,12 @@
             });
         });
 
+
         $mailBtn.on('click', function () {
             var monthId = $month.val();
             var employeeId = $employeeId.val();
             var salaryTypeId = $salaryTypeId.val();
-            var exchangeRate = $exchangeRateVal;
+            //var exchangeRate = $exchangeRateVal;
             var employee = employeeList.find(function (item) {
                 return item['EMPLOYEE_ID'] == employeeId;
             });
@@ -126,7 +120,7 @@
                 companyId: employee['COMPANY_ID'],
                 groupId: employee['GROUP_ID'],
                 salaryTypeId: salaryTypeId,
-                exchangeRate: exchangeRate
+                // exchangeRate: exchangeRate
             }).then(function (response) {
                 if (response.success) {
                     app.showMessage('Payslip send successfully!!');
@@ -138,18 +132,6 @@
             });
         });
 
-        $month.on('change', function () {
-            var monthId = $(this).val();
-            app.serverRequest(document.wsExchangeRate, { monthId: monthId }).then(function (response) {
-                if (response.data === null || response.data === '') {
-                    $('#exchangeRateVal').val('Rs ' + 0);
-                } else if (response.data != null) {
-                    $('#exchangeRateVal').val('Rs ' + response.data);
-                }
-            }, function (error) {
-                app.showMessage(error, 'error');
-            });
-        })
 
         $pdfExport.on('click', function () {
             app.exportDomToPdf2($('#paySlipView'));

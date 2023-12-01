@@ -6,7 +6,9 @@ use Application\Helper\EntityHelper;
 use Application\Model\Model;
 use Application\Repository\HrisRepository;
 use Payroll\Model\SalarySheetDetail;
+use Payroll\Repository\PayrollReportRepo;
 use Zend\Db\Adapter\AdapterInterface;
+use Application\Helper\Helper;
 
 class SalarySheetDetailRepo extends HrisRepository
 {
@@ -132,7 +134,7 @@ class SalarySheetDetailRepo extends HrisRepository
                 ts.pay_id,
                 CASE
                 WHEN ts.val = 0 THEN '0.00'
-                ELSE to_char(ts.val, '9,999,999.99')
+                ELSE to_char(ts.val, '99,99,999.99')
                 END AS val,
                   P.PAY_TYPE_FLAG,
                   P.PAY_EDESC
@@ -145,12 +147,101 @@ class SalarySheetDetailRepo extends HrisRepository
                       AND SALARY_TYPE_ID=:salaryTypeId  AND APPROVED='Y'
                   )
                 AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
+
         $boundedParameter = [];
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['salaryTypeId'] = $salaryTypeId;
         $boundedParameter['employeeId'] = $employeeId;
+        // echo '<pre>';print_r($sql);die;
         return $this->rawQuery($sql, $boundedParameter);
     }
+    private function fetchSalaryTaxYearlyVariable()
+    {
+        $rawList = EntityHelper::rawQueryResult($this->adapter, "select  * from Hris_Variance where   STATUS='E' AND VARIABLE_TYPE='Y'");
+        $dbArray = "";
+        foreach ($rawList as $key => $row) {
+            if ($key == sizeof($rawList)) {
+                $dbArray .= "{$row['VARIANCE_ID']} AS V{$row['VARIANCE_ID']}";
+            } else {
+                $dbArray .= "{$row['VARIANCE_ID']} AS V{$row['VARIANCE_ID']},";
+            }
+        }
+        return $dbArray;
+    }
+
+    public function fetchEmployeeAnnualPaySlip($monthId, $employeeId, $salaryTypeId = 1)
+    {
+        $variable = $this->fetchSalaryTaxYearlyVariable();
+        $strSalaryType = " ";
+        if ($salaryTypeId != null && $salaryTypeId != -1) {
+            $strSalaryType = " WHERE SALARY_TYPE_ID=:salaryTypeId";
+            $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        }
+        $sql = "SELECT 
+      E.FULL_NAME,
+      E.EMPLOYEE_CODE
+      ,E.ID_PAN_NO
+      ,E.ID_ACCOUNT_NO
+      ,BR.BRANCH_NAME
+      ,E.BIRTH_DATE
+      ,E.JOIN_DATE
+      ,CASE E.MARITAL_STATUS
+      WHEN  'M' THEN 'Married'
+      WHEN  'M' THEN 'Unmarried'
+      END AS MARITAL_STATUS
+      ,D.DEPARTMENT_NAME
+      ,SSED.FUNCTIONAL_TYPE_EDESC
+      ,GB.*
+      ,SSED.SERVICE_TYPE_NAME
+      ,SSED.DESIGNATION_TITlE
+      ,SSED.POSITION_NAME
+      ,SSED.ACCOUNT_NO
+      ,CASE SSED.MARITAL_STATUS_DESC
+      WHEN 'MARRIED' THEN 'Couple'
+      WHEN 'UNMARRIED' THEN 'Single' 
+      END AS ASSESSMENT_CHOICE
+      ,C.COMPANY_NAME,
+      hssg.group_name
+      ,MCD.YEAR||'-'||MCD.MONTH_EDESC AS YEAR_MONTH_NAME
+      FROM
+      (
+      SELECT * FROM (SELECT 
+      SD.EMPLOYEE_ID
+      ,Vp.Variance_Id
+      ,SS.Month_ID
+      ,SS.SHEET_NO,
+      SS.GROUP_ID
+      ,SUM(VAL) AS TOTAL
+      FROM HRIS_VARIANCE V
+      LEFT JOIN HRIS_VARIANCE_PAYHEAD VP ON (V.VARIANCE_ID=VP.VARIANCE_ID)
+      LEFT JOIN (select * from HRIS_SALARY_SHEET {$strSalaryType}) SS ON (1=1)
+      LEFT JOIN HRIS_SALARY_SHEET_DETAIL SD ON (SS.SHEET_NO=SD.SHEET_NO AND SD.Pay_Id=VP.Pay_Id)
+      WHERE  V.STATUS='E' AND V.VARIABLE_TYPE='Y' 
+      and SS.MONTH_ID=:monthId
+      GROUP BY SD.EMPLOYEE_ID,V.VARIANCE_NAME,Vp.Variance_Id,SS.Month_ID,SS.SHEET_NO,SS.GROUP_ID)
+      PIVOT ( MAX( TOTAL )
+          FOR Variance_Id 
+          IN ($variable)
+          ))GB
+          LEFT JOIN HRIS_EMPLOYEES E ON (E.EMPLOYEE_ID=GB.EMPLOYEE_ID)
+          LEFT JOIN Hris_Salary_Sheet_Emp_Detail SSED ON 
+(SSED.SHEET_NO=GB.SHEET_NO AND SSED.EMPLOYEE_ID=GB.EMPLOYEE_ID AND SSED.MONTH_ID=GB.MONTH_ID)
+          LEFT JOIN HRIS_DEPARTMENTS D  ON (D.DEPARTMENT_ID=SSED.DEPARTMENT_ID)
+          LEFT JOIN HRIS_FUNCTIONAL_TYPES FUNT ON (SSED.FUNCTIONAL_TYPE_ID=FUNT.FUNCTIONAL_TYPE_ID)
+          LEFT JOIN HRIS_BRANCHES BR ON (SSED.BRANCH_ID=BR.BRANCH_ID)
+          LEFT JOIN HRIS_COMPANY C ON (SSED.COMPANY_ID=C.COMPANY_ID)
+          LEFT JOIN HRIS_MONTH_CODE MCD ON (MCD.MONTH_ID=:monthId)
+          LEFT JOIN hris_salary_sheet_group hssg on (hssg.group_id = GB.group_id)
+          WHERE 1=1  AND EMPLOYEE_ID =:employeeId
+       ";
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['salaryTypeId'] = $salaryTypeId;
+        $boundedParameter['employeeId'] = $employeeId;
+        //   echo '<pre>';print_r($sql);print_r($boundedParameter);die;
+        return $this->rawQuery($sql, $boundedParameter);
+    }
+
 
     public function fetchEmployeePaySlipHR($monthId, $employeeId, $salaryTypeId = 1)
     {
@@ -180,48 +271,7 @@ class SalarySheetDetailRepo extends HrisRepository
 
         return $this->rawQuery($sql, $boundedParameter);
     }
-    public function fetchEmployeePaySlipHRNep($monthId, $employeeId, $salaryTypeId = 1)
-    {
-        $sql = "SELECT TS.*,
-        P.PAY_TYPE_FLAG,
-        P.PAY_EDESC
-      FROM HRIS_SALARY_SHEET_DETAIL TS
-      LEFT JOIN HRIS_PAY_SETUP P
-      ON (TS.PAY_ID         =P.PAY_ID)
-      WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
-      AND TS.SHEET_NO       IN
-        (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
-            AND SALARY_TYPE_ID=:salaryTypeId  
-        )
-      AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
 
-        $boundedParameter = [];
-        $boundedParameter['monthId'] = $monthId;
-        $boundedParameter['salaryTypeId'] = $salaryTypeId;
-        $boundedParameter['employeeId'] = $employeeId;
-        return $this->rawQuery($sql, $boundedParameter);
-    }
-    public function fetchEmployeePaySlipNep($monthId, $employeeId, $salaryTypeId = 1)
-    {
-        $sql = "SELECT TS.*,
-        P.PAY_TYPE_FLAG,
-        P.PAY_EDESC
-      FROM HRIS_SALARY_SHEET_DETAIL TS
-      LEFT JOIN HRIS_PAY_SETUP P
-      ON (TS.PAY_ID         =P.PAY_ID)
-      WHERE P.INCLUDE_IN_SALARY='Y' AND TS.VAL !=0
-      AND TS.SHEET_NO       IN
-        (SELECT SHEET_NO FROM HRIS_SALARY_SHEET WHERE MONTH_ID =:monthId 
-            AND SALARY_TYPE_ID=:salaryTypeId AND APPROVED='Y'
-        )
-      AND EMPLOYEE_ID =:employeeId ORDER BY P.PRIORITY_INDEX";
-
-        $boundedParameter = [];
-        $boundedParameter['monthId'] = $monthId;
-        $boundedParameter['salaryTypeId'] = $salaryTypeId;
-        $boundedParameter['employeeId'] = $employeeId;
-        return $this->rawQuery($sql, $boundedParameter);
-    }
     public function fetchEmployeeLoanAmt($monthId, $employeeId, $ruleId)
     {
         $sql = "select 
@@ -279,7 +329,7 @@ class SalarySheetDetailRepo extends HrisRepository
 
 
         $sheetString = $sheetNo;
-
+        //    echo '<pre>';print_r($sheetNo );die;
         if ($sheetNo == -1) {
             //            echo is_array($groupId);
             if (is_array($groupId)) {
@@ -300,8 +350,7 @@ class SalarySheetDetailRepo extends HrisRepository
                 $sheetString = "select sheet_no from HRIS_SALARY_SHEET where month_id={$monthId} and salary_type_id={$salaryTypeId}";
             }
         }
-        $exchangeRate = $this->getExchangeRate($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId);
-        $exchangeRt = $exchangeRate['EXCHANGE_RATE'];
+
         $in = $this->fetchPayIdsAsArray();
         if ($companyId > 0) {
             $sql = "SELECT P.*,E.FULL_NAME AS EMPLOYEE_NAME,E.EMPLOYEE_CODE,B.BRANCH_NAME,PO.POSITION_NAME,E.ID_ACCOUNT_NO
@@ -311,7 +360,7 @@ class SalarySheetDetailRepo extends HrisRepository
                 (SELECT SSED.SHEET_NO,
                   SSED.EMPLOYEE_ID,
                   SSD.PAY_ID,
-                  SSD.VAL * $exchangeRt as val
+                  SSD.VAL
                 FROM HRIS_SALARY_SHEET_DETAIL SSD
                 RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
                 WHERE SSED.SHEET_NO in ({$sheetString}) and SSED.company_id=$companyId
@@ -329,7 +378,7 @@ class SalarySheetDetailRepo extends HrisRepository
                     (SELECT SSED.SHEET_NO,
                       SSED.EMPLOYEE_ID,
                       SSD.PAY_ID,
-                      SSD.VAL * $exchangeRt as val
+                      SSD.VAL
                     FROM HRIS_SALARY_SHEET_DETAIL SSD
                     RIGHT JOIN HRIS_SALARY_SHEET_EMP_DETAIL SSED ON (SSD.SHEET_NO=SSED.SHEET_NO AND SSD.EMPLOYEE_ID=SSED.EMPLOYEE_ID)
                     WHERE SSED.SHEET_NO in ({$sheetString}) 
@@ -340,9 +389,8 @@ class SalarySheetDetailRepo extends HrisRepository
                 LEFT JOIN HRIS_BRANCHES B ON (B.BRANCH_ID=E.BRANCH_ID)
                 LEFT JOIN HRIS_POSITIONS PO ON (PO.POSITION_ID=E.POSITION_ID)";
         }
-        // echo '<pre>';
-        // print_r($sql);
-        // die;
+
+        // echo '<pre>';print_r($sql);die;
         return EntityHelper::rawQueryResult($this->adapter, $sql);
     }
 
@@ -373,29 +421,27 @@ class SalarySheetDetailRepo extends HrisRepository
 
     public function fetchEmployeePreviousMonthAmount($monthId, $employeeId, $ruleId)
     {
-        //         $sql="select 
-        // nvl(sum(val),0) as value
-        // from 
-        // (
-        // select 
-        // case when cm.Fiscal_Year_Month_no=1 then 0 else Ssd.val end as val,
-        // Mc.Fiscal_Year_Id,ssed.* 
-        // from 
-        // Hris_Salary_Sheet_Emp_Detail  ssed
-        // join Hris_Month_Code mc on (mc.month_id=ssed.month_id AND EMPLOYEE_ID={$employeeId})
-        // join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id and pay_id={$ruleId})
-        //  join (select * from Hris_Month_Code where Month_Id={$monthId}) cm on (1=1) 
-        // where 
-        // ssed.month_id=({$monthId} -1 )  
-        // and Mc.Fiscal_Year_Id = (select fiscal_year_id from Hris_Month_Code where Month_Id={$monthId})
-        // )";
-
-        $sql = "
-        select ROUND(nvl(sum(val),0), 2) as value from hris_salary_sheet_detail where employee_id = {$employeeId} and sheet_no in (
-            select sheet_no from hris_salary_sheet where salary_type_id = 1 and month_id < {$monthId} and month_id in 
-            (select month_id from hris_month_code where fiscal_year_id = (select fiscal_year_id from hris_month_code where month_id = {$monthId})))
-            and pay_id = {$ruleId}";
-        $resultList = $this->rawQuery($sql);
+        $sql = "select 
+        nvl(sum(val),0) as value
+        from 
+        (
+        select 
+        case when cm.Fiscal_Year_Month_no=1 then 0 else Ssd.val end as val,
+        Mc.Fiscal_Year_Id,ssed.* 
+        from 
+        Hris_Salary_Sheet_Emp_Detail  ssed
+        join Hris_Month_Code mc on (mc.month_id=ssed.month_id AND EMPLOYEE_ID=:employeeId)
+        join Hris_Salary_Sheet_Detail ssd on (ssed.sheet_no=ssd.sheet_no and ssed.employee_id=ssd.employee_id and pay_id=:ruleId)
+         join (select * from Hris_Month_Code where Month_Id=:monthId) cm on (1=1) 
+        where 
+        ssed.month_id=(:monthId -1 )  
+        and Mc.Fiscal_Year_Id = (select fiscal_year_id from Hris_Month_Code where Month_Id=:monthId)
+        )";
+        $boundedParameter = [];
+        $boundedParameter['monthId'] = $monthId;
+        $boundedParameter['ruleId'] = $ruleId;
+        $boundedParameter['employeeId'] = $employeeId;
+        $resultList = $this->rawQuery($sql, $boundedParameter);
         return $resultList[0]['VALUE'];
     }
 
@@ -445,7 +491,6 @@ class SalarySheetDetailRepo extends HrisRepository
         $boundedParameter['monthId'] = $monthId;
         $boundedParameter['employeeId'] = $employeeId;
         $resultList = $this->rawQuery($sql, $boundedParameter);
-
         if (!empty($resultList)) {
             return $resultList[0];
         } else {
@@ -480,31 +525,73 @@ end as GRATUTITY_PERCENT
         return $resultList[0]['GRATUTITY_PERCENT'];
     }
 
-    public function fetchExchangeRate($sheetNo)
+    public function fetchUnmarriedTaxDetail()
     {
-        $sql = "select COALESCE(exchange_rate, 1) as exchange_rate from hris_salary_sheet where sheet_no=$sheetNo ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
+        $sql = "SELECT
+      '0 - 5,00,000' AS salary_range,
+      '1%' AS tax_percentage
+  FROM dual
+  UNION ALL
+  SELECT
+      '5,00,001 - 7,00,000' AS salary_range,
+      '10%' AS tax_percentage
+  FROM dual
+  UNION ALL
+  SELECT
+      '7,00,001 - 10,00,000' AS salary_range,
+      '20%' AS tax_percentage
+  FROM  dual
+  UNION ALL
+  SELECT
+      '10,00,001 - 20,00,000' AS salary_range,
+      '30%' AS tax_percentage
+  FROM  dual
+  UNION ALL
+  SELECT
+      '20,00,001 - 50,00,000' AS salary_range,
+      '36%' AS tax_percentage
+  FROM  dual
+  UNION ALL
+  SELECT
+      '50,00,001 and above' AS salary_range,
+      '39%' AS tax_percentage
+  FROM dual";
+        $data = EntityHelper::rawQueryResult($this->adapter, $sql);
+        return Helper::extractDbData($data);
     }
 
-    public function getExchangeRate($monthId, $groupId, $sheetNo, $salaryTypeId, $companyId)
+    public function fetchMarriedTaxDetail()
     {
-        $groupString = "";
-        $sheetNoString = "";
-        $companyString = "";
-        if ($sheetNo != -1) {
-            $sheetNoString = " and SHEET_NO=$sheetNo";
-        }
-        if (!empty($groupId)) {
-            $groupString = " and group_id IN (" . implode(",", $groupId) . ")";
-        }
-        if ($companyId != 0) {
-            $companyString = " and company_id =$companyId";
-        }
-        $sql = "select COALESCE(exchange_rate, 1) as exchange_rate from hris_salary_sheet where month_id={$monthId} and salary_type_id={$salaryTypeId} $sheetNoString  $groupString $companyString ";
-        $statement = $this->adapter->query($sql);
-        $result = $statement->execute()->current();
-        return $result;
+        $sql = "SELECT
+        '0 - 6,00,000' AS salary_range,
+        '1%' AS tax_percentage
+    FROM dual
+    UNION ALL
+    SELECT
+        '6,00,001 - 8,00,000' AS salary_range,
+        '10%' AS tax_percentage
+    FROM dual
+    UNION ALL
+    SELECT
+        '8,00,001 - 11,00,000' AS salary_range,
+        '20%' AS tax_percentage
+    FROM  dual
+    UNION ALL
+    SELECT
+        '11,00,001 - 20,00,000' AS salary_range,
+        '30%' AS tax_percentage
+    FROM  dual
+    UNION ALL
+    SELECT
+        '20,00,001 - 50,00,000' AS salary_range,
+        '36%' AS tax_percentage
+    FROM  dual
+    UNION ALL
+    SELECT
+        '50,00,001 and above' AS salary_range,
+        '39%' AS tax_percentage
+    FROM dual";
+        $data = EntityHelper::rawQueryResult($this->adapter, $sql);
+        return Helper::extractDbData($data);
     }
 }

@@ -12,13 +12,13 @@ use Payroll\Repository\SalSheEmpDetRepo;
 use Notification\Controller\HeadNotification;
 use Notification\Model\NotificationEvents;
 use Payroll\Model\PaySlipEmail;
+use Notification\Model\PaySlipDetailsModel;
+use Payroll\Repository\PayrollReportRepo;
 use Payroll\Repository\PayrollRepository;
 use Payroll\Repository\RulesRepository;
-use Notification\Model\PaySlipDetailsModel;
 use Payroll\Repository\SalarySheetRepo;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
-use Payroll\Model\SalaryVoucherDetails;
 use Zend\View\Model\JsonModel;
 
 class SalarySheetLockController extends HrisController
@@ -52,13 +52,9 @@ class SalarySheetLockController extends HrisController
                 $companyWiseGroup = null;
             }
         }
-        $payRepo = new PayrollRepository($this->adapter);
-        $sendPayslipEmail = $payRepo->getEmailNoti();
-
         return Helper::addFlashMessagesToArray($this, [
             'data' => json_encode($data),
             'acl' => $this->acl,
-            'sendPayslipEmail' => $sendPayslipEmail['VALUE'],
             'employeeDetail' => $this->storageData['employee_detail'],
             'companyWiseGroup' => $companyWiseGroup,
         ]);
@@ -129,10 +125,11 @@ class SalarySheetLockController extends HrisController
         }
         foreach ($data as $key) {
             $checkData = $this->salarySheetRepo->checkApproveLock($key);
-            // if($checkData[0]['LOCKED'] == 'Y'){ continue; }
+            if ($checkData[0]['LOCKED'] == 'Y') {
+                continue;
+            }
             $this->salarySheetRepo->bulkApproveLock($key, $col, $val);
         }
-
         return new JSONModel(['success' => true]);
     }
 
@@ -244,182 +241,138 @@ class SalarySheetLockController extends HrisController
         }
         return new JSONModel(['success' => true, 'unmapped' => $totalUnmappedList]);
     }
-    public function testVoucherAction()
-    {
-        $data = $_POST['data'];
-        // $branchesList = $this->salarySheetRepo->getBranchesFromCompany($data[0]);
-        // foreach ($branchesList as $branchCode){
-        $voucherData = $this->salarySheetRepo->getDataForDoubleVoucher($data[0], '01.01');
-        // } 
-        return new JSONModel(['success' => true, 'voucherData' => $voucherData]);
-    }
-
-    public function regenerateVoucherAction()
-    {
-        $data = $_POST['data'];
-        $voucherDate = $_POST['voucherDate'];
-        $oldVoucherNo = $this->salarySheetRepo->getOldVoucherNo($data[0]);
-        // print_r($oldVoucherNo);die;
-        // $salaryVoucherDetails = new SalaryVoucherDetails();
-        // $salaryVoucherDetails->id = (int) Helper::getMaxId($this->adapter, SalaryVoucherDetails::TABLE_NAME, SalaryVoucherDetails::ID) + 1;
-        // $salaryVoucherDetails->createdBy = $this->employeeId;
-        // $salaryVoucherDetails->createdDt = Helper::getcurrentExpressionDate();
-        // $salaryVoucherDetails->completedFlag='N';
-
-
-        // $salaryVoucherDetails->sheetNo=$data[0];
-        // $this->salarySheetRepo->insertSalaryVoucherDetail($salaryVoucherDetails);
-
-        $sheetDetails = $this->salarySheetRepo->getSheetDetails($data[0]);
-        $totalUnmappedList = [];
-        $individualUnMappedList = [];
-
-        $pivotData = $this->salarySheetRepo->pivot($data[0]);
-
-        $branchesList = $this->salarySheetRepo->getBranchesFromCompany($data[0]);
-        $companyCode = $this->salarySheetRepo->getCompanyCode($data[0]);
-        $i = 1;
-        // foreach ($branchesList as $branchCode){
-        $branchCode['BRANCH_CODE'] = '01.01';
-        $payIdMap = $this->salarySheetRepo->getMapPayIdList($data[0], $branchCode['BRANCH_CODE']);
-
-        $payIdForSubDetail = $this->salarySheetRepo->getpayIdForSubDetail($data[0], $branchCode['BRANCH_CODE']);
-
-        $payIdList = [];
-        foreach ($payIdMap as $eachPayIdMapped) {
-            array_push($payIdList, $eachPayIdMapped['PAY_ID']);
-        }
-
-        $payIdListForSubDetail = [];
-        foreach ($payIdForSubDetail as $eachPayIdForSubDetail) {
-            array_push($payIdListForSubDetail, $eachPayIdForSubDetail['PAY_ID']);
-        }
-
-        $voucherData = $this->salarySheetRepo->getDataForDoubleVoucher($data[0], $branchCode['BRANCH_CODE']);
-        $this->salarySheetRepo->clearIncompleteData($oldVoucherNo, $data[0]);
-        foreach ($voucherData as $vData) {
-            $vData['SERIAL_NO'] = $i;
-            $this->salarySheetRepo->reInsertIntoDoubleVoucher($vData, $this->employeeId, $sheetDetails[0], $data[0], $oldVoucherNo, $voucherDate);
-            $i++;
-        }
-        foreach ($pivotData as $eachEmployeePivotData) {
-            $allPayId = array_keys($eachEmployeePivotData);
-
-            foreach ($allPayId as $payId) {
-                if (in_array($payId, $payIdListForSubDetail)) {
-                    $accCode = $this->salarySheetRepo->getAccCode($payId, $data[0], $branchCode['BRANCH_CODE']);
-                    $checkTF = $this->salarySheetRepo->checkTF($eachEmployeePivotData['EMPLOYEE_ID'], $branchCode['BRANCH_CODE'], $accCode, $data[0]);
-                    if ($checkTF) {
-                        $vSubDetailData = $this->salarySheetRepo->getDataForVoucherSubDetail($data[0], $eachEmployeePivotData['EMPLOYEE_ID'], $accCode, $branchCode['BRANCH_CODE']);
-                        if ($vSubDetailData['TOTAL'] != 0) {
-                            $this->salarySheetRepo->reInsertIntoVoucherSubDetail($vSubDetailData, $this->employeeId, $eachEmployeePivotData['EMPLOYEE_ID'], $data[0], $oldVoucherNo);
-                        }
-                    } else {
-                        $valnull = $this->salarySheetRepo->checkValOfUnmapped($eachEmployeePivotData['EMPLOYEE_ID'], $data[0], $payId);
-
-                        if (!$valnull) {
-                            $accDetails = $this->salarySheetRepo->getAccDetails($accCode, $companyCode, $data[0]);
-                            $individualUnMappedList['EMPLOYEE_ID'] = $eachEmployeePivotData['EMPLOYEE_ID'];
-                            $individualUnMappedList['ACC_CODE'] = $accCode;
-                            $individualUnMappedList['FULL_NAME'] = $this->salarySheetRepo->getEmpName($eachEmployeePivotData['EMPLOYEE_ID']);
-                            $individualUnMappedList['ACC_NAME'] = $accDetails['ACC_EDESC'];
-                            if ($accDetails['TRANSACTION_TYPE'] == 'CR') {
-                                array_push($totalUnmappedList, $individualUnMappedList);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $masterTransactionData = $this->salarySheetRepo->getDataForMasterTransection($oldVoucherNo, $data[0]);
-        $this->salarySheetRepo->reInsertIntoMasterTransaction($masterTransactionData[0], $this->employeeId, $data[0], $oldVoucherNo, $voucherDate);
-        // } 
-        return new JSONModel(['success' => true, 'unmapped' => $totalUnmappedList]);
-    }
 
     public function sendPyslipEmailAction()
     {
+        $payRoll = new PayrollReportRepo($this->adapter);
+        $incomes = $payRoll->gettaxYearlyByHeads('IN');
+        $taxExcemptions = $payRoll->gettaxYearlyByHeads('TE');
+        $otherTax = $payRoll->gettaxYearlyByHeads('OT');
+        $miscellaneous = $payRoll->gettaxYearlyByHeads('MI');
+        $bMiscellaneou = $payRoll->gettaxYearlyByHeads('BM');
+        $cMiscellaneou = $payRoll->gettaxYearlyByHeads('CM');
+        $sumOfExemption = $payRoll->gettaxYearlyByHeads('SE', 'sin');
+        $sumOfOtherTax = $payRoll->gettaxYearlyByHeads('ST', 'sin');
         $data = $_POST['data'];
         try {
             foreach ($data as $key) {
                 $payRepo = new PayrollRepository($this->adapter);
+                $sendPayslipEmail = $payRepo->getEmailNoti();
+                $allowPayslipInEmail = $sendPayslipEmail['VALUE'];
+                //$ExchangeRate = $payRepo->getExchnageRate();
+                // $allowExchangeRate = $ExchangeRate['VALUE'];
 
-                $ExchangeRate = $payRepo->getExchnageRate();
-                $allowExchangeRate = $ExchangeRate['VALUE'];
-                if ($allowExchangeRate == 'Y') {
-                    $payslipData = $this->salarySheetRepo->getPayslipData($key);
-                    if (empty($payslipData)) {
-                        die;
-                    }
+                $payslipData = $this->salarySheetRepo->getPayslipData($key);
 
-                    $batchSize = 40; // Set the batch size
-                    $index = 0;
-                    $totalEmployees = count($payslipData);
+                if (empty($payslipData)) {
+                    die;
+                }
 
-                    while ($index < $totalEmployees) {
-                        $batchPayslipData = array_slice($payslipData, $index, $batchSize);
+                $batchSize = 200; // Set the batch size
+                $index = 0;
+                $totalEmployees = count($payslipData);
 
-                        foreach ($batchPayslipData as $data) {
-                            try {
-                                $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                                $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                                $model = new PaySlipDetailsModel();
-                                $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                foreach ($payslipDetails['pay-detail'] as &$row) {
-                                    $exchangeRate = $salarySheetDetailRepo->fetchExchangeRate($row['SHEET_NO']);
-                                    $val = str_replace(',', '', $row['VAL']);
-                                    $result = $val * $exchangeRate['EXCHANGE_RATE'];
-                                    $row['VAL'] = number_format($result, 2, '.', ',');
-                                }
-                                $model->setProperty1 = ($payslipDetails['emp-detail']);
-                                $model->setProperty2 = ($payslipDetails['pay-detail']);
-                                HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                                $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                                $mployeeId = $data['EMPLOYEE_ID'];
-                                $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                            } catch (Exception $e) {
-                                $this->flashmessenger()->addMessage($e->getMessage());
+                while ($index < $totalEmployees) {
+                    $batchPayslipData = array_slice($payslipData, $index, $batchSize);
+                    foreach ($batchPayslipData as $data) {
+                        try {
+                            $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
+                            $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
+                            $model = new PaySlipDetailsModel();
+                            $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                            $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                            $payslipDetails['annual-detail'] = $salarySheetDetailRepo->fetchEmployeeAnnualPaySlip($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
+                            if ($payslipDetails['emp-detail']['MARITAL_STATUS'] == 'U') {
+                                $payslipDetails['tax-detail'] = $salarySheetDetailRepo->fetchUnmarriedTaxDetail();
+                            } else {
+                                $payslipDetails['tax-detail'] = $salarySheetDetailRepo->fetchMarriedTaxDetail();
                             }
+                            $payslipDetails['tax-detail'][0]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V42'];
+                            $payslipDetails['tax-detail'][1]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V44'];
+                            $payslipDetails['tax-detail'][2]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V46'];
+                            $payslipDetails['tax-detail'][3]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V48'];
+                            $payslipDetails['tax-detail'][4]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V50'];
+                            $payslipDetails['tax-detail'][5]['AMOUNT'] = $payslipDetails['annual-detail'][0]['V91'];
+                            $model->setProperty1 = ($payslipDetails['emp-detail']);
+                            $model->setProperty2 = ($payslipDetails['pay-detail']);
+                            $model->setProperty3 = ($payslipDetails['annual-detail']);
+                            $model->setProperty4 = ($payslipDetails['tax-detail']);
+                            $model->incomes = $incomes;
+                            $model->taxExcemptions = $taxExcemptions;
+                            $model->otherTax = $otherTax;
+                            $model->miscellaneous = $miscellaneous;
+                            $model->bMiscellaneou = $bMiscellaneou;
+                            $model->cMiscellaneou = $cMiscellaneou;
+                            $model->sumOfExemption = $payslipDetails['annual-detail'][0]['V55'] + $payslipDetails['annual-detail'][0]['V57'];
+                            $model->sumOfOtherTax = $sumOfOtherTax;
+                            HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
+                            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+                            $mployeeId = $data['EMPLOYEE_ID'];
+                            $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId, 'P');
+                            $this->salarySheetRepo->updateSalEmpDet($payslipDetails['emp-detail']);
+                            sleep(2);
+                        } catch (Exception $e) {
+                            $this->flashmessenger()->addMessage($e->getMessage());
                         }
-                        sleep(2);
-                        $index += $batchSize;
                     }
-                } else if ($allowExchangeRate == 'N') {
-                    $payslipData = $this->salarySheetRepo->getPayslipData($key);
-                    if (empty($payslipData)) {
-                        die;
-                    }
+                    // sleep(2);
+                    $index += $batchSize;
+                }
+            }
+            return new JsonModel(['success' => true, 'data' =>  $payslipDetails['emp-detail'], 'error' => '']);
+        } catch (Exception $e) {
+            return new JsonModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
+        return $this->stickFlashMessagesTo([]);
+    }
 
-                    $batchSize = 40; // Set the batch size
-                    $index = 0;
-                    $totalEmployees = count($payslipData);
+    public function sendSalaryEmailAction()
+    {
+        $payRoll = new PayrollReportRepo($this->adapter);
+        $data = $_POST['data'];
+        $data['groupId'] = $data['groupId'][0];
 
-                    while ($index < $totalEmployees) {
-                        $batchPayslipData = array_slice($payslipData, $index, $batchSize);
+        $employees  = $this->salarySheetRepo->getPayslipData($data['selectedValues'][0]);
+        try {
+            $batchSize = 200; // Set the batch size
+            $index = 0;
+            $totalEmployees = count($employees);
 
-                        foreach ($batchPayslipData as $data) {
-                            try {
-                                $salarySheetDetailRepo = new SalarySheetDetailRepo($this->adapter);
-                                $salSheEmpDetRepo = new SalSheEmpDetRepo($this->adapter);
-                                $model = new PaySlipDetailsModel();
-                                $payslipDetails['emp-detail'] = $salSheEmpDetRepo->fetchOneByWithEmpDetailsNew($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                $payslipDetails['pay-detail'] = $salarySheetDetailRepo->fetchEmployeePaySlipHRNep($data['MONTH_ID'], $data['EMPLOYEE_ID'], $data['SALARY_TYPE_ID']);
-                                $model->setProperty1 = ($payslipDetails['emp-detail']);
-                                $model->setProperty2 = ($payslipDetails['pay-detail']);
-                                HeadNotification::pushNotification(NotificationEvents::PAYSLIP_EMAIL, $model, $this->adapter, $this);
-                                $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
-                                $mployeeId = $data['EMPLOYEE_ID'];
-                                $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId);
-                            } catch (Exception $e) {
-                                $this->flashmessenger()->addMessage($e->getMessage());
-                            }
+            while ($index < $totalEmployees) {
+                $batchPayslipData = array_slice($employees, $index, $batchSize);
+                $data['employeeId'] = '';
+                $hasEmptyEmpDetail = false;
+                foreach ($batchPayslipData as $data1) {
+                    try {
+                        $model = new PaySlipDetailsModel();
+                        $payslipDetails['variable-detail'] = $payRoll->getDefaultColumnsEmployeeWise('S', $data);
+                        $data['employeeId'] = $data1['EMPLOYEE_ID'];
+
+                        $payslipDetails['emp-detail'] = $payRoll->getEmployeeWiseGroupReport('S', $data);
+
+                        if (empty($payslipDetails['emp-detail'])) {
+                            $hasEmptyEmpDetail = true;
+                            continue; // Move to the next iteration of the inner loop
                         }
-                        sleep(2);
-                        $index += $batchSize;
+
+                        $model->setProperty1 = ($payslipDetails['variable-detail']);
+                        $model->setProperty2 = ($payslipDetails['emp-detail']);
+
+                        HeadNotification::pushNotification(NotificationEvents::SALARY_EMAIL, $model, $this->adapter, $this);
+                        $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+                        $mployeeId = $data1['EMPLOYEE_ID'];
+
+                        $this->salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId, 'S');
+                        $this->salarySheetRepo->updateSalEmpDetSalary($payslipDetails['emp-detail'][0]);
+                    } catch (Exception $e) {
+                        $this->flashmessenger()->addMessage($e->getMessage());
                     }
                 }
+                if ($hasEmptyEmpDetail) {
+                    continue;
+                }
+                // sleep(2);
+                $index += 1;
             }
             return new JsonModel(['success' => true, 'data' =>  $payslipDetails['emp-detail'], 'error' => '']);
         } catch (Exception $e) {

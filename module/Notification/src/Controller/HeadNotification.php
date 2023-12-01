@@ -1,25 +1,27 @@
 <?php
 
+
+
 namespace Notification\Controller;
 
+require  '/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/tcpdf_6_3_2/tcpdf/tcpdf.php';
+
+use Application\Controller\HrisController;
 use Advance\Model\AdvanceRequestModel;
 use Advance\Repository\AdvanceRequestRepository;
 use Application\Helper\EmailHelper;
 use Application\Helper\Helper;
 use Application\Model\ForgotPassword;
 use Application\Model\Model;
+use Notification\Model\PaySlipDetailsModel;
+use Notification\Model\PayslipEmailNotificationModel;
 use Application\Repository\RepositoryInterface;
 use Appraisal\Model\AppraisalAssign;
 use Appraisal\Model\AppraisalStatus;
 use Appraisal\Repository\AppraisalAssignRepository;
 use Exception;
-use AttendanceManagement\Model\ShiftSetup;
-use System\Model\UserSetup;
-use Notification\Model\PaySlipDetailsModel;
-use System\Repository\UserSetupRepository;
 use HolidayManagement\Repository\HolidayRepository;
 use Html2Text\Html2Text;
-use SelfService\Repository\EventRequestRepository;
 use LeaveManagement\Model\LeaveApply;
 use LeaveManagement\Repository\LeaveApplyRepository;
 use LeaveManagement\Repository\LeaveMasterRepository;
@@ -28,21 +30,16 @@ use ManagerService\Repository\LeaveApproveRepository;
 use ManagerService\Repository\SalaryDetailRepo;
 use Notification\Model\AppraisalNotificationModel;
 use Notification\Model\LeaveRequestNotificationModel;
-use Notification\Model\PayslipEmailNotificationModel;
 use Notification\Model\LeaveSubNotificationModel;
-use Notification\Model\NewUserNotificationModel;
 use Notification\Model\Notification;
 use Notification\Model\NotificationEvents;
-use SelfService\Model\EventRequest as EventRequestModel;
 use Notification\Model\NotificationModel;
 use Notification\Model\SalaryReviewNotificationModel;
 use Notification\Model\TrainingReqNotificationModel;
-use Notification\Model\EventReqNotificationModel;
 use Notification\Model\TravelSubNotificationModel;
 use Notification\Model\WorkOnDayoffNotificationModel;
 use Notification\Model\WorkOnHolidayNotificationModel;
 use Notification\Repository\NotificationRepo;
-use SelfService\Controller\EventRequest;
 use SelfService\Model\AttendanceRequestModel;
 use SelfService\Model\BirthdayModel;
 use SelfService\Model\LoanRequest;
@@ -63,12 +60,9 @@ use SelfService\Repository\WorkOnHolidayRepository;
 use Setup\Model\HrEmployees;
 use Setup\Model\RecommendApprove;
 use Setup\Model\Training;
-use Training\Model\EventAssign;
-use Setup\Model\Events;
 use Setup\Repository\EmployeeRepository;
 use Setup\Repository\RecommendApproveRepository;
 use Setup\Repository\TrainingRepository;
-use Setup\Repository\EventsRepository;
 use Training\Model\TrainingAssign;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Mail\Message;
@@ -76,7 +70,9 @@ use Zend\Mime\Message as MimeMessage;
 use Zend\Mime\Part as MimePart;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\Controller\Plugin\Url;
-use Notification\Model\RoasterAssignModel;
+use Zend\Authentication\Storage\StorageInterface;
+use TCPDF;
+use Zend\Mime\Mime;
 
 class HeadNotification
 {
@@ -99,6 +95,7 @@ class HeadNotification
     const TRAVEL_EXPENSE_REQUEST = "ep";    //value from travel request form
     const TRAVEL_ADVANCE_REQUEST = "ad";
 
+
     public static function getNotifications(AdapterInterface $adapter, int $empId)
     {
         $notiRepo = new NotificationRepo($adapter);
@@ -119,15 +116,12 @@ class HeadNotification
         $notification->messageDateTime = Helper::getcurrentExpressionDateTime();
         $notification->expiryTime = Helper::getExpressionDate(date(Helper::PHP_DATE_FORMAT, strtotime("+" . self::EXPIRE_IN . " days")));
         $notification->status = 'U';
-        // echo '<pre>';
-        // print_r($notification);
-        // die;
+
         return $notificationRepo->add($notification);
     }
 
     private static function sendEmail(NotificationModel $model, int $type, AdapterInterface $adapter, Url $url)
     {
-
         $isValidEmail = function ($email) {
             return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
         };
@@ -137,9 +131,7 @@ class HeadNotification
         if (null == $template) {
             throw new Exception('Email template not set.');
         }
-
         $mail = new Message();
-
         $mail->setSubject($model->processString($template['SUBJECT'], $url));
         $htmlDescription = self::mailHeader();
         $htmlDescription .= $model->processString($template['DESCRIPTION'], $url);
@@ -157,10 +149,8 @@ class HeadNotification
             throw new Exception("Sender email is not set or valid.");
         }
         if (!isset($model->toEmail) || $model->toEmail == null || $model->toEmail == '' || !$isValidEmail($model->toEmail)) {
-
-            throw new Exception("Receiver email is not set or valid.");
+            //throw new Exception("Receiver email is not set or valid.");
         }
-
         $mail->addTo($model->toEmail, $model->toName);
 
         $cc = (array) json_decode($template['CC']);
@@ -178,6 +168,78 @@ class HeadNotification
         EmailHelper::sendEmail($mail);
     }
 
+    private static function sendEmailWithPdfAttachment(NotificationModel $model, int $type, AdapterInterface $adapter, Url $url)
+    {
+
+        $paySlipDetails = $model->paySlipDetails;
+
+        $isValidEmail = function ($email) {
+            return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        };
+        $emailTemplateRepo = new \Notification\Repository\EmailTemplateRepo($adapter);
+        $template = $emailTemplateRepo->fetchById($type);
+
+        if (null == $template) {
+            throw new Exception('Email template not set.');
+        }
+        $mail = new Message();
+        $mail->setSubject($model->processString($template['SUBJECT'], $url));
+        $htmlDescription = self::mailHeader();
+        $htmlDescription .= $model->processString($paySlipDetails, $url);
+        $htmlDescription .= self::mailFooter();
+
+        $html = self::mailHeader();
+        $html .= $model->processString($template['DESCRIPTION'], $url);
+        $html .= self::mailFooter();
+        $htmlPart = new MimePart($html);
+        $htmlPart->type = "text/html";
+        $body = new MimeMessage();
+        $body->setParts(array($htmlPart));
+
+        $mail->setBody($body);
+
+        if (!isset($model->fromEmail) || $model->fromEmail == null || $model->fromEmail == '' || !$isValidEmail($model->fromEmail)) {
+            throw new Exception("Sender email is not set or valid.");
+        }
+        if (!isset($model->toEmail) || $model->toEmail == null || $model->toEmail == '' || !$isValidEmail($model->toEmail)) {
+            //throw new Exception("Receiver email is not set or valid.");
+        }
+
+        $mail->addTo($model->toEmail, $model->toName);
+
+        $cc = (array) json_decode($template['CC']);
+        foreach ($cc as $ccObj) {
+            $ccObj = (array) $ccObj;
+            $mail->addCc($ccObj['email'], $ccObj['name']);
+        }
+
+        $bcc = (array) json_decode($template['BCC']);
+        foreach ($bcc as $bccObj) {
+            $bccObj = (array) $bccObj;
+            $mail->addBcc($bccObj['email'], $bccObj['name']);
+        }
+        $pdfContent = $htmlDescription; // The HTML content you want to convert to PDF
+
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        $pdf->writeHTML($pdfContent, true, 0, true, 0);
+        $pdfData = $pdf->Output('document.pdf', 'S'); // Get PDF content as a string
+        $pdfPart = new MimePart($pdfData);
+        $pdfPart->type = Mime::TYPE_PDF;
+        $pdfPart->encoding = Mime::ENCODING_BASE64;
+        $pdfPart->filename = 'document.pdf';
+        $logoPath = $model->logo;  // Replace with the actual path to your company logo
+
+        $logoPart = new MimePart(file_get_contents($logoPath));
+
+        $logoPart->type = Mime::TYPE_OCTETSTREAM;
+        $logoPart->encoding = Mime::ENCODING_BASE64;
+        $logoPart->filename = 'company_logo.png';
+        $body->setParts([$htmlPart, $pdfPart]);
+
+        $mail->setBody($body);
+        EmailHelper::sendEmail($mail);
+    }
     public static function getName($id, $repo, $name)
     {
         $detail = $repo->fetchById($id);
@@ -186,9 +248,9 @@ class HeadNotification
 
     private static function initFullModel(RepositoryInterface $repository, Model &$model, $id)
     {
+
         $dbModel = $repository->fetchById($id);
         $data = null;
-
         if (gettype($dbModel) === "array") {
             $data = $dbModel;
         } else {
@@ -199,13 +261,11 @@ class HeadNotification
 
     private static function leaveApplied(LeaveApply $leaveApply, AdapterInterface $adapter, Url $url, $type)
     {
-        // echo '<pre>';print_r($url);die;
         self::initFullModel(new LeaveApplyRepository($adapter), $leaveApply, $leaveApply->id);
         $recommdAppModel = self::findRecApp($leaveApply->employeeId, $adapter);
         $idAndRole = self::findRoleType($recommdAppModel, $type);
         $leaveReqNotiMod = self::initializeNotificationModel($recommdAppModel[RecommendApprove::EMPLOYEE_ID], $idAndRole['id'], LeaveRequestNotificationModel::class, $adapter);
-
-        //
+        //	 print_r($idAndRole);die;
         $leaveName = self::getName($leaveApply->leaveId, new LeaveMasterRepository($adapter), 'LEAVE_ENAME');
 
         $leaveReqNotiMod->fromDate = $leaveApply->startDate;
@@ -218,7 +278,6 @@ class HeadNotification
         //
         $notificationTitle = "Leave Request";
         $notificationDesc = "Leave Request of $leaveReqNotiMod->fromName from $leaveReqNotiMod->fromDate to $leaveReqNotiMod->toDate";
-
         self::addNotifications($leaveReqNotiMod, $notificationTitle, $notificationDesc, $adapter);
         self::sendEmail($leaveReqNotiMod, 1, $adapter, $url);
     }
@@ -444,188 +503,20 @@ class HeadNotification
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "view", "id" => $request->travelId, "role" => $roleAndId['role']]);
-                $title = "Travel Request";
-                $desc = "Travel Request";
-                self::sendEmail($notification, 9, $adapter, $url);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST:
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "expenseDetail", "id" => $request->travelId, "role" => $roleAndId['role']]);
-                $title = "Expense Reimbursement Request";
-                $desc = "Expense Reimbursement Request";
-                self::sendEmail($notification, 45, $adapter, $url);
                 break;
             default:
                 $notification->route = json_encode(["route" => "travelApprove", "action" => "view", "id" => $request->travelId, "role" => $roleAndId['role']]);
-                $title = "Travel Request";
-                $desc = "Travel Request";
-                self::sendEmail($notification, 9, $adapter, $url);
                 break;
         }
+        $title = "Travel Request";
+        $desc = "Travel Request";
+
 
         self::addNotifications($notification, $title, $desc, $adapter);
-    }
-
-    private static function sendPayslipEmail(PaySlipDetailsModel $payslipDetail, AdapterInterface $adapter, Url $url)
-    {
-        // self::initFullModel(new EmployeeRepository($adapter), $payslipDetail, $payslipDetail->setProperty1['EMPLOYEE_ID']);
-        $payslipModel = self::initializeNotificationModel(72, $payslipDetail->setProperty1['EMPLOYEE_ID'], PayslipEmailNotificationModel::class, $adapter);
-        $property = $payslipDetail->setProperty2;
-        $paySlipDetail = '';
-
-        $paySlipDetail .= '
-        <table class="table table-bordered" style="width: 100%; border-collapse: collapse;border:1px solid #dddddd;">
-                <tr style="text-align: center;padding-top: 8px;"><td colspan="4"><h2><b><span id="yearMonthDetails">PaySlip of ' . $payslipDetail->setProperty1['FULL_NAME'] . ' for ' . $payslipDetail->setProperty1['MONTH_EDESC'] . ' ' . $payslipDetail->setProperty1['YEAR'] . '</span></b></h2>  </td> </tr>
-                <tr>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Employee Id </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['EMPLOYEE_ID'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Employee Name  </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['FULL_NAME'] . '</td>
-                </tr>
-                <tr>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Marital Status  </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['MARITAL_STATUS_DESC'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Department </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['DEPARTMENT_NAME'] . '</td>
-                </tr>
-                <tr>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">PAN No </td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['ID_PAN_NO'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">A/c No </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['ID_ACCOUNT_NO'] . '</td>
-                </tr>
-                
-                <tr>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">CIT No </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['ID_RETIREMENT_NO'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Date of Join </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['JOIN_DATE'] . '</td>
-                    
-                </tr>
-               
-
-                <tr>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Position Name </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['POSITION_NAME'] . '</td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Designation Name </td>
-                    <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['DESIGNATION_TITLE'] . '</td>
-                </tr>
-            ';
-        if ($payslipDetail->setProperty1['EXCHANGE_RATE'] == 'Rs ') {
-            $exchangeRateHtml = ' </table>';
-        } else {
-            $exchangeRateHtml = '
-            <tr>
-             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">Exchange Rate </td>
-             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . $payslipDetail->setProperty1['EXCHANGE_RATE'] . '</td>
-             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
-             <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"></td>
-         </tr>
-         </table>';
-        }
-        $tableHeader = '
-            <table class="table table-bordered" style="width: 100%; border-collapse: collapse;border:1px solid #dddddd;">
-                <tr>
-                    <th colspan="2" style="font-size: 14px;border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>Addition</b></th>
-                    <th colspan="2" style="font-size: 14px;border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>Deduction</b></th>
-                </tr>
-                <tbody>';
-        $additionData = [];
-        $additionCounter = 0;
-        $additionSum = 0;
-        $deductionData = [];
-        $deductionCounter = 0;
-        $deductionSum = 0;
-
-        $netSum = 0;
-        $net = 0;
-        $add = 0;
-        $sub = 0;
-
-        foreach ($property as $data) {
-            switch ($data['PAY_TYPE_FLAG']) {
-                case 'A':
-                    $additionData[$additionCounter] = $data;
-                    $myString = trim($data['VAL']);
-                    $additionSum += floatval(str_replace(',', '', $myString));
-                    $additionCounter++;
-                    break;
-                case 'D':
-                    $deductionData[$deductionCounter] = $data;
-                    $myString = trim($data['VAL']);
-                    $deductionSum += floatval(str_replace(',', '', $myString));
-                    $deductionCounter++;
-                    break;
-            }
-            $netSum = $additionSum - $deductionSum;
-            $add = number_format($additionSum, 2, '.', '');
-            $sub = number_format($deductionSum, 2, '.', '');
-            $net = number_format($netSum, 2, '.', '');
-        }
-
-        $maxRow = max($additionCounter, $deductionCounter);
-        $additionRows = '';
-        for ($i = 0; $i < $maxRow; $i++) {
-            $additionRow = '
-            <tr>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . (isset($additionData[$i]) ? $additionData[$i]['PAY_EDESC'] : '') . '</td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . (isset($additionData[$i]) ? $additionData[$i]['VAL'] : '') . '</td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . (isset($deductionData[$i]) ? $deductionData[$i]['PAY_EDESC'] : '') . '</td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;">' . (isset($deductionData[$i]) ? $deductionData[$i]['VAL'] : '') . '</td>
-            </tr>';
-            $additionRows .= $additionRow;
-        }
-        $tableFooter = '
-            <tr>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>Total Addition</b></td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>' . $add . '</b></td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>Total Deduction</b></td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"><b>' . $sub . ' </b></td>
-            </tr>
-            <tr>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;" ><b>Net Salary</b></td>
-                <td style="border: 1px solid #dddddd;text-align: left;padding: 8px;"colspan="3"><b>' . $net . '</b></td>
-            </tr>
-        </tbody>
-        </table>';
-        $paySlipDetail .= $exchangeRateHtml . $tableHeader . $additionRows . $tableFooter;
-
-        $payslipModel->paySlipDetails = $paySlipDetail;
-        self::sendEmail($payslipModel, 53, $adapter, $url);
-    }
-
-    private static function newUserEmail(UserSetup $userSetup, AdapterInterface $adapter, Url $url)
-    {
-        self::initFullModel(new UserSetupRepository($adapter), $userSetup, $userSetup->userId);
-        $newUserModel = self::initializeNotificationModel(72, $userSetup->employeeId, NewUserNotificationModel::class, $adapter);
-
-
-        $newUserModel->userName = $userSetup->userName;
-        $newUserModel->password = $userSetup->password;
-
-        self::sendEmail($newUserModel, 52, $adapter, $url);
-    }
-
-    private static function roasterAssigned(RoasterAssignModel $roasterReport, AdapterInterface $adapter, Url $url)
-    {
-
-        // self::initFullModel(new RoasterRepo($adapter), $roasterReport, $roasterReport->employeeId);
-        $notification = self::initializeNotificationModel(
-            $roasterReport->fromId,
-            $roasterReport->employeeId,
-            \Notification\Model\RoasterModel::class,
-            $adapter
-        );
-        $notification->employeeId = $roasterReport->employeeId;
-        $notification->fromDate = $roasterReport->fromDate;
-        $notification->toDate = $roasterReport->toDate;
-        $notification->fromId = $roasterReport->fromId;
-        $notification->fullName = $roasterReport->fullName;
-        $notification->route = json_encode(["route" => "roasterReport", "action" => "index", "id" => $roasterReport->employeeId]);
-        $title = "Roaster Assign";
-        $desc = "$roasterReport->fullName has been assigned roaster from $roasterReport->fromDate to  $roasterReport->toDate";
-
-        self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 54, $adapter, $url);
+        self::sendEmail($notification, 9, $adapter, $url);
     }
 
     private static function travelRecommend(TravelRequest $request, AdapterInterface $adapter, Url $url, string $status)
@@ -650,28 +541,20 @@ class HeadNotification
 
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
-                $title = "Travel Recommendation";
-                $desc = "Travel Recommendation {$status}";
-                self::sendEmail($notification, 10, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "expenseView", "id" => $request->travelId]);
-                $title = "Expense Reimbursement Recommendation";
-                $desc = "Expense Reimbursement Recommendation {$status}";
-                self::sendEmail($notification, 47, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "viewExpense", "id" => $request->travelId]);
                 break;
             default:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
-                $title = "Travel Recommendation";
-                $desc = "Travel Recommendation {$status}";
-                self::sendEmail($notification, 10, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
                 break;
         }
+        $title = "Travel Recommendation";
+        $desc = "Travel Recommendation {$status}";
 
-        // echo '<pre>';print_r($notification);die;
         self::addNotifications($notification, $title, $desc, $adapter);
-        // self::sendEmail($notification, 10, $adapter, $url);
+        self::sendEmail($notification, 10, $adapter, $url);
     }
 
     private static function travelApprove(TravelRequest $request, AdapterInterface $adapter, Url $url, string $status)
@@ -696,28 +579,20 @@ class HeadNotification
 
         switch ($request->requestedType) {
             case self::TRAVEL_ADVANCE_REQUEST:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
-                $title = "Travel Approval";
-                $desc = "Travel Approval {$status}";
-                self::sendEmail($notification, 11, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
                 break;
             case self::TRAVEL_EXPENSE_REQUEST:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "expenseView", "id" => $request->travelId]);
-                $title = "Expense Reimbursement";
-                $desc = "Expense Reimbursement {$status}";
-                self::sendEmail($notification, 46, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "viewExpense", "id" => $request->travelId]);
                 break;
             default:
-                $notification->route = json_encode(["route" => "newtravelrequest", "action" => "view", "id" => $request->travelId]);
-                $title = "Travel Approval";
-                $desc = "Travel Approval {$status}";
-                self::sendEmail($notification, 11, $adapter, $url);
+                $notification->route = json_encode(["route" => "travelRequest", "action" => "view", "id" => $request->travelId]);
                 break;
         }
-        // echo '<pre>';print_r($notification);die;
+        $title = "Travel Approval";
+        $desc = "Travel Approval {$status}";
 
         self::addNotifications($notification, $title, $desc, $adapter);
-        // self::sendEmail($notification, 11, $adapter, $url);
+        self::sendEmail($notification, 11, $adapter, $url);
     }
 
     private static function trainingAssigned(TrainingAssign $request, AdapterInterface $adapter, Url $url, $type)
@@ -740,36 +615,10 @@ class HeadNotification
         $notification->route = json_encode(["route" => "trainingList", "action" => "view", "employeeId" => $request->employeeId, "trainingId" => $request->trainingId]);
         $title = "Training $type";
         $desc = "Training $type";
-        // echo '<pre>';print_r($request);die;
-        self::addNotifications($notification, $title, $desc, $adapter);
+
+        // self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 12, $adapter, $url);
     }
-
-    private static function eventAssigned(EventAssign $request, AdapterInterface $adapter, Url $url, $type)
-    {
-        $notification = self::initializeNotificationModel($request->createdBy, $request->employeeId, \Notification\Model\EventReqNotificationModel::class, $adapter);
-
-        $events = new Events();
-        self::initFullModel(new EventsRepository($adapter), $events, $request->eventId);
-
-        $notification->duration = $events->duration;
-        $notification->endDate = $events->endDate;
-        $notification->startDate = $events->startDate;
-        $notification->instructorName = $events->instructorName;
-        //        $notification->eventsCode = $events->eventsCode;
-        $notification->eventName = $events->eventName;
-        $notification->eventType = $events->eventType;
-        $notification->status = $type;
-
-
-        $notification->route = json_encode(["route" => "eventList", "action" => "view", "employeeId" => $request->employeeId, "eventId" => $request->eventId]);
-        $title = "Event $type";
-        $desc = "Event $type";
-
-        self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 48, $adapter, $url);
-    }
-
 
     private static function loanApplied(LoanRequest $request, AdapterInterface $adapter, Url $url, $type)
     {
@@ -997,40 +846,15 @@ class HeadNotification
 
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
-        $notification->startDate = $trainingRequestDetail['START_DATE'];
-        $notification->endDate = $trainingRequestDetail['END_DATE'];
+        $notification->fromDate = $trainingRequestDetail['START_DATE'];
+        $notification->toDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
 
         $title = "Training Request";
-        $desc = "Training Request of $notification->fromName from $notification->startDate to $notification->endDate";
+        $desc = "Training Request of $notification->fromName from $notification->fromDate to $notification->toDate";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 22, $adapter, $url);
-    }
-
-    private static function eventApplied(EventRequestModel $request, AdapterInterface $adapter, Url $url, $type)
-    {
-        $eventReqRepo = new EventRequestRepository($adapter);
-        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
-        $request->exchangeArrayFromDB($eventReqDetail);
-
-        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
-        $roleAndId = self::findRoleType($recommdAppModel, $type);
-        $notification = self::initializeNotificationModel($recommdAppModel[RecommendApprove::EMPLOYEE_ID], $roleAndId['id'], EventReqNotificationModel::class, $adapter);
-
-        $notification->route = json_encode(["route" => "eventApprove", "action" => "view", "id" => $request->requestId, "role" => $roleAndId['role']]);
-
-        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
-        $notification->eventName = $eventReqDetail['TITLE'];
-        $notification->startDate = $eventReqDetail['START_DATE'];
-        $notification->endDate = $eventReqDetail['END_DATE'];
-        $notification->duration = $eventReqDetail['DURATION'];
-
-        $title = "Event Request";
-        $desc = "Event Request of $notification->fromName from $notification->startDate to $notification->endDate";
-
-        self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 49, $adapter, $url);
     }
 
     private static function trainingRecommend(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status)
@@ -1045,8 +869,8 @@ class HeadNotification
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
         //        $notification->trainingCode = $trainingRequestDetail['TRAINING_CODE'];
-        $notification->startDate = $trainingRequestDetail['START_DATE'];
-        $notification->endDate = $trainingRequestDetail['END_DATE'];
+        $notification->fromDate = $trainingRequestDetail['START_DATE'];
+        $notification->toDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -1054,39 +878,11 @@ class HeadNotification
         $notification->route = json_encode(["route" => "trainingRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Training Recommendation";
         $desc = "Recommendation of Training Request by"
-            . " $notification->fromName from $notification->startDate"
-            . " to $notification->endDate is $notification->status";
+            . " $notification->fromName from $notification->fromDate"
+            . " to $notification->toDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 23, $adapter, $url);
-    }
-
-    private static function eventRecommend(EventRequestModel $request, AdapterInterface $adapter, Url $url, string $status)
-    {
-        $eventReqRepo = new EventRequestRepository($adapter);
-        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
-        $request->exchangeArrayFromDB($eventReqDetail);
-
-        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
-        $notification = self::initializeNotificationModel($recommdAppModel[RecommendApprove::RECOMMEND_BY], $recommdAppModel[RecommendApprove::EMPLOYEE_ID], EventReqNotificationModel::class, $adapter);
-
-        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
-        $notification->eventName = $eventReqDetail['TITLE'];
-        //        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
-        $notification->startDate = $eventReqDetail['START_DATE'];
-        $notification->endDate = $eventReqDetail['END_DATE'];
-        $notification->duration = $eventReqDetail['DURATION'];
-        $notification->remarks = $request->remarks;
-        $notification->status = $status;
-
-        $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
-        $title = "Event Recommendation";
-        $desc = "Recommendation of Event Request by"
-            . " $notification->fromName from $notification->startDate"
-            . " to $notification->endDate is $notification->status";
-
-        self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 50, $adapter, $url);
     }
 
     private static function trainingApprove(TrainingRequest $request, AdapterInterface $adapter, Url $url, string $status)
@@ -1107,8 +903,8 @@ class HeadNotification
         $notification->trainingType = $trainingRequestDetail['TRAINING_TYPE_DETAIL'];
         $notification->trainingName = $trainingRequestDetail['TITLE'];
         //        $notification->trainingCode = $trainingRequestDetail['TRAINING_CODE'];
-        $notification->startDate = $trainingRequestDetail['START_DATE'];
-        $notification->endDate = $trainingRequestDetail['END_DATE'];
+        $notification->fromDate = $trainingRequestDetail['START_DATE'];
+        $notification->toDate = $trainingRequestDetail['END_DATE'];
         $notification->duration = $trainingRequestDetail['DURATION'];
         $notification->remarks = $request->remarks;
         $notification->status = $status;
@@ -1116,45 +912,11 @@ class HeadNotification
         $notification->route = json_encode(["route" => "trainingRequest", "action" => "view", "id" => $request->requestId]);
         $title = "Training Approval";
         $desc = "Approval of Training Request by"
-            . " $notification->fromName from $notification->startDate"
-            . " to $notification->endDate is $notification->status";
+            . " $notification->fromName from $notification->fromDate"
+            . " to $notification->toDate is $notification->status";
 
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 24, $adapter, $url);
-    }
-
-    private static function eventApprove(EventRequestModel $request, AdapterInterface $adapter, Url $url, string $status)
-    {
-        $eventReqRepo = new EventRequestRepository($adapter);
-        $eventReqDetail = $eventReqRepo->fetchById($request->requestId);
-        $request->exchangeArrayFromDB($eventReqDetail);
-
-        $recommdAppModel = self::findRecApp($request->employeeId, $adapter);
-
-        $notification = self::initializeNotificationModel(
-            $recommdAppModel[RecommendApprove::APPROVED_BY],
-            $recommdAppModel[RecommendApprove::EMPLOYEE_ID],
-            EventReqNotificationModel::class,
-            $adapter
-        );
-
-        $notification->eventType = $eventReqDetail['EVENT_TYPE_DETAIL'];
-        $notification->eventName = $eventReqDetail['TITLE'];
-        //        $notification->trainingCode = $eventReqDetail['TRAINING_CODE'];
-        $notification->startDate = $eventReqDetail['START_DATE'];
-        $notification->endDate = $eventReqDetail['END_DATE'];
-        $notification->duration = $eventReqDetail['DURATION'];
-        $notification->remarks = $request->remarks;
-        $notification->status = $status;
-
-        $notification->route = json_encode(["route" => "eventRequest", "action" => "view", "id" => $request->requestId]);
-        $title = "Event Approval";
-        $desc = "Approval of Event Request by"
-            . " $notification->fromName from $notification->startDate"
-            . " to $notification->endDate is $notification->status";
-
-        self::addNotifications($notification, $title, $desc, $adapter);
-        self::sendEmail($notification, 51, $adapter, $url);
     }
 
     private static function leaveSubstituteApplied(LeaveApply $request, AdapterInterface $adapter, Url $url)
@@ -1163,6 +925,7 @@ class HeadNotification
 
         $leaveSubstituteRepo = new LeaveSubstituteRepository($adapter);
         $leaveSubstituteDetail = $leaveSubstituteRepo->fetchById($request->id);
+
         $notification = self::initializeNotificationModel($request->employeeId, $leaveSubstituteDetail['EMPLOYEE_ID'], LeaveSubNotificationModel::class, $adapter);
 
         $leaveName = self::getName($request->leaveId, new LeaveMasterRepository($adapter), 'LEAVE_ENAME');
@@ -1437,7 +1200,589 @@ class HeadNotification
         self::addNotifications($notification, $title, $desc, $adapter);
         self::sendEmail($notification, 32, $adapter, $url);
     }
+    function formatNepaliNumber($number)
+    {
 
+        $number_str = (string)$number;
+
+        if ($number == 0) {
+            $formatted_number = 0.00;
+        } else {
+            list($integer_part, $decimal_part) = explode('.', $number_str);
+            $integerPartCount = strlen(strval(intval($integer_part)));
+            $lastThreeDigits = substr($integer_part, -3);
+            $restOfDigits = substr($integer_part, 0, -3);
+            $formatted_integer = implode(',', str_split(strrev($restOfDigits), 2));
+            $formatted_integer = strrev($formatted_integer);
+            if ($decimal_part == 0) {
+                $decimal_part = .00;
+            } else {
+                $decimal_part = str_pad($decimal_part, 2, '0', STR_PAD_RIGHT);
+            }
+
+            if ($integer_part == 0) {
+                $integer_part = 0;
+            } else if ($integerPartCount > 3) {
+                $lastThreeDigits = ',' . $lastThreeDigits;
+            } else {
+                $lastThreeDigits = $lastThreeDigits;
+            }
+            $formatted_number = $formatted_integer . $lastThreeDigits . '.' . $decimal_part;
+        }
+
+        return $formatted_number;
+    }
+
+    private static function sendPayslipEmail(PaySlipDetailsModel $payslipDetail, AdapterInterface $adapter, Url $url)
+    {
+
+        self::initFullModel(new EmployeeRepository($adapter), $payslipDetail, $payslipDetail->setProperty1['EMPLOYEE_ID']);
+        $payslipModel = self::initializeNotificationModel(72, $payslipDetail->setProperty1['EMPLOYEE_ID'], PayslipEmailNotificationModel::class, $adapter);
+        $property = $payslipDetail->setProperty2;
+
+
+        $paySlipDetail = '';
+        if ($payslipDetail->setProperty1['FILE_PATH'] == null) {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/1701407516.png';
+        } else {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/' . $payslipDetail->setProperty1['FILE_PATH'];
+        }
+
+        $paySlipDetail .= '
+        <div>
+        <table style="width: 100%; border-collapse: collapse;">
+        <tr style="text-align: center;">
+        <td style="text-align: center;padding-left:50px;" colspan="3">
+            <h3><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty1['COMPANY_NAME'] . '</b></h3>
+            <h5><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty1['ADDRESS'] . '</b></h5>
+        </td>
+        <td style="text-align: center;" > 
+        <div style="margin-top: 40px;">
+            <img src="' . $companyLogoPath . '" style="height: 35px; width: 60px;">
+            </div>
+        </td>
+    </tr>
+</table>
+        <br><br>
+        <table class="table table-bordered" style="width: 100%; border-collapse: collapse;"> <br>
+               <tr style="text-align: center;padding-top: 8px;"><td colspan="4"><h4 style="text-decoration: underline;"><b><span id="yearMonthDetails">Salary Slip for the month of ' . ' for ' . $payslipDetail->setProperty1['MONTH_EDESC'] . ' ' . $payslipDetail->setProperty1['YEAR'] . '</span></b></h4>  </td> </tr> <br>
+               <tr>
+               <td style="text-align: left; padding: 8px; font-size: 11px;">Employee Name</td>
+               <td style="text-align: left; padding: 8px; font-size: 11px;">' . $payslipDetail->setProperty1['FULL_NAME'] . '</td>
+                <td style="text-align: left; padding: 8px; font-size: 11px;">Present Days</td>
+                <td style="text-align: left; padding: 8px; font-size: 11px;">' . $payslipDetail->setProperty1['PRESENT'] . '</td>
+                </tr>
+
+                <tr>
+                <td style="text-align: left;padding: 8px;font-size: 11px;">Employee Code</td>
+                <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['EMPLOYEE_ID'] . '</td>
+                <td style="text-align: left;padding: 8px;font-size: 11px;">Absent Days</td>
+                <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['ABSENT'] . '</td>
+                
+               
+                </tr>
+
+                <tr>
+                    <td style="text-align: left;padding: 8px; font-size: 11px;">Employee Id</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['EMPLOYEE_ID'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Week Day Off</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['DAYOFF'] . '</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Designation</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['DESIGNATION_TITLE'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Paid Leave Days</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['PAID_LEAVE'] . '</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Department</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['DEPARTMENT_NAME'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Unpaid Leave Days</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['UNPAID_LEAVE'] . '</td>
+                    
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Bank Name</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['BANK_NAME'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Holiday</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['HOLIDAY'] . '</td>
+
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Bank Acc No</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['ID_ACCOUNT_NO'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Pay Days</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['PAY_DAYS'] . '</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">SSF No</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['SSF_NO'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Total Days</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['TOTAL_DAYS'] . '</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">CIT No</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['ID_RETIREMENT_NO'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Overtime Hours</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['OVERTIME_HOUR'] . '</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">PAN No</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['ID_PAN_NO'] . '</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">Marital Status:</td>
+                    <td style="text-align: left;padding: 8px;font-size: 11px;">' . $payslipDetail->setProperty1['MARITAL_STATUS_DESC'] . '</td>
+                </tr>
+                 </table> <br>
+                 ';
+
+        $tableHeader = '<br>
+            <table class="table table-bordered" style="width: 100%; border-collapse: collapse;"> <br>
+            <tr style="text-align: center;padding-top: 8px;"><td colspan="4"><h4 style="text-decoration: underline;"><b><span id="yearMonthDetails">Monthly Details for ' . $payslipDetail->setProperty1['MONTH_EDESC'] . ' ' . $payslipDetail->setProperty1['YEAR'] . '</span></b></h4>  </td> </tr> <br>
+            <tr>
+                    <th colspan="2" style="font-size: 10px;text-align: center;padding: 8px;"><b>Monthly Earnings</b></th>
+                    <th colspan="2" style="font-size: 10px;text-align: center;padding: 8px;"><b>Monthly Deductions</b></th>
+                </tr>
+                <tbody>';
+        $additionData = [];
+        $additionCounter = 0;
+        $additionSum = 0;
+        $deductionData = [];
+        $deductionCounter = 0;
+        $deductionSum = 0;
+
+        $netSum = 0;
+        $net = 0;
+        $add = 0;
+        $sub = 0;
+
+        foreach ($property as $data) {
+            switch ($data['PAY_TYPE_FLAG']) {
+                case 'A':
+                    $additionData[$additionCounter] = $data;
+                    $myString = trim($data['VAL']);
+                    $additionSum += floatval(str_replace(',', '', $myString));
+                    $additionCounter++;
+                    break;
+                case 'D':
+                    $deductionData[$deductionCounter] = $data;
+                    $myString = trim($data['VAL']);
+                    $deductionSum += floatval(str_replace(',', '', $myString));
+                    $deductionCounter++;
+                    break;
+            }
+            $netSum = $additionSum - $deductionSum;
+            $add = self::formatNepaliNumber($additionSum);
+            $sub = self::formatNepaliNumber($deductionSum);
+            $net = self::formatNepaliNumber($netSum);
+        }
+
+        $maxRow = max($additionCounter, $deductionCounter);
+        $additionRows = '';
+        for ($i = 0; $i < $maxRow; $i++) {
+            $additionRow = '
+            <tr>
+                <td style="padding: 8px;text-align: left;font-size: 11px;">' . (isset($additionData[$i]) ? $additionData[$i]['PAY_EDESC'] : '') . '</td>
+                <td style="text-align: right;padding: 8px;font-size: 11px;">' . (isset($additionData[$i]) ? $additionData[$i]['VAL'] : '') . '</td>
+                <td style="padding: 8px;text-align: left;font-size: 11px;">' . (isset($deductionData[$i]) ? $deductionData[$i]['PAY_EDESC'] : '') . '</td>
+                <td style="text-align: right;padding: 8px;font-size: 11px;">' . (isset($deductionData[$i]) ? $deductionData[$i]['VAL'] : '') . '</td>
+            </tr>';
+            $additionRows .= $additionRow;
+        }
+        $tableFooter = ' <br>
+            <tr>
+                <td style="text-align: left;padding: 8px; border-top: 1px solid #000000;font-size:10px"><b>Total Earnings </b></td>
+                <td style="text-align: right;padding: 8px; border-top: 1px solid #000000;font-size: 10px;"><b>' . $add . '</b></td>
+                <td style="text-align: left;padding: 8px; border-top: 1px solid #000000;font-size: 10px;"><b>Total Deductions </b></td>
+                <td style="text-align: right;padding: 8px; border-top: 1px solid #000000;font-size: 10px;"><b>' . $sub . ' </b></td>
+            </tr>
+            <tr>
+                <td style="text-align: left;padding: 8px;font-size:10px" ><b>Net Salary(NRS) </b></td>
+                <td style="text-align: right;padding: 8px;font-size:10px"><b>' . $net . '</b></td>
+                <td style="text-align: left;padding: 8px;font-size:10px" ><b></b></td>
+                <td style="text-align: left;padding: 8px;font-size:10px"><b></b></td>
+            </tr>
+        </tbody>
+        </table> <br> <br>';
+        $firstLoop = '';
+        $sencondLoop = '';
+        $thirdLoop = '';
+        $firstLoopArr = [
+            count($payslipDetail->incomes),
+            count($payslipDetail->taxExcemptions),
+            count($payslipDetail->otherTax)
+        ];
+        $thirdLoopArr = [
+            count($payslipDetail->otherTax)
+        ];
+        $taxLoopArr = [
+            count($payslipDetail->setProperty4)
+        ];
+        $sendLoopArr = [
+            count($payslipDetail->miscellaneous),
+            count($payslipDetail->bMiscellaneou),
+            count($payslipDetail->cMiscellaneou)
+        ];
+        $maxFirstLoop = max($firstLoopArr);
+        $maxThirdLoop = max($thirdLoopArr);
+        $maxSecLoop = max($sendLoopArr);
+        $maxTaxLoop = max($taxLoopArr);
+
+        $total = 0;
+        for ($n = 0; $n < $maxFirstLoop; ++$n) {
+            $incomeName = isset($payslipDetail->incomes[$n]) ? $payslipDetail->incomes[$n]['VARIANCE_NAME'] : '';
+            $incomeTemp = isset($payslipDetail->incomes[$n]) ? $payslipDetail->incomes[$n]['TEMPLATE_NAME'] : '';
+            $taxEmpName = isset($payslipDetail->taxExcemptions[$n]) ? $payslipDetail->taxExcemptions[$n]['VARIANCE_NAME'] : '';
+            $taxEmpTemp = isset($payslipDetail->taxExcemptions[$n]) ? $payslipDetail->taxExcemptions[$n]['TEMPLATE_NAME'] : '';
+            $otherTaxName = isset($payslipDetail->otherTax[$n]) ? $payslipDetail->otherTax[$n]['VARIANCE_NAME'] : '';
+            $otherTaxTemp = isset($payslipDetail->otherTax[$n]) ? $payslipDetail->otherTax[$n]['TEMPLATE_NAME'] : '';
+            $incomeValue = $payslipDetail->setProperty3[0][$incomeTemp];
+            $taxVal = $payslipDetail->setProperty3[0][$taxEmpTemp];
+            if ($taxEmpName == 'TAX Slab') {
+                continue; // Skip the current iteration and move to the next one
+            }
+            if ($taxEmpTemp == 'V56') {
+                continue; // Skip the current iteration and move to the next one
+            }
+            if ($incomeValue == 0) {
+                $incomeSum = $incomeValue; // Return the value as is
+            } else {
+                $incomeSum = self::formatNepaliNumber($incomeValue); // Format the value
+            }
+            if ($taxVal == 0) {
+                $taxSum = $taxVal; // Return the value as is
+            } else {
+                $taxSum = self::formatNepaliNumber($taxVal); // Format the value
+            }
+            $total = $total + $payslipDetail->setProperty3[0][$incomeTemp];
+            $firstLoop .= '<tr>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $incomeName . ' </td>';
+            $firstLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;">' . $incomeSum . '</td>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $taxEmpName . ' </td>';
+            $firstLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;">' . $taxSum  . '</td>';
+            $firstLoop .= '</tr>';
+        }
+        $taxVal = 0;
+        for ($n = 0; $n < $maxTaxLoop; ++$n) {
+            // $otherTaxName = isset($payslipDetail->otherTax[$n]) ? $payslipDetail->otherTax[$n]['VARIANCE_NAME'] : '';
+            // $otherTaxTemp = isset($payslipDetail->otherTax[$n]) ? $payslipDetail->otherTax[$n]['TEMPLATE_NAME'] : '';
+            $taxSlabName = isset($payslipDetail->setProperty4[$n]) ? $payslipDetail->setProperty4[$n]['SALARY_RANGE'] : '';
+            $taxSlabTemp = isset($payslipDetail->setProperty4[$n]) ? $payslipDetail->setProperty4[$n]['TAX_PERCENTAGE'] : '';
+            $taxSlabAmt = isset($payslipDetail->setProperty4[$n]) ? $payslipDetail->setProperty4[$n]['AMOUNT'] : '';
+
+            $taxVal = $taxVal + $taxSlabAmt;
+
+            $thirdLoop .= '<tr>';
+            // $thirdLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $otherTaxName . '</td>';
+            // $thirdLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;">' . $taxSum . '</td>';
+            $thirdLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $taxSlabName . '</td>';
+            $thirdLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;">' . $taxSlabTemp . '</td>';
+            $thirdLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;">' . $taxSlabAmt . '</td>';
+            $thirdLoop .= '<td style="text-align: right;padding: 8px;font-size: 11px;"></td>';
+            $thirdLoop .= '</tr>';
+        }
+
+        for ($n = 0; $n < $maxSecLoop; ++$n) {
+            $misName = isset($payslipDetail->miscellaneous[$n]) ? $payslipDetail->miscellaneous[$n]['VARIANCE_NAME'] : '';
+            $misTemp = isset($payslipDetail->miscellaneous[$n]) ? $payslipDetail->miscellaneous[$n]['TEMPLATE_NAME'] : '';
+            $bMisName = isset($payslipDetail->bMiscellaneou[$n]) ? $payslipDetail->bMiscellaneou[$n]['VARIANCE_NAME'] : '';
+            $bMisTemp = isset($payslipDetail->bMiscellaneou[$n]) ? $payslipDetail->bMiscellaneou[$n]['TEMPLATE_NAME'] : '';
+            $cMisName = isset($payslipDetail->cMiscellaneou[$n]) ? $payslipDetail->cMiscellaneou[$n]['VARIANCE_NAME'] : '';
+            $cMisTemp = isset($payslipDetail->cMiscellaneou[$n]) ? $payslipDetail->cMiscellaneou[$n]['TEMPLATE_NAME'] : '';
+            $MisVal = $payslipDetail->setProperty3[0][$misTemp];
+            $bMisVal = $payslipDetail->setProperty3[0][$bMisTemp];
+            $cMisVal = $payslipDetail->setProperty3[0][$cMisTemp];
+
+            if ($MisVal == 0) {
+                $misSum = $MisVal; // Return the value as is
+            } else {
+                $misSum = self::formatNepaliNumber($MisVal); // Format the value
+            }
+            if ($bMisVal == 0) {
+                $bMisSum = $bMisVal; // Return the value as is
+            } else {
+                $bMisSum = self::formatNepaliNumber($bMisVal); // Format the value
+            }
+            if ($cMisVal == 0) {
+                $cMisSum = $cMisVal; // Return the value as is
+            } else {
+                $cMisSum = self::formatNepaliNumber($cMisVal); // Format the value
+            }
+            $sencondLoop .= '<tr>';
+            $sencondLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $misName . ' </td>';
+            $sencondLoop .= '<td style="padding: 8px;text-align: right;font-size: 11px;">' . $misSum . '</td>';
+            $sencondLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $bMisName . ' </td>';
+            $sencondLoop .= '<td style=";padding: 8px;text-align: right;font-size: 11px;">' . $bMisSum . '</td>';
+            $sencondLoop .= '<td style="text-align: left;padding: 8px;font-size: 11px;">' . $cMisName . ' </td>';
+            $sencondLoop .= '<td  style="padding: 8px;text-align: right;font-size: 11px;">' . $cMisSum . '</td>';
+            $sencondLoop .= '</tr><br>';
+        }
+        $currentDate = date('d-M-Y');
+        $total = self::formatNepaliNumber($total);
+        $repTemplate = '<br>
+<table class="table table-bordered" style="width: 100%; border-collapse: collapse;"> <br>
+<tr style="text-align: center;padding-top: 8px;"><td colspan="4"><h4 style="text-decoration: underline;"><b><span id="yearMonthDetails">Annual Details for Financial Year ' . $payslipDetail->setProperty1['FISCAL_YEAR_NAME'] . '</span></b></h4>  </td> </tr>    <br>
+<tr>
+                    <th colspan="2" style="font-size: 10px;;text-align: center;padding: 8px;"><b>Annual Earnings</b></th>
+                    <th colspan="2" style="font-size: 10px;text-align: center;padding: 8px;"><b>Annual Deductions</b></th>
+                    </tr>
+
+    ' . $firstLoop . '
+    <tr>
+        <td style="border-top: 1px solid #000000;font-size: 10px;"><b>Total Earnings</b></td>
+        <td style="text-align: right; border-top: 1px solid #000000;">' . $total . '</td>
+        <td style="border-top: 1px solid #000000;font-size: 10px;"><b>Total Deductions</b></td>
+        <td style="text-align: right;border-top: 1px solid #000000;">' . self::formatNepaliNumber($payslipDetail->sumOfExemption) . '</td>     
+    </tr>
+    <tr>
+    <td style="font-size: 10px;"><b>Taxable Income</b></td>
+    <td style="text-align: right; ">' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V40']) . '</td>
+    <td style="font-size: 10px;"><b></b></td>
+    <td style="text-align: right;"></td>     
+</tr>
+    </table> <br> <br> <br> <br>';
+        $footer = '<br> <br><table class="table table-bordered" style="width: 100%; border-collapse: collapse;"> <br>
+    <tr>
+    <th colspan="4" style="font-size: 10px;;text-align: center;padding: 8px;"><b>Tax Slab </b></th>    <br>
+    </tr>' . $thirdLoop . '
+ </table>
+<h6 style="font-size: 10px;border-top: 1px solid #000000;">Annual TDS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ' . self::formatNepaliNumber($taxVal) . '</b></h6> <br>
+<h6 style="font-size: 10px;">Female Rebate&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V38']) . '</b></h6> <br>
+<h6 style="font-size: 10px;">Net Annual TDS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V61'] - $payslipDetail->setProperty3[0]['V38']) . '</b></h6><br>
+<h6 style="font-size: 10px;">Previously Deducted TDS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V37']) . '</b></h6><br>
+<h6 style="font-size: 10px;">Net TDS Payable&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V61']) . '</b></h6><br>
+<h6 style="font-size: 10px;">Per Month TDS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ' . self::formatNepaliNumber($payslipDetail->setProperty3[0]['V62']) . '</b></h6><br>
+<br>
+<h5><i>This is system generated payslip,doesnot require any signature.</i></h5><br>
+<h5>Printed by : ' . $payslipDetail->setProperty1['COMPANY_NAME'] . '</h5><br>
+<h5>Printed on : ' . $currentDate . '</h5><br>
+</div>';
+
+        $paySlipDetail .= $tableHeader . $additionRows . $tableFooter  . $repTemplate . $footer;
+        $payslipModel->paySlipDetails = $paySlipDetail;
+        $payslipModel->logo = $companyLogoPath;
+
+        self::sendEmailWithPdfAttachment($payslipModel, 53, $adapter, $url);
+    }
+
+    private static function sendSalaryEmail(PaySlipDetailsModel $payslipDetail, AdapterInterface $adapter, Url $url)
+    {
+
+        $salarySheetModel = self::initializeNotificationModel(72, $payslipDetail->setProperty2[0]['EMPLOYEE_ID'], PayslipEmailNotificationModel::class, $adapter);
+
+        $alarySheetDetail = '';
+        $firstLoop = '';
+        $secondLoop = '';
+        $thirdLoop = '';
+
+        $firstLoopArr = [
+            count($payslipDetail->setProperty2)
+        ];
+        $secondLoopArr = [
+            count($payslipDetail->setProperty1)
+        ];
+
+        $maxFirstLoop = max($firstLoopArr);
+        $maxSecondLoop = max($secondLoopArr);
+        $columnSums = array_fill(0, $maxSecondLoop, 0);
+        $total = 0;
+        for ($n = 0; $n < $maxFirstLoop; ++$n) {
+            $monthTemp = isset($payslipDetail->setProperty2[$n]) ? $payslipDetail->setProperty2[$n]['MONTH_EDESC'] : '';
+            $firstLoop .= '<tr>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 6px;border: 1px solid #000000;">' . ($n + 1) . ' </td>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 6px;border: 1px solid #000000;">' . $monthTemp . ' </td>';
+
+            // Inner loop for columns
+            for ($m = 0; $m < $maxSecondLoop; ++$m) {
+                $variance = isset($payslipDetail->setProperty1[$m]) ? $payslipDetail->setProperty1[$m]['VARIANCE'] : '';
+                $value = isset($payslipDetail->setProperty2[$n][$variance]) ? $payslipDetail->setProperty2[$n][$variance] : '';
+
+                if ($value == 0) {
+                    $varSum = $value; // Return the value as is
+                } else {
+                    $varSum = self::formatNepaliNumber($value); // Format the value
+                }
+
+                $firstLoop .= '<td style="text-align: right;font-size: 6px;padding: 8px;border: 1px solid #000000;">' . $varSum . ' </td>';
+
+                // Add the value to the column sum
+                $columnSums[$m] += $value;
+            }
+
+            $firstLoop .= '</tr>';
+        }
+
+        // Add the total row at the bottom
+        $firstLoop .= '<tr>';
+        $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 6px;border: 1px solid #000000;"colspan="2"><b>Total </b></td>';
+
+        // Display the column sums in the total row
+        foreach ($columnSums as $columnSum) {
+            $firstLoop .= '<td style="text-align: right;font-size: 6px;padding: 8px;border: 1px solid #000000;"><b>' . self::formatNepaliNumber($columnSum) . '</b></td>';
+        }
+
+        $firstLoop .= '</tr>';
+
+        for ($n = 0; $n < $maxSecondLoop; ++$n) {
+            $variableName = isset($payslipDetail->setProperty1[$n]) ? $payslipDetail->setProperty1[$n]['VARIANCE_NAME'] : '';
+            $secondLoop .= '<td style="text-align: left;font-size: 6px;padding: 8px;border: 1px solid #000000;">' . $variableName . ' </td>';
+        }
+
+        // for ($n = 0; $n < $maxThirdLoop; ++$n) {
+
+        //     $variance = isset($payslipDetail->setProperty1[$n]) ? $payslipDetail->setProperty1[$n]['VARIANCE'] : '';
+        //     $thirdLoop .= '<td style="text-align: left;padding: 8px;border: 1px solid #000000;">' . $payslipDetail->setProperty2[$n][$variance]. ' </td>';
+        // }
+        $currentDate = date('d-M-Y');
+        $total = self::formatNepaliNumber($total);
+        if ($payslipDetail->setProperty2[0]['FILE_PATH'] == null) {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/1701407516.png';
+        } else {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/' . $payslipDetail->setProperty2[0]['FILE_PATH'];
+        }
+
+        $repTemplate = '
+<div>
+<table style="width: 100%; border-collapse: collapse;">
+<tr style="text-align: center;">
+<td style="text-align: center;padding-left:50px;" colspan="3">
+    <h3><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty2[0]['COMPANY_NAME'] . '</b></h3>
+    <h5><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty2[0]['ADDRESS'] . '</b></h5>
+</td>
+<td style="text-align: center;" > 
+<div style="margin-top: 40px;">
+    <img src="' . $companyLogoPath . '" style="height: 35px; width: 60px;">
+    </div>
+</td>
+</tr>
+</table>
+<br>
+<h6 style="text-align: left; margin: 0;"><b>Employee Name&nbsp;&nbsp;&nbsp;: ' . $payslipDetail->setProperty2[0]['FULL_NAME'] . '</b></h6>
+<h6 style="text-align: left; margin: 0;"><b>Employee Code&nbsp;&nbsp;&nbsp;: ' . $payslipDetail->setProperty2[0]['EMPLOYEE_CODE'] . '</b></h6>
+<h6 style="text-align: left; margin: 0;"><b>Department&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ' . $payslipDetail->setProperty2[0]['DEPARTMENT_NAME'] . '</b></h6>
+<h6 style="text-align: left; margin: 0;"><b>Designation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ' . $payslipDetail->setProperty2[0]['DESIGNATION_TITLE'] . '</b></h6>
+<table class="table table-bordered" style="width: 100%; border-collapse: collapse;border: 1px solid #000000;"><br>
+<tr>
+        <td style="text-align: left;font-size: 6px;border: 1px solid #000000; padding: 8px;width:15px;"><b>S.N</b></td>
+        <td style="text-align: left;font-size: 6px; border: 1px solid #000000;padding: 8px;">Month</td>
+        ' . $secondLoop . '
+</tr>
+    ' . $firstLoop . '
+
+</table>
+<h6><i>This is system generated payslip,doesnot require any signature.</i></h6><br>
+<h6>Printed by :' . $payslipDetail->setProperty2[0]['COMPANY_NAME'] . '</h6><br>
+<h6>Printed on : ' . $currentDate . '</h6><br>
+</div>';
+        $alarySheetDetail .=  $repTemplate;
+        $salarySheetModel->paySlipDetails = $alarySheetDetail;
+        $salarySheetModel->logo = $companyLogoPath;
+
+        self::sendEmailWithPdfAttachment($salarySheetModel, 53, $adapter, $url);
+    }
+    private static function sendLetterToBankEmail(PaySlipDetailsModel $payslipDetail, AdapterInterface $adapter, Url $url)
+    {
+        $salarySheetModel = self::initializeNotificationModel(72, $payslipDetail->setProperty1[0]['EMPLOYEE_ID'], PayslipEmailNotificationModel::class, $adapter);
+        $salarySheetModel->toEmail = $payslipDetail->setProperty3[0]['EMAIL'];
+        $letterDetail = '';
+
+        $firstLoop = '';
+        $firstLoopArr = [
+            count($payslipDetail->setProperty1)
+        ];
+        $maxFirstLoop = max($firstLoopArr);
+        $total = 0;
+        for ($n = 0; $n < $maxFirstLoop; ++$n) {
+            $firstLoop .= '<tr>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;">' . ($n + 1) . '</td>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;">' . $payslipDetail->setProperty1[$n]['FULL_NAME'] . '</td>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;">' . $payslipDetail->setProperty1[$n]['BANK_NAME'] . ' </td>';
+            $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;">' . $payslipDetail->setProperty1[$n]['ID_ACCOUNT_NO'] . '</td>';
+            $firstLoop .= '<td style="text-align: right;padding: 8px;font-size: 8px;border: 1px solid #000000;">' . $payslipDetail->setProperty1[$n]['VAL'] . ' </td>';
+            $firstLoop .= '</tr>';
+            $myString = trim($payslipDetail->setProperty1[$n]['VAL']);
+            $total += floatval(str_replace(',', '', $myString));
+        }
+
+        $firstLoop .= '<tr>';
+        $firstLoop .= '<td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;"colspan="4"><b>Total </b></td>';
+        $firstLoop .= '<td style="text-align: right;font-size: 8px;padding: 8px;border: 1px solid #000000;"><b>' . self::formatNepaliNumber($total) . '</b></td>';
+        $firstLoop .= '</tr>';
+        $currentDate = date('d-M-Y');
+        $total = self::formatNepaliNumber($total);
+
+        if ($payslipDetail->setProperty2[0]['FILE_PATH'] == null) {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/1701407516.png';
+        } else {
+            $companyLogoPath = 'C:/apache24/htdocs/SDS-Neo-hris_GIT/SDS-Neo-hris/public/uploads/' . $payslipDetail->setProperty2[0]['FILE_PATH'];
+        }
+
+        $repTemplate = '
+        <div>
+        <table style="width: 100%; border-collapse: collapse;">
+        <tr style="text-align: center;">
+        <td style="text-align: center;padding-left:50px;" colspan="3">
+            <h4><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty2[0]['COMPANY_NAME'] . '</b></h4>
+            <h5><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' . $payslipDetail->setProperty2[0]['ADDRESS'] . '</b></h5>
+        </td>
+        <td style="text-align: center;" > 
+            <div style="margin-top: 40px;">
+            <img src="' . $companyLogoPath . '" style="height: 35px; width: 60px;">
+            </div>
+        </td>
+        </tr>
+        <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td style="text-align:right;font-size:8px"> Date : ' . $payslipDetail->setProperty1[0]['TODAY_DATE'] . '</td></tr>
+        </table>
+        <p style="font-size:10px;">
+        To,<br>
+        The Branch Manager,<br>
+        <b>' . $payslipDetail->setProperty3[0]['BANK_NAME'] . '</b>.</p>
+        <p style="text-align:center;font-size:10px;">Subject: <u><b>Request for amount transfer</b></u></p>
+<br><br>
+<p style="font-size:10px">Dear Sir / Madam,</p><br><br>
+<p style="font-size:10px";>We have provided with account holders name, account number and the amount
+to be deposited in the account number. Our Bank Account Number and total amount
+to be debited is as mentioned below.<p>
+
+<div style="font-weight:bold";"margin-left:7%";"font-size:10px">
+(A) Amount to be deposited: ' . $total . '
+<br>
+(B) Account Number:
+<br>
+(C) Cheque No.:
+</div> <p>
+For the Month of :' . $payslipDetail->setProperty1[0]['MONTH_EDESC'] . '
+<br>
+For the Fiscal year of :' . $payslipDetail->setProperty1[0]['FISCAL_YEAR_NAME'] . '
+<br>
+For Bank Information :
+    </p>
+<br>
+        <table class="table table-bordered" style="width: 100%; border-collapse: collapse;border: 1px solid #000000;">
+        <tr>
+                        <td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;width: 7%;">S.N.</td>
+                        <td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;width: 23%;">Employee Name</td>
+                        <td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;width: 27%;">Bank</td>
+                        <td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;width: 20%;">Account No.</td>
+                        <td style="text-align: left;padding: 8px;font-size: 8px;border: 1px solid #000000;width: 23%;">Amount</td>
+                        
+         </tr> 
+        ' . $firstLoop . '
+        </table>
+        <br>
+<p style="font-size:10px">' . $payslipDetail->setProperty2[0]['COMPANY_NAME'] . '
+<br>
+' . $payslipDetail->setProperty2[0]['ADDRESS'] . '</p>
+        </div>';
+        $letterDetail .=  $repTemplate;
+        $salarySheetModel->paySlipDetails = $letterDetail;
+        $salarySheetModel->logo = $companyLogoPath;
+        self::sendEmailWithPdfAttachment($salarySheetModel, 55, $adapter, $url);
+    }
     private static function appraisalEvaluation(AppraisalStatus $request, AdapterInterface $adapter, Url $url, $senderDetail, $recieverDetail)
     {
         $appraisalAssignRepo = new AppraisalAssignRepository($adapter);
@@ -1721,7 +2066,6 @@ class HeadNotification
 
     public static function pushNotification(int $eventType, Model $model, AdapterInterface $adapter, AbstractController $context = null, $senderDetail = null, $receiverDetail = null)
     {
-
         $url = null;
         if ($context != null) {
             $url = $context->plugin('url');
@@ -1781,11 +2125,10 @@ class HeadNotification
                 break;
             case NotificationEvents::TRAVEL_APPLIED:
                 self::travelApplied($model, $adapter, $url, self::RECOMMENDER);
-                // self::travelApplied($model, $adapter, $url, self::APPROVER);
                 break;
             case NotificationEvents::TRAVEL_RECOMMEND_ACCEPTED:
-                self::travelApplied($model, $adapter, $url, self::APPROVER);
                 self::travelRecommend($model, $adapter, $url, self::ACCEPTED);
+                self::travelApplied($model, $adapter, $url, self::APPROVER);
                 break;
             case NotificationEvents::TRAVEL_RECOMMEND_REJECTED:
                 self::travelRecommend($model, $adapter, $url, self::REJECTED);
@@ -1804,12 +2147,6 @@ class HeadNotification
                 break;
             case NotificationEvents::TRAINING_CANCELLED:
                 self::trainingAssigned($model, $adapter, $url, self::CANCELLED);
-                break;
-            case NotificationEvents::EVENT_ASSIGNED:
-                self::eventAssigned($model, $adapter, $url, self::ASSIGNED);
-                break;
-            case NotificationEvents::EVENT_CANCELLED:
-                self::eventAssigned($model, $adapter, $url, self::CANCELLED);
                 break;
             case NotificationEvents::LOAN_APPLIED:
                 self::loanApplied($model, $adapter, $url, self::RECOMMENDER);
@@ -1874,22 +2211,6 @@ class HeadNotification
                 break;
             case NotificationEvents::TRAINING_APPROVE_REJECTED:
                 self::trainingApprove($model, $adapter, $url, self::REJECTED);
-                break;
-            case NotificationEvents::EVENT_APPLIED:
-                self::eventApplied($model, $adapter, $url, self::RECOMMENDER);
-                break;
-            case NotificationEvents::EVENT_RECOMMEND_ACCEPTED:
-                self::eventRecommend($model, $adapter, $url, self::ACCEPTED);
-                self::eventApplied($model, $adapter, $url, self::APPROVER);
-                break;
-            case NotificationEvents::EVENT_RECOMMEND_REJECTED:
-                self::eventRecommend($model, $adapter, $url, self::REJECTED);
-                break;
-            case NotificationEvents::EVENT_APPROVE_ACCEPTED:
-                self::eventApprove($model, $adapter, $url, self::ACCEPTED);
-                break;
-            case NotificationEvents::EVENT_APPROVE_REJECTED:
-                self::eventApprove($model, $adapter, $url, self::REJECTED);
                 break;
             case NotificationEvents::LEAVE_SUBSTITUTE_APPLIED:
                 self::leaveSubstituteApplied($model, $adapter, $url);
@@ -1965,38 +2286,27 @@ class HeadNotification
                 self::leaveCancelled($model, $adapter, $url, self::RECOMMENDER);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_RECOMMEND_ACCEPTED:
-                self::leaveCancelRecommend($model, $adapter, $url, self::ACCEPTED);
+                self::leaveCancelRecommend($model, $adapter, $url, self::CANCELLED_ACCEPTED);
                 self::leaveCancelled($model, $adapter, $url, self::APPROVER);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_RECOMMEND_REJECTED:
-                self::leaveCancelRecommend($model, $adapter, $url, self::REJECTED);
+                self::leaveCancelRecommend($model, $adapter, $url, self::CANCELLED_REJECTED);
                 break;
             case NotificationEvents::LEAVE_CANCELLED_APPROVE_ACCEPTED:
-                self::leaveCancelApprove($model, $adapter, $url, self::ACCEPTED);
-                break;
-            case NotificationEvents::LEAVE_CANCELLED_APPROVE_REJECTED:
-                self::leaveCancelApprove($model, $adapter, $url, self::REJECTED);
-                break;
-            case NotificationEvents::TRAVEL_EXPENSE_APPLIED:
-                self::travelApplied($model, $adapter, $url, self::RECOMMENDER);
-                self::travelApplied($model, $adapter, $url, self::APPROVER);
-                break;
-            case NotificationEvents::TRAVEL_EXPENSE_APPROVED:
-                self::travelApprove($model, $adapter, $url, self::ACCEPTED);
-                self::travelApplied($model, $adapter, $url, self::APPROVER);
-                break;
-            case NotificationEvents::TRAVEL_EXPENSE_REJECTED:
-                self::travelApprove($model, $adapter, $url, self::REJECTED);
+                self::leaveCancelApprove($model, $adapter, $url, self::CANCELLED_ACCEPTED);
                 break;
 
-            case NotificationEvents::NEW_USER_CREATED:
-                self::newUserEmail($model, $adapter, $url);
-                break;
             case NotificationEvents::PAYSLIP_EMAIL:
                 self::sendPayslipEmail($model, $adapter, $url);
                 break;
-            case NotificationEvents::RAOSTER_ASSIGN:
-                self::roasterAssigned($model, $adapter, $url);
+            case NotificationEvents::SALARY_EMAIL:
+                self::sendSalaryEmail($model, $adapter, $url);
+                break;
+            case NotificationEvents::LETTER_TO_BANK_EMAIL:
+                self::sendLetterToBankEmail($model, $adapter, $url);
+                break;
+            case NotificationEvents::LEAVE_CANCELLED_APPROVE_REJECTED:
+                self::leaveCancelApprove($model, $adapter, $url, self::CANCELLED_REJECTED);
                 break;
         }
     }
@@ -2015,13 +2325,11 @@ class HeadNotification
 
     private static function initializeNotificationModel($fromId, $toId, $class, AdapterInterface $adapter)
     {
-
-
         $employeeRepo = new EmployeeRepository($adapter);
         $fromEmployee = $employeeRepo->fetchById($fromId);
         $toEmployee = $employeeRepo->fetchById($toId);
-
         $notification = new $class();
+
         $notification->fromId = $fromEmployee['EMPLOYEE_ID'];
         $notification->fromName = $fromEmployee['FIRST_NAME'] . " " . $fromEmployee['MIDDLE_NAME'] . " " . $fromEmployee['LAST_NAME'];
         $notification->fromEmail = $fromEmployee['EMAIL_OFFICIAL'];
@@ -2055,7 +2363,6 @@ class HeadNotification
             $id = $recAppModel[RecommendApprove::RECOMMEND_BY];
             $role = RecommendApprove::BOTH_VALUE;
         }
-
         return ['id' => $id, 'role' => $role];
     }
 
@@ -2063,11 +2370,10 @@ class HeadNotification
     {
         $recommdAppRepo = new RecommendApproveRepository($adapter);
         $recommdAppModel = $recommdAppRepo->getDetailByEmployeeID($employeeId);
-
         if ($recommdAppModel == null) {
             throw new Exception("recommender and approver not set for employee with id =>" . $employeeId);
         }
-
+        //echo '<pre>';print_r($recommdAppModel);die;
         return $recommdAppModel;
     }
 

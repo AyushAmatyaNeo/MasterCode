@@ -71,7 +71,6 @@ class BankController extends AbstractActionController
         if ($request->isPost()) {
 
             $this->form->setData($request->getPost());
-            // echo '<pre>';print_r($this->form->isValid());die;
 
             if ($this->form->isValid()) {
                 $bank = new Bank();
@@ -83,7 +82,6 @@ class BankController extends AbstractActionController
                 $bank->branchName = null;
                 $bank->status = 'E';
                 $this->repository->add($bank);
-
                 $this->flashmessenger()->addMessage("Bank Successfully added!!!");
                 return $this->redirect()->toRoute("bank");
             }
@@ -122,6 +120,7 @@ class BankController extends AbstractActionController
                 $bank->exchangeArrayFromForm($this->form->getData());
                 $bank->createdBy = $this->employeeId;
                 $this->repository->edit($bank, $id);
+
                 $this->flashmessenger()->addMessage("Bank Successfully Updated!!!");
                 return $this->redirect()->toRoute("bank");
             }
@@ -145,8 +144,9 @@ class BankController extends AbstractActionController
         if (!$id) {
             return $this->redirect()->toRoute('bank');
         }
-        // echo '<pre>';print_r($id);die;
-        $this->repository->deleteBank($id, $this->employeeId);
+        $employeeId = $this->employeeId;
+        $this->repository->deleteBank($id, $employeeId);
+        // $this->repository->delete($id);
         $this->flashmessenger()->addMessage("Bank Successfully Deleted!!!");
         return $this->redirect()->toRoute('bank');
     }

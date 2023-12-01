@@ -126,6 +126,8 @@ class NotificationEvents
     const NEW_USER_CREATED = 103;
     const PAYSLIP_EMAIL = 104;
     const RAOSTER_ASSIGN = 105;
+    const SALARY_EMAIL = 106;
+    const LETTER_TO_BANK_EMAIL = 107;
 
 
     //    note number 79 80 81 82 already used in leave above

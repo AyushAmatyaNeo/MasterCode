@@ -28,6 +28,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Notification\Model\NewUserNotificationModel;
 use Notification\Model\PayslipEmailNotificationModel;
 use Notification\Model\RoasterModel;
+use Notification\Model\LetterToBankNotificationModel;
 
 class EmailController extends AbstractActionController
 {
@@ -91,6 +92,7 @@ class EmailController extends AbstractActionController
         52 => "New_User_Created",
         53 => "Email_Payslip",
         54 => "Roaster_Assigned",
+        55 => "Letter_Bank_Payslip",
 
     ];
 
@@ -161,6 +163,8 @@ class EmailController extends AbstractActionController
         $type54 = new RoasterModel();
         $type54ObjVars = $type54->getObjectAttrs();
 
+        $type55 = new LetterToBankNotificationModel();
+        $type55ObjVars = $type55->getObjectAttrs();
         return [
             1 => $type1ObjVars,
             2 => $type1ObjVars,
@@ -216,6 +220,7 @@ class EmailController extends AbstractActionController
             52 => $type52ObjVars,
             53 => $type53ObjVars,
             54 => $type54ObjVars,
+            55 => $type55ObjVars,
 
         ];
     }

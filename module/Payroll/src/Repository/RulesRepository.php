@@ -303,18 +303,12 @@ class RulesRepository extends HrisRepository
   {
     // echo '<pre>';print_r($empId);die;
     $sql = "SELECT
-      company_name,
-      company_id
+      c.company_name,
+      c.company_id,c.address,hef.file_path
   FROM
-   hris_company 
+  hris_company c left join hris_employee_file hef on (c.logo=hef.file_code) 
   WHERE
-      company_id = $id";
-    return $this->rawQuery($sql);
-  }
-
-  public function getCompanyName()
-  {
-    $sql = "SELECT value AS company_name FROM hris_preferences WHERE key='COMPANY_NAME' OR key='COMPANY_ADDRESS'";
+      c.company_id = $id";
     return $this->rawQuery($sql);
   }
 
@@ -322,13 +316,24 @@ class RulesRepository extends HrisRepository
   {
     // echo '<pre>';print_r($empId);die;
     $sql = "SELECT
-    company_name,
-    company_id,
-    company_code
+    c.company_name,
+    c.company_id,
+    c.company_code,address,hef.file_path
   FROM
-   hris_company  
+  hris_company c left join hris_employee_file hef on (c.logo=hef.file_code)
   WHERE
-  company_id = $id";
+  c.company_id = $id";
+    return $this->rawQuery($sql);
+  }
+  public function getBankDetails($id)
+  {
+    // echo '<pre>';print_r($empId);die;
+    $sql = "SELECT
+    *
+  FROM
+   hris_banks  
+  WHERE
+  bank_id = $id";
     return $this->rawQuery($sql);
   }
 }

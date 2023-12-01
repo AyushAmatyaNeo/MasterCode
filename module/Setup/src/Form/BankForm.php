@@ -8,7 +8,8 @@ use Zend\Form\Annotation;
  * @Annotation\Hydrator("Zend\Hydrator\ObjectPropertyHydrator")
  * @Annotation\Name("Bank")
  */
-class BankForm {
+class BankForm
+{
 
     /**
      * @Annotion\Type("Zend\Form\Element\Text")
@@ -20,6 +21,14 @@ class BankForm {
      */
     public $bankName;
 
+    /**
+     * @Annotation\Required(false)
+     * @Annotation\Type("Zend\Form\Element\Email")
+     * @Annotation\Filter({"name":"StringTrim","name":"StripTags"})
+     * @Annotation\Options({"label":"Email Official"})
+     * @Annotation\Attributes({ "id":"form-email", "class":"form-email form-control" })
+     */
+    public $email;
     /**
      * @Annotation\Type("Zend\Form\Element\Submit")
      * @Annotation\Attributes({"value":"Submit","class":"btn btn-success"})

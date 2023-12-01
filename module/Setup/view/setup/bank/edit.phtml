@@ -5,6 +5,7 @@ $form->setAttribute('role', 'form');
 $form->setAttribute('id', 'bank-form');
 
 $bankName = $form->get('bankName');
+$email = $form->get('email');
 
 $submit = $form->get('submit');
 $submit->setAttribute('value', 'SUBMIT');
@@ -18,7 +19,9 @@ if ($this->messages) {
     }
     print '</ul>';
 }
-
+if (key($email->getMessages()) == "regexNotMatch") {
+    $email->setMessages(["regexNotMatch" => "Invalid Email Address"]);
+}
 $form->prepare();
 ?>
 <script>
@@ -45,11 +48,19 @@ $form->prepare();
 
                 <div class=" row" style="margin-bottom: 5rem;">
                     <div class="col-sm-4">
-                        <div class="form-group <?= empty($bankName->getMessages()) ? "" : "has-error" ?>" >
+                        <div class="form-group <?= empty($bankName->getMessages()) ? "" : "has-error" ?>">
                             <?php print $this->formLabel($bankName); ?>
                             <span class="required" aria-required="true">*</span>
                             <?php print $this->formElement($bankName); ?>
                             <?php print $this->formElementErrors()->render($bankName, ['class' => 'help-block']); ?>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group <?= empty($email->getMessages()) ? "" : "has-error" ?>">
+                            <?php print $this->formLabel($email); ?>
+                            <span class="required" aria-required="true">*</span>
+                            <?php print $this->formElement($email); ?>
+                            <?php print $this->formElementErrors()->render($email, ['class' => 'help-block']); ?>
                         </div>
                     </div>
                 </div>

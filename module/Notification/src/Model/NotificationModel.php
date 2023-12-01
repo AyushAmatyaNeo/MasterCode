@@ -4,7 +4,8 @@ namespace Notification\Model;
 
 use Zend\Mvc\Controller\Plugin\Url;
 
-class NotificationModel {
+class NotificationModel
+{
 
     public $fromId;
     public $toId;
@@ -19,12 +20,16 @@ class NotificationModel {
     public $fromHonorific;
     public $toHonorific;
     public $route;
+    public $logo;
+    public $paySlipDetails;
 
-    public function getObjectAttrs(): array {
+    public function getObjectAttrs(): array
+    {
         return array_keys(get_object_vars($this));
     }
 
-    public function processString(string $input, Url $url) {
+    public function processString(string $input, Url $url)
+    {
         $variables = array_keys(get_object_vars($this));
         $output = $input;
         foreach ($variables as $variable) {
@@ -33,19 +38,20 @@ class NotificationModel {
         return $output;
     }
 
-    private function convertVariableToValue($message, $variable, Url $url) {
+    private function convertVariableToValue($message, $variable, Url $url)
+    {
         if (strpos($message, $this->wrapWithLargeBracket($variable)) !== false) {
             $processedVariable = '';
-//            if ($variable == 'route') {
-//                $routeJson = (array) json_decode($this->{$variable});
-//                if (isset($routeJson['route'])) {
-//                    $routeName = $routeJson['route'];
-//                    unset($routeJson['route']);
-//                    $processedVariable = $url->fromRoute($routeName, $routeJson);
-//                }
-//            } else {
-//                $processedVariable = $this->{$variable};
-//            }
+            //            if ($variable == 'route') {
+            //                $routeJson = (array) json_decode($this->{$variable});
+            //                if (isset($routeJson['route'])) {
+            //                    $routeName = $routeJson['route'];
+            //                    unset($routeJson['route']);
+            //                    $processedVariable = $url->fromRoute($routeName, $routeJson);
+            //                }
+            //            } else {
+            //                $processedVariable = $this->{$variable};
+            //            }
             switch ($variable) {
                 case 'route':
                     $routeJson = (array) json_decode($this->{$variable});
@@ -72,26 +78,28 @@ class NotificationModel {
                 case 'toMaritualStatus':
                     $processedVariable = $this->{$variable} == 'M' ? "Married" : "Unmarried";
                     break;
-                default :
+                default:
                     $processedVariable = $this->{$variable};
                     break;
             }
 
-//            if (is_string($processedVariable)) {
-//                return str_replace($this->wrapWithLargeBracket($variable), "'" . $processedVariable . "'", $message);
-//            } else {
+            //            if (is_string($processedVariable)) {
+            //                return str_replace($this->wrapWithLargeBracket($variable), "'" . $processedVariable . "'", $message);
+            //            } else {
             return str_replace($this->wrapWithLargeBracket($variable), $processedVariable, $message);
-//            }
+            //            }
         } else {
             return $message;
         }
     }
 
-    private function wrapWithLargeBracket($input) {
+    private function wrapWithLargeBracket($input)
+    {
         return "[" . $input . "]";
     }
 
-    public function setHonorific() {
+    public function setHonorific()
+    {
         if ($this->fromGender == 1) {
             $this->fromHonorific = "Mr";
         } else if ($this->fromGender == 2) {
@@ -115,5 +123,4 @@ class NotificationModel {
             $this->fromHonorific = "Mx";
         }
     }
-
 }

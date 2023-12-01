@@ -3,10 +3,10 @@ $this->headScript()->appendFile($this->basePath('js/Notification/Notification/in
 ?>
 
 <script>
-    document.menu =<?php
-$menu = ["id" => "menuNotification", "subMenu" => ["id" => "subMenuSystem"]];
-echo json_encode($menu);
-?>;
+    document.menu = <?php
+                    $menu = ["id" => "menuNotification", "subMenu" => ["id" => "subMenuSystem"]];
+                    echo json_encode($menu);
+                    ?>;
     document.markAsViewed = "<?= $this->url('notification', ["action" => "markAsViewed"]) ?>";
 </script>
 
@@ -24,12 +24,12 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
 ?>
 <?php if ($this->messages) { ?>
     <script>
-        document.messages =<?php echo json_encode($this->messages); ?>
+        document.messages = <?php echo json_encode($this->messages); ?>
     </script>
 <?php } ?>
 <div class="row">
     <div class="col-sm-12">
-        <button id="markAllAsSeen" class="btn btn-sm btn-default pull-right">Mark all as Seen</button>        
+        <button id="markAllAsSeen" class="btn btn-sm btn-default pull-right">Mark all as Seen</button>
     </div>
 </div>
 <div class="row">
@@ -54,11 +54,12 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                     <div class="tab-pane active" id="portlet_unseen">
                         <!-- BEGIN: Comments -->
                         <div class="mt-comments">
-                            <?php foreach ($notifications as $notification): ?>
-                                <?php if ($notification['STATUS'] == 'U'): ?>
+                            <?php foreach ($notifications as $notification) : ?>
+                                <?php if ($notification['STATUS'] == 'U') : ?>
                                     <div class="mt-comment">
                                         <div class="mt-comment-img">
-                                            <img width="41" height="41" src="<?= $this->basePath(($notification['FILE_PATH'] == null) ? "uploads/" . $defaultProfilePicture : "uploads/" . $notification['FILE_PATH'] ) ?>" /> </div>
+                                            <img width="41" height="41" src="<?= $this->basePath(($notification['FILE_PATH'] == null) ? "uploads/" . $defaultProfilePicture : "uploads/" . $notification['FILE_PATH']) ?>" />
+                                        </div>
                                         <div class="mt-comment-body">
                                             <div class="mt-comment-info">
                                                 <span class="mt-comment-author"><?= $notification['FIRST_NAME'] . " " . $notification['MIDDLE_NAME'] . " " . $notification['LAST_NAME'] ?></span>
@@ -88,11 +89,12 @@ if ($this->messages && (sizeof($this->messages) > 1)) {
                         <!-- BEGIN: Comments -->
                         <div class="mt-comments">
 
-                            <?php foreach ($notifications as $notification): ?>
-                                <?php if ($notification['STATUS'] == 'S'): ?>
+                            <?php foreach ($notifications as $notification) : ?>
+                                <?php if ($notification['STATUS'] == 'S') : ?>
                                     <div class="mt-comment">
                                         <div class="mt-comment-img">
-                                            <img width="41" height="41" src="<?= $this->basePath(($notification['FILE_PATH'] == null) ? "uploads/" . $defaultProfilePicture : "uploads/" . $notification['FILE_PATH'] ) ?>" /> </div>
+                                            <img width="41" height="41" src="<?= $this->basePath(($notification['FILE_PATH'] == null) ? "uploads/" . $defaultProfilePicture : "uploads/" . $notification['FILE_PATH']) ?>" />
+                                        </div>
                                         <div class="mt-comment-body">
                                             <div class="mt-comment-info">
                                                 <span class="mt-comment-author"><?= $notification['FIRST_NAME'] . " " . $notification['MIDDLE_NAME'] . " " . $notification['LAST_NAME'] ?></span>

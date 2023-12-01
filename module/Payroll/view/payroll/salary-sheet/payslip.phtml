@@ -1,12 +1,11 @@
 <?php
-$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip.js?1'));
+$this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip.js'));
 ?>
 <script>
     document.getFiscalYearMonthLink = '<?php echo $this->url('salarySheet', ['action' => 'getFiscalYearMonth']); ?>';
     document.getSearchDataLink = '<?php echo $this->url('salarySheet', ['action' => 'getSearchData']); ?>';
-    document.salaryType = <?php echo $salaryType; ?>;
     document.sendPayslipEmailLink = '<?php echo $this->url('salarySheet', ['action' => 'sendPayslipEmail']); ?>';
-    document.wsExchangeRate = '<?php echo $this->url('salarySheet', ['action' => 'getExchangeRate']); ?>';
+    document.salaryType = <?php echo $salaryType; ?>;
 </script>
 <div class="page-bar">
     <?= $this->navigation('Zend\Navigation\salarySheet')->breadcrumbs()->setMinDepth(0)->setPartial('partial/breadcrumb') ?>
@@ -59,31 +58,14 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                 <select class="form-control" name="salaryType" id="salaryTypeId">
                 </select>
             </div>
-            <?php if ($allowExchangeRate == 'Y') { ?>
-                <div style="padding-right: 6px;font-weight: 500;" class="col-sm-2">
-                    <label for="" class="radio-inline">
-                        <input type="radio" name="exchangeRate" value="1" checked>Dollar
-                    </label>
-                    <label for="" class="radio-inline">
-                        <input type="radio" name="exchangeRate" value="0">Nepali
-                    </label>
-                </div>
-                <div class="col-sm-2">
-                    <input type="text" id="exchangeRateVal" disabled="disabled" class="form-control" placeholder="Exchange Rate" />
-                </div>
-            <?php } ?>
-            <div class="col-sm-2">
-                <button id="viewBtn" class="btn btn-info pull-right" style="cursor: pointer;">View</button>
+            <div class="col-sm-2 col-sm-offset-2">
+                <button id="viewBtn" class="btn btn-info pull-right">View</button>
             </div>
-            <?php if ($sendPayslipEmail == 'Y') { ?>
 
-                <div class="col-sm-2" style="margin-left: -5rem;">
-                    <button id="mailBtn" class="btn btn-warning pull-right">Send mail</button>
-                </div>
-            <?php } ?>
+            <div class="col-sm-2" style="margin-left: -5rem;">
+                <button id="mailBtn" class="btn btn-warning pull-right">Send mail</button>
+            </div>
         </div>
-
-
         <div id="paySlipView" class="margin-top-10">
             <table class="table table-bordered" id="employee-detail">
                 <tr>
@@ -123,10 +105,8 @@ $this->headScript()->appendFile($this->basePath('js/Payroll/salary-sheet/payslip
                 <tr>
                     <td>Position Name</td>
                     <td key="POSITION_NAME"></td>
-                    <?php if ($allowExchangeRate == 'Y') { ?>
-                        <td>Exchange Rate</td>
-                        <td key="EXCHANGE_RATE"></td>
-                    <?php } ?>
+                    <td></td>
+                    <td> </td>
                 </tr>
             </table>
             <table class="table table-bordered">

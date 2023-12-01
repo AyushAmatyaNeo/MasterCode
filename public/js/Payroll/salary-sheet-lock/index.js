@@ -26,6 +26,7 @@
         var $nepaliToDate = $('#nepaliToDate');
         var $viewBtn = $('#viewBtn');
         var $emailBtn = $('#emailBtn');
+        var $salaryBtn = $('#salaryBtn');
         var $generateBtn = $('#generateBtn');
         var $companyId = $('#companyId');
         var $groupId = $('#groupId');
@@ -246,10 +247,31 @@
             }
             app.serverRequest(document.sendPayslipEmailLink, { data: selectedValues }).then(function (response) {
                 $viewBtn.trigger('click');
-                if (response.success) {
+                if (response.success && response.data) {
                     app.showMessage('Payslip send successfully!!');
                 } else {
                     app.showMessage('Payslip will be send after approval of sheet!!');
+                }
+            }, function (error) {
+                app.showMessage(error);
+            });
+        })
+
+
+        $salaryBtn.on('click', function () {
+            var groupId = $groupId.val();
+            var fiscalId = $fiscalYear.val();
+            var selectedValues = getSelectedSheets();
+            if (selectedValues.length == 0) {
+                app.showMessage('Select Sheet !!');
+                return;
+            }
+            app.serverRequest(document.sendSalaryEmailLink, { data: { groupId: groupId, fiscalId: fiscalId, selectedValues: selectedValues } }).then(function (response) {
+                $groupId.trigger('click');
+                if (response.success && response.data) {
+                    app.showMessage('Salary Sheet send successfully!!');
+                } else {
+                    app.showMessage('Salary Sheet will be send after approval of sheet!!');
                 }
             }, function (error) {
                 app.showMessage(error);

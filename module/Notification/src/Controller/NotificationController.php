@@ -11,14 +11,16 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Mvc\Controller\AbstractActionController;
 
-class NotificationController extends AbstractActionController {
+class NotificationController extends AbstractActionController
+{
 
     private $notiRepo;
     private $employeeId;
     private $adapter;
     private $config;
 
-    public function __construct(AdapterInterface $adapter, ConfigInterface $config) {
+    public function __construct(AdapterInterface $adapter, ConfigInterface $config)
+    {
         $this->adapter = $adapter;
         $this->config = $config;
 
@@ -27,16 +29,18 @@ class NotificationController extends AbstractActionController {
         $this->employeeId = $auth->getStorage()->read()['employee_id'];
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         $notifications = $this->notiRepo->fetchAllWithEmpDet([Notification::MESSAGE_TO => $this->employeeId]);
         $defaultProfilePicture = $this->config->getApplicationConfig()['default-profile-picture'];
         return Helper::addFlashMessagesToArray($this, [
-                    "notifications" => Helper::extractDbData($notifications),
-                    "defaultProfilePicture" => $defaultProfilePicture
+            "notifications" => Helper::extractDbData($notifications),
+            "defaultProfilePicture" => $defaultProfilePicture
         ]);
     }
 
-    public function viewAction() {
+    public function viewAction()
+    {
         $id = (int) $this->params()->fromRoute('id');
         if ($id === 0) {
             return $this->redirect()->toRoute("notification");
@@ -57,7 +61,8 @@ class NotificationController extends AbstractActionController {
         return $this->redirect()->toRoute('notification');
     }
 
-    public function markAsViewedAction() {
+    public function markAsViewedAction()
+    {
         $request = $this->getRequest();
         $response = [];
         if ($request->isPost()) {
@@ -75,16 +80,17 @@ class NotificationController extends AbstractActionController {
         return new CustomViewModel($response);
     }
 
-    private function editNotificationStatus($id) {
+    private function editNotificationStatus($id)
+    {
         $notiObj = new Notification();
         $notiObj->status = 'S';
         $this->notiRepo->edit($notiObj, $id);
     }
 
-    private function editNotificationStatusForEmployee($id) {
+    private function editNotificationStatusForEmployee($id)
+    {
         $notiObj = new Notification();
         $notiObj->status = 'S';
         $this->notiRepo->editByEmployeeId($notiObj, $id);
     }
-
 }

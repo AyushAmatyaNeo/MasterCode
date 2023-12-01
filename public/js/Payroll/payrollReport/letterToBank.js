@@ -7,6 +7,8 @@
         var $fiscalYear = $('#fiscalYearId');
         var $kendoTable = $('#kendoTable');
         var controlValues = document.controlValues;
+        var $emailBtn = $('#emailBtn');
+
 
         app.initializeKendoGrid($kendoTable, [
             { field: "EMPLOYEE_CODE", title: "Employee Code" },
@@ -32,6 +34,7 @@
         // var $table = $('#table');
         var $salaryTypeId = $('#salaryTypeId');
         var $bankTypeId = $('#bankTypeId');
+
         //        var map = {};
         //        var exportType = {
         //            "ACCOUNT_NO": "STRING",
@@ -128,7 +131,7 @@
 
         var repTemplate = `
 <div style="padding:4%;"font-size:12px"><center><h1><b>{{COMPANY_NAME}}</b></h1>
-<h5><b>{{ADDRESS}}</b></h5></center>
+<h5><b> {{ADDRESS}}</b></h5></center>
 <br><br><div style="width:100%;text-align:right;"font-size:12px">Date: {{TODAY_DATE}}</div>
 <br><br>To,<br>
 The Branch Manager,<br>
@@ -144,6 +147,7 @@ to be debited is as mentioned below.<p>
 <div style="font-weight:bold";"margin-left:7%";"font-size:12px">
 (A) Amount to be deposited: {{TOTAL}}
 <br>
+
 (B) Account Number:
 <br>
 (C) Cheque No.:
@@ -173,7 +177,6 @@ For Bank Information :
                         <td style = "font-size:10px">{{BANK_NAME}}</td>
                         <td style = "font-size:10px">{{ID_ACCOUNT_NO}}</td>
                         <td style = "font-size:10px; text-align: right;">{{VAL}}</td>
-                       
                     <tr>
                     {{/employees}}
                     <tr>
@@ -186,9 +189,9 @@ For Bank Information :
                     </tr>
                 </table>
 <br>
-<b>{{COMPANY_NAME}}
-<br>{{ADDRESS}}
-</b>
+<b>  {{ADDRESS}}
+<br>
+{{COMPANY_NAME}}</b>
                 </div>`;
 
         //        console.log(repTemplate);
@@ -200,16 +203,19 @@ For Bank Information :
             q['salaryTypeId'] = $salaryTypeId.val();
             q['bankTypeId'] = $bankTypeId.val();
             q['companyId'] = $('#companyId').val();
-            q['payId'] = $('#payHead').val();
-            if (q['bankTypeId'] < 0) {
-                $bankTypeId.focus();
-                app.showMessage("Select Bank.", 'error');
+
+
+            if (q['bankTypeId'] === "-1") {
+                app.showMessage('Select Bank !!');
                 return;
             }
 
             //            q['extVar'] = $otVariable.val();
             //            q['extField'] = $extraFields.val();
             //            q['reportType'] = $reportType.val();
+
+
+
             app.serverRequest(document.pullLetterToBankDetail, q).then(function (response) {
                 if (response.success) {
                     let tempTotal = 0;
@@ -226,9 +232,8 @@ For Bank Information :
                         response.data['FISCAL_YEAR_NAME'] = response.data.employees[index]['FISCAL_YEAR_NAME'];
 
                     });
-
-                    response.data['COMPANY_NAME'] = (response.companyDetail[0]) ? response.companyDetail[0]['COMPANY_NAME'] : response.preference[0]['COMPANY_NAME'];
-                    response.data['ADDRESS'] = (response.companyDetail[0]) ? response.companyDetail[0]['ADDRESS'] : response.preference[1]['COMPANY_NAME'];
+                    response.data['COMPANY_NAME'] = response.companyDetail[0]['COMPANY_NAME'];
+                    response.data['ADDRESS'] = response.companyDetail[0]['ADDRESS'];
                     response.data['TOTAL'] = tempTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
                     console.log(response.data.employees);
                     var mustHtml = Mustache.to_html(repTemplate, response.data);
@@ -281,7 +286,29 @@ For Bank Information :
         }
 
 
+        $emailBtn.on('click', function () {
+            var q = document.searchManager.getSearchValues();
+            q['fiscalId'] = $fiscalYear.val();
+            q['monthId'] = $month.val();
+            q['salaryTypeId'] = $salaryTypeId.val();
+            q['bankTypeId'] = $bankTypeId.val();
+            q['companyId'] = $('#companyId').val();
 
+            if (q['bankTypeId'] === "-1") {
+                app.showMessage('Select Bank !!');
+                return;
+            }
+            app.serverRequest(document.sendLetterEmailLink, q).then(function (response) {
+                // $viewBtn.trigger('click');
+                if (response.success) {
+                    app.showMessage('Letter to bank  send successfully!!');
+                } else {
+                    app.showMessage('Letter to bank will be send after approval of sheet!!');
+                }
+            }, function (error) {
+                app.showMessage(error);
+            });
+        })
 
 
 

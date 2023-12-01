@@ -15,6 +15,10 @@ use Payroll\Repository\SalarySheetRepo;
 use Zend\Authentication\Storage\StorageInterface;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\View\Model\JsonModel;
+use Notification\Model\PaySlipDetailsModel;
+use Notification\Controller\HeadNotification;
+use Notification\Model\NotificationEvents;
+use Payroll\Model\PaySlipEmail;
 
 class PayrollReportController extends HrisController
 {
@@ -208,6 +212,7 @@ class PayrollReportController extends HrisController
                 // $defaultColumnsList = $this->repository->getDefaultColumns('S');
                 $defaultColumnsList = $this->repository->getDefaultColumnsNew('S', $data['monthId'], $data['groupId'], $data['salaryTypeId']);
                 $resultData = $this->repository->getGroupReport('S', $data);
+                // echo '<pre>';print_r($defaultColumnsList);die;
             } elseif ($reportType == "GD") {
                 $defaultColumnsList = $this->repository->getVarianceDetailColumns($groupVariable);
                 $resultData = $this->repository->getGroupDetailReport($data);
@@ -221,6 +226,7 @@ class PayrollReportController extends HrisController
             $result['columns'] = $defaultColumnsList;
             $result['monthDetails'] = $monthDetails;
             $result['error'] = "";
+            //echo '<pre>';print_r( $result['data']);die;
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
@@ -717,7 +723,6 @@ class PayrollReportController extends HrisController
                 $companyWiseGroup = null;
             }
         }
-        // echo '<pre>';print_r(EntityHelper::getSearchDataPayroll($this->adapter));die;
         return Helper::addFlashMessagesToArray($this, [
             'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
             'salaryType' => $salaryType,
@@ -742,6 +747,7 @@ class PayrollReportController extends HrisController
             $reportType = $data['reportType'];
             $groupVariable = $data['groupVariable'];
             $returnList = [];
+            //       echo '<pre>';print_r($data);die;
             if ($reportType == "GS") {
                 $defaultColumnsList = [];
                 $resultData = $this->repository->getAnnualSheetReport('N', $data);
@@ -880,10 +886,9 @@ class PayrollReportController extends HrisController
         $salarySheetRepo = new SalarySheetRepo($this->adapter);
         $salaryType = iterator_to_array($salarySheetRepo->fetchAllSalaryType(), false);
         $bankType = $this->repository->getBankType();
-        // echo '<pre>';
-        // print_r($this->acl['CONTROL'][0]);
-        // die;
-        $controlValue = $this->acl['CONTROL'][0];
+
+        $controlValue = $this->acl['CONTROL_VALUES'][0]['CONTROL'];
+        // echo '<pre>';print_r($this->acl['CONTROL_VALUES'][0]['CONTROL']);die;
 
         return Helper::addFlashMessagesToArray($this, [
             'searchValues' => EntityHelper::getSearchDataPayroll($this->adapter),
@@ -911,7 +916,9 @@ class PayrollReportController extends HrisController
             $data = $request->getPost();
             $ruleRepo = new RulesRepository($this->adapter);
             $companyWiseGroup = null;
+
             if ($this->acl['CONTROL_VALUES']) {
+
                 if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
                     $empId = $this->employeeId;
                     $companyDetail = $ruleRepo->getCompany($this->acl['CONTROL_VALUES'][0]['VAL']);
@@ -920,19 +927,93 @@ class PayrollReportController extends HrisController
                 } else {
                     $companyDetail = null;
                 }
-            } else {
-                $data['companyId'] = $data['companyId'];
-                $companyDetail = $ruleRepo->getCompany($data['companyId']);
-                $resultData = $this->repository->getBankWiseEmployeeNet($data);
             }
-            $companyName = $ruleRepo->getCompanyName();
+            // elseif ($this->employeeId == 7001422) {
+            //     $companyDetail = $ruleRepo->getCompanyId($this->employeeId);
+            //     $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
+            //     $resultData = $this->repository->getBankWiseEmployeeNet($data);
+            // } 
+            else {
 
+                // $data['companyId'] = $data['companyId'];
+                // $resultData = $this->repository->getBankWiseEmployeeNet($data);
+                $resultData = $this->repository->getBankWiseEmployeeNet($data);
+                if ($data['companyId'] > 0) {
+                    $companyDetail = $ruleRepo->getCompany($data['companyId']);
+                } else {
+                    $data['companyId'] = 2;
+
+                    $companyDetail = $ruleRepo->getCompany($data['companyId']);
+                }
+            }
             $result = [];
             $result['success'] = true;
             $result['data']['employees'] = Helper::extractDbData($resultData);
             $result['error'] = "";
             $result['companyDetail'] = $companyDetail;
-            $result['preference'] = $companyName;
+            return new CustomViewModel($result);
+        } catch (Exception $e) {
+            return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);
+        }
+    }
+
+    public function sendLetterBankEmailAction()
+    {
+        try {
+            $request = $this->getRequest();
+            $data = $request->getPost();
+
+            $ruleRepo = new RulesRepository($this->adapter);
+            $companyWiseGroup = null;
+
+            if ($this->acl['CONTROL_VALUES']) {
+                if ($this->acl['CONTROL_VALUES'][0]['CONTROL'] == 'C') {
+
+                    $empId = $this->employeeId;
+                    $companyDetail = $ruleRepo->getCompany($this->acl['CONTROL_VALUES'][0]['VAL']);
+                    $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
+                    $resultData = $this->repository->getBankWiseEmployeeNet($data);
+                } else {
+                    // $companyDetail = null;
+                    $data['companyId'] = 2;
+                    // $resultData = $ruleRepo->getCompany($data);
+                    $companyDetail = $ruleRepo->getCompany($data['companyId']);
+                }
+            }
+            //  elseif ($this->employeeId == 7001422) {
+            //     $companyDetail = $ruleRepo->getCompanyId($this->employeeId);
+            //     $data['companyId'] = $companyDetail[0]['COMPANY_ID'];
+            //     $resultData = $this->repository->getBankWiseEmployeeNet($data);
+            // } 
+            else {
+                $resultData = $this->repository->getBankWiseEmployeeNet($data);
+                if ($data['companyId'] > 0) {
+                    $companyDetail = $ruleRepo->getCompany($data['companyId']);
+                } else {
+                    $data['companyId'] = 2;
+                    $companyDetail = $ruleRepo->getCompany($data['companyId']);
+                }
+            }
+            $data['bankDetail'] =  $ruleRepo->getBankDetails($data['bankTypeId']);
+            $result = [];
+            $result['success'] = true;
+            $result['data']['employees'] = Helper::extractDbData($resultData);
+            $result['error'] = "";
+            $result['companyDetail'] = $companyDetail;
+            $model = new PaySlipDetailsModel();
+            $salarySheetRepo = new SalarySheetRepo($this->adapter);
+
+            $model->setProperty1 = $result['data']['employees'];
+            $model->setProperty2 = $result['companyDetail'];
+            $model->setProperty3 = $data['bankDetail'];
+
+            HeadNotification::pushNotification(NotificationEvents::LETTER_TO_BANK_EMAIL, $model, $this->adapter, $this);
+            $id = ((int) Helper::getMaxId($this->adapter, PaySlipEmail::TABLE_NAME, PaySlipEmail::ID)) + 1;
+            $mployeeId = $this->employeeId;
+
+            $salarySheetRepo->addSendPayslip($id, $mployeeId, $this->employeeId, 'L');
+            // $salarySheetRepo->updateSalEmpDetSalary($payslipDetails['emp-detail']);
+
             return new CustomViewModel($result);
         } catch (Exception $e) {
             return new CustomViewModel(['success' => false, 'data' => [], 'error' => $e->getMessage()]);

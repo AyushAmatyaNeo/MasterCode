@@ -29,20 +29,20 @@
                 'EMPLOYEE_CODE': 'EID',
                 'POSITION_NAME': 'Position',
                 'SERVICE_TYPE_NAME': 'Service',
-				'MONTH_EDESC': 'Month',
+                'MONTH_EDESC': 'Month',
                 'BANK_NAME': 'Bank Name',
                 'ACCOUNT_NO': 'Account No.',
             }
 
             var columns = [
-                {field: "EMPLOYEE_CODE", title: "Code", width: 80, locked: true},
-                {field: "FULL_NAME", title: "Employee", width: 120, locked: true},
-                {field: "POSITION_NAME", title: "Position", width: 100, locked: true},
-                {field: "SERVICE_TYPE_NAME", title: "Service", width: 100, locked: true},
-                {field: "MONTH_EDESC", title: "Month", width: 80, locked: true},
-                {field: "SALARY_TYPE_NAME", title: "Salary Type", width: 80, locked: true},
-                {field: "BANK_NAME", title: "Bank Name", width: 100, locked: true},
-                {field: "ACCOUNT_NO", title: "Account No.", width: 120, locked: true}
+                { field: "EMPLOYEE_CODE", title: "Code", width: 80, locked: true },
+                { field: "FULL_NAME", title: "Employee", width: 120, locked: true },
+                { field: "POSITION_NAME", title: "Position", width: 100, locked: true },
+                { field: "SERVICE_TYPE_NAME", title: "Service", width: 100, locked: true },
+                { field: "MONTH_EDESC", title: "Month", width: 80, locked: true },
+                { field: "SALARY_TYPE_NAME", title: "Salary Type", width: 80, locked: true },
+                { field: "BANK_NAME", title: "Bank Name", width: 100, locked: true },
+                { field: "ACCOUNT_NO", title: "Account No.", width: 120, locked: true }
             ];
 
             $.each(defaultColumns, function (index, value) {
@@ -56,8 +56,8 @@
 
                 });
                 map[value['VARIANCE']] = value['VARIANCE_NAME'];
-                dataSchemaCols[value['VARIANCE']] = {type: "number"};
-                aggredCols.push({field: value['VARIANCE'], aggregate: "sum"});
+                dataSchemaCols[value['VARIANCE']] = { type: "number" };
+                aggredCols.push({ field: value['VARIANCE'], aggregate: "sum" });
             });
 
             $table.kendoGrid({
@@ -100,7 +100,7 @@
                         if (document.preference.companyName != null) {
                             rows.unshift({
                                 cells: [
-                                    {value: document.preference.companyName, colSpan: columns.length, textAlign: "left"}
+                                    { value: document.preference.companyName, colSpan: columns.length, textAlign: "left" }
                                 ]
                             });
                         }
@@ -157,13 +157,13 @@
             if (selectedGroup == null) {
                 let allGroup = [];
                 $.each(groupList, function (key, value) {
-//                    console.log(value);
+                    //                    console.log(value);
                     allGroup.push(value['GROUP_ID']);
                 });
                 selectedGroup = allGroup;
             }
             // let selectedSalaryTypeId = $salaryTypeId.val();
-//            console.log('gval', $(this).val());
+            //            console.log('gval', $(this).val());
         }
 
         $companyId.on('change', function () {
@@ -177,7 +177,7 @@
         //     var onDataLoad = function (data) {
         //         groupList = data;
         //         app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-		// 		var acl = document.acl;
+        // 		var acl = document.acl;
         //         console.log(acl);
         //         if(acl['CONTROL'] == 'C'){
         //             var companyWiseGroup = document.getCompanyWiseGroup;
@@ -208,94 +208,86 @@
             var onDataLoad = function (data) {
                 groupList = data;
                 app.populateSelect($groupId, groupList, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-				var acl = document.getAcl;
+                var acl = document.getAcl;
                 console.log(acl);
-                if(acl['CONTROL'] == 'C'){
-					var groupListControl = [];
-					
+                if (acl['CONTROL'] == 'C') {
+                    var groupListControl = [];
+
                     var companyWiseGroup = document.getCompanyWiseGroup;
-                    if(companyWiseGroup[0]['GROUP_ID']){
+                    if (companyWiseGroup[0]['GROUP_ID']) {
                         $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    }     
+                    }
 
-					var totarrLength = (companyWiseGroup.length) - 1;
-					if(totarrLength == 0) 
-					{
-						document.getElementById("groupId").setAttribute("disabled", "disabled");
-					}
-					
-					if(totarrLength == 0) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 1) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 2) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 3) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
+                    var totarrLength = (companyWiseGroup.length) - 1;
+                    if (totarrLength == 0) {
+                        document.getElementById("groupId").setAttribute("disabled", "disabled");
+                    }
 
-                    if(totarrLength == 4) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					
-					if(totarrLength == 5) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID ) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-                    
-					if(totarrLength == 6) 
-					{
-						$.each(groupList, function (i, value) {
-							if(companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
-								groupListControl.push({GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME});
-							}
-						});
-					}
-					//console.log(groupListControl);
-					
-					app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
-					
-					//FOR selecting the group
-					if(companyWiseGroup[0]['GROUP_ID']){
+                    if (totarrLength == 0) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 1) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 2) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 3) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 4) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 5) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+
+                    if (totarrLength == 6) {
+                        $.each(groupList, function (i, value) {
+                            if (companyWiseGroup[0]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[1]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[2]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[3]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[4]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[5]['GROUP_ID'] == value.GROUP_ID || companyWiseGroup[6]['GROUP_ID'] == value.GROUP_ID) {
+                                groupListControl.push({ GROUP_ID: value.GROUP_ID, GROUP_NAME: value.GROUP_NAME });
+                            }
+                        });
+                    }
+                    //console.log(groupListControl);
+
+                    app.populateSelect($groupId, groupListControl, 'GROUP_ID', 'GROUP_NAME', 'Select Group');
+
+                    //FOR selecting the group
+                    if (companyWiseGroup[0]['GROUP_ID']) {
                         $groupId.val(companyWiseGroup[0]['GROUP_ID']);
-                    } 
+                    }
                     //document.getElementById("groupId").setAttribute("disabled", "disabled");
-                }else{
+                } else {
                     console.log('Role is not company wise');
                 }
             };

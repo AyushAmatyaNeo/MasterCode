@@ -26,6 +26,7 @@ $this->headScript()
     document.regenerateVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "regenerateVoucher"]); ?>';
     document.testVoucherLink = '<?= $this->url("salarysheetlock", ["action" => "testVoucher"]); ?>';
     document.sendPayslipEmailLink = '<?= $this->url("salarysheetlock", ["action" => "sendPyslipEmail"]); ?>';
+    document.sendSalaryEmailLink = '<?= $this->url("salarysheetlock", ["action" => "sendSalaryEmail"]); ?>';
 </script>
 <style>
     .my-custom-scrollbar {
@@ -71,9 +72,10 @@ $this->headScript()
             </div>
             <?php if ($sendPayslipEmail == 'Y') { ?>
                 <div class="col-sm-4" style="margin-left: -20rem;margin-top: 2rem;">
-                    <button id="emailBtn" type="button" style="margin-bottom: 20px;" class="btn btn-warning pull-right">Send Email</button>
+                    <button id="emailBtn" type="button" style="margin-bottom: 20px;" class="btn btn-warning pull-right">Send Payslip</button>
                 </div>
             <?php } ?>
+
         </div>
         <div class="row margin-top-10">
             <div class="col-sm-2">
@@ -121,7 +123,11 @@ $this->headScript()
                 <div class="col-sm-2 " id="bulkNotApproveDiv">
                     <button action="unapprove" class="btn btn-primary">Not Approved</button>
                 </div>
-                <div class="col-sm-4 ">
+                <div class="col-sm-2">
+                    <button id="emailBtn" type="button" class="btn btn-warning pull-right">Send Email</button>
+                </div>
+                <div class="col-sm-2">
+                    <button id="salaryBtn" type="button" class="btn btn-info pull-right">Send Salary Sheet</button>
                 </div>
                 <div class="col-sm-2 " id="bulkLockDiv">
                     <button action="lock" class="btn btn-danger">Locked</button>
